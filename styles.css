@@ -800,3 +800,86 @@ body.dark-mode .download-links h4 {
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
+
+.banner-bienvenida {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--azul); /* Usa el color azul de tu paleta */
+  border-radius: 16px;
+  width: 90%;
+  margin: 30px auto;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.banner-badge {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--naranja); /* Resalta en naranja */
+  font-weight: bold;
+}
+
+.banner-title {
+  font-size: 3rem;
+  margin: 10px 0;
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+/* En modo claro, podemos hacer que el título use un degradado pro */
+@media (prefers-color-scheme: light) {
+  .banner-title {
+    background: linear-gradient(45deg, #ffffff, var(--crema));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.banner-subtitle {
+  font-size: 1.3rem;
+  color: #ffffff;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto 25px;
+  font-weight: 300; /* Texto más delgado para que contraste con el título */
+}
+.btn-banner {
+  display: inline-block;
+  padding: 12px 30px;
+  background: var(--naranja);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-banner:hover {
+  transform: translateY(-2px);
+  background: #e08b3a; /* Un naranja un poquito más oscuro al pasar el mouse */
+}
+
+.banner-bienvenida {
+  position: relative; /* Obligatorio para que el contenido se posicione encima */
+  overflow: hidden;   /* Corta lo que sobresalga de la imagen */
+  /* ... conserva tus otros estilos como border-radius o width ... */
+}
+
+.banner-fondo-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Hace que se adapte sin deformarse */
+  z-index: 1;        /* Se queda al fondo */
+}
+
+.banner-content {
+  position: relative;
+  z-index: 2;        /* Se sitúa por encima de la imagen */
+  /* Si necesitas oscurecer el fondo para leer el texto, puedes añadir un fondo semitransparente aquí: */
+  background: rgba(0, 0, 0, 0.4); 
+  padding: 40px;
+}
