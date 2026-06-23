@@ -26,7 +26,7 @@
 
 @font-face {
   font-family: 'IntroRust'; /* El nombre que tú le quieras dar */
-  src: url('../fonts/IntroRust.otf') format('opentype'); /* <--- Cambiado a 'opentype' */
+  src: url('./fonts/IntroRust.otf') format('opentype'); /* <--- Cambiado a 'opentype' */
   font-weight: normal;
   font-style: normal;
 }
