@@ -832,6 +832,7 @@ body.dark-mode .download-links h4 {
   .banner-title {
     background: linear-gradient(45deg, #ffffff, var(--crema));
     -webkit-background-clip: text;
+    background-clip: text; /* <--- Agregamos esta línea estándar para quitar el aviso */
     -webkit-text-fill-color: transparent;
   }
 }
