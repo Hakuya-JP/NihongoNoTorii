@@ -1,27 +1,11 @@
-
-
 document.addEventListener("DOMContentLoaded", () => {
 
-  // 1. Mostrar / ocultar significado KANA
-  document.querySelectorAll('.vocal-item').forEach(item => {
-    const btn = item.querySelector('.btn-show');
-    const resp = item.querySelector('.significado');
-    if (!btn || !resp) return;
-
-    btn.addEventListener('click', () => {
-      resp.style.display = (resp.style.display === 'block') ? 'none' : 'block';
-    });
-  });
-
-  // 2. DUPLICAR IMÁGENES PARA LOOP INFINITO
+  // 1. DUPLICAR IMÁGENES PARA LOOP INFINITO (CARRUSEL)
   const track = document.querySelector('.slider-track');
   if (track) {
     const clones = track.innerHTML;
     track.innerHTML += clones; // Duplica las imágenes
-  }
 
-  // Movimiento automático del slider
-  if (track) {
     let offset = 0;
     setInterval(() => {
       offset -= 2;
@@ -35,8 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 30);
   }
 
-  // 3. COMPROBACIÓN INICIAL DEL MODO OSCURO
-  // Revisa si el usuario ya tenía el tema oscuro guardado en su navegador
+  // 2. COMPROBACIÓN INICIAL DEL MODO OSCURO
   const savedTheme = localStorage.getItem('theme');
   const body = document.body;
   const btnDark = document.getElementById('dark-mode-toggle');
@@ -53,16 +36,32 @@ document.addEventListener("DOMContentLoaded", () => {
 // FUNCIONES GLOBALES (Menú, Videos, Biblioteca y Modo Oscuro)
 // ================================================================
 
+// Menú Hamburguesa Móvil
 function toggleMenu() {
-  document.getElementById('menu').classList.toggle('menu-open');
+  const menu = document.getElementById('menu');
+  if (menu) menu.classList.toggle('menu-open');
 }
 
+// Revelar Respuestas en Vocales y Kana (Cambiando el texto del botón)
 function toggleV(id) {
   const el = document.getElementById(id);
-  el.style.display = (el.style.display === "block") ? "none" : "block";
+  if (el) {
+    // 1. Buscamos el botón que está justo arriba de la respuesta
+    const boton = event.currentTarget; 
+
+    if (el.style.display === "block") {
+      el.style.display = "none";
+      // 2. Si se oculta, el botón vuelve a decir "Ver respuesta"
+      if (boton && boton.tagName === "BUTTON") boton.innerText = "Ver respuesta";
+    } else {
+      el.style.display = "block";
+      // 3. Si se muestra, el botón cambia a "Ocultar respuesta"
+      if (boton && boton.tagName === "BUTTON") boton.innerText = "Ocultar respuesta";
+    }
+  }
 }
 
-// --- INTERRUPTOR MODO OSCURO / CLARO ---
+// Interruptor de Modo Oscuro / Claro
 function toggleDarkMode() {
   const body = document.body;
   const btn = document.getElementById('dark-mode-toggle');
@@ -70,19 +69,21 @@ function toggleDarkMode() {
   body.classList.toggle('dark-mode');
   
   if (body.classList.contains('dark-mode')) {
-    btn.innerText = "☀️"; // Cambia a sol si está oscuro
+    if (btn) btn.innerText = "☀️";
     localStorage.setItem('theme', 'dark');
   } else {
-    btn.innerText = "🌙"; // Cambia a luna si está claro
+    if (btn) btn.innerText = "🌙";
     localStorage.setItem('theme', 'light');
   }
 }
 
-// --- FUNCIONES DE LA BARRA LATERAL (SIDEBAR) ---
+// --- FUNCIONES DE LA BARRA LATERAL (SIDEBAR BIBLIOTECA) ---
 function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra) {
     const sidebar = document.getElementById('sidebar-detalle');
     const mainContainer = document.querySelector('.biblioteca-main');
     
+    if (!sidebar || !mainContainer) return;
+
     // Inyectar la información seleccionada
     document.getElementById('det-titulo').innerText = titulo;
     document.getElementById('det-portada').src = imagen;
@@ -96,16 +97,22 @@ function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra) {
 }
 
 function cerrarDetalle() {
-    document.getElementById('sidebar-detalle').classList.remove('open');
-    document.querySelector('.biblioteca-main').classList.remove('sidebar-abierto');
+    const sidebar = document.getElementById('sidebar-detalle');
+    const mainContainer = document.querySelector('.biblioteca-main');
+    
+    if (sidebar) sidebar.classList.remove('open');
+    if (mainContainer) mainContainer.classList.remove('sidebar-abierto');
 }
 
 // --- FILTRO DE BÚSQUEDA POR TEXTO (TIEMPO REAL) ---
 function filtrarLibros() {
-    const input = document.getElementById('buscador-libros').value.toLowerCase();
+    const buscador = document.getElementById('buscador-libros');
+    if (!buscador) return;
+
+    const input = buscador.value.toLowerCase();
     const libros = document.getElementsByClassName('libro-card');
     
-    // Si se escribe en el buscador, reseteamos los botones de categorías a "Todos"
+    // Reseteamos los botones de categorías a "Todos"
     resetearBotonesFiltro();
 
     for (let i = 0; i < libros.length; i++) {
@@ -119,18 +126,22 @@ function filtrarLibros() {
 }
 
 // --- FILTRO POR CATEGORÍAS (BOTONES) ---
-function filtrarCategoria(categoria) {
+function filtrarCategoria(categoria, botonPresionado) {
     const libros = document.getElementsByClassName('libro-card');
+    const buscador = document.getElementById('buscador-libros');
     
-    // Limpiar input de búsqueda escrita
-    document.getElementById('buscador-libros').value = "";
+    if (buscador) buscador.value = "";
 
     // Cambiar estado activo en los botones
     const botones = document.getElementsByClassName('filter-btn');
     for (let btn of botones) {
         btn.classList.remove('active');
     }
-    event.target.classList.add('active');
+    
+    // Asigna la clase activo de forma segura si se pasa el elemento
+    if (botonPresionado) {
+      botonPresionado.classList.add('active');
+    }
 
     // Mostrar u ocultar las tarjetas según el data-categoria
     for (let i = 0; i < libros.length; i++) {

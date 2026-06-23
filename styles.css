@@ -10,10 +10,12 @@
   --azul: #146482;        /* Headers, barras de navegación principales, títulos */
   --crema: #FFDEBD;       /* Secciones especiales (Novedades), hovers */
   --blanco2: #ffeedb;
+  --crema2: #ffeedb;      /* Hover de los enlaces del menú */
   --naranja: #ef9d4b;     /* Botones de acción, enlaces resaltados */
   --texto-principal: #333333; /* Color de texto estándar para lectura */
   --color-h3: #146482;        /* Color azul para modo claro */
   --color-h2: #146482;  
+  --color-h1: #146482;  
 }
 
 /* --- MODO OSCURO (Se activa automáticamente en todas las páginas) --- */
@@ -28,6 +30,7 @@ body.dark-mode {
   --texto-principal: #ffffff; /* Texto claro para alto contraste */
   --color-h3: #fff5ec;
   --color-h2: #fff5ec;
+  --color-h1: #fff5ec;
 }
 
 
@@ -54,7 +57,7 @@ body {
 .main-header {
   width: 100%;
   background: var(--azul);
-  color: var(--crema);
+  color: var(--color-h1);
   padding: 15px 25px;
   display: flex;
   justify-content: space-between;
@@ -318,7 +321,7 @@ body {
 }
 
 .kana-card {
-  background: var(--blanco);
+  background: var(--blanco2);
   padding: 15px;
   border-radius: 12px;
   text-align: center;
@@ -379,7 +382,7 @@ body {
 
 .vocal-text, .vocal-item p {
   font-size: 1.2rem;
-  color: var(--azul);
+  color: var(--color-h1);
   margin-bottom: 8px;
 }
 
@@ -564,7 +567,7 @@ body.dark-mode .filter-btn.active {
 .libro-card h3 {
   font-size: 1rem;
   margin-top: 12px;
-  color: var(--texto-principal);
+  color: var(--color-h3); /* Cambiado para que se lea bien en modo oscuro */
   font-weight: 600;
 }
 
@@ -766,4 +769,34 @@ body.dark-mode .download-links h4 {
     width: 100%;
     left: -100%;
   }
+}
+
+/* ==========================================================================
+   12. CLASES DE SOPORTE PARA UNIFICACIÓN DE PÁGINAS
+   ========================================================================== */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.seccion-centro {
+  padding: 10px 0;
+}
+
+.seccion-titulo {
+  font-size: 2rem;
+  color: var(--color-h2);
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.video-responsive-container {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  background: var(--blanco2);
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }

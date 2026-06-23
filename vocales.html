@@ -10,21 +10,22 @@
 </head>
 <body>
 <header class="main-header">
-  <h1 class="logo">Hablemos en Japonés</h1>
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
 
-  <!-- BOTÓN HAMBURGUESA -->
-  <button class="hamburger" onclick="toggleMenu()">
-    ☰
-  </button>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
 
-  <!-- MENÚ -->
   <nav id="menu" class="top-nav">
     <a href="index.html">Inicio</a>
     <a href="lecciones.html">Lecciones</a>
     <a href="videos.html">Videos</a>
-    <a href="kana.html#">Kana</a>
-    <a href="biblioteca.html#">Biblioteca</a>
-      <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <a href="kana.html">Kana</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
   </nav>
 </header>
 
@@ -46,9 +47,9 @@
     </div>
 
     <!-- LISTA INTERACTIVA -->
-<section style="width: 90%; max-width: 900px; margin: 40px auto;"><script src="scripts.js"></script>
+<section style="width: 90%; max-width: 900px; margin: 40px auto;">
 
-  <h2 style="color: var(--azul); margin-bottom: 20px;">Palabras con vocales</h2>
+  <h2 class="seccion-titulo">Palabras con vocales</h2>
 
   <ul class="vocal-list">
 
@@ -75,7 +76,7 @@
     <button class="btn-show" onclick="toggleV('v2')">ver respuesta</button>
   </div>
 
-  <p id="v2" class="significado"> → いいEstó</p>
+  <p id="v2" class="significado"> → いい</p>
 </li>
 
 

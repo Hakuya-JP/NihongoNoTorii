@@ -8,26 +8,25 @@
 </head>
 <body>
 
-  <header class="main-header">
+<header class="main-header">
+  <div class="header-brand">
     <a href="index.html" class="nav-logo">
       <img src="image/logonnt.png" alt="Logo">
     </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
 
-    <h1 class="logo-text">Nihongo no Torii ¡ようこそ!</h1>
-
-    <button class="hamburger" onclick="toggleMenu()">
-      ☰
-    </button>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
 
   <nav id="menu" class="top-nav">
-  <a href="index.html">Inicio</a>
-  <a href="lecciones.html">Lecciones</a>
-  <a href="videos.html">Videos</a>
-  <a href="kana.html#">Kana</a>
-  <a href="biblioteca.html#">Biblioteca</a>
-  <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
-</nav>
-  </header>
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html">Kana</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
 
   <section class="biblioteca-controles">
     <div class="search-container">
@@ -35,10 +34,10 @@
     </div>
     
     <div class="filter-container">
-      <button class="filter-btn active" onclick="filtrarCategoria('todos')">Todos</button>
-      <button class="filter-btn" onclick="filtrarCategoria('gramatica')">Gramática</button>
-      <button class="filter-btn" onclick="filtrarCategoria('kanji')">Kanji/Vocabulario</button>
-      <button class="filter-btn" onclick="filtrarCategoria('lectura')">Lectura</button>
+      <button class="filter-btn active" onclick="filtrarCategoria('todos', this)">Todos</button>
+      <button class="filter-btn" onclick="filtrarCategoria('gramatica', this)">Gramática</button>
+      <button class="filter-btn" onclick="filtrarCategoria('kanji', this)">Kanji/Vocabulario</button>
+      <button class="filter-btn" onclick="filtrarCategoria('lectura', this)">Lectura</button>
     </div>
   </section>
 

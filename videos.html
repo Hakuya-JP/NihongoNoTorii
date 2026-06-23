@@ -9,27 +9,28 @@
 
 <body>
 <header class="main-header">
-  <h1 class="logo">Hablemos en Japonés</h1>
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
 
-  <!-- BOTÓN HAMBURGUESA -->
-  <button class="hamburger" onclick="toggleMenu()">
-    ☰
-  </button>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
 
- <!-- MENÚ -->
   <nav id="menu" class="top-nav">
     <a href="index.html">Inicio</a>
     <a href="lecciones.html">Lecciones</a>
     <a href="videos.html">Videos</a>
-    <a href="kana.html#">Kana</a>
-    <a href="biblioteca.html#">Biblioteca</a>
-      <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <a href="kana.html">Kana</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
   </nav>
 </header>
 
   <!-- TÍTULO -->
-  <section style="width:95%; margin: 25px auto;">
-    <h2 style="color: var(--azul);">Videos Recomendados</h2>
+  <section class="seccion-centro">
+    <h2 class="seccion-titulo">Videos Recomendados</h2>
   </section>
 
   <!-- GRID DE VIDEOS -->
