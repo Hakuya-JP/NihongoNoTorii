@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KANA - Hablemos Japonés</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+ <header class="main-header">
+ <a href="index.html" class="nav-logo">
+    <img src="image/logonnt.png" >
+  </a>
+
+  <!-- BOTÓN HAMBURGUESA -->
+  <button class="hamburger" onclick="toggleMenu()">
+    ☰
+  </button>
+
+   <!-- MENÚ -->
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html#">Kana</a>
+    <a href="biblioteca.html#">Biblioteca</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+  <!-- VIDEO PRINCIPAL -->
+  <section style="width:90%; margin: 30px auto; text-align:center;">
+    <h2 style="color: var(--azul); margin-bottom: 15px;">Introducción al KANA</h2>
+
+    <div style="
+      width:100%;
+      max-width:900px;
+      margin:auto;
+      background: var(--blanco);
+      padding:10px;
+      border-radius:12px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.15);">
+      <iframe width="100%" height="450"
+        src="https://www.youtube.com/embed/2Vv-BfVoq4g"
+        title="Video de introducción"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </section>
+
+  <!-- LISTA DE FAMILIAS KANA -->
+  <section style="width:90%; margin:40px auto;">
+    <h2 style="color: var(--azul); margin-bottom:15px;">Hiragana por Familias</h2>
+
+    <div class="kana-list">
+
+      <!-- VOCAL -->
+      <div class="kana-card">
+        <h3>Vocales</h3>
+        <p>あ・い・う・え・お</p>
+        <a href="vocales.html" class="btn">Ver</a>
+      </div>
+
+      <!-- KA -->
+      <div class="kana-card">
+        <h3>Familia か</h3>
+        <p>か・き・く・け・こ</p>
+        <a href="kana_ka.html" class="btn">Ver</a>
+      </div>
+
+      <!-- SA -->
+      <div class="kana-card">
+        <h3>Familia さ</h3>
+        <p>さ・し・す・せ・そ</p>
+        <a href="kana_sa.html" class="btn">Ver</a>
+      </div>
+
+      <!-- TA -->
+      <div class="kana-card">
+        <h3>Familia た</h3>
+        <p>た・ち・つ・て・と</p>
+        <a href="kana_ta.html" class="btn">Ver</a>
+      </div>
+
+      <!-- NA -->
+      <div class="kana-card">
+        <h3>Familia な</h3>
+        <p>な・に・ぬ・ね・の</p>
+        <a href="kana_na.html" class="btn">Ver</a>
+      </div>
+
+      <!-- HA -->
+      <div class="kana-card">
+        <h3>Familia は</h3>
+        <p>は・ひ・ふ・へ・ほ</p>
+        <a href="kana_ha.html" class="btn">Ver</a>
+      </div>
+
+      <!-- MA -->
+      <div class="kana-card">
+        <h3>Familia ま</h3>
+        <p>ま・み・む・め・も</p>
+        <a href="kana_ma.html" class="btn">Ver</a>
+      </div>
+
+      <!-- YA -->
+      <div class="kana-card">
+        <h3>Familia や</h3>
+        <p>や・ゆ・よ</p>
+        <a href="kana_ya.html" class="btn">Ver</a>
+      </div>
+
+      <!-- RA -->
+      <div class="kana-card">
+        <h3>Familia ら</h3>
+        <p>ら・り・る・れ・ろ</p>
+        <a href="kana_ra.html" class="btn">Ver</a>
+      </div>
+
+      <!-- WA -->
+      <div class="kana-card">
+        <h3>Familia わ</h3>
+        <p>わ・を・ん</p>
+        <a href="kana_wa.html" class="btn">Ver</a>
+      </div>
+
+    </div>
+    <script src="scripts.js"></script>
+  </section>
+
+</body>
+</html>

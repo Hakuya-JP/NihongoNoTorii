@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecciones - Niveles JLPT</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<header class="main-header">
+
+  <a href="index.html" class="nav-logo">
+    <img src="image/logonnt.png" alt="Hablemos en Japonés">
+  </a>
+
+  <h1 class="logo-text">lecciones </h1>
+
+
+  <!-- BOTÓN HAMBURGUESA -->
+  <button class="hamburger" onclick="toggleMenu()">
+    ☰
+  </button>
+
+ <!-- MENÚ -->
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html#">Kana</a>
+    <a href="biblioteca.html#">Biblioteca</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <section class="seccion-centro">
+    <h2 class="titulo-lecciones">Lecciones por Nivel (JLPT)</h2>
+    <p class="subtitulo-lecciones">Las lecciones están organizadas por nivel, desde principiante hasta avanzado.</p>
+    <p></p>
+     <p></p>
+
+    <div class="grid-lecciones">
+
+      <!-- N5 -->
+      <div class="card">
+        <img src="image/n5.png" alt="Nivel N5">
+        <h3>N5 - Nivel Principiante</h3>
+        <p>Conceptos básicos de japonés, lectura simple y vocabulario fundamental.</p>
+        <a class="btn" href="#">Ver lecciones N5</a>
+      </div>
+
+      <!-- N4 -->
+      <div class="card">
+        <img src="image/n4.png" alt="Nivel N4">
+        <h3>N4 - Nivel Básico</h3>
+        <p>Expresiones comunes, gramática elemental y estructuras simples.</p>
+        <a class="btn" href="#">Ver lecciones N4</a>
+      </div>
+
+      <!-- N3 -->
+      <div class="card">
+        <img src="image/n3.png" alt="Nivel N3">
+        <h3>N3 - Nivel Intermedio</h3>
+        <p>Gramática intermedia, lectura más compleja, comprensión global.</p>
+        <a class="btn" href="#">Ver lecciones N3</a>
+      </div>
+
+      <!-- N2 -->
+      <div class="card">
+        <img src="image/n2.png" alt="Nivel N2">
+        <h3>N2 - Nivel Avanzado</h3>
+        <p>Lecturas extensas, expresiones naturales y comprensión profunda.</p>
+        <a class="btn" href="#">Ver lecciones N2</a>
+      </div>
+
+      <!-- N1 -->
+      <div class="card">
+        <img src="image/n1.png" alt="Nivel N1">
+        <h3>N1 - Nivel Experto</h3>
+        <p>Contenido profesional, textos complejos y vocabulario formal.</p>
+        <a class="btn" href="#">Ver lecciones N1</a>
+      </div>
+
+    </div>
+  </section>
+<script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nihongo no Torii - Biblioteca</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="main-header">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+
+    <h1 class="logo-text">Nihongo no Torii ¡ようこそ!</h1>
+
+    <button class="hamburger" onclick="toggleMenu()">
+      ☰
+    </button>
+
+  <nav id="menu" class="top-nav">
+  <a href="index.html">Inicio</a>
+  <a href="lecciones.html">Lecciones</a>
+  <a href="videos.html">Videos</a>
+  <a href="kana.html#">Kana</a>
+  <a href="biblioteca.html#">Biblioteca</a>
+  <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+</nav>
+  </header>
+
+  <section class="biblioteca-controles">
+    <div class="search-container">
+      <input type="text" id="buscador-libros" placeholder="Buscar libros por título o autor..." onkeyup="filtrarLibros()">
+    </div>
+    
+    <div class="filter-container">
+      <button class="filter-btn active" onclick="filtrarCategoria('todos')">Todos</button>
+      <button class="filter-btn" onclick="filtrarCategoria('gramatica')">Gramática</button>
+      <button class="filter-btn" onclick="filtrarCategoria('kanji')">Kanji/Vocabulario</button>
+      <button class="filter-btn" onclick="filtrarCategoria('lectura')">Lectura</button>
+    </div>
+  </section>
+
+  <main class="biblioteca-main">
+    
+    <aside id="sidebar-detalle" class="sidebar-libro">
+      <button class="close-sidebar" onclick="cerrarDetalle()">&times;</button>
+      <div class="sidebar-content">
+        <img id="det-portada" src="image/logonnt.png" alt="Portada Grande">
+        <h3 id="det-titulo">Título del Libro</h3>
+        <p id="det-descripcion">Descripción detallada del libro aquí...</p>
+        <div class="download-links">
+          <h4>Enlaces de Descarga:</h4>
+          <a id="link-pdf" href="#" class="btn" target="_blank">Descargar PDF</a>
+          <a id="link-extra" href="#" class="btn btn-secundario" target="_blank">Material Extra</a>
+        </div>
+      </div>
+    </aside>
+
+    <section class="grid-libros" id="contenedor-libros">
+      
+      <div class="libro-card" data-categoria="gramatica" onclick="verDetalle('Minna no Nihongo I', 'image/logonnt.png', 'El libro clásico fundamental para aprender las bases de la gramática japonesa formal, lecciones del N5.', '#', '#')">
+        <img src="image/logonnt.png" alt="Minna no Nihongo I">
+        <h3>Minna no Nihongo I</h3>
+      </div>
+
+      <div class="libro-card" data-categoria="kanji" onclick="verDetalle('Kanji Look and Learn', 'image/logonnt.png', 'Una excelente guía visual para aprender los primeros 512 kanjis con mnemotecnias e imágenes claras.', '#', '#')">
+        <img src="image/logonnt.png" alt="Kanji Look and Learn">
+        <h3>Kanji Look and Learn</h3>
+      </div>
+
+      <div class="libro-card" data-categoria="lectura" onclick="verDetalle('Japanese Graded Readers', 'image/logonnt.png', 'Historias cortas adaptadas para estudiantes de nivel básico. Ideal para mejorar la fluidez de lectura.', '#', '#')">
+        <img src="image/logonnt.png" alt="Japanese Graded Readers">
+        <h3>Japanese Graded Readers N5</h3>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="scripts.js"></script>
+
+</body>
+</html>

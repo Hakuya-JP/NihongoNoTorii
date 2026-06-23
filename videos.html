@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Videos - Hablemos Japonés</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<header class="main-header">
+  <h1 class="logo">Hablemos en Japonés</h1>
+
+  <!-- BOTÓN HAMBURGUESA -->
+  <button class="hamburger" onclick="toggleMenu()">
+    ☰
+  </button>
+
+ <!-- MENÚ -->
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html#">Kana</a>
+    <a href="biblioteca.html#">Biblioteca</a>
+      <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+  <!-- TÍTULO -->
+  <section style="width:95%; margin: 25px auto;">
+    <h2 style="color: var(--azul);">Videos Recomendados</h2>
+  </section>
+
+  <!-- GRID DE VIDEOS -->
+  <section class="video-grid">
+
+    <!-- VIDEO 1 -->
+    <div class="video-card" onclick="location.href='watch.html?id=1'">
+      <img src="https://i.ytimg.com/vi/2Vv-BfVoq4g/maxresdefault.jpg" class="video-thumb">
+      <h3>Introducción al Japonés Básico</h3>
+      <p>Curso rápido para principiantes</p>
+    </div>
+
+    <!-- VIDEO 2 -->
+    <div class="video-card" onclick="location.href='watch.html?id=2'">
+      <img src="https://i.ytimg.com/vi/aqz-KE-bpKQ/maxresdefault.jpg" class="video-thumb">
+      <h3>Cómo leer Hiragana en 20 minutos</h3>
+      <p>Explicación clara y fácil</p>
+    </div>
+
+    <!-- VIDEO 3 -->
+    <div class="video-card" onclick="location.href='watch.html?id=3'">
+      <img src="https://i.ytimg.com/vi/e-ORhEE9VVg/maxresdefault.jpg" class="video-thumb">
+      <h3>50 frases útiles en japonés</h3>
+      <p>Frases esenciales para viajar</p>
+    </div>
+
+    <!-- VIDEO 4 -->
+    <div class="video-card" onclick="location.href='watch.html?id=4'">
+      <img src="https://i.ytimg.com/vi/kXYiU_JCYtU/maxresdefault.jpg" class="video-thumb">
+      <h3>Pronunciación natural en japonés</h3>
+      <p>Consejos de fluidez y ritmo</p>
+    </div>
+
+    <!-- VIDEO 5 -->
+    <div class="video-card" onclick="location.href='watch.html?id=5'">
+      <img src="https://i.ytimg.com/vi/hTWKbfoikeg/maxresdefault.jpg" class="video-thumb">
+      <h3>Gramática japonesa para N5</h3>
+      <p>Todo lo básico explicado</p>
+    </div>
+
+  </section>
+<script src="scripts.js"></script>
+</body>
+</html>

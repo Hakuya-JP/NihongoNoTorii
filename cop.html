@@ -1,0 +1,928 @@
+document.addEventListener("DOMContentLoaded", () => {
+
+  // Mostrar / ocultar significado KANA
+  document.querySelectorAll('.vocal-item').forEach(item => {
+    const btn = item.querySelector('.btn-show');
+    const resp = item.querySelector('.significado');
+    if (!btn || !resp) return;
+
+    btn.addEventListener('click', () => {
+      resp.style.display = (resp.style.display === 'block') ? 'none' : 'block';
+    });
+  });
+
+  // ----- DUPLICAR IMÁGENES PARA LOOP INFINITO -----
+  const track = document.querySelector('.slider-track');
+  if (track) {
+    const clones = track.innerHTML;
+    track.innerHTML += clones; // Duplica las imágenes
+  }
+
+  // Movimiento automático del slider
+  if (track) {
+    let offset = 0;
+    setInterval(() => {
+      offset -= 2;
+
+      // Cuando llegue al final de la primera mitad, reinicia
+      if (Math.abs(offset) >= track.scrollWidth / 2) {
+        offset = 0;
+      }
+
+      track.style.transform = `translateX(${offset}px)`;
+    }, 30);
+  }
+
+}); // Cierra DOMContentLoaded
+
+
+// FUNCIONES GLOBALES
+function toggleMenu() {
+  document.getElementById('menu').classList.toggle('menu-open');
+}
+
+function toggleV(id) {
+  const el = document.getElementById(id);
+  el.style.display = (el.style.display === "block") ? "none" : "block";
+}
+
+// --- FUNCIONES DE LA BARRA LATERAL (SIDEBAR) ---
+function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra) {
+    const sidebar = document.getElementById('sidebar-detalle');
+    const mainContainer = document.querySelector('.biblioteca-main');
+    
+    // Inyectar la información seleccionada
+    document.getElementById('det-titulo').innerText = titulo;
+    document.getElementById('det-portada').src = imagen;
+    document.getElementById('det-descripcion').innerText = descripcion;
+    document.getElementById('link-pdf').href = linkPdf;
+    document.getElementById('link-extra').href = linkExtra;
+    
+    // Abrir barra lateral y aplicar clase contenedora
+    sidebar.classList.add('open');
+    mainContainer.classList.add('sidebar-abierto');
+}
+
+function cerrarDetalle() {
+    document.getElementById('sidebar-detalle').classList.remove('open');
+    document.querySelector('.biblioteca-main').classList.remove('sidebar-abierto');
+}
+
+
+// --- FILTRO DE BÚSQUEDA POR TEXTO (TIEMPO REAL) ---
+function filtrarLibros() {
+    const input = document.getElementById('buscador-libros').value.toLowerCase();
+    const libros = document.getElementsByClassName('libro-card');
+    
+    // Si se escribe en el buscador, reseteamos los botones de categorías a "Todos"
+    resetearBotonesFiltro();
+
+    for (let i = 0; i < libros.length; i++) {
+        let titulo = libros[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+        if (titulo.includes(input)) {
+            libros[i].style.display = "block";
+        } else {
+            libros[i].style.display = "none";
+        }
+    }
+}
+
+
+// --- FILTRO POR CATEGORÍAS (BOTONES) ---
+function filtrarCategoria(categoria) {
+    const libros = document.getElementsByClassName('libro-card');
+    
+    // Limpiar input de búsqueda escrita
+    document.getElementById('buscador-libros').value = "";
+
+    // Cambiar estado activo en los botones
+    const botones = document.getElementsByClassName('filter-btn');
+    for (let btn of botones) {
+        btn.classList.remove('active');
+    }
+    event.target.classList.add('active');
+
+    // Mostrar u ocultar las tarjetas según el data-categoria
+    for (let i = 0; i < libros.length; i++) {
+        let catLibro = libros[i].getAttribute('data-categoria');
+        if (categoria === 'todos' || catLibro === categoria) {
+            libros[i].style.display = "block";
+        } else {
+            libros[i].style.display = "none";
+        }
+    }
+}
+
+function resetearBotonesFiltro() {
+    const botones = document.getElementsByClassName('filter-btn');
+    for (let btn of botones) {
+        btn.classList.remove('active');
+    }
+    if (botones[0]) botones[0].classList.add('active'); // Regresa a "Todos"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== PALETA ===== */
+:root {
+  --azul: #146482;
+  --crema: #FFDEBD;
+  --blanco: #FFFFFF;
+  --naranja: #ef9d4b;
+  --gris-suave: #f3f3f3;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+  background: var(--gris-suave);
+}
+
+/* LOGO REDONDO PERFECTO */
+.nav-logo img {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 0px solid white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  background: white;
+}
+
+/* Alineación correcta del header */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 10px 20px;
+  background: var(--azul);
+  color: white;
+}
+
+/* Para que el texto quede perfectamente alineado */
+.logo-text {
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+
+}
+
+/* Logo más pequeño en móvil */
+@media (max-width: 768px) {
+  .nav-logo img {
+    height: 45px;
+    width: 45px;
+    border-width: 2px;
+  }
+}
+
+/* ===== NAVBAR PRINCIPAL ===== */
+.main-header {
+  width: 100%;
+  background: var(--azul);
+  color: var(--blanco);
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.top-nav a {
+  color: var(--blanco);
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 1.1rem;
+  transition: 0.3s;
+}
+
+.top-nav a:hover {
+  color: var(--crema);
+}
+
+/* ===== NOVEDADES (SLIDER) ===== */
+.novedades {
+  width: 100%;
+  background: var(--crema);
+  padding: 20px 0;
+  text-align: center;
+}
+
+.novedades h2 {
+  margin-bottom: 15px;
+  color: var(--azul);
+}
+
+.slider-container {
+  width: 90%;
+  margin: auto;
+  overflow: hidden;
+}
+
+.slider-track {
+  display: flex;
+  gap: 20px;
+  transition: 0.2s linear;
+}
+
+.slide {
+  min-width: 300px;
+  height: 170px;
+  background: var(--blanco);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== CUADROS PRINCIPALES ===== */
+.grid-contenido {
+  width: 90%;
+  margin: 40px auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+/* ===== LECCIONES ===== */
+.grid-lecciones {
+  width: 90%;
+  margin: 40px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+.grid-lecciones .card {
+  background: var(--blanco);
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+
+
+.grid-lecciones .card:hover {
+  background: var(--crema);  /* ← color crema al hover */
+  transform: translateY(-6px);
+}
+
+
+.card {
+  background: var(--blanco);
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.card h3 {
+  margin: 10px 0;
+  color: var(--azul);
+}
+
+.btn {
+  display: inline-block;
+  background: var(--naranja);
+  padding: 8px 15px;
+  border-radius: 8px;
+  color: var(--blanco);
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #ff7b1d;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 900px) {
+  .grid-contenido {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .top-nav a {
+    margin-left: 10px;
+    font-size: 0.9rem;
+  }
+  .grid-contenido {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== TÍTULO Y SUBTÍTULO DE LECCIONES ===== */
+.titulo-lecciones {
+  font-size: 2.2rem;
+  color: var(--azul);
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+/* Línea decorativa naranja debajo del título */
+.titulo-lecciones::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: var(--naranja);
+  margin: 8px auto 0;
+  border-radius: 4px;
+}
+
+.subtitulo-lecciones {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 35px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* ===== VIDEOS (ESTILO YOUTUBE) ===== */
+
+.video-grid {
+  width: 95%;
+  margin: 20px auto 50px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+.video-card {
+  background: var(--blanco);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.25s;
+  cursor: pointer;
+  padding-bottom: 12px;
+}
+
+.video-card:hover {
+  transform: translateY(-5px);
+}
+
+.video-thumb {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+}
+
+.video-card h3 {
+  font-size: 1.1rem;
+  margin: 10px 12px 5px;
+  color: var(--azul);
+}
+
+.video-card p {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0 12px 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .video-thumb {
+    height: 140px;
+  }
+}
+/* ===== KANA CARDS ===== */
+
+.kana-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px,1fr));
+  gap: 25px;
+}
+
+.kana-card {
+  background: var(--blanco);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.kana-card:hover {
+  transform: translateY(-6px);
+}
+
+.kana-card h3 {
+  color: var(--azul);
+  margin-bottom: 8px;
+}
+
+.kana-card p {
+  color: #444;
+  margin-bottom: 12px;
+}
+    /* ==== Estilos específicos de esta página ==== */
+    .content {
+      width: 90%;
+      max-width: 900px;
+      margin: 40px auto;
+    }
+
+    .kana-video {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .kana-strokes {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .kana-strokes img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .vocal-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+ .vocal-item {
+  background: var(--blanco);
+  margin: 15px 0;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+/* fila fija: texto a la izq, botón a la der */
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* la respuesta abajo no afecta al botón */
+.significado {
+  display: none;
+  margin-top: 10px;
+  color: var(--gris);
+}
+
+
+.vocal-text {
+  font-size: 1.2rem;
+  color: var(--azul);
+  font-weight: normal;
+}
+
+
+    .vocal-item p {
+      font-size: 1.2rem;
+      color: var(--azul);
+      margin-bottom: 8px;
+    }
+
+    .vocal-item .romaji {
+      font-weight: bold;
+    }
+
+    .significado {
+      display: none;
+      margin-top: 8px;
+      color: #333;
+    }
+
+    .btn-show {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 7px 16px;
+      background: var(--naranja);
+      color: var(--blanco);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-show:hover {
+      background: #ff7b1d;
+    }
+
+    /* === Sección de libro recomendado === */
+    .libro-box {
+      margin-top: 50px;
+      padding: 20px;
+      background: var(--blanco);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    .libro-box h3 {
+      color: var(--azul);
+      margin-bottom: 10px;
+    }
+     .libro-box h4 {
+      color: var(--azul);
+      margin-bottom: 10px;
+    }
+
+    .libro-box img {
+      width: 180px;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .libro-box p {
+      color: #444;
+      margin-bottom: 12px;
+    }
+
+    .libro-btn {
+      display: inline-block;
+      padding: 8px 18px;
+      background: var(--naranja);
+      color: var(--blanco);
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .libro-btn:hover {
+      background: #ff7b1d;
+    }
+    
+    /* ===== MENÚ HAMBURGUESA PARA MÓVIL ===== */
+.hamburger {
+  display: none;
+  font-size: 2rem;
+  background: none;
+  color: var(--blanco);
+  border: none;
+  cursor: pointer;
+}
+
+/* Móvil */
+@media (max-width: 800px) {
+
+  .hamburger {
+    display: block;
+  }
+
+  .top-nav {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    background: var(--azul);
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .top-nav a {
+    font-size: 1.2rem;
+    margin: 0;
+    display: block;
+    padding: 10px 0;
+  }
+
+  /* Cuando se abre el menú */
+  .top-nav.menu-open {
+    display: flex;
+  }
+}
+
+
+/* ===== SECCIÓN BIBLIOTECA ===== */
+
+.biblioteca-controles {
+  width: 90%;
+  max-width: 1200px;
+  margin: 30px auto 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+/* Buscador */
+.search-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+#buscador-libros {
+  width: 100%;
+  padding: 12px 20px;
+  border: 2px solid var(--azul);
+  border-radius: 25px;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+#buscador-libros:focus {
+  box-shadow: 0 0 8px rgba(20, 100, 130, 0.4);
+}
+
+/* Filtros de categorías */
+.filter-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-btn {
+  background: var(--blanco);
+  border: 1px solid var(--azul);
+  color: var(--azul);
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: var(--azul);
+  color: var(--blanco);
+}
+
+/* Layout Principal con Sidebar */
+.biblioteca-main {
+  display: flex;
+  position: relative;
+  width: 95%;
+  max-width: 1300px;
+  margin: 20px auto 50px;
+  gap: 20px;
+  overflow-x: hidden; /* Evita desborde cuando el menu sale */
+}
+
+/* Grid de Libros (Portadas grandes) */
+.grid-libros {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+  transition: margin-left 0.4s ease;
+}
+
+.libro-card {
+  background: var(--blanco);
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.libro-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+}
+
+.libro-card img {
+  width: 100%;
+  aspect-ratio: 3/4; /* Forzar proporción de portada de libro */
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.libro-card h3 {
+  font-size: 1rem;
+  margin-top: 12px;
+  color: var(--azul);
+  font-weight: 600;
+}
+
+/* BARRA LATERAL IZQUIERDA (OCULTA POR DEFECTO) */
+.sidebar-libro {
+  position: fixed;
+  top: 70px; /* Ajustar según la altura de tu header sticky */
+  left: -400px; /* Escondido a la izquierda */
+  width: 350px;
+  height: calc(100vh - 70px);
+  background: var(--blanco);
+  box-shadow: 5px 0 15px rgba(0,0,0,0.15);
+  transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 900;
+  padding: 25px;
+  overflow-y: auto;
+}
+
+/* Cuando se activa la barra lateral */
+.sidebar-libro.open {
+  left: 0;
+}
+
+/* Ajuste del margen del grid cuando el sidebar está abierto en pantallas grandes */
+@media (min-width: 1024px) {
+  .biblioteca-main.sidebar-abierto .grid-libros {
+    margin-left: 370px; /* Empuja el contenido hacia la derecha */
+  }
+}
+
+/* Elementos internos del Sidebar */
+.close-sidebar {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  transition: 0.3s;
+}
+
+.close-sidebar:hover {
+  color: var(--naranja);
+}
+
+.sidebar-content {
+  margin-top: 20px;
+  text-align: center;
+}
+
+#det-portada {
+  width: 80%;
+  max-width: 200px;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  margin-bottom: 20px;
+}
+
+#det-titulo {
+  color: var(--azul);
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+#det-descripcion {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+  text-align: justify;
+  margin-bottom: 25px;
+}
+
+.download-links {
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.download-links h4 {
+  color: var(--azul);
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.download-links .btn {
+  display: block;
+  margin: 8px auto;
+  width: 100%;
+}
+
+.btn-secundario {
+  background: #555;
+}
+.btn-secundario:hover {
+  background: #333;
+}
+
+/* Responsive Móvil */
+@media (max-width: 480px) {
+  .sidebar-libro {
+    width: 100%; /* Ocupa toda la pantalla en móviles */
+    left: -100%;
+  }
+}
+
+/* ===== CONFIGURACIÓN MODO OSCURO ===== */
+body.dark-mode {
+  --gris-suave: #0a2232; /* Fondo principal: Azul noche profundo */
+  --blanco: #08436a;    /* Fondo de tarjetas y sidebar: Azul oscuro suave */
+  --azul: #152e3f;       /* Header y botones activos: Azul marino muy oscuro */
+  --crema: #1c4e6f;;      /* Detalles secundarios oscuros con un toque cálido */
+}
+
+/* Cambios de color de texto específicos para modo oscuro */
+body.dark-mode .logo-text,
+body.dark-mode .top-nav a,
+body.dark-mode .libro-card h3,
+body.dark-mode #det-titulo,
+body.dark-mode .download-links h4 {
+  color: #ffffff;
+}
+
+body.dark-mode #det-descripcion {
+  color: #e0e0e0;
+}
+
+/* Estilo para los botones de filtro en modo oscuro */
+body.dark-mode .filter-btn {
+  background: #1e1e1e;
+  color: #ff9447;
+  border-color: #ff9447;
+}
+body.dark-mode .filter-btn.active,
+body.dark-mode .filter-btn:hover {
+  background: #ff9447;
+  color: #ffffff;
+}
+
+/* ===== ESTILO DEL BOTÓN INTERRUPTOR ===== */
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin-left: 15px;
+  transition: transform 0.3s ease;
+  outline: none;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Ajuste del botón en móviles */
+@media (max-width: 800px) {
+  .theme-toggle-btn {
+    margin-left: 0;
+    margin-top: 10px;
+    font-size: 1.5rem;
+  }
+}

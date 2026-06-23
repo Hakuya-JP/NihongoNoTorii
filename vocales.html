@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vocales Hiragana – Hablemos Japonés</title>
+  <link rel="stylesheet" href="styles.css">
+
+  
+</head>
+<body>
+<header class="main-header">
+  <h1 class="logo">Hablemos en Japonés</h1>
+
+  <!-- BOTÓN HAMBURGUESA -->
+  <button class="hamburger" onclick="toggleMenu()">
+    ☰
+  </button>
+
+  <!-- MENÚ -->
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html#">Kana</a>
+    <a href="biblioteca.html#">Biblioteca</a>
+      <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+  <div class="content">
+
+    <!-- VIDEO -->
+    <div class="kana-video">
+      <iframe width="100%" height="500"
+        src="https://www.youtube.com/embed/uYdEIyaYV40"
+        title="Introducción al Hiragana"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- TRAZOS -->
+    <div class="kana-strokes">
+      <img src="image/Tvocales.png" alt="Trazos de las vocales あ い う え お">
+    </div>
+
+    <!-- LISTA INTERACTIVA -->
+<section style="width: 90%; max-width: 900px; margin: 40px auto;"><script src="scripts.js"></script>
+
+  <h2 style="color: var(--azul); margin-bottom: 20px;">Palabras con vocales</h2>
+
+  <ul class="vocal-list">
+
+    <!-- ITEM -->
+   <li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(ai) → </span>Amor
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v1')">ver respuesta</button>
+  </div>
+
+  <p id="v1" class="significado"> → あい</p>
+</li>
+
+
+<li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(ii) → </span>Bien o Bueno
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v2')">ver respuesta</button>
+  </div>
+
+  <p id="v2" class="significado"> → いいEstó</p>
+</li>
+
+
+
+    <li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(aoi) → </span>Azul
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v3')">ver respuesta</button>
+  </div>
+
+  <p id="v3" class="significado"> → あおい</p>
+</li>
+
+  <li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(ooi) → </span>Muchos
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v4')">ver respuesta</button>
+  </div>
+
+  <p id="v4" class="significado"> → おおい</p>
+</li>
+
+
+<li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(e) → </span>dibujo
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v5')">ver respuesta</button>
+  </div>
+
+  <p id="v5" class="significado"> → え</p>
+</li>
+
+<li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(oi) → </span>sobrino
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v6')">ver respuesta</button>
+  </div>
+
+  <p id="v6" class="significado"> → おい</p>
+</li>
+
+<li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(au) → </span>reunirse
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v7')">ver respuesta</button>
+  </div>
+
+  <p id="v7" class="significado"> → あう</p>
+</li>
+
+<li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(ie) → </span>Casa
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v8')">ver respuesta</button>
+  </div>
+
+  <p id="v8" class="significado"> → いえ</p>
+</li>
+
+<li class="vocal-item simple">
+  <div class="top-row">
+    <div class="vocal-text">
+      <span class="romaji">(ue) → </span>arriba
+    </div>
+
+    <button class="btn-show" onclick="toggleV('v9')">ver respuesta</button>
+  </div>
+
+  <p id="v9" class="significado"> → うえ</p>
+</li>
+
+  </ul>
+</section>
+    <!-- LIBRO RECOMENDADO -->
+    <div class="libro-box">
+      <h3>📘 Nihongo No Torii Hiragana</h3>
+      <h4>Libro de practicas</h4>
+      <img src="image/nnthiragana.png" alt="Libro Hiragana recomendado">
+      <p>Este libro es excelente para aprender y practicar Hiragana desde cero, con ejercicios claros y trazos guiados.</p>
+      <a class="libro-btn" href="https://drive.google.com/file/d/1cUUpNwfaexETIE7cMrWZiWpU6JIaKhDb/view?usp=sharing" target="_blank">Ver libro</a>
+    </div>
+
+  </div>
+<script src="scripts.js"></script>
+</body>
+</html>

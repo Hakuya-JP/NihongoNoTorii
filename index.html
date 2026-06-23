@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hablemos en Japonés - Inicio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="main-header">
+
+  <a href="index.html" class="nav-logo">
+    <img src="image/logonnt.png">
+  </a>
+
+  <h1 class="logo-text">Nihongo no Torii ¡ようこそ!</h1>
+
+
+  <!-- BOTÓN HAMBURGUESA -->
+  <button class="hamburger" onclick="toggleMenu()">
+    ☰
+  </button>
+
+  <!-- MENÚ -->
+  <nav id="menu" class="top-nav">
+  <a href="index.html">Inicio</a>
+  <a href="lecciones.html">Lecciones</a>
+  <a href="videos.html">Videos</a>
+  <a href="kana.html#">Kana</a>
+  <a href="biblioteca.html#">Biblioteca</a>
+  <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+</nav>
+</header>
+
+
+  <!-- SLIDER HORIZONTAL DE NOVEDADES -->
+  <section class="novedades">
+    <h2>Últimas Novedades</h2>
+    <div class="slider-container">
+      <div class="slider-track">
+        <div class="slide"><img src="img/novedad1.jpg" alt="Novedad 1"></div>
+        <div class="slide"><img src="img/novedad2.jpg" alt="Novedad 2"></div>
+        <div class="slide"><img src="img/novedad3.jpg" alt="Novedad 3"></div>
+        <div class="slide"><img src="img/novedad4.jpg" alt="Novedad 4"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUADROS DE CONTENIDO PRINCIPAL -->
+  <section class="grid-contenido">
+    <div class="card">
+      <img src="img/c1.jpg" alt="Contenido 1" />
+      <h3>Introducción al Japonés</h3>
+      <a href="post1.html" class="btn">Ver más</a>
+    </div>
+    <div class="card">
+      <img src="img/c2.jpg" alt="Contenido 2" />
+      <h3>Lección Básica N5</h3>
+      <a href="post2.html" class="btn">Ver más</a>
+    </div>
+    <div class="card">
+      <img src="img/c3.jpg" alt="Contenido 3" />
+      <h3>Gramática Fundamental</h3>
+      <a href="post3.html" class="btn">Ver más</a>
+    </div>
+    <div class="card">
+      <img src="img/c4.jpg" alt="Contenido 4" />
+      <h3>Video Explicativo</h3>
+      <a href="https://youtube.com" class="btn" target="_blank">Ver más</a>
+    </div>
+    <div class="card">
+      <img src="img/c5.jpg" alt="Contenido 5" />
+      <h3>Ejercicio de Práctica</h3>
+      <a href="post5.html" class="btn">Ver más</a>
+    </div>
+    <div class="card">
+      <img src="img/c6.jpg" alt="Contenido 6" />
+      <h3>Kanji del Día</h3>
+      <a href="post6.html" class="btn">Ver más</a>
+    </div>
+  </section>
+
+ 
+<script src="scripts.js"></script>
+
+
+</body>
+</html>
