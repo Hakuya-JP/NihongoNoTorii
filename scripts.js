@@ -201,24 +201,87 @@ function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra, linkAudio, 
     // Abrir barra lateral
     sidebar.classList.add('open');
     mainContainer.classList.add('sidebar-abierto');
+    registrarEstadoAbierto();
 }
 
-// --- CERRAR SIDEBAR AL HACER CLIC FUERA DE ÉL ---
+// ==========================================================================
+// DETECTOR ÚNICO PARA CERRAR ELEMENTOS AL HACER CLIC FUERA
+// ==========================================================================
 document.addEventListener('click', function(evento) {
+    // 1. CONTROL DE LA BIBLIOTECA
     const sidebar = document.getElementById('sidebar-detalle');
     const mainContainer = document.querySelector('.biblioteca-main');
     
-    // Si la barra lateral no existe o no está abierta (no tiene la clase 'open'), no hacemos nada
-    if (!sidebar || !sidebar.classList.contains('open')) return;
+    if (sidebar && sidebar.classList.contains('open')) {
+        const clicDentroDelSidebar = sidebar.contains(evento.target);
+        const clicEnTarjetaLibro = evento.target.closest('.libro-card');
+        
+        if (!clicDentroDelSidebar && !clicEnTarjetaLibro) {
+            cerrarDetalle();
+        }
+    }
 
-    // Comprobamos si el clic se hizo DENTRO de la barra lateral
-    const clicDentroDelSidebar = sidebar.contains(evento.target);
+    // 2. CONTROL DEL MENÚ HAMBURGUESA
+    const menu = document.getElementById('menu');
+    const botonHamburguesa = document.querySelector('.hamburger');
     
-    // Comprobamos si el clic se hizo en una tarjeta de libro (para evitar que se cierre al intentar abrir uno)
-    const clicEnTarjetaLibro = evento.target.closest('.libro-card');
+    if (menu && menu.classList.contains('menu-open')) {
+        const clicDentroDelMenu = menu.contains(evento.target);
+        const clicEnHamburguesa = (botonHamburguesa && botonHamburguesa.contains(evento.target));
+        
+        if (!clicDentroDelMenu && !clicEnHamburguesa) {
+            menu.classList.remove('menu-open');
+        }
+    }
+});
 
-    // Si el usuario hizo clic fuera de la barra lateral Y NO tocó ninguna tarjeta de libro, cerramos
-    if (!clicDentroDelSidebar && !clicEnTarjetaLibro) {
-        cerrarDetalle();
+// --- CONTROL DEL BOTÓN "ATRÁS" DEL CELULAR ---
+
+// 1. Cada vez que abres un menú o la biblioteca, inyectamos un "estado" falso en el historial
+function registrarEstadoAbierto() {
+    // Esto le dice al navegador: "añade un paso ficticio en el historial"
+    history.pushState({ panelAbierto: true }, "");
+}
+
+// Modificamos ligeramente tu función de abrir la biblioteca para que use este registro
+// (Solo añade esta línea al final de tu función verDetalle actual)
+// registrarEstadoAbierto();
+
+// Modificamos tu función del menú hamburguesa para que también lo registre al abrirse
+function toggleMenu() {
+    const menu = document.getElementById('menu');
+    if (menu) {
+        menu.classList.toggle('menu-open');
+        // Si se abrió, registramos el estado
+        if (menu.classList.contains('menu-open')) {
+            registrarEstadoAbierto();
+        }
+    }
+}
+
+// 2. Escuchamos cuando el usuario presiona el botón "Atrás" (evento popstate)
+window.addEventListener('popstate', function(evento) {
+    const sidebar = document.getElementById('sidebar-detalle');
+    const mainContainer = document.querySelector('.biblioteca-main');
+    const menu = document.getElementById('menu');
+    
+    let seCerróAlgo = false;
+
+    // Si la barra de la biblioteca está abierta, la cerramos
+    if (sidebar && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        if (mainContainer) mainContainer.classList.remove('sidebar-abierto');
+        seCerróAlgo = true;
+    }
+    
+    // Si el menú hamburguesa está abierto, lo cerramos
+    if (menu && menu.classList.contains('menu-open')) {
+        menu.classList.remove('menu-open');
+        seCerróAlgo = true;
+    }
+
+    // Si no había nada abierto y el usuario dio atrás, lo dejamos navegar normalmente
+    if (!seCerróAlgo) {
+        // No hacemos nada, el navegador retrocederá de página de forma natural
     }
 });
