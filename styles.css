@@ -216,7 +216,27 @@ body {
 .slider-track {
   display: flex;
   gap: 20px;
-  transition: 0.2s linear;
+  width: max-content; /* Asegura que el contenedor no aplaste las imágenes */
+  
+  /* NUEVO: Aplicamos la animación infinita */
+  animation: carruselInfinito 20s linear infinite; 
+}
+
+/* Evita que la animación se pause bruscamente; si el usuario pasa el mouse, se detiene suavemente */
+.slider-track:hover {
+  animation-play-state: paused;
+}
+
+/* LA MAGIA DEL LOOP TRADUCIDA A CSS:
+   Se mueve exactamente hasta el -50% (la mitad exacta creada por el clon) 
+   y se reinicia a 0% de forma invisible para el ojo humano. */
+@keyframes carruselInfinito {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - 10px)); /* El -10px compensa la mitad del gap de 20px */
+  }
 }
 
 .slide {

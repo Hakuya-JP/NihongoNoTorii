@@ -38,6 +38,9 @@
       <button class="filter-btn" onclick="filtrarCategoria('gramatica', this)">Gramática</button>
       <button class="filter-btn" onclick="filtrarCategoria('kanji', this)">Kanji/Vocabulario</button>
       <button class="filter-btn" onclick="filtrarCategoria('lectura', this)">Lectura</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Cuentos', this)">Cuentos</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Manga', this)">Manga</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Kana', this)">Silabrarios[KANA]</button>
     </div>
   </section>
 
@@ -49,30 +52,71 @@
         <img id="det-portada" src="image/logonnt.png" alt="Portada Grande">
         <h3 id="det-titulo">Título del Libro</h3>
         <p id="det-descripcion">Descripción detallada del libro aquí...</p>
+
+
         <div class="download-links">
-          <h4>Enlaces de Descarga:</h4>
-          <a id="link-pdf" href="#" class="btn" target="_blank">Descargar PDF</a>
-          <a id="link-extra" href="#" class="btn btn-secundario" target="_blank">Material Extra</a>
-        </div>
+        <h4>Enlaces de Descarga:</h4>
+        <a id="link-pdf" href="#" class="btn" target="_blank">Descargar</a>
+  
+        <a id="link-extra" href="#" class="btn btn-secundario" target="_blank">Material Extra</a>
+  
+        <a id="link-audio" href="#" class="btn btn-secundario" target="_blank" style="background: #2d8a4e;">Descargar Audios</a>
+  
+        <a id="link-respuestas" href="#" class="btn btn-secundario" target="_blank" style="background: #ad5978;">Libro de respuestas</a>
+      </div>
       </div>
     </aside>
 
     <section class="grid-libros" id="contenedor-libros">
+
+      <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  'Kanji Para Recordar', 
+  'image/RTK.jpg', 
+  'Este primer libro de la trilogia de James Heisig. Una excelente guía para aprender los kanjis de uso comun al rededor 2200.', 
+  'https://www.mediafire.com/file/3ne4w5csyj2d6bn/Kanji_para_recordar_1.pdf/file')">
+  <img src="image/RTK.jpg" alt="Kanji Para Recordar">
+  <h3>Kanji Para Recordar</h3>
+
+</div>
       
-      <div class="libro-card" data-categoria="gramatica" onclick="verDetalle('Minna no Nihongo I', 'image/logonnt.png', 'El libro clásico fundamental para aprender las bases de la gramática japonesa formal, lecciones del N5.', '#', '#')">
-        <img src="image/logonnt.png" alt="Minna no Nihongo I">
-        <h3>Minna no Nihongo I</h3>
-      </div>
+      <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  'GENKI 1 (Version Español)', 
+  'image/genki.png', 
+  'Tercera edición revisada de Genki\nEste es el primer libro de texto de la serie que incluye 12 lecciones en las que el estudiante aprenderá los aspectos básicos del japonés. Cada una de las lecciones contiene un tema específico en el que se practica vocabulario y gramática. ', 
+  'https://www.mediafire.com/file/sal6kmi9o9exdj5/GENKI_I_%2528Tercera_edici%25C3%25B3n%2529_Versi%25C3%25B3n_en_espa%25C3%25B1ol.pdf/file',
+  '#', 
+  'https://www.mediafire.com/file/t71rl9wsia0c3zp/Genki_Textbook_1__-_3rd_Edition_Audio_Files.rar/file', 
+  'https://www.mediafire.com/file/pt8vfonw4qf6h0z/Genki_1_%255BRespuestas%255D_del_Libro_de_texto_y_Libro_de_Ejercicios.pdf/file')">
+  <img src="image/genki.png" alt="GENKI 1 (Version Español)">
+  <h3>GENKI 1 (Version Español)</h3>
+</div>
 
-      <div class="libro-card" data-categoria="kanji" onclick="verDetalle('Kanji Look and Learn', 'image/logonnt.png', 'Una excelente guía visual para aprender los primeros 512 kanjis con mnemotecnias e imágenes claras.', '#', '#')">
-        <img src="image/logonnt.png" alt="Kanji Look and Learn">
-        <h3>Kanji Look and Learn</h3>
-      </div>
 
-      <div class="libro-card" data-categoria="lectura" onclick="verDetalle('Japanese Graded Readers', 'image/logonnt.png', 'Historias cortas adaptadas para estudiantes de nivel básico. Ideal para mejorar la fluidez de lectura.', '#', '#')">
-        <img src="image/logonnt.png" alt="Japanese Graded Readers">
-        <h3>Japanese Graded Readers N5</h3>
-      </div>
+  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  'GENKI 1 [Libro de Ejercicios]', 
+  'image/genkiejercicios.png', 
+  'Libro complementario de GENKI 1\n\n Este libro te ayudara a consolidar y reforsar lo visto en el libro de texto principal.', 
+  'https://www.mediafire.com/file/jdi8rwku4uyw7y5/GENKI_I_%255BLibro_de_ejercicios%255D_%2528Tercera_edici%25C3%25B3n%2529_Versi%25C3%25B3n_en_espa%25C3%25B1ol.pdf/file', 
+  '#', 
+  'https://www.mediafire.com/file/rpaywqmyyl79ex8/Genki_Workbook_1_-_3rd_Edition_Audio_Files.rar/file', 
+  'https://www.mediafire.com/file/pt8vfonw4qf6h0z/Genki_1_%255BRespuestas%255D_del_Libro_de_texto_y_Libro_de_Ejercicios.pdf/file')">
+  <img src="image/genkiejercicios.png" alt="GENKI 1 [Libro de Ejercicios]">
+  <h3>GENKI 1 [Libro de Ejercicios]</h3>
+</div>
+
+  <div class="libro-card" data-categoria="Kana" onclick="verDetalle(
+  'Nihongo No Torii [Hiragana]', 
+  'image/nnthiragana.png', 
+  'Este libro es excelente para aprender y practicar Hiragana desde cero, con ejercicios claros y trazos guiados.', 
+  'https://www.mediafire.com/file/58hys55ahp6sjdd/Nihongo_no_Torii_Hiragana.pdf/file', 
+  '#', 
+  '#', 
+  '#')">
+  <img src="image/nnthiragana.png" alt="Nihongo No Torii [Hiragana]">
+  <h3>Nihongo No Torii [Hiragana]</h3>
+</div>
+
+
 
     </section>
   </main>
@@ -81,3 +125,19 @@
 
 </body>
 </html>
+
+
+ <!-- Formato de libro 
+ <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  'Minna no Nihongo I', 
+  'image/logonnt.png', 
+  'Texto de la descripción...\n\nSiguiente línea.', 
+  'downloads/minna1.pdf', 
+  'downloads/extra.pdf', 
+  'downloads/ejercicios.pdf', 
+  'downloads/audios_minna.zip', 
+  'downloads/respuestas.pdf')">
+  <img src="image/logonnt.png" alt="Minna no Nihongo I">
+  <h3>Minna no Nihongo I</h3>
+</div>
+-->
