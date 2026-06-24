@@ -204,34 +204,41 @@ function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra, linkAudio, 
     registrarEstadoAbierto();
 }
 
-// ==========================================================================
-// DETECTOR ÚNICO PARA CERRAR ELEMENTOS AL HACER CLIC FUERA
-// ==========================================================================
+// --- CERRAR SIDEBAR AL HACER CLIC FUERA DE ÉL ---
 document.addEventListener('click', function(evento) {
-    // 1. CONTROL DE LA BIBLIOTECA
     const sidebar = document.getElementById('sidebar-detalle');
     const mainContainer = document.querySelector('.biblioteca-main');
     
-    if (sidebar && sidebar.classList.contains('open')) {
-        const clicDentroDelSidebar = sidebar.contains(evento.target);
-        const clicEnTarjetaLibro = evento.target.closest('.libro-card');
-        
-        if (!clicDentroDelSidebar && !clicEnTarjetaLibro) {
-            cerrarDetalle();
-        }
-    }
+    // Si la barra lateral no existe o no está abierta (no tiene la clase 'open'), no hacemos nada
+    if (!sidebar || !sidebar.classList.contains('open')) return;
 
-    // 2. CONTROL DEL MENÚ HAMBURGUESA
+    // Comprobamos si el clic se hizo DENTRO de la barra lateral
+    const clicDentroDelSidebar = sidebar.contains(evento.target);
+    
+    // Comprobamos si el clic se hizo en una tarjeta de libro (para evitar que se cierre al intentar abrir uno)
+    const clicEnTarjetaLibro = evento.target.closest('.libro-card');
+
+    // Si el usuario hizo clic fuera de la barra lateral Y NO tocó ninguna tarjeta de libro, cerramos
+    if (!clicDentroDelSidebar && !clicEnTarjetaLibro) {
+        cerrarDetalle();
+    }
+});
+
+// --- CERRAR MENÚ HAMBURGUESA AL HACER CLIC FUERA ---
+document.addEventListener('click', function(evento) {
     const menu = document.getElementById('menu');
     const botonHamburguesa = document.querySelector('.hamburger');
     
-    if (menu && menu.classList.contains('menu-open')) {
-        const clicDentroDelMenu = menu.contains(evento.target);
-        const clicEnHamburguesa = (botonHamburguesa && botonHamburguesa.contains(evento.target));
-        
-        if (!clicDentroDelMenu && !clicEnHamburguesa) {
-            menu.classList.remove('menu-open');
-        }
+    // Si el menú no está abierto, no hacemos nada
+    if (!menu || !menu.classList.contains('menu-open')) return;
+    
+    // Verificamos si el clic fue dentro del menú o en el botón de la hamburguesa
+    const clicDentroDelMenu = menu.contains(evento.target);
+    const clicEnHamburguesa = botonHamburguesa.contains(evento.target);
+    
+    // Si el clic fue fuera de ambos, cerramos el menú quitando la clase
+    if (!clicDentroDelMenu && !clicEnHamburguesa) {
+        menu.classList.remove('menu-open');
     }
 });
 
