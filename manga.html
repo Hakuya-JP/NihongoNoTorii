@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nihongo no Torii - Manga</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html">Kana</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="manga.html">Manga/Novela</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+  <section class="biblioteca-controles">
+    <div class="search-container">
+      <input type="text" id="buscador-libros" placeholder="Buscar libros por título o autor..." onkeyup="filtrarLibros()">
+    </div>
+    
+    <div class="filter-container">
+      <button class="filter-btn active" onclick="filtrarCategoria('todos', this)">Todos</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Accion', this)">Acción</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Fantasia', this)">Fantasia</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Romance', this)">Romance</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Isekai', this)">Isakai</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Misterio', this)">Misterio</button>
+      <button class="filter-btn" onclick="filtrarCategoria('Vida-diaria', this)">Vida Diaria</button>
+    </div>
+  </section>
+
+  <main class="biblioteca-main">
+    
+    <aside id="sidebar-detalle" class="sidebar-libro">
+      <button class="close-sidebar" onclick="cerrarDetalle()">&times;</button>
+      <div class="sidebar-content">
+        <img id="det-portada" src="image/logonnt.png" alt="Portada Grande">
+        <h3 id="det-titulo">Título del Libro</h3>
+        <p id="det-descripcion">Descripción detallada del libro aquí...</p>
+
+
+        <div class="download-links">
+        <h4>Enlaces de Descarga:</h4>
+        <a id="link-pdf" href="#" class="btn" target="_blank">Descargar</a>
+  
+        <a id="link-extra" href="#" class="btn btn-secundario" target="_blank" style="background: #13a2ce;">Material Extra</a>
+  
+        <a id="link-audio" href="#" class="btn btn-secundario" target="_blank" style="background: #2d8a4e;">Descargar Audios</a>
+  
+        <a id="link-respuestas" href="#" class="btn btn-secundario" target="_blank" style="background: #ad5978;">Libro de respuestas</a>
+      </div>
+      </div>
+    </aside>
+
+  <!-- Aqui empieza la saccion de libros -->
+
+    <section class="grid-libros" id="contenedor-libros">
+
+            <!-- Nihongo No Torii [Hiragana] -->
+
+  <div class="libro-card" data-categoria="Kana" onclick="verDetalle(
+  'Nihongo No Torii [Hiragana]', 
+  'image/nnthiragana.png', 
+  'Este libro es excelente para aprender y practicar Hiragana desde cero, con ejercicios claros y trazos guiados.', 
+  'https://www.mediafire.com/file/58hys55ahp6sjdd/Nihongo_no_Torii_Hiragana.pdf/file', 
+  '#', 
+  '#', 
+  '#')">
+  <img src="image/nnthiragana.png" alt="Nihongo No Torii [Hiragana]">
+  <h3>Nihongo No Torii [Hiragana]</h3>
+</div>
+        
+     
+
+    </section>
+  </main>
+  <!-- Aqui termina la seccion de libros  -->
+
+  <script src="scripts.js"></script>
+
+</body>
+</html>
+
+
+ <!-- Formato de libro 
+ <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  'Minna no Nihongo I', 
+  'image/logonnt.png', 
+  'Texto de la descripción...\n\nSiguiente línea.', 
+  'downloads/minna1.pdf', 
+  'downloads/extra.pdf', 
+  'downloads/ejercicios.pdf', 
+  'downloads/audios_minna.zip', 
+  'downloads/respuestas.pdf')">
+  <img src="image/logonnt.png" alt="Minna no Nihongo I">
+  <h3>Minna no Nihongo I</h3>
+</div>
+-->
