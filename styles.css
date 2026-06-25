@@ -335,7 +335,7 @@ body {
 }
 
 .video-card {
-  background: var(--blanco);
+  background: var(--blanco2);
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: 0.25s;
@@ -616,7 +616,7 @@ body.dark-mode .filter-btn.active {
 .libro-card img {
   width: 100%;
   aspect-ratio: 3/4;
-  object-fit: cover;
+  object-fit: fill;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -677,7 +677,9 @@ body.dark-mode .filter-btn.active {
   width: 90%;
   max-width: 260px;
   aspect-ratio: 3/4;
-  object-fit: cover;
+  height: 340px;       /* Le fuerzas una altura fija estándar */
+  object-fit: fill; /* <-- LA CLAVE: Muestra la imagen COMPLETA sin recortarla */
+  background: #00000010; /* Opcional: Un fondo sutil por si la imagen es delgada */
   border-radius: 8px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
   margin-bottom: 20px;
