@@ -9,59 +9,49 @@
    ========================================================================== */
 
 /* ==========================================================================
-   1. REGISTRO DE FUENTE LOCAL (Descargada)
+   1. REGISTRO DE FUENTES
    ========================================================================== */
-
-
-/* Aquí abajo ya continúa tu código normal... */
-/* :root { ... } */
-@import url('https://fonts.googleapis.com/css2?family=Rampart+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Aladin&display=swap');
+/* Limpiado: Solo conservamos las fuentes que declaras usar al final del archivo */
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 @font-face {
-  font-family: 'IntroRust'; /* El nombre que tú le quieras dar */
-  src: url('fonts/IntroRust.otf') format('opentype'); /* <--- Cambiado a 'opentype' */
+  font-family: 'IntroRust';
+  src: url('fonts/IntroRust.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
 
 
 /* ==========================================================================
-   1. GESTIÓN DE TEMAS (Variables Globales)
-   Modifica los colores de esta sección para cambiar el aspecto de TODA la web.
+   2. GESTIÓN DE TEMAS (Variables Globales)
    ========================================================================== */
 
 /* --- MODO CLARO (Por defecto) --- */
 :root {
-  --gris-suave: #f3f3f3;  /* Fondos de página generales */
-  --blanco: #ffffff;      /* Tarjetas, contenedores, barras laterales */
-  --azul: #146482;        /* Headers, barras de navegación principales, títulos */
-  --crema: #FFDEBD;       /* Secciones especiales (Novedades), hovers */
+  --gris-suave: #f3f3f3;  
+  --blanco: #ffffff;      
+  --azul: #146482;        
+  --crema: #FFDEBD;       
   --blanco2: #ffeedb;
-  --crema2: #ffeedb;      /* Hover de los enlaces del menú */
-  --naranja: #ef9d4b;     /* Botones de acción, enlaces resaltados */
-  --texto-principal: #333333; /* Color de texto estándar para lectura */
-  --color-h3: #146482;        /* Color azul para modo claro */
+  --crema2: #ffeedb;      
+  --naranja: #ef9d4b;     
+  --texto-principal: #333333; 
+  --color-h3: #146482;        
   --color-h2: #146482;  
   --color-h1: #146482;  
 }
 
-/* --- MODO OSCURO (Se activa automáticamente en todas las páginas) --- */
+/* --- MODO OSCURO --- */
 body.dark-mode {
-  --gris-suave: #0a2232;  /* Fondo principal: Azul noche profundo */
-  --blanco: #08436a;      /* Tarjetas y sidebar: Azul oscuro suave */
-  --azul: #152e3f;        /* Header y botones activos: Azul marino muy oscuro */
-  --crema: #1c4e6f;       /* Detalles secundarios con toque cálido */
-  --crema2: #a9d4f1;      /* Cambio de color a las secciones al poner el cursor */
-  --blanco2:#08436a;
-  --naranja: #ff9447;     /* Mantener o contrastar el naranja en modo oscuro */
-  --texto-principal: #ffffff; /* Texto claro para alto contraste */
+  --gris-suave: #0a2232;  
+  --blanco: #08436a;      
+  --azul: #152e3f;        
+  --crema: #1c4e6f;       
+  --crema2: #a9d4f1;      
+  --blanco2: #0f5482;     /* CORREGIDO: Tono ligeramente diferente para dar relieve a las tarjetas */
+  --naranja: #ff9447;     
+  --texto-principal: #ffffff; 
   --color-h3: #fff5ec;
   --color-h2: #fff5ec;
   --color-h1: #fff5ec;
@@ -69,23 +59,24 @@ body.dark-mode {
 
 
 /* ==========================================================================
-   2. CONFIGURACIÓN BASE Y RESETEO
+   3. CONFIGURACIÓN BASE Y RESETEO
    ========================================================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--gris-suave);
   color: var(--texto-principal);
-  transition: background 0.3s ease, color 0.3s ease; /* Transición suave al cambiar de tema */
+  transition: background 0.3s ease, color 0.3s ease; 
 }
 
 
 /* ==========================================================================
-   3. CABECERA PRINCIPAL (HEADER & NAVBAR)
+   4. CABECERA PRINCIPAL (HEADER & NAVBAR)
    ========================================================================== */
 .main-header {
   width: 100%;
@@ -111,10 +102,9 @@ body {
 }
 
 .logo-text {
-  color: white; /* Se fuerza blanco estático para que resalte en el header azul */
+  color: white; 
   font-size: 2rem;
-  font-weight: 800; /* Le damos el peso grueso estilo logo */
-  
+  font-weight: 800; 
 }
 
 .logo {
@@ -128,12 +118,15 @@ body {
 }
 
 .top-nav a {
-  color: white; /* Enlaces legibles sobre la barra azul */
+  color: white; 
   text-decoration: none;
   margin-left: 20px;
   font-size: 1.5rem;
   transition: 0.3s;
-    font-family: 'M PLUS Rounded 1c', sans-serif;
+  
+  /* NUEVO: Forzamos la tipografía redondeada para el menú */
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-weight: 700; 
 }
 
 .top-nav a:hover {
@@ -142,7 +135,7 @@ body {
 
 
 /* ==========================================================================
-   4. COMPONENTES COMUNES (Botones, Tarjetas Estándar)
+   5. COMPONENTES COMUNES (Botones, Tarjetas Estándar)
    ========================================================================== */
 .card {
   background: var(--blanco);
@@ -164,7 +157,7 @@ body {
 
 .card h3 {
   margin: 10px 0;
-  color: var(--color-h3); /* <-- Variable del color H3 el color se modifica arriba */
+  color: var(--color-h3); 
 }
 
 .btn {
@@ -193,7 +186,7 @@ body {
 
 
 /* ==========================================================================
-   5. SECCIÓN INICIO: SLIDER & CONTENIDO
+   6. SECCIÓN INICIO: SLIDER & CONTENIDO
    ========================================================================== */
 .novedades {
   width: 100%;
@@ -211,37 +204,39 @@ body {
   width: 90%;
   margin: auto;
   overflow: hidden;
+  /* Máscara opcional para que los bordes del carrusel se desvanezcan elegantemente */
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
 }
 
 .slider-track {
   display: flex;
   gap: 20px;
-  width: max-content; /* Asegura que el contenedor no aplaste las imágenes */
-  
-  /* NUEVO: Aplicamos la animación infinita */
-  animation: carruselInfinito 20s linear infinite; 
+  width: max-content; 
+  animation: carruselInfinito 15s linear infinite; 
 }
 
-/* Evita que la animación se pause bruscamente; si el usuario pasa el mouse, se detiene suavemente */
 .slider-track:hover {
   animation-play-state: paused;
 }
 
-/* LA MAGIA DEL LOOP TRADUCIDA A CSS:
-   Se mueve exactamente hasta el -50% (la mitad exacta creada por el clon) 
-   y se reinicia a 0% de forma invisible para el ojo humano. */
+/* LA MAGIA DEL BUCLE: 
+   Al llegar a -50%, se han mostrado todas las originales. 
+   El salto a 0% es instantáneo e imperceptible, creando el bucle infinito. */
 @keyframes carruselInfinito {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(calc(-50% - 10px)); /* El -10px compensa la mitad del gap de 20px */
+    transform: translateX(-50%);
   }
 }
 
 .slide {
-  min-width: 300px;
-  height: 170px;
+  /* Usamos flex-shrink para asegurarnos de que el navegador no aplaste las tarjetas si son pocas */
+  flex-shrink: 0; 
+  width: 265px;
+  height: 165px;
   background: var(--blanco);
   border-radius: 12px;
   overflow: hidden;
@@ -252,8 +247,15 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
-
+/* Asegura que el enlace ocupe toda la tarjeta */
+.slide a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
 .grid-contenido {
   width: 90%;
   margin: 40px auto;
@@ -264,7 +266,7 @@ body {
 
 
 /* ==========================================================================
-   6. SECCIÓN LECCIONES
+   7. SECCIÓN LECCIONES
    ========================================================================== */
 .titulo-lecciones {
   font-size: 2.2rem;
@@ -322,7 +324,7 @@ body {
 
 
 /* ==========================================================================
-   7. SECCIÓN VIDEOS (ESTILO YOUTUBE)
+   8. SECCIÓN VIDEOS (ESTILO YOUTUBE)
    ========================================================================== */
 .video-grid {
   width: 95%;
@@ -367,7 +369,7 @@ body {
 
 
 /* ==========================================================================
-   8. SECCIÓN KANA (Tarjetas & Vocales)
+   9. SECCIÓN KANA (Tarjetas & Vocales)
    ========================================================================== */
 .kana-list {
   display: grid;
@@ -511,7 +513,7 @@ body {
 
 
 /* ==========================================================================
-   9. SECCIÓN BIBLIOTECA (Controles & Sidebar)
+   10. SECCIÓN BIBLIOTECA (Controles & Sidebar)
    ========================================================================== */
 .biblioteca-controles {
   width: 90%;
@@ -591,14 +593,14 @@ body.dark-mode .filter-btn.active {
 .grid-libros {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 30px;
   transition: margin-left 0.4s ease;
 }
 
 .libro-card {
   background: var(--blanco2);
-  padding: 12px;
+  padding: 16px;
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
@@ -608,7 +610,7 @@ body.dark-mode .filter-btn.active {
 
 .libro-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
 .libro-card img {
@@ -620,17 +622,17 @@ body.dark-mode .filter-btn.active {
 }
 
 .libro-card h3 {
-  font-size: 1rem;
-  margin-top: 12px;
-  color: var(--color-h3); /* Cambiado para que se lea bien en modo oscuro */
+  font-size: 1.15rem;
+  margin-top: 14px;
+  color: var(--color-h3); 
   font-weight: 600;
 }
 
 .sidebar-libro {
   position: fixed;
-  top: 70px;
+  top: 85px;
   left: -400px;
-  width: 350px;
+  width: 390px;
   height: calc(100vh - 70px);
   background: var(--blanco2);
   box-shadow: 5px 0 15px rgba(0,0,0,0.15);
@@ -672,13 +674,16 @@ body.dark-mode .filter-btn.active {
 }
 
 #det-portada {
-  width: 80%;
-  max-width: 200px;
+  width: 90%;
+  max-width: 260px;
   aspect-ratio: 3/4;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
   margin-bottom: 20px;
+  display: block; /* Asegura que se centre bien junto al margen automático */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #det-titulo {
@@ -692,7 +697,7 @@ body.dark-mode #det-titulo {
 }
 
 #det-descripcion {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   color: var(--texto-principal);
   line-height: 1.5;
   text-align: justify;
@@ -707,7 +712,7 @@ body.dark-mode #det-titulo {
 .download-links h4 {
   color: var(--azul);
   margin-bottom: 12px;
-  font-size: 0.95rem;
+  font-size: 1.09rem;
 }
 
 body.dark-mode .download-links h4 {
@@ -722,7 +727,7 @@ body.dark-mode .download-links h4 {
 
 
 /* ==========================================================================
-   10. BOTÓN INTERRUPTOR (THEME TOGGLE)
+   11. BOTÓN INTERRUPTOR (THEME TOGGLE)
    ========================================================================== */
 .theme-toggle-btn {
   background: none;
@@ -741,7 +746,7 @@ body.dark-mode .download-links h4 {
 
 
 /* ==========================================================================
-   11. RESPONSIVO Y MENÚ MÓVIL
+   12. RESPONSIVO Y MENÚ MÓVIL
    ========================================================================== */
 .hamburger {
   display: none;
@@ -764,8 +769,8 @@ body.dark-mode .download-links h4 {
   }
 
   .top-nav {
-    position: absolute;
-    top: 70px;
+    position: fixed; /* CORREGIDO: Cambiado de absolute a fixed para que acompañe el scroll */
+    top: 75px;
     right: 0;
     background: var(--azul);
     width: 100%;
@@ -826,8 +831,9 @@ body.dark-mode .download-links h4 {
   }
 }
 
+
 /* ==========================================================================
-   12. CLASES DE SOPORTE PARA UNIFICACIÓN DE PÁGINAS
+   13. CLASES DE SOPORTE PARA UNIFICACIÓN DE PÁGINAS
    ========================================================================== */
 .header-brand {
   display: flex;
@@ -858,9 +864,11 @@ body.dark-mode .download-links h4 {
 }
 
 .banner-bienvenida {
+  position: relative; 
+  overflow: hidden;   
   text-align: center;
   padding: 60px 20px;
-  background: var(--azul); /* Usa el color azul de tu paleta */
+  background: var(--azul); 
   border-radius: 16px;
   width: 90%;
   margin: 30px auto;
@@ -871,7 +879,7 @@ body.dark-mode .download-links h4 {
   font-size: 1.2rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: var(--naranja); /* Resalta en naranja */
+  color: var(--naranja); 
   font-weight: bold;
 }
 
@@ -883,12 +891,11 @@ body.dark-mode .download-links h4 {
   letter-spacing: -1px;
 }
 
-/* En modo claro, podemos hacer que el título use un degradado pro */
 @media (prefers-color-scheme: light) {
   .banner-title {
     background: linear-gradient(45deg, #ffffff, var(--crema));
     -webkit-background-clip: text;
-    background-clip: text; /* <--- Agregamos esta línea estándar para quitar el aviso */
+    background-clip: text; 
     -webkit-text-fill-color: transparent;
   }
 }
@@ -899,8 +906,9 @@ body.dark-mode .download-links h4 {
   opacity: 0.9;
   max-width: 600px;
   margin: 0 auto 25px;
-  font-weight: 300; /* Texto más delgado para que contraste con el título */
+  font-weight: 300; 
 }
+
 .btn-banner {
   display: inline-block;
   padding: 12px 30px;
@@ -914,13 +922,7 @@ body.dark-mode .download-links h4 {
 
 .btn-banner:hover {
   transform: translateY(-2px);
-  background: #e08b3a; /* Un naranja un poquito más oscuro al pasar el mouse */
-}
-
-.banner-bienvenida {
-  position: relative; /* Obligatorio para que el contenido se posicione encima */
-  overflow: hidden;   /* Corta lo que sobresalga de la imagen */
-  /* ... conserva tus otros estilos como border-radius o width ... */
+  background: #e08b3a; 
 }
 
 .banner-fondo-img {
@@ -929,37 +931,31 @@ body.dark-mode .download-links h4 {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Hace que se adapte sin deformarse */
-  z-index: 1;        /* Se queda al fondo */
+  object-fit: cover; 
+  z-index: 1;        
 }
 
 .banner-content {
   position: relative;
-  z-index: 2;        /* Se sitúa por encima de la imagen */
-  /* Si necesitas oscurecer el fondo para leer el texto, puedes añadir un fondo semitransparente aquí: */
+  z-index: 2;        
   background: rgba(0, 0, 0, 0.4); 
   padding: 40px;
 }
 
-/* Aplicar a todos los títulos principales para unificar el estilo */
- h1,  .banner-title {
+/* ==========================================================================
+   14. TIPOGRAFÍAS DE ELEMENTOS (Asignación Definitiva)
+   ========================================================================== */
+h1, .banner-title {
   font-family: 'IntroRust', sans-serif;
   font-weight: 800; 
   letter-spacing: 0.5px;
 }
 
-/* Para los párrafos, menús, enlaces, inputs y subtítulos */
-p, span, a, li, input, button, select,h2, h3, h4,  .banner-subtitle {
+p, span, a, li, input, button, select, h2, h3, h4, .banner-subtitle {
   font-family: 'Zen Kaku Gothic New', sans-serif;
-  /* Ya no necesitas forzar font-weight: 400 en todo, dejará que respiren sus pesos nativos */
-}
-
-/* Si quieres que el título del banner sea todavía más imponente */
-.banner-title {
-  font-weight: 900; /* El nivel máximo de grosor disponible */
 }
 
 .banner-title {
-  /* Los primeros valores son el desplazamiento (0) y el último es la intensidad del difuminado (15px) */
+  font-weight: 900; 
   text-shadow: 0 0 15px rgba(58, 185, 224, 0.6); 
 }
