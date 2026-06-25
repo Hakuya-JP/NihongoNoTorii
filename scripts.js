@@ -238,3 +238,4 @@ window.addEventListener('popstate', function(evento) {
         seCerróAlgo = true;
     }
 });
+
