@@ -961,3 +961,16 @@ p, span, a, li, input, button, select, h2, h3, h4, .banner-subtitle {
   font-weight: 900; 
   text-shadow: 0 0 15px rgba(58, 185, 224, 0.6); 
 }
+
+/* Clase para resaltar la página actual */
+.top-nav a.active {
+  color: var(--naranja); /* Cambia el texto al naranja de tu tema */
+  border-bottom: 3px solid var(--naranja); /* Opcional: una línea abajo muy elegante */
+  padding-bottom: 5px;
+}
+
+/* Ajuste sutil para el modo oscuro si lo necesitas */
+body.dark-mode .top-nav a.active {
+  color: var(--naranja);
+  border-bottom-color: var(--naranja);
+}

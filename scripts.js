@@ -138,6 +138,7 @@ function filtrarLibros() {
 }
 
 // --- FILTRO POR CATEGORÍAS (BOTONES) ---
+// --- FILTRO POR CATEGORÍAS (BOTONES) --- (CORREGIDO PARA MÚLTIPLES ETIQUETAS)
 function filtrarCategoria(categoria, botonPresionado) {
     const libros = document.getElementsByClassName('libro-card');
     const buscador = document.getElementById('buscador-libros');
@@ -155,7 +156,15 @@ function filtrarCategoria(categoria, botonPresionado) {
 
     for (let i = 0; i < libros.length; i++) {
         let catLibro = libros[i].getAttribute('data-categoria');
-        if (categoria === 'todos' || catLibro === categoria) {
+        
+        // Si el libro no tiene ninguna categoría, le asignamos un texto vacío para evitar errores
+        if (!catLibro) catLibro = ""; 
+
+        // Convertimos las etiquetas del libro separadas por espacios en una lista limpia
+        const listaCategorias = catLibro.split(" ");
+
+        // CAMBIO CLAVE: Comprobamos si es 'todos' o si la lista contiene la categoría seleccionada
+        if (categoria === 'todos' || listaCategorias.includes(categoria)) {
             libros[i].style.display = "block";
         } else {
             libros[i].style.display = "none";
@@ -239,3 +248,25 @@ window.addEventListener('popstate', function(evento) {
     }
 });
 
+// Espera a que todo el HTML de la página esté cargado
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Obtiene el nombre del archivo actual de la URL (ej: "biblioteca.html")
+    const paginaActual = window.location.pathname.split("/").pop();
+
+    // 2. Busca todos los enlaces que están dentro del menú de navegación
+    const enlacesMenu = document.querySelectorAll(".top-nav a");
+
+    enlacesMenu.forEach(enlace => {
+        // 3. Obtiene el nombre del archivo al que apunta el enlace (ej: "biblioteca.html")
+        const rutaEnlace = enlace.getAttribute("href");
+
+        // 4. Si coinciden, le añade la clase 'active' para que brille
+        if (paginaActual === rutaEnlace) {
+            enlace.classList.add("active");
+        } 
+        // Caso especial: si estás en la raíz o el index vacío, ilumina "Inicio"
+        else if ((paginaActual === "" || paginaActual === "index.html") && rutaEnlace === "index.html") {
+            enlace.classList.add("active");
+        }
+    });
+});
