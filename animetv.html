@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hablemos en Japonés - AnimeTV</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html">Kana</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="manga.html">Manga/Novela</a>
+    <a href="animetv.html">AnimeTV</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<section class="seccion-reproductor">
+  <h2 class="seccion-titulo">AnimeTV</h2>
+
+  <!-- 1. CONTENEDOR PRINCIPAL (Video + Panel Lateral) -->
+  <div class="player-container">
+    
+ <!-- ZONA DEL VIDEO (Contenedor que entrará en Pantalla Completa) -->
+<div id="video-wrapper" class="video-container">
+  <video id="main-video" controls>
+    Tu navegador no soporta la reproducción de video HTML5.
+  </video>
+
+  <!-- 🟢 BOTÓN DENTRO DEL REPRODUCTOR (Flotante) -->
+  <button id="btn-fullscreen" class="btn-player-fs" title="Pantalla completa">
+    ⛶
+  </button>
+
+  <!-- Subtítulo flotante sobre el video -->
+  <div id="overlay-subtitles" class="overlay-subtitles">
+    Carga un video y un archivo de subtítulos para comenzar
+  </div>
+</div>
+
+    <!-- PANEL LATERAL DE SUBTÍTULOS -->
+    <div class="subtitles-sidebar">
+      <div class="sidebar-header">
+        <h3>Transcripción</h3>
+        <span id="sub-count" class="sub-badge">0 líneas</span>
+      </div>
+      <div id="subtitles-list" class="subtitles-list">
+        <p class="sub-placeholder">Los subtítulos cargados aparecerán aquí en formato de lista para navegar entre ellos.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 2. BARRA DE HERRAMIENTAS Y PERSONALIZACIÓN -->
+  <div class="player-toolbar">
+    
+    <!-- Grupo 1: Archivos y Pantalla Completa -->
+    <div class="toolbar-group">
+      <label class="btn-tool" for="input-video">
+        📂 Cargar Video
+        <input type="file" id="input-video" accept="video/*" hidden />
+      </label>
+      <label class="btn-tool" for="input-sub">
+        💬 Cargar Subtítulo
+        <input type="file" id="input-sub" accept=".srt,.vtt,.ass" hidden />
+      </label>
+      <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
+        💾 Descargar
+      </button>
+    </div>
+
+    <!-- Grupo 2: Sincronización, Tamaño y Furigana -->
+    <div class="toolbar-group">
+      <span class="tool-label">Sincro:</span>
+      <button id="btn-sub-minus" class="btn-tool-sm">-0.5s</button>
+      <button id="btn-sub-plus" class="btn-tool-sm">+0.5s</button>
+
+      <span class="tool-label">Zoom:</span>
+      <button id="btn-text-minus" class="btn-tool-sm">A-</button>
+      <button id="btn-text-plus" class="btn-tool-sm">A+</button>
+
+      <button id="btn-toggle-furigana" class="btn-tool-sm active-tool">Furigana</button>
+    </div>
+
+    <!-- Grupo 3: Personalización de Texto y Fuente -->
+    <div class="toolbar-group">
+      <span class="tool-label">Texto:</span>
+      <input type="color" id="sub-color-picker" value="#ffffff" title="Cambiar color del texto" />
+      
+      <span class="tool-label">Fuente:</span>
+      <select id="sub-font-family">
+        <option value="system-ui, sans-serif">Predeterminada</option>
+        <option value="'M PLUS Rounded 1c', sans-serif">Redonda (Anime)</option>
+        <option value="'Shippori Mincho', 'Yu Mincho', serif">Formal (Mincho)</option>
+      </select>
+    </div>
+
+    <!-- Grupo 4: Fondo -->
+    <div class="toolbar-group">
+      <span class="tool-label">Fondo:</span>
+      <input type="color" id="sub-bg-color-picker" value="#000000" title="Cambiar color del fondo" />
+      <button id="btn-toggle-bg" class="btn-tool-sm active-tool" title="Activar/Desactivar fondo">Fondo</button>
+    </div>
+
+  </div>
+</section>
+
+<script src="scripts.js"></script>
+</body>
+</html>
