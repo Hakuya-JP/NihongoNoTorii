@@ -534,5 +534,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const ms = Math.floor((sec % 1) * 1000).toString().padStart(3, '0');
     return `${h}:${m}:${s},${ms}`;
   }
+const btnConfig = document.getElementById('btn-toggle-config');
+const configPanel = document.getElementById('video-config-panel');
+
+btnConfig.addEventListener('click', (e) => {
+  e.stopPropagation(); // Evita interferir con los controles del video
+  configPanel.classList.toggle('oculto');
+});
+
+// Ocultar la configuración si se hace clic fuera de ella en el video
+document.getElementById('video-wrapper').addEventListener('click', (e) => {
+  if (!configPanel.contains(e.target) && e.target !== btnConfig) {
+    configPanel.classList.add('oculto');
+  }
+});
+
 
 });

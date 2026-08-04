@@ -33,27 +33,89 @@
 <section class="seccion-reproductor">
   <h2 class="seccion-titulo">AnimeTV</h2>
 
-  <!-- 1. CONTENEDOR PRINCIPAL (Video + Panel Lateral) -->
+  <!-- CONTENEDOR PRINCIPAL (Grid con 2 columnas) -->
   <div class="player-container">
     
- <!-- ZONA DEL VIDEO (Contenedor que entrará en Pantalla Completa) -->
-<div id="video-wrapper" class="video-container">
-  <video id="main-video" controls>
-    Tu navegador no soporta la reproducción de video HTML5.
-  </video>
+    <!-- 1. ZONA DEL VIDEO (Columna 1, Fila 1) -->
+    <div id="video-wrapper" class="video-container">
+      <video id="main-video" controls>
+        Tu navegador no soporta la reproducción de video HTML5.
+      </video>
 
-  <!-- 🟢 BOTÓN DENTRO DEL REPRODUCTOR (Flotante) -->
-  <button id="btn-fullscreen" class="btn-player-fs" title="Pantalla completa">
-    ⛶
-  </button>
+      <!-- Botón flotante para pantalla completa -->
+      <button id="btn-fullscreen" class="btn-player-fs" title="Pantalla completa">
+        ⛶
+      </button>
 
-  <!-- Subtítulo flotante sobre el video -->
-  <div id="overlay-subtitles" class="overlay-subtitles">
-    Carga un video y un archivo de subtítulos para comenzar
-  </div>
-</div>
+      <!-- Botón flotante para panel de ajustes -->
+      <button id="btn-toggle-config" class="btn-toggle-config" title="Ajustes de subtítulos">
+        ⚙️
+      </button>
 
-    <!-- PANEL LATERAL DE SUBTÍTULOS -->
+      <!-- Subtítulo flotante sobre el video -->
+      <div id="overlay-subtitles" class="overlay-subtitles">
+        Carga un video y un archivo de subtítulos para comenzar
+      </div>
+
+      <!-- Panel flotante de configuración (disponible en Pantalla Completa) -->
+      <div class="video-overlay-config oculto" id="video-config-panel">
+        
+        <!-- Sincronización -->
+        <div class="toolbar-group">
+          <span class="tool-label">Sincro:</span>
+          <button id="btn-sub-minus-overlay" class="btn-tool-sm">-0.5s</button>
+          <button id="btn-sub-plus-overlay" class="btn-tool-sm">+0.5s</button>
+        </div>
+
+        <!-- Tamaño de texto y Furigana -->
+        <div class="toolbar-group">
+          <span class="tool-label">Zoom:</span>
+          <button id="btn-text-minus" class="btn-tool-sm">A-</button>
+          <button id="btn-text-plus" class="btn-tool-sm">A+</button>
+          <button id="btn-toggle-furigana" class="btn-tool-sm active-tool">Furigana</button>
+        </div>
+
+        <!-- Fuente y Color del Texto -->
+        <div class="toolbar-group">
+          <span class="tool-label">Texto:</span>
+          <input type="color" id="sub-color-picker" value="#ffffff" title="Color de texto" />
+          
+          <span class="tool-label">Fuente:</span>
+          <select id="sub-font-family">
+            <option value="system-ui, sans-serif">Predeterminada</option>
+            <option value="'M PLUS Rounded 1c', sans-serif">Redonda (Anime)</option>
+            <option value="'Shippori Mincho', 'Yu Mincho', serif">Formal (Mincho)</option>
+          </select>
+        </div>
+
+        <!-- Fondo del Subtítulo -->
+        <div class="toolbar-group">
+          <span class="tool-label">Fondo:</span>
+          <input type="color" id="sub-bg-color-picker" value="#000000" title="Color de fondo" />
+          <button id="btn-toggle-bg" class="btn-tool-sm active-tool" title="Activar/Desactivar fondo">Fondo</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 2. BARRA DE HERRAMIENTAS INFERIOR (Columna 1, Fila 2 - Mismo ancho que el video) -->
+    <div class="player-toolbar">
+      <div class="toolbar-group">
+        <label class="btn-tool" for="input-video">
+          📂 Cargar Video
+          <input type="file" id="input-video" accept="video/*" hidden />
+        </label>
+        <label class="btn-tool" for="input-sub">
+          💬 Cargar Subtítulo
+          <input type="file" id="input-sub" accept=".srt,.vtt,.ass" hidden />
+        </label>
+        <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
+          💾 Descargar
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. PANEL LATERAL DE SUBTÍTULOS (Columna 2, Filas 1 y 2) -->
     <div class="subtitles-sidebar">
       <div class="sidebar-header">
         <h3>Transcripción</h3>
@@ -62,59 +124,6 @@
       <div id="subtitles-list" class="subtitles-list">
         <p class="sub-placeholder">Los subtítulos cargados aparecerán aquí en formato de lista para navegar entre ellos.</p>
       </div>
-    </div>
-
-  </div>
-
-  <!-- 2. BARRA DE HERRAMIENTAS Y PERSONALIZACIÓN -->
-  <div class="player-toolbar">
-    
-    <!-- Grupo 1: Archivos y Pantalla Completa -->
-    <div class="toolbar-group">
-      <label class="btn-tool" for="input-video">
-        📂 Cargar Video
-        <input type="file" id="input-video" accept="video/*" hidden />
-      </label>
-      <label class="btn-tool" for="input-sub">
-        💬 Cargar Subtítulo
-        <input type="file" id="input-sub" accept=".srt,.vtt,.ass" hidden />
-      </label>
-      <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
-        💾 Descargar
-      </button>
-    </div>
-
-    <!-- Grupo 2: Sincronización, Tamaño y Furigana -->
-    <div class="toolbar-group">
-      <span class="tool-label">Sincro:</span>
-      <button id="btn-sub-minus" class="btn-tool-sm">-0.5s</button>
-      <button id="btn-sub-plus" class="btn-tool-sm">+0.5s</button>
-
-      <span class="tool-label">Zoom:</span>
-      <button id="btn-text-minus" class="btn-tool-sm">A-</button>
-      <button id="btn-text-plus" class="btn-tool-sm">A+</button>
-
-      <button id="btn-toggle-furigana" class="btn-tool-sm active-tool">Furigana</button>
-    </div>
-
-    <!-- Grupo 3: Personalización de Texto y Fuente -->
-    <div class="toolbar-group">
-      <span class="tool-label">Texto:</span>
-      <input type="color" id="sub-color-picker" value="#ffffff" title="Cambiar color del texto" />
-      
-      <span class="tool-label">Fuente:</span>
-      <select id="sub-font-family">
-        <option value="system-ui, sans-serif">Predeterminada</option>
-        <option value="'M PLUS Rounded 1c', sans-serif">Redonda (Anime)</option>
-        <option value="'Shippori Mincho', 'Yu Mincho', serif">Formal (Mincho)</option>
-      </select>
-    </div>
-
-    <!-- Grupo 4: Fondo -->
-    <div class="toolbar-group">
-      <span class="tool-label">Fondo:</span>
-      <input type="color" id="sub-bg-color-picker" value="#000000" title="Cambiar color del fondo" />
-      <button id="btn-toggle-bg" class="btn-tool-sm active-tool" title="Activar/Desactivar fondo">Fondo</button>
     </div>
 
   </div>
