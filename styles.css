@@ -49,7 +49,7 @@ body.dark-mode {
   --blanco: #08436a;      
   --azul: #152e3f;        
   --crema: #1c4e6f;       
-  --crema2: #a9d4f1;      
+  --crema2: #93c0de;      
   --blanco2: #0a425d;     /* CORREGIDO: Tono ligeramente diferente para dar relieve a las tarjetas */
   --naranja: #ff9447;
   --naranja2: #ff9447;  
@@ -977,7 +977,7 @@ body.dark-mode .top-nav a.active {
   border-bottom-color: var(--naranja);
 }
 
-/* ==========================================================================
+/*==========================================================================
    15. REPRODUCTOR INTERACTIVO Y SUBTÍTULOS
    ========================================================================== */
 .seccion-reproductor {
@@ -989,13 +989,12 @@ body.dark-mode .top-nav a.active {
 /* Distribución del contenedor mediante CSS Grid */
 .player-container {
   display: grid;
-  /* La primera columna (video) toma el espacio restante (1fr).
-     La segunda columna (transcripción) la ampliamos a 400px (o el ancho que prefieras). */
+  /* Columna 1: Reproductor (flexible) | Columna 2: Transcripción (400px) */
   grid-template-columns: 1fr 400px;
   grid-template-rows: auto auto;
   gap: 20px;
   align-items: start;
-  max-width: 1400px; /* Si deseas que todo el reproductor sea más ancho en pantallas grandes */
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -1019,7 +1018,7 @@ body.dark-mode .top-nav a.active {
 
 /* BARRA DE HERRAMIENTAS: Forzada a la misma columna del reproductor */
 .player-toolbar {
-  grid-column: 1 / 2; /* Se alinea exacto con el ancho del video */
+  grid-column: 1 / 2; /* Alineado exacto con el ancho del video */
   width: 100%;
   box-sizing: border-box;
   background: var(--blanco2);
@@ -1030,7 +1029,7 @@ body.dark-mode .top-nav a.active {
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
-  margin-top: 15px; /* Reducido para pegarse de manera limpia al reproductor */
+  margin-top: 15px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(0, 0, 0, 0.04);
 }
@@ -1060,7 +1059,8 @@ body.dark-mode .toolbar-group {
 }
 
 .btn-tool {
-  background: var(--naranja2);
+  background: var(--azul);    
+
   color: white;
   padding: 8px 14px;
   border-radius: 8px;
@@ -1081,11 +1081,19 @@ body.dark-mode .toolbar-group {
 }
 
 .btn-secundario-tool {
-  background: #4a5568;
+  background: var(--azul);    
 }
 
 .btn-secundario-tool:hover {
-  background: #2d3748;
+  background: var(--naranja); 
+}
+
+body.dark-mode .btn-secundario-tool:hover {
+  background: var(--naranja); 
+}
+
+body.dark-mode .btn-secundario-tool {
+  background: var(--azul);    
 }
 
 .btn-tool-sm {
@@ -1170,7 +1178,16 @@ body.dark-mode select#sub-font-family {
   color: #e2e8f0;
 }
 
+#sub-font-family option {
+  background-color: #fff;
+  color: #333;
+}
+
+/* SUBTÍTULOS FLOTANTES Y FONDO DINÁMICO */
 .overlay-subtitles {
+  /* Variable CSS para controlar el color del fondo dinámicamente */
+  --bg-sub-color: rgba(0, 0, 0, 0.75);
+  
   position: absolute;
   bottom: 50px;
   left: 5%;
@@ -1183,6 +1200,16 @@ body.dark-mode select#sub-font-family {
   pointer-events: auto;
   line-height: 1.4;
   z-index: 20;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: var(--bg-sub-color);
+  transition: background-color 0.2s ease;
+}
+
+/* Regla para ocultar el fondo cuando está desactivado */
+.overlay-subtitles.sin-fondo {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .overlay-subtitles.centrado {
@@ -1193,13 +1220,19 @@ body.dark-mode select#sub-font-family {
   bottom: auto;
   width: auto;
   max-width: 90%;
-  background: rgba(0, 0, 0, 0.75);
   padding: 15px 25px;
   border-radius: 12px;
   text-align: center;
   pointer-events: none;
 }
 
+.overlay-subtitles:empty {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* ESTILOS DE FURIGANA (RUBY) */
 .overlay-subtitles ruby, .sub-line ruby {
   ruby-position: over;
 }
@@ -1210,10 +1243,15 @@ body.dark-mode select#sub-font-family {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
 }
 
+body.sin-furigana .overlay-subtitles rt,
+body.sin-furigana .sub-line rt {
+  display: none !important;
+}
+
 /* BARRA LATERAL: Configurada para abarcar la altura equivalente del video */
 .subtitles-sidebar {
   grid-column: 2 / 3;
-  grid-row: 1 / 3; /* Abarca desde la fila del video hasta la de la barra de herramientas */
+  grid-row: 1 / 3; /* Abarca desde la fila del video hasta la barra de herramientas */
   background: var(--blanco2);
   border-radius: 12px;
   height: 100%;
@@ -1290,6 +1328,7 @@ body.dark-mode select#sub-font-family {
   margin-bottom: 3px;
 }
 
+/* RESPONSIVE DESIGN */
 @media (max-width: 900px) {
   .player-container {
     grid-template-columns: 1fr;
@@ -1303,28 +1342,6 @@ body.dark-mode select#sub-font-family {
     width: 100%;
     height: 350px;
   }
-}
-
-body.sin-furigana .overlay-subtitles rt,
-body.sin-furigana .sub-line rt {
-  display: none !important;
-}
-
-#overlay-subtitles.con-fondo {
-  background: rgba(0, 0, 0, 0.75);
-  padding: 8px 16px;
-  border-radius: 6px;
-}
-
-#overlay-subtitles:empty {
-  background: transparent !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-
-#sub-font-family option {
-  background-color: #fff;
-  color: #333;
 }
 
 
@@ -1380,11 +1397,20 @@ body.sin-furigana .sub-line rt {
   opacity: 1;
 }
 
+
 .btn-player-fs:hover {
-  background: var(--naranja, #ff6b6b);
+  background: var(--crema);
   border-color: transparent;
   transform: scale(1.1);
 }
+
+body.dark-mode .btn-player-fs:hover {
+  /* Fondo y borde para MODO OSCURO */
+  background: var(--crema);
+  border-color: transparent;
+  transform: scale(1.1);
+}
+
 
 #video-wrapper:fullscreen .btn-player-fs,
 #video-wrapper:-webkit-full-screen .btn-player-fs {
@@ -1428,28 +1454,47 @@ video::-webkit-media-controls-fullscreen-button {
 }
 
 .btn-toggle-config:hover {
-  background: var(--naranja);
+  background: var(--crema);
   border-color: transparent;
   transform: scale(1.1);
 }
 
-/* Panel flotante de ajustes sobre el video */
+body.dark-mode .btn-toggle-config:hover {
+  /* Fondo y borde para MODO OSCURO */
+  background: var(--crema);
+  border-color: transparent;
+  transform: scale(1.1);
+}
+
+/* Panel flotante de ajustes sobre el video - MODO CLARO (por defecto) */
 .video-overlay-config {
   position: absolute;
   top: 60px;
   right: 15px;
   z-index: 35;
-  background: rgba(15, 23, 42, 0.90);
+
+  /* Fondo y borde para MODO CLARO */
+  background: rgba(255, 228, 196, 0.88); /* Fondo claro traslúcido */
+  border: 1px solid rgba(0, 0, 0, 0.15); /* Borde sutil oscuro */
+  color: #1a1a1a; /* Texto oscuro para buena lectura */
+
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
   padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  color: white;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Panel flotante de ajustes - MODO OSCURO */
+body.dark-mode .video-overlay-config {
+  /* Fondo y borde para MODO OSCURO */
+  background: rgba(9, 74, 117, 0.653); /* O el tono oscuro que tenías originalmente */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff; /* Texto blanco */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* Ocultar menú por defecto */

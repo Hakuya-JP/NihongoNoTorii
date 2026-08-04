@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hablemos en Japonés - AnimeTV</title>
+  <title>Hablemos en Japonés - ToriiTV</title>
+  
+  <!-- Fuentes de Google Fonts para tipografías japonesas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -11,12 +17,12 @@
 <header class="main-header">
   <div class="header-brand">
     <a href="index.html" class="nav-logo">
-      <img src="image/logonnt.png" alt="Logo">
+      <img src="image/logonnt.png" alt="Logo Nihongo no Torii">
     </a>
     <h1 class="logo-text">Nihongo no Torii</h1>
   </div>
 
-  <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">☰</button>
 
   <nav id="menu" class="top-nav">
     <a href="index.html">Inicio</a>
@@ -31,9 +37,9 @@
 </header>
 
 <section class="seccion-reproductor">
-  <h2 class="seccion-titulo">AnimeTV</h2>
+  <h2 class="seccion-titulo">ToriiTV</h2>
 
-  <!-- CONTENEDOR PRINCIPAL (Grid con 2 columnas) -->
+  <!-- CONTENEDOR PRINCIPAL (Grid de 2 columnas) -->
   <div class="player-container">
     
     <!-- 1. ZONA DEL VIDEO (Columna 1, Fila 1) -->
@@ -53,18 +59,18 @@
       </button>
 
       <!-- Subtítulo flotante sobre el video -->
-      <div id="overlay-subtitles" class="overlay-subtitles">
+      <div id="overlay-subtitles" class="overlay-subtitles sin-fondo">
         Carga un video y un archivo de subtítulos para comenzar
       </div>
 
-      <!-- Panel flotante de configuración (disponible en Pantalla Completa) -->
+      <!-- Panel flotante de configuración -->
       <div class="video-overlay-config oculto" id="video-config-panel">
         
         <!-- Sincronización -->
         <div class="toolbar-group">
           <span class="tool-label">Sincro:</span>
-          <button id="btn-sub-minus-overlay" class="btn-tool-sm">-0.5s</button>
-          <button id="btn-sub-plus-overlay" class="btn-tool-sm">+0.5s</button>
+          <button id="btn-sub-minus" class="btn-tool-sm">-0.5s</button>
+          <button id="btn-sub-plus" class="btn-tool-sm">+0.5s</button>
         </div>
 
         <!-- Tamaño de texto y Furigana -->
@@ -92,25 +98,25 @@
         <div class="toolbar-group">
           <span class="tool-label">Fondo:</span>
           <input type="color" id="sub-bg-color-picker" value="#000000" title="Color de fondo" />
-          <button id="btn-toggle-bg" class="btn-tool-sm active-tool" title="Activar/Desactivar fondo">Fondo</button>
+          <button id="btn-toggle-bg" class="btn-tool-sm" title="Activar/Desactivar fondo">Fondo</button>
         </div>
 
       </div>
     </div>
 
-    <!-- 2. BARRA DE HERRAMIENTAS INFERIOR (Columna 1, Fila 2 - Mismo ancho que el video) -->
+    <!-- 2. BARRA DE HERRAMIENTAS INFERIOR (Columna 1, Fila 2) -->
     <div class="player-toolbar">
       <div class="toolbar-group">
         <label class="btn-tool" for="input-video">
-          📂 Cargar Video
+          <h3>📂 Cargar Video </h3>
           <input type="file" id="input-video" accept="video/*" hidden />
         </label>
         <label class="btn-tool" for="input-sub">
-          💬 Cargar Subtítulo
-          <input type="file" id="input-sub" accept=".srt,.vtt,.ass" hidden />
+          <h3>💬 Cargar Subtítulo</h3>
+          <input type="file" id="input-sub" accept=".srt,.vtt,.ass,.ssa" hidden />
         </label>
         <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
-          💾 Descargar
+          <h3>💾 Descargar</h3>
         </button>
       </div>
     </div>

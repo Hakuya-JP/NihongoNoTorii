@@ -91,14 +91,20 @@ function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra, linkAudio, 
   const btnAudio = document.getElementById('link-audio');
   const btnRespuestas = document.getElementById('link-respuestas');
 
-  if (btnExtra) btnExtra.style.display = (linkExtra && linkExtra !== '#') ? "block" : "none";
-  if (btnExtra && linkExtra !== '#') btnExtra.href = linkExtra;
+  if (btnExtra) {
+    btnExtra.style.display = (linkExtra && linkExtra !== '#') ? "block" : "none";
+    if (linkExtra !== '#') btnExtra.href = linkExtra;
+  }
 
-  if (btnAudio) btnAudio.style.display = (linkAudio && linkAudio !== '#') ? "block" : "none";
-  if (btnAudio && linkAudio !== '#') btnAudio.href = linkAudio;
+  if (btnAudio) {
+    btnAudio.style.display = (linkAudio && linkAudio !== '#') ? "block" : "none";
+    if (linkAudio !== '#') btnAudio.href = linkAudio;
+  }
 
-  if (btnRespuestas) btnRespuestas.style.display = (linkRespuestas && linkRespuestas !== '#') ? "block" : "none";
-  if (btnRespuestas && linkRespuestas !== '#') btnRespuestas.href = linkRespuestas;
+  if (btnRespuestas) {
+    btnRespuestas.style.display = (linkRespuestas && linkRespuestas !== '#') ? "block" : "none";
+    if (linkRespuestas !== '#') btnRespuestas.href = linkRespuestas;
+  }
   
   sidebar.classList.add('open');
   mainContainer.classList.add('sidebar-abierto');
@@ -247,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!video) return; 
 
   if (!video.getAttribute("src") && overlaySub) {
-    overlaySub.innerText = "🎬 Clic aquí en el video para cargarlo";
+    overlaySub.innerText = "🎬 Da clic aquí para cargar el video";
     overlaySub.classList.add("centrado");
   }
 
@@ -275,8 +281,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (subtitulos.length === 0 && subListContainer) {
           subListContainer.innerHTML = `
             <div style="padding: 20px; text-align: center; cursor: pointer;">
-              <p class="sub-placeholder" style="margin: 0; font-weight: bold; font-size: 0.95rem;">✅ Video cargado.</p>
-              <p class="sub-placeholder" style="margin-top: 6px; font-size: 0.85rem; opacity: 0.8;">Clic aquí en la lista para subir tus subtítulos (.srt, .vtt, .ass)</p>
+              <p class="sub-placeholder" style="margin: 0; font-weight: bold; font-size: 0.95rem;"><h2>✅ Video cargado.</h2></p>
+              <p class="sub-placeholder" style="margin-top: 6px; font-size: 0.85rem; opacity: 0.8;"><h3>Da clic aquí para subir los subtítulos (.srt, .vtt, .ass)</h3></p>
             </div>
           `;
         }
@@ -295,7 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.onload = function(evt) {
           const textoCrudo = evt.target.result;
           subtitulos = (extension === "ass" || extension === "ssa") ? parseASS(textoCrudo) : parseSRT(textoCrudo);
-          
+          window.subtitlesData = subtitulos;
           renderSidebarSubtitles();
           
           if (video.getAttribute("src") && overlaySub) {
@@ -339,7 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const endStr = parts[2].trim();
           let text = parts.slice(9).join(',').trim();
           
-          text = text.replace(/\{\\[^}]+\}/g, ''); // Limpieza general de etiquetas ASS
+          text = text.replace(/\{\\[^}]+\}/g, '');
           text = text.replace(/\\N/g, '<br>').replace(/\\n/g, '<br>');
 
           result.push({
@@ -452,25 +458,28 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnTextMinus) btnTextMinus.addEventListener("click", () => { if (fontSizeOverlay > 0.8) fontSizeOverlay -= 0.2; if(overlaySub) overlaySub.style.fontSize = `${fontSizeOverlay}rem`; });
 
   if (colorPicker && overlaySub) colorPicker.addEventListener("input", (e) => overlaySub.style.color = e.target.value);
+  
+  // Alternar visibilidad de fondo
   if (btnToggleBg && overlaySub) {
     btnToggleBg.addEventListener("click", () => {
-      overlaySub.classList.toggle("con-fondo");
+      overlaySub.classList.toggle("sin-fondo");
       btnToggleBg.classList.toggle("active-tool");
     });
   }
+  
   if (fontSelect && overlaySub) fontSelect.addEventListener("change", (e) => overlaySub.style.fontFamily = e.target.value);
   
+  // Modificar color de fondo dinámicamente mediante Variable CSS
   if (bgColorPicker && overlaySub) {
     bgColorPicker.addEventListener("input", (e) => {
       const hex = e.target.value;
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);
       const b = parseInt(hex.slice(5, 7), 16);
-      overlaySub.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
-      if (!overlaySub.classList.contains("con-fondo")) {
-        overlaySub.classList.add("con-fondo");
-        if (btnToggleBg) btnToggleBg.classList.add("active-tool");
-      }
+      
+      overlaySub.style.setProperty('--bg-sub-color', `rgba(${r}, ${g}, ${b}, 0.8)`);
+      overlaySub.classList.remove("sin-fondo");
+      if (btnToggleBg) btnToggleBg.classList.add("active-tool");
     });
   }
 
@@ -534,20 +543,79 @@ document.addEventListener("DOMContentLoaded", () => {
     const ms = Math.floor((sec % 1) * 1000).toString().padStart(3, '0');
     return `${h}:${m}:${s},${ms}`;
   }
-const btnConfig = document.getElementById('btn-toggle-config');
-const configPanel = document.getElementById('video-config-panel');
 
-btnConfig.addEventListener('click', (e) => {
-  e.stopPropagation(); // Evita interferir con los controles del video
-  configPanel.classList.toggle('oculto');
-});
+  // 7. PANEL DE CONFIGURACIÓN DEL VIDEO
+  const btnConfig = document.getElementById('btn-toggle-config');
+  const configPanel = document.getElementById('video-config-panel');
 
-// Ocultar la configuración si se hace clic fuera de ella en el video
-document.getElementById('video-wrapper').addEventListener('click', (e) => {
-  if (!configPanel.contains(e.target) && e.target !== btnConfig) {
-    configPanel.classList.add('oculto');
+  if (btnConfig && configPanel) {
+    btnConfig.addEventListener('click', (e) => {
+      e.stopPropagation();
+      configPanel.classList.toggle('oculto');
+    });
+
+    if (videoWrapper) {
+      videoWrapper.addEventListener('click', (e) => {
+        if (!configPanel.contains(e.target) && e.target !== btnConfig) {
+          configPanel.classList.add('oculto');
+        }
+      });
+    }
   }
-});
 
+  // ==========================================================================
+  // NAVEGACIÓN DE SUBTÍTULOS CON FLECHAS DEL TECLADO (CORREGIDA)
+  // ==========================================================================
+  document.addEventListener("keydown", (e) => {
+    // 1. Desactivar si el usuario escribe en un campo editable
+    const activeElement = document.activeElement;
+    if (
+      activeElement.tagName === "INPUT" ||
+      activeElement.tagName === "TEXTAREA" ||
+      activeElement.tagName === "SELECT"
+    ) {
+      return;
+    }
+
+    // 2. Comprobar que existan subtítulos cargados
+    if (!subtitulos || subtitulos.length === 0) return;
+
+    const currentTime = video.currentTime;
+
+    // Flecha Derecha: Ir al SIGUIENTE diálogo
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      
+      // Quitar el foco del video para evitar que HTML5 sobreescriba la acción
+      if (document.activeElement === video) video.blur();
+
+      const nextSub = subtitulos.find(
+        (sub) => (sub.inicio + timeOffset) > currentTime + 0.1
+      );
+
+      if (nextSub) {
+        video.currentTime = nextSub.inicio + timeOffset;
+      }
+    }
+
+    // Flecha Izquierda: Ir al diálogo ANTERIOR / REPETIR diálogo actual
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+
+      if (document.activeElement === video) video.blur();
+
+      // Busca el último subtítulo cuyo inicio esté antes del tiempo actual
+      const prevSub = subtitulos
+        .slice()
+        .reverse()
+        .find((sub) => (sub.inicio + timeOffset) < currentTime - 0.5);
+
+      if (prevSub) {
+        video.currentTime = prevSub.inicio + timeOffset;
+      } else if (subtitulos.length > 0) {
+        video.currentTime = subtitulos[0].inicio + timeOffset;
+      }
+    }
+  });
 
 });
