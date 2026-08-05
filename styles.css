@@ -1495,9 +1495,9 @@ body.dark-mode .video-overlay-config {
   z-index: 2147483647 !important;
 }
 
-/* ==========================================================================
-   18. Panel de Configuración de Anki
-   ========================================================================== */
+/* --------------------------------------------------------------------------
+   PANEL DE CONFIGURACIÓN DE ANKI
+   -------------------------------------------------------------------------- */
 .anki-config-panel {
   position: absolute;
   bottom: 60px;
@@ -1566,6 +1566,21 @@ body.dark-mode .anki-config-panel {
   border-color: var(--naranja, #ff9800);
 }
 
+.anki-input-group select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(150, 150, 150, 0.4);
+  background: var(--blanco, #fff);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+body.dark-mode .anki-input-group select {
+  background: rgba(12, 33, 58, 0.913);
+  color: #e2e8f0;
+}
+
 .btn-save-anki {
   margin-top: 6px;
   padding: 8px;
@@ -1590,32 +1605,17 @@ body.dark-mode .anki-config-panel {
   font-size: 0.85rem;
 }
 
-/* Indicador de conexión con AnkiConnect */
 .anki-status {
   font-size: 0.7rem;
   font-weight: bold;
   padding: 2px 6px;
   border-radius: 10px;
 }
+
 .anki-status.online {
   color: #4caf50;
 }
+
 .anki-status.offline {
   color: #f44336;
-}
-
-/* Ajustes a los selects dentro de Anki */
-.anki-input-group select {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(150, 150, 150, 0.4);
-  background: var(--blanco, #fff);
-  color: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-body.dark-mode .anki-input-group select {
-  background: rgba(12, 33, 58, 0.913);
-  color: #e2e8f0;
 }

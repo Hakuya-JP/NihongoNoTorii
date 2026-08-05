@@ -1,17 +1,28 @@
+// ==========================================================================
+// SECCIÓN 1: CONFIGURACIÓN GLOBAL Y PERSISTENCIA (ANKI)
+// ==========================================================================
+const ANKI_URL = "http://127.0.0.1:8765";
+
+let ankiConfig = {
+  enabled: localStorage.getItem("anki_enabled") !== "false",
+  deck: localStorage.getItem("anki_deck") || "Default",
+  model: localStorage.getItem("anki_model") || "ToriiDeck"
+};
+
+
+// ==========================================================================
+// SECCIÓN 2: INICIALIZACIÓN PRINCIPAL (DOM CONTENT LOADED)
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ==========================================================================
-  // 1. PREPARACIÓN DEL CARRUSEL INFINITO
-  // ==========================================================================
+  // --- 2.1 CARRUSEL INFINITO ---
   const track = document.querySelector('.slider-track');
   if (track) {
     const clones = track.innerHTML;
     track.innerHTML += clones;
   }
 
-  // ==========================================================================
-  // 2. COMPROBACIÓN INICIAL DEL MODO OSCURO
-  // ==========================================================================
+  // --- 2.2 MODO OSCURO (INICIALIZACIÓN) ---
   const savedTheme = localStorage.getItem('theme');
   const body = document.body;
   const btnDark = document.getElementById('dark-mode-toggle');
@@ -21,9 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnDark) btnDark.innerText = "☀️";
   }
 
-  // ==========================================================================
-  // 3. HIGHLIGHT EN EL MENÚ DE NAVEGACIÓN
-  // ==========================================================================
+  // --- 2.3 HIGHLIGHT MENÚ NAVEGACIÓN ---
   const paginaActual = window.location.pathname.split("/").pop();
   const enlacesMenu = document.querySelectorAll(".top-nav a");
 
@@ -36,14 +45,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-}); // Fin DOMContentLoaded Inicial
+  // --- 2.4 INICIALIZACIÓN DE MÓDULOS ---
+  initVideoPlayerModule(); // Módulo ToriiTV
+  initAnkiConfigModule();  // Módulo Anki
+});
 
 
-// ================================================================
-// FUNCIONES GLOBALES (Menú, Videos, Biblioteca y Modo Oscuro)
-// ================================================================
+// ==========================================================================
+// SECCIÓN 3: INTERFAZ GENERAL Y NAVEGACIÓN (SITIO WEB / BIBLIOTECA)
+// ==========================================================================
 
-// Revelar Respuestas en Vocales y Kana
+// Revelar Respuestas
 function toggleV(id, botonPresionado = null) {
   const el = document.getElementById(id);
   if (el) {
@@ -59,7 +71,7 @@ function toggleV(id, botonPresionado = null) {
   }
 }
 
-// Interruptor de Modo Oscuro / Claro
+// Interruptor Dark Mode
 function toggleDarkMode() {
   const body = document.body;
   const btn = document.getElementById('dark-mode-toggle');
@@ -75,7 +87,7 @@ function toggleDarkMode() {
   }
 }
 
-// --- FUNCIONES DE LA BARRA LATERAL (SIDEBAR BIBLIOTECA) ---
+// Sidebar Biblioteca - Detalle
 function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra, linkAudio, linkRespuestas) {
   const sidebar = document.getElementById('sidebar-detalle');
   const mainContainer = document.querySelector('.biblioteca-main');
@@ -119,7 +131,7 @@ function cerrarDetalle() {
   if (mainContainer) mainContainer.classList.remove('sidebar-abierto');
 }
 
-// --- FILTROS DE BÚSQUEDA ---
+// Filtros Biblioteca
 function filtrarLibros() {
   const buscador = document.getElementById('buscador-libros');
   if (!buscador) return;
@@ -168,7 +180,21 @@ function resetearBotonesFiltro() {
   if (botones[0]) botones[0].classList.add('active');
 }
 
-// --- CIERRE AL HACER CLIC FUERA ---
+function toggleMenu() {
+  const menu = document.getElementById('menu');
+  if (menu) {
+    menu.classList.toggle('menu-open');
+    if (menu.classList.contains('menu-open')) {
+      registrarEstadoAbierto();
+    }
+  }
+}
+
+function registrarEstadoAbierto() {
+  history.pushState({ panelAbierto: true }, "");
+}
+
+// LISTENERS GLOBALES (CLIC Y NAVEGACIÓN)
 document.addEventListener('click', function(evento) {
   const sidebar = document.getElementById('sidebar-detalle');
   const menu = document.getElementById('menu');
@@ -193,21 +219,6 @@ document.addEventListener('click', function(evento) {
   }
 });
 
-// --- HISTORIAL Y BOTÓN ATRÁS ---
-function registrarEstadoAbierto() {
-  history.pushState({ panelAbierto: true }, "");
-}
-
-function toggleMenu() {
-  const menu = document.getElementById('menu');
-  if (menu) {
-    menu.classList.toggle('menu-open');
-    if (menu.classList.contains('menu-open')) {
-      registrarEstadoAbierto();
-    }
-  }
-}
-
 window.addEventListener('popstate', function() {
   const sidebar = document.getElementById('sidebar-detalle');
   const mainContainer = document.querySelector('.biblioteca-main');
@@ -223,10 +234,11 @@ window.addEventListener('popstate', function() {
   }
 });
 
+
 // ==========================================================================
-// MÓDULO DEL REPRODUCTOR DE SUBTÍTULOS INTERACTIVO + INTEGRACIÓN ANKI (ToriiDeck)
+// SECCIÓN 4: MÓDULO TORIITV (REPRODUCTOR DE VIDEO Y SUBTÍTULOS)
 // ==========================================================================
-document.addEventListener("DOMContentLoaded", () => {
+function initVideoPlayerModule() {
   const video = document.getElementById("main-video");
   const videoWrapper = document.getElementById("video-wrapper");
   const inputVideo = document.getElementById("input-video");
@@ -245,11 +257,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnTextMinus = document.getElementById("btn-text-minus");
   const btnTextPlus = document.getElementById("btn-text-plus");
 
+  if (!video) return;
+
   let subtitulos = [];
   let timeOffset = 0;
   let fontSizeOverlay = 1.4;
-
-  if (!video) return; 
 
   if (!video.getAttribute("src") && overlaySub) {
     overlaySub.innerText = "🎬 Da clic aquí para cargar el video";
@@ -262,14 +274,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (subListContainer) {
     subListContainer.addEventListener("click", (e) => {
-      // Previene abrir el cargador de subtítulos si hace clic en líneas existentes
       if (subtitulos.length === 0 && inputSub && !e.target.closest('.sub-line')) {
         inputSub.click(); 
       }
     });
   }
 
-  // 1. CARGAR VIDEO LOCAL
+  // Carga de archivo de Video
   if (inputVideo) {
     inputVideo.addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -292,7 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. CARGAR SUBTÍTULOS
+  // Carga de Subtítulos
   if (inputSub) {
     inputSub.addEventListener("change", (e) => {
       const file = e.target.files[0];
@@ -392,7 +403,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
-  // RENDERIZADO DE SUBTÍTULOS Y BOTÓN DE ANKI
   function renderSidebarSubtitles() {
     if (!subListContainer) return;
     subListContainer.innerHTML = "";
@@ -401,6 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const lineDiv = document.createElement("div");
       lineDiv.classList.add("sub-line");
       lineDiv.dataset.index = index;
+
       lineDiv.innerHTML = `
         <span class="sub-time">${formatTime(sub.inicio + timeOffset)}</span>
         <div class="sub-text">${sub.texto}</div>
@@ -417,11 +428,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (starBtn) {
         starBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
-
           starBtn.innerText = "⏳";
 
           try {
-            await enviarObjetoAAnki(sub);
+            await window.enviarObjetoAAnki(sub);
             starBtn.innerText = "★";
             starBtn.classList.add("active");
             starBtn.title = "¡Añadida a Anki!";
@@ -436,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. SINCRONIZACIÓN EN TIEMPO REAL
+  // Sincronización continua de Video y Subtítulos
   video.addEventListener("timeupdate", () => {
     if (subtitulos.length === 0) return;
 
@@ -466,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 4. CONTROLES Y HERRAMIENTAS
+  // Ajustes de Desfase de Subtítulos y Estilos de Texto
   if (btnSubPlus) btnSubPlus.addEventListener("click", () => { timeOffset += 0.5; actualizarTiemposUI(); });
   if (btnSubMinus) btnSubMinus.addEventListener("click", () => { timeOffset -= 0.5; actualizarTiemposUI(); });
 
@@ -508,7 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 5. CONTROL PANTALLA COMPLETA
+  // Pantalla Completa
   function togglePantallaCompleta() {
     const contenedor = videoWrapper || video;
     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -523,16 +533,44 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnFullscreen) btnFullscreen.addEventListener("click", togglePantallaCompleta);
   video.addEventListener("dblclick", togglePantallaCompleta);
 
+  // Atajos de Teclado
   document.addEventListener("keydown", (e) => {
     const activeElement = document.activeElement;
-    const isEditingText = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
-    if ((e.key === 'f' || e.key === 'F') && !isEditingText) {
+    const isEditingText = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'SELECT';
+
+    if (isEditingText) return;
+
+    if (e.key === 'f' || e.key === 'F') {
       e.preventDefault();
       togglePantallaCompleta();
     }
+
+    if (!subtitulos || subtitulos.length === 0) return;
+
+    const currentTime = video.currentTime;
+
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      if (document.activeElement === video) video.blur();
+
+      const nextSub = subtitulos.find(sub => (sub.inicio + timeOffset) > currentTime + 0.1);
+      if (nextSub) video.currentTime = nextSub.inicio + timeOffset;
+    }
+
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      if (document.activeElement === video) video.blur();
+
+      const prevSub = subtitulos.slice().reverse().find(sub => (sub.inicio + timeOffset) < currentTime - 0.5);
+      if (prevSub) {
+        video.currentTime = prevSub.inicio + timeOffset;
+      } else if (subtitulos.length > 0) {
+        video.currentTime = subtitulos[0].inicio + timeOffset;
+      }
+    }
   });
 
-  // 6. DESCARGAR SUBTÍTULOS (.SRT)
+  // Exportar SRT
   const btnExport = document.getElementById("btn-export-sub");
   if (btnExport) {
     btnExport.addEventListener("click", () => {
@@ -568,7 +606,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${h}:${m}:${s},${ms}`;
   }
 
-  // 7. PANEL DE CONFIGURACIÓN DEL VIDEO
+  // Panel Configuración Ajustes
   const btnConfig = document.getElementById('btn-toggle-config');
   const configPanel = document.getElementById('video-config-panel');
 
@@ -586,78 +624,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+}
 
-  // NAVEGACIÓN DE SUBTÍTULOS CON FLECHAS
-  document.addEventListener("keydown", (e) => {
-    const activeElement = document.activeElement;
-    if (
-      activeElement.tagName === "INPUT" ||
-      activeElement.tagName === "TEXTAREA" ||
-      activeElement.tagName === "SELECT"
-    ) {
-      return;
-    }
 
-    if (!subtitulos || subtitulos.length === 0) return;
-
-    const currentTime = video.currentTime;
-
-    if (e.key === "ArrowRight") {
-      e.preventDefault();
-      if (document.activeElement === video) video.blur();
-
-      const nextSub = subtitulos.find(
-        (sub) => (sub.inicio + timeOffset) > currentTime + 0.1
-      );
-
-      if (nextSub) {
-        video.currentTime = nextSub.inicio + timeOffset;
-      }
-    }
-
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      if (document.activeElement === video) video.blur();
-
-      const prevSub = subtitulos
-        .slice()
-        .reverse()
-        .find((sub) => (sub.inicio + timeOffset) < currentTime - 0.5);
-
-      if (prevSub) {
-        video.currentTime = prevSub.inicio + timeOffset;
-      } else if (subtitulos.length > 0) {
-        video.currentTime = subtitulos[0].inicio + timeOffset;
-      }
-    }
-  });
 // ==========================================================================
-// MÓDULO INTEGRACIÓN AVANZADA ANKI (ToriiDeck / AnkiConnect Estándar)
+// SECCIÓN 5: MÓDULO INTEGRACIÓN ANKI Y CAPTURA
 // ==========================================================================
-
-const ANKI_URL = "http://127.0.0.1:8765";
-
-// Referencias del DOM
-const btnToggleAnki = document.getElementById("btn-toggle-anki-config");
-const panelAnki = document.getElementById("anki-config-panel");
-const btnSaveAnki = document.getElementById("btn-save-anki");
-const btnRefreshDecks = document.getElementById("btn-refresh-decks");
-
-const selectDeck = document.getElementById("anki-deck-select");
-const selectModel = document.getElementById("anki-model-select");
-const toggleEnabled = document.getElementById("anki-enabled-toggle");
-const statusIndicator = document.getElementById("anki-status-indicator");
-
-// Configuración persistente en LocalStorage
-let ankiConfig = {
-  enabled: localStorage.getItem("anki_enabled") !== "false",
-  deck: localStorage.getItem("anki_deck") || "Default",
-  model: localStorage.getItem("anki_model") || "ToriiDeck"
-};
-
-if (toggleEnabled) toggleEnabled.checked = ankiConfig.enabled;
-
-// 1. INVOCADOR OFICIAL ANKICONNECT
 async function invokeAnki(action, version = 6, params = {}) {
   try {
     const response = await fetch(ANKI_URL, {
@@ -672,8 +644,62 @@ async function invokeAnki(action, version = 6, params = {}) {
   }
 }
 
-// 2. OBTENER Y RENDERIZAR LISTA DE MAZOS Y MODELOS
+function initAnkiConfigModule() {
+  const btnToggleAnki = document.getElementById("btn-toggle-anki-config");
+  const panelAnki = document.getElementById("anki-config-panel");
+  const btnSaveAnki = document.getElementById("btn-save-anki");
+  const btnRefreshDecks = document.getElementById("btn-refresh-decks");
+  const toggleEnabled = document.getElementById("anki-enabled-toggle");
+
+  if (toggleEnabled) toggleEnabled.checked = ankiConfig.enabled;
+
+  if (btnRefreshDecks) {
+    btnRefreshDecks.addEventListener("click", cargarMazosAnki);
+  }
+
+  if (btnToggleAnki && panelAnki) {
+    btnToggleAnki.addEventListener("click", (e) => {
+      e.stopPropagation();
+      panelAnki.classList.toggle("oculto");
+      if (!panelAnki.classList.contains("oculto")) {
+        cargarMazosAnki();
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!panelAnki.contains(e.target) && e.target !== btnToggleAnki) {
+        panelAnki.classList.add("oculto");
+      }
+    });
+  }
+
+  if (btnSaveAnki) {
+    btnSaveAnki.addEventListener("click", () => {
+      const selectDeck = document.getElementById("anki-deck-select");
+      const selectModel = document.getElementById("anki-model-select");
+
+      ankiConfig.enabled = toggleEnabled ? toggleEnabled.checked : true;
+      ankiConfig.deck = selectDeck ? selectDeck.value : "Default";
+      ankiConfig.model = selectModel ? selectModel.value : "ToriiDeck";
+
+      localStorage.setItem("anki_enabled", ankiConfig.enabled);
+      localStorage.setItem("anki_deck", ankiConfig.deck);
+      localStorage.setItem("anki_model", ankiConfig.model);
+
+      if (panelAnki) panelAnki.classList.add("oculto");
+      alert("¡Configuración de Anki guardada!");
+    });
+  }
+
+  // Carga inicial
+  cargarMazosAnki();
+}
+
 async function cargarMazosAnki() {
+  const selectDeck = document.getElementById("anki-deck-select");
+  const selectModel = document.getElementById("anki-model-select");
+  const statusIndicator = document.getElementById("anki-status-indicator");
+
   if (!selectDeck) return;
 
   const [resDecks, resModels] = await Promise.all([
@@ -695,7 +721,7 @@ async function cargarMazosAnki() {
     statusIndicator.className = "anki-status online";
   }
 
-  // Rellenar Mazos
+  // Cargar Mazos
   selectDeck.innerHTML = "";
   resDecks.result.forEach((deckName) => {
     const option = document.createElement("option");
@@ -707,7 +733,7 @@ async function cargarMazosAnki() {
     selectDeck.value = ankiConfig.deck;
   }
 
-  // Rellenar Tipos de Nota (Modelos)
+  // Cargar Modelos (Note Types)
   if (selectModel && resModels.result) {
     selectModel.innerHTML = "";
     resModels.result.forEach((modelName) => {
@@ -716,52 +742,20 @@ async function cargarMazosAnki() {
       option.textContent = modelName;
       selectModel.appendChild(option);
     });
+
     if (ankiConfig.model && resModels.result.includes(ankiConfig.model)) {
       selectModel.value = ankiConfig.model;
     }
   }
 }
 
-if (btnRefreshDecks) {
-  btnRefreshDecks.addEventListener("click", cargarMazosAnki);
-}
-
-// 3. EVENTOS DE DESPLEGABLE Y CONFIGURACIÓN
-if (btnToggleAnki && panelAnki) {
-  btnToggleAnki.addEventListener("click", (e) => {
-    e.stopPropagation();
-    panelAnki.classList.toggle("oculto");
-    if (!panelAnki.classList.contains("oculto")) {
-      cargarMazosAnki();
-    }
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!panelAnki.contains(e.target) && e.target !== btnToggleAnki) {
-      panelAnki.classList.add("oculto");
-    }
-  });
-}
-
-if (btnSaveAnki) {
-  btnSaveAnki.addEventListener("click", () => {
-    ankiConfig.enabled = toggleEnabled ? toggleEnabled.checked : true;
-    ankiConfig.deck = selectDeck ? selectDeck.value : "Default";
-    ankiConfig.model = selectModel ? selectModel.value : "ToriiDeck";
-
-    localStorage.setItem("anki_enabled", ankiConfig.enabled);
-    localStorage.setItem("anki_deck", ankiConfig.deck);
-    localStorage.setItem("anki_model", ankiConfig.model);
-
-    if (panelAnki) panelAnki.classList.add("oculto");
-    alert("¡Configuración de Anki guardada!");
-  });
-}
-
-// 4. CAPTURAR PANTALLA EN BASE64 PURO
+// Captura de fotograma
 function capturarFotogramaVideo() {
   const videoEl = document.getElementById("main-video");
-  if (!videoEl || videoEl.readyState < 2) return null;
+  if (!videoEl || videoEl.readyState < 2 || !videoEl.videoWidth) {
+    console.warn("El video no está listo para captura de fotograma.");
+    return null;
+  }
 
   try {
     const canvas = document.createElement("canvas");
@@ -774,23 +768,21 @@ function capturarFotogramaVideo() {
     const dataURL = canvas.toDataURL("image/jpeg", 0.85);
     return dataURL.replace(/^data:image\/jpeg;base64,/, "");
   } catch (err) {
-    console.warn("No se pudo capturar fotograma:", err);
+    console.warn("No se pudo capturar el fotograma (posible bloqueo CORS o lienzo sucio):", err);
     return null;
   }
 }
 
-// 5. ENVIAR NOTA A ANKI (EXPUESTA GLOBALMENTE EN WINDOW)
+// Expuesto globalmente para exportar a AnkiConnect
 window.enviarObjetoAAnki = async function(sub) {
-  if (!ankiConfig.enabled) {
+  if (!ankiConfig || !ankiConfig.enabled) {
     throw new Error("La función de Anki está desactivada en los ajustes.");
   }
 
   const targetModel = ankiConfig.model || "ToriiDeck";
 
-  // A. Obtener los nombres de campos del modelo en Anki
-  const modelFieldsRes = await invokeAnki("modelFieldNames", 6, {
-    modelName: targetModel
-  });
+  // Obtener campos del modelo configurado
+  const modelFieldsRes = await invokeAnki("modelFieldNames", 6, { modelName: targetModel });
 
   if (modelFieldsRes.error || !modelFieldsRes.result) {
     throw new Error(`El modelo "${targetModel}" no existe en Anki: ${modelFieldsRes.error}`);
@@ -799,62 +791,65 @@ window.enviarObjetoAAnki = async function(sub) {
   const camposReales = modelFieldsRes.result;
   let fieldsObj = {};
 
-  // Inicializar todos los campos en blanco por seguridad
-  camposReales.forEach((campo) => {
-    fieldsObj[campo] = "";
-  });
+  // Inicializar todos los campos vacíos
+  camposReales.forEach((campo) => { fieldsObj[campo] = ""; });
 
-  // B. Búsqueda insensible a mayúsculas/acentos
+  // Limpieza de subtítulo para oración plana
+  const fraseLimpia = sub.texto
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .trim();
+
+  const timestamp = Date.now();
+
+  // 1. Asignación directa para ToriiDeck
+  if (camposReales.includes("Indice")) fieldsObj["Indice"] = `ToriiTV_${timestamp}`;
+  if (camposReales.includes("Oracion")) fieldsObj["Oracion"] = fraseLimpia;
+  if (camposReales.includes("Furigana")) fieldsObj["Furigana"] = sub.texto;
+
+  // Helper para coincidencia flexible de campos
   const encontrarCampo = (posiblesNombres) => {
     return camposReales.find((c) =>
-      posiblesNombres.some(
-        (p) =>
-          c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") ===
-          p.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      posiblesNombres.some((p) =>
+        c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s_]/g, "") ===
+        p.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s_]/g, "")
       )
     );
   };
 
-  const campoOracion = encontrarCampo(["Japones", "Japanese", "Oracion", "Oración", "Frase", "Front", "Texto", "Expression", "Sentence"]);
-  const campoFurigana = encontrarCampo(["Furigana", "Lectura", "Reading", "Back"]);
-  const campoImagen = encontrarCampo(["Imagen", "Image", "Picture", "Snapshot", "Screenshot"]);
+  // 2. Buscamos campos alternativos si no encajó directo en ToriiDeck
+  const campoOracionAlt = encontrarCampo(["Japones", "Japanese", "Front", "Texto", "Expression", "Sentence", "Oracion"]);
+  const campoFuriganaAlt = encontrarCampo(["Lectura", "Reading", "Back", "Furigana"]);
+  const campoImagen = encontrarCampo(["Imagen", "Image", "Picture", "Snapshot", "Screenshot", "Fotograma"]);
 
-  // C. Limpieza del texto
-  const fraseLimpia = sub.texto.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
+  if (!fieldsObj["Oracion"] && campoOracionAlt) fieldsObj[campoOracionAlt] = fraseLimpia;
+  if (!fieldsObj["Furigana"] && campoFuriganaAlt) fieldsObj[campoFuriganaAlt] = sub.texto;
 
-  // D. Asignación de valores
-  if (campoOracion) {
-    fieldsObj[campoOracion] = fraseLimpia;
-  } else {
-    fieldsObj[camposReales[0]] = fraseLimpia; // Fallback al primer campo disponible
+  // Fallback: Si el primer campo sigue vacío, insertamos la frase limpia
+  if (!fieldsObj[camposReales[0]]) {
+    fieldsObj[camposReales[0]] = fraseLimpia;
   }
 
-  if (campoFurigana) {
-    fieldsObj[campoFurigana] = sub.texto;
-  }
-
-  // E. Construcción de la nota según la spec oficial de AnkiConnect
+  // Estructura principal de la tarjeta
   const notePayload = {
     deckName: ankiConfig.deck || "Default",
     modelName: targetModel,
     fields: fieldsObj,
     tags: ["ToriiTV"],
-    options: {
-      allowDuplicate: true
-    }
+    options: { allowDuplicate: true }
   };
 
-  // F. Adjuntar captura fotográfica si existe un campo para imágenes
+  // 3. Adjuntar fotograma en base64 si existe campo de imagen objetivo
   const imgBase64 = capturarFotogramaVideo();
   if (imgBase64 && campoImagen) {
     notePayload.picture = [{
       data: imgBase64,
-      filename: `toriideck_${Date.now()}.jpg`,
+      filename: `toriideck_${timestamp}.jpg`,
       fields: [campoImagen]
     }];
   }
 
-  // G. Envío final
+  // Envío final a AnkiConnect
   const res = await invokeAnki("addNote", 6, { note: notePayload });
 
   if (res.error) {
@@ -862,12 +857,5 @@ window.enviarObjetoAAnki = async function(sub) {
     throw new Error(res.error);
   }
 
-  console.log("¡Nota añadida exitosamente con ID:", res.result);
   return res.result;
 };
-
-// Cargar la lista inicial de mazos/modelos al iniciar el DOM
-cargarMazosAnki();
-
-
-});
