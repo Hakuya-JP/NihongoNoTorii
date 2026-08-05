@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ToriiTV</title>
+  <title>ToriiTV - Nihongo no Torii</title>
   
   <!-- Fuentes de Google Fonts para tipografías japonesas -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,109 +31,160 @@
     <a href="kana.html">Kana</a>
     <a href="biblioteca.html">Biblioteca</a>
     <a href="manga.html">Manga/Novela</a>
-    <a href="animetv.html">AnimeTV</a>
-    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Cambiar tema">🌙</button>
   </nav>
 </header>
 
-<section class="seccion-reproductor">
-  <h2 class="seccion-titulo">ToriiTV</h2>
+<main>
+  <section class="seccion-reproductor">
+    <h2 class="seccion-titulo">ToriiTV</h2>
 
-  <!-- CONTENEDOR PRINCIPAL (Grid de 2 columnas) -->
-  <div class="player-container">
-    
-    <!-- 1. ZONA DEL VIDEO (Columna 1, Fila 1) -->
-    <div id="video-wrapper" class="video-container">
-      <video id="main-video" controls>
-        Tu navegador no soporta la reproducción de video HTML5.
-      </video>
+    <!-- CONTENEDOR PRINCIPAL (Grid de 2 columnas) -->
+    <div class="player-container">
+      
+      <!-- 1. ZONA DEL VIDEO (Columna 1, Fila 1) -->
+      <div id="video-wrapper" class="video-container">
+        <video id="main-video" controls>
+          Tu navegador no soporta la reproducción de video HTML5.
+        </video>
 
-      <!-- Botón flotante para pantalla completa -->
-      <button id="btn-fullscreen" class="btn-player-fs" title="Pantalla completa">
-        ⛶
-      </button>
-
-      <!-- Botón flotante para panel de ajustes -->
-      <button id="btn-toggle-config" class="btn-toggle-config" title="Ajustes de subtítulos">
-        ⚙️
-      </button>
-
-      <!-- Subtítulo flotante sobre el video -->
-      <div id="overlay-subtitles" class="overlay-subtitles sin-fondo">
-        Carga un video y un archivo de subtítulos para comenzar
-      </div>
-
-      <!-- Panel flotante de configuración -->
-      <div class="video-overlay-config oculto" id="video-config-panel">
-        
-        <!-- Sincronización -->
-        <div class="toolbar-group">
-          <span class="tool-label">Sincro:</span>
-          <button id="btn-sub-minus" class="btn-tool-sm">-0.5s</button>
-          <button id="btn-sub-plus" class="btn-tool-sm">+0.5s</button>
-        </div>
-
-        <!-- Tamaño de texto y Furigana -->
-        <div class="toolbar-group">
-          <span class="tool-label">Zoom:</span>
-          <button id="btn-text-minus" class="btn-tool-sm">A-</button>
-          <button id="btn-text-plus" class="btn-tool-sm">A+</button>
-          <button id="btn-toggle-furigana" class="btn-tool-sm active-tool">Furigana</button>
-        </div>
-
-        <!-- Fuente y Color del Texto -->
-        <div class="toolbar-group">
-          <span class="tool-label">Texto:</span>
-          <input type="color" id="sub-color-picker" value="#ffffff" title="Color de texto" />
-          
-          <span class="tool-label">Fuente:</span>
-          <select id="sub-font-family">
-            <option value="system-ui, sans-serif">Predeterminada</option>
-            <option value="'M PLUS Rounded 1c', sans-serif">Redonda (Anime)</option>
-            <option value="'Shippori Mincho', 'Yu Mincho', serif">Formal (Mincho)</option>
-          </select>
-        </div>
-
-        <!-- Fondo del Subtítulo -->
-        <div class="toolbar-group">
-          <span class="tool-label">Fondo:</span>
-          <input type="color" id="sub-bg-color-picker" value="#000000" title="Color de fondo" />
-          <button id="btn-toggle-bg" class="btn-tool-sm" title="Activar/Desactivar fondo">Fondo</button>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- 2. BARRA DE HERRAMIENTAS INFERIOR (Columna 1, Fila 2) -->
-    <div class="player-toolbar">
-      <div class="toolbar-group">
-        <label class="btn-tool" for="input-video">
-          <h3>📂 Cargar Video </h3>
-          <input type="file" id="input-video" accept="video/*" hidden />
-        </label>
-        <label class="btn-tool" for="input-sub">
-          <h3>💬 Cargar Subtítulo</h3>
-          <input type="file" id="input-sub" accept=".srt,.vtt,.ass,.ssa" hidden />
-        </label>
-        <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
-          <h3>💾 Descargar</h3>
+        <!-- Botón flotante para pantalla completa -->
+        <button id="btn-fullscreen" class="btn-player-fs" title="Pantalla completa" aria-label="Pantalla completa">
+          ⛶
         </button>
-      </div>
-    </div>
 
-    <!-- 3. PANEL LATERAL DE SUBTÍTULOS (Columna 2, Filas 1 y 2) -->
-    <div class="subtitles-sidebar">
-      <div class="sidebar-header">
-        <h3>Transcripción</h3>
-        <span id="sub-count" class="sub-badge">0 líneas</span>
-      </div>
-      <div id="subtitles-list" class="subtitles-list">
-        <p class="sub-placeholder">Los subtítulos cargados aparecerán aquí en formato de lista para navegar entre ellos.</p>
-      </div>
-    </div>
+        <!-- Botón flotante para panel de ajustes -->
+        <button id="btn-toggle-config" class="btn-toggle-config" title="Ajustes de subtítulos" aria-label="Ajustes de subtítulos">
+          ⚙️
+        </button>
 
-  </div>
-</section>
+        <!-- Subtítulo flotante sobre el video -->
+        <div id="overlay-subtitles" class="overlay-subtitles sin-fondo">
+          Carga un video y un archivo de subtítulos para comenzar
+        </div>
+
+        <!-- Panel flotante de configuración sobre el video -->
+        <div class="video-overlay-config oculto" id="video-config-panel">
+          
+          <!-- Sincronización -->
+          <div class="toolbar-group">
+            <span class="tool-label">Sincro:</span>
+            <button id="btn-sub-minus" class="btn-tool-sm">-0.5s</button>
+            <button id="btn-sub-plus" class="btn-tool-sm">+0.5s</button>
+          </div>
+
+          <!-- Tamaño de texto y Furigana -->
+          <div class="toolbar-group">
+            <span class="tool-label">Zoom:</span>
+            <button id="btn-text-minus" class="btn-tool-sm">A-</button>
+            <button id="btn-text-plus" class="btn-tool-sm">A+</button>
+            <button id="btn-toggle-furigana" class="btn-tool-sm active-tool">Furigana</button>
+          </div>
+
+          <!-- Fuente y Color del Texto -->
+          <div class="toolbar-group">
+            <span class="tool-label">Texto:</span>
+            <input type="color" id="sub-color-picker" value="#ffffff" title="Color de texto" />
+            
+            <span class="tool-label">Fuente:</span>
+            <select id="sub-font-family" aria-label="Tipografía de subtítulos">
+              <option value="system-ui, sans-serif">Predeterminada</option>
+              <option value="'M PLUS Rounded 1c', sans-serif">Redonda (Anime)</option>
+              <option value="'Shippori Mincho', 'Yu Mincho', serif">Formal (Mincho)</option>
+            </select>
+          </div>
+
+          <!-- Fondo del Subtítulo -->
+          <div class="toolbar-group">
+            <span class="tool-label">Fondo:</span>
+            <input type="color" id="sub-bg-color-picker" value="#000000" title="Color de fondo" />
+            <button id="btn-toggle-bg" class="btn-tool-sm" title="Activar/Desactivar fondo">Fondo</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 2. BARRA DE HERRAMIENTAS INFERIOR (Columna 1, Fila 2) -->
+      <div class="player-toolbar">
+        <div class="toolbar-group">
+          
+          <label class="btn-tool" for="input-video">
+            <span>📂 Cargar Video</span>
+            <input type="file" id="input-video" accept="video/*" hidden />
+          </label>
+
+          <label class="btn-tool" for="input-sub">
+            <span>💬 Cargar Subtítulo</span>
+            <input type="file" id="input-sub" accept=".srt,.vtt,.ass,.ssa" hidden />
+          </label>
+
+          <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
+            <span>💾 Descargar</span>
+          </button>
+
+          <!-- Wrapper del menú desplegable de Anki -->
+          <div class="anki-dropdown-wrapper" style="position: relative; display: inline-block;">
+            <button id="btn-toggle-anki-config" class="btn-tool" title="Configurar AnkiConnect">
+              <span>📇 Configuración de Anki</span>
+            </button>
+
+            <!-- Panel desplegable de Anki -->
+            <div id="anki-config-panel" class="anki-config-panel oculto">
+              <div class="anki-config-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1rem;">⚙️ AnkiConnect</h3>
+                <span id="anki-status-indicator" class="anki-status offline" style="font-size: 0.8rem;">● Comprobando...</span>
+              </div>
+
+              <!-- Switch para activar o desactivar -->
+              <label class="anki-switch-container" style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="anki-enabled-toggle" checked>
+                <span class="switch-label">Habilitar creación de tarjetas</span>
+              </label>
+
+              <hr class="anki-divider" style="margin: 10px 0;">
+
+              <!-- Seleccionar Mazo Detectado -->
+              <div class="anki-input-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label for="anki-deck-select">Mazo de Anki (Deck):</label>
+                  <button id="btn-refresh-decks" style="background: none; border: none; cursor: pointer; font-size: 0.85rem;" title="Actualizar lista de mazos">🔄</button>
+                </div>
+                <select id="anki-deck-select" style="width: 100%; padding: 6px; border-radius: 4px;">
+                  <option value="Default">Cargando mazos...</option>
+                </select>
+              </div>
+
+              <!-- Seleccionar Modelo / Tipo de Nota -->
+              <div class="anki-input-group" style="margin-top: 10px;">
+                <label for="anki-model-select">Tipo de Nota (Model):</label>
+                <select id="anki-model-select" style="width: 100%; padding: 6px; border-radius: 4px;">
+                  <option value="ToriiDeck">ToriiDeck</option>
+                  <option value="Basic">Básico (Basic)</option>
+                </select>
+              </div>
+
+              <button id="btn-save-anki" class="btn-save-anki" style="margin-top: 12px; width: 100%;">Guardar Cambios</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 3. PANEL LATERAL DE SUBTÍTULOS (Columna 2, Filas 1 y 2) -->
+      <aside class="subtitles-sidebar">
+        <div class="sidebar-header">
+          <h3>Transcripción</h3>
+          <span id="sub-count" class="sub-badge">0 líneas</span>
+        </div>
+        <div id="subtitles-list" class="subtitles-list">
+          <p class="sub-placeholder">Los subtítulos cargados aparecerán aquí en formato de lista para navegar entre ellos.</p>
+        </div>
+      </aside>
+
+    </div>
+  </section>
+</main>
 
 <script src="scripts.js"></script>
 </body>

@@ -1060,7 +1060,6 @@ body.dark-mode .toolbar-group {
 
 .btn-tool {
   background: var(--azul);    
-
   color: white;
   padding: 8px 14px;
   border-radius: 8px;
@@ -1084,10 +1083,7 @@ body.dark-mode .toolbar-group {
   background: var(--azul);    
 }
 
-.btn-secundario-tool:hover {
-  background: var(--naranja); 
-}
-
+.btn-secundario-tool:hover,
 body.dark-mode .btn-secundario-tool:hover {
   background: var(--naranja); 
 }
@@ -1098,7 +1094,6 @@ body.dark-mode .btn-secundario-tool {
 
 .btn-tool-sm {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.1);
   color: inherit;
   padding: 6px 10px;
@@ -1130,9 +1125,11 @@ body.dark-mode .btn-tool-sm.active-tool {
   color: white;
 }
 
+/* INPUT COLOR SOPERTE CROSS-BROWSER (CHROME / FIREFOX) */
 input[type="color"] {
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
   border: none;
   width: 28px;
   height: 28px;
@@ -1156,14 +1153,19 @@ input[type="color"]::-webkit-color-swatch {
   border-radius: 50%;
 }
 
-body.dark-mode input[type="color"]::-webkit-color-swatch {
+input[type="color"]::-moz-color-swatch {
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+}
+
+body.dark-mode input[type="color"]::-webkit-color-swatch,
+body.dark-mode input[type="color"]::-moz-color-swatch {
   border-color: rgba(255, 255, 255, 0.25);
 }
 
 select#sub-font-family {
   cursor: pointer;
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
   color: inherit;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
@@ -1185,7 +1187,6 @@ body.dark-mode select#sub-font-family {
 
 /* SUBTÍTULOS FLOTANTES Y FONDO DINÁMICO */
 .overlay-subtitles {
-  /* Variable CSS para controlar el color del fondo dinámicamente */
   --bg-sub-color: rgba(0, 0, 0, 0.75);
   
   position: absolute;
@@ -1206,10 +1207,9 @@ body.dark-mode select#sub-font-family {
   transition: background-color 0.2s ease;
 }
 
-/* Regla para ocultar el fondo cuando está desactivado */
+/* Ocultar el fondo cuando está desactivado */
 .overlay-subtitles.sin-fondo {
   background: transparent !important;
-  background-color: transparent !important;
 }
 
 .overlay-subtitles.centrado {
@@ -1248,10 +1248,10 @@ body.sin-furigana .sub-line rt {
   display: none !important;
 }
 
-/* BARRA LATERAL: Configurada para abarcar la altura equivalente del video */
+/* BARRA LATERAL */
 .subtitles-sidebar {
   grid-column: 2 / 3;
-  grid-row: 1 / 3; /* Abarca desde la fila del video hasta la barra de herramientas */
+  grid-row: 1 / 3;
   background: var(--blanco2);
   border-radius: 12px;
   height: 100%;
@@ -1344,12 +1344,10 @@ body.sin-furigana .sub-line rt {
   }
 }
 
-
 /* ==========================================================================
    16. PANTALLA COMPLETA Y BOTÓN FLOTANTE
    ========================================================================== */
-#video-wrapper:fullscreen,
-#video-wrapper:-webkit-full-screen {
+#video-wrapper:fullscreen {
   width: 100vw !important;
   height: 100vh !important;
   background: #000 !important;
@@ -1358,15 +1356,13 @@ body.sin-furigana .sub-line rt {
   justify-content: center !important;
 }
 
-#video-wrapper:fullscreen #main-video,
-#video-wrapper:-webkit-full-screen #main-video {
+#video-wrapper:fullscreen #main-video {
   width: 100% !important;
   height: 100% !important;
   object-fit: contain;
 }
 
-#video-wrapper:fullscreen .overlay-subtitles,
-#video-wrapper:-webkit-full-screen .overlay-subtitles {
+#video-wrapper:fullscreen .overlay-subtitles {
   position: absolute !important;
   z-index: 2147483647 !important;
   bottom: 8% !important;
@@ -1397,23 +1393,15 @@ body.sin-furigana .sub-line rt {
   opacity: 1;
 }
 
-
-.btn-player-fs:hover {
-  background: var(--crema);
-  border-color: transparent;
-  transform: scale(1.1);
-}
-
+.btn-player-fs:hover,
 body.dark-mode .btn-player-fs:hover {
-  /* Fondo y borde para MODO OSCURO */
   background: var(--crema);
+  color: var(--azul, #1a1a1a); /* Corregido: garantiza contraste de texto */
   border-color: transparent;
   transform: scale(1.1);
 }
 
-
-#video-wrapper:fullscreen .btn-player-fs,
-#video-wrapper:-webkit-full-screen .btn-player-fs {
+#video-wrapper:fullscreen .btn-player-fs {
   top: 25px;
   right: 25px;
   z-index: 2147483647 !important;
@@ -1427,11 +1415,10 @@ video::-webkit-media-controls-fullscreen-button {
    17. CONTROLES SOBRE EL VIDEO (DENTRO DEL CONTENEDOR DE PANTALLA COMPLETA)
    ========================================================================== */
 
-/* Botón flotante para abrir el menú de opciones */
 .btn-toggle-config {
   position: absolute;
   top: 15px;
-  right: 60px; /* Al lado del botón de pantalla completa */
+  right: 60px;
   z-index: 30;
   background: rgba(0, 0, 0, 0.6);
   color: #ffffff;
@@ -1453,31 +1440,23 @@ video::-webkit-media-controls-fullscreen-button {
   opacity: 1;
 }
 
-.btn-toggle-config:hover {
-  background: var(--crema);
-  border-color: transparent;
-  transform: scale(1.1);
-}
-
+.btn-toggle-config:hover,
 body.dark-mode .btn-toggle-config:hover {
-  /* Fondo y borde para MODO OSCURO */
   background: var(--crema);
+  color: var(--azul, #1a1a1a); /* Corregido: garantiza contraste de texto */
   border-color: transparent;
   transform: scale(1.1);
 }
 
-/* Panel flotante de ajustes sobre el video - MODO CLARO (por defecto) */
+/* Panel flotante de ajustes - MODO CLARO */
 .video-overlay-config {
   position: absolute;
   top: 60px;
   right: 15px;
   z-index: 35;
-
-  /* Fondo y borde para MODO CLARO */
-  background: rgba(255, 228, 196, 0.88); /* Fondo claro traslúcido */
-  border: 1px solid rgba(0, 0, 0, 0.15); /* Borde sutil oscuro */
-  color: #1a1a1a; /* Texto oscuro para buena lectura */
-
+  background: rgba(255, 228, 196, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
   backdrop-filter: blur(8px);
   border-radius: 12px;
   padding: 15px;
@@ -1490,10 +1469,9 @@ body.dark-mode .btn-toggle-config:hover {
 
 /* Panel flotante de ajustes - MODO OSCURO */
 body.dark-mode .video-overlay-config {
-  /* Fondo y borde para MODO OSCURO */
-  background: rgba(9, 74, 117, 0.653); /* O el tono oscuro que tenías originalmente */
+  background: rgba(9, 74, 117, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff; /* Texto blanco */
+  color: #ffffff;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
@@ -1504,17 +1482,140 @@ body.dark-mode .video-overlay-config {
   transform: translateY(-10px);
 }
 
-/* Ajustes de capas y escala en Pantalla Completa */
-#video-wrapper:fullscreen .btn-toggle-config,
-#video-wrapper:-webkit-full-screen .btn-toggle-config {
+/* Ajustes en Pantalla Completa */
+#video-wrapper:fullscreen .btn-toggle-config {
   top: 25px;
   right: 75px;
   z-index: 2147483647 !important;
 }
 
-#video-wrapper:fullscreen .video-overlay-config,
-#video-wrapper:-webkit-full-screen .video-overlay-config {
+#video-wrapper:fullscreen .video-overlay-config {
   top: 75px;
   right: 25px;
   z-index: 2147483647 !important;
+}
+
+/* ==========================================================================
+   18. Panel de Configuración de Anki
+   ========================================================================== */
+.anki-config-panel {
+  position: absolute;
+  bottom: 60px;
+  left: 15px;
+  z-index: 40;
+  width: 280px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bg-card, rgba(254, 235, 198, 0.95));
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(10px);
+  color: var(--text-color, #1a1a1a);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+body.dark-mode .anki-config-panel {
+  background: rgba(20, 28, 40, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.anki-config-panel.oculto {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
+.anki-config-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.anki-divider {
+  border: none;
+  border-top: 1px solid rgba(150, 150, 150, 0.3);
+  margin: 4px 0;
+}
+
+.anki-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.anki-input-group label {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.anki-input-group input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(150, 150, 150, 0.4);
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+}
+
+.anki-input-group input:focus {
+  outline: none;
+  border-color: var(--naranja, #ff9800);
+}
+
+.btn-save-anki {
+  margin-top: 6px;
+  padding: 8px;
+  background: var(--naranja, #ff9800);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-save-anki:hover {
+  filter: brightness(1.1);
+}
+
+.anki-switch-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Indicador de conexión con AnkiConnect */
+.anki-status {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+.anki-status.online {
+  color: #4caf50;
+}
+.anki-status.offline {
+  color: #f44336;
+}
+
+/* Ajustes a los selects dentro de Anki */
+.anki-input-group select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(150, 150, 150, 0.4);
+  background: var(--blanco, #fff);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+body.dark-mode .anki-input-group select {
+  background: rgba(12, 33, 58, 0.913);
+  color: #e2e8f0;
 }
