@@ -1619,3 +1619,7 @@ body.dark-mode .anki-input-group select {
 .anki-status.offline {
   color: #f44336;
 }
+
+.anki-status.warning {
+  color: #ff9800;
+}

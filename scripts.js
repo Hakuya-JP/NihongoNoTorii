@@ -1,12 +1,11 @@
 // ==========================================================================
 // SECCIÓN 1: CONFIGURACIÓN GLOBAL Y PERSISTENCIA (ANKI)
 // ==========================================================================
-const ANKI_URL = "http://127.0.0.1:8765";
-
 let ankiConfig = {
   enabled: localStorage.getItem("anki_enabled") !== "false",
   deck: localStorage.getItem("anki_deck") || "Default",
-  model: localStorage.getItem("anki_model") || "ToriiDeck"
+  model: localStorage.getItem("anki_model") || "ToriiDeck",
+  url: localStorage.getItem("anki_url") || "http://127.0.0.1:8765"
 };
 
 
@@ -631,17 +630,74 @@ function initVideoPlayerModule() {
 // SECCIÓN 5: MÓDULO INTEGRACIÓN ANKI Y CAPTURA
 // ==========================================================================
 async function invokeAnki(action, version = 6, params = {}) {
-  try {
-    const response = await fetch(ANKI_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, version, params })
-    });
-    return await response.json();
-  } catch (error) {
-    console.warn("AnkiConnect no responde:", error);
-    return { error: "No se pudo conectar con Anki. Asegúrate de que Anki esté abierto y AnkiConnect activo." };
+  const isHttpsSite = window.location.protocol === "https:";
+  const targetUrl = (ankiConfig.url || "http://127.0.0.1:8765").trim();
+  const isHttpTarget = targetUrl.startsWith("http://");
+
+  // Si estamos navegando en HTTPS y la URL objetivo es HTTP, los navegadores bloquean Mixed Content
+  if (isHttpsSite && isHttpTarget) {
+    console.warn("AnkiConnect: Bloqueo Mixed Content detectado (página HTTPS -> Anki HTTP).");
+    return {
+      error: "Error Mixed Content (HTTPS): El navegador bloquea conexiones HTTP locales (" + targetUrl + ") desde un sitio cargado por HTTPS. Abre esta página desde HTTP (http://) o usa un proxy/HTTPS para AnkiConnect.",
+      errorType: "MIXED_CONTENT"
+    };
   }
+
+  // Lista de URLs candidatas a intentar (URL configurada + fallbacks locales)
+  const candidateUrls = [targetUrl];
+  if (targetUrl.includes("127.0.0.1") && !candidateUrls.includes(targetUrl.replace("127.0.0.1", "localhost"))) {
+    candidateUrls.push(targetUrl.replace("127.0.0.1", "localhost"));
+  } else if (targetUrl.includes("localhost") && !candidateUrls.includes(targetUrl.replace("localhost", "127.0.0.1"))) {
+    candidateUrls.push(targetUrl.replace("localhost", "127.0.0.1"));
+  }
+
+  let lastError = null;
+
+  for (const url of candidateUrls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, version, params }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      lastError = err;
+      if (err.name === "AbortError") {
+        console.warn(`AnkiConnect: Tiempo de espera agotado (3s) en ${url}`);
+      } else {
+        console.warn(`AnkiConnect: Error al conectar con ${url}:`, err);
+      }
+    }
+  }
+
+  let errorType = "OFFLINE";
+  let mensajeError = "No se pudo conectar con Anki. Asegúrate de que Anki esté abierto y AnkiConnect (puerto 8765) activo.";
+
+  if (lastError && lastError.name === "AbortError") {
+    errorType = "TIMEOUT";
+    mensajeError = "Tiempo de espera agotado (3s) al intentar conectar con Anki.";
+  } else if (isHttpsSite) {
+    errorType = "MIXED_CONTENT";
+    mensajeError = "No se pudo conectar con Anki. Es posible que el navegador haya bloqueado la conexión (Mixed Content / SSL).";
+  }
+
+  return {
+    error: mensajeError,
+    errorType: errorType,
+    details: lastError ? lastError.message : undefined
+  };
 }
 
 function initAnkiConfigModule() {
@@ -650,8 +706,10 @@ function initAnkiConfigModule() {
   const btnSaveAnki = document.getElementById("btn-save-anki");
   const btnRefreshDecks = document.getElementById("btn-refresh-decks");
   const toggleEnabled = document.getElementById("anki-enabled-toggle");
+  const inputUrl = document.getElementById("anki-url-input");
 
   if (toggleEnabled) toggleEnabled.checked = ankiConfig.enabled;
+  if (inputUrl) inputUrl.value = ankiConfig.url || "http://127.0.0.1:8765";
 
   if (btnRefreshDecks) {
     btnRefreshDecks.addEventListener("click", cargarMazosAnki);
@@ -681,13 +739,16 @@ function initAnkiConfigModule() {
       ankiConfig.enabled = toggleEnabled ? toggleEnabled.checked : true;
       ankiConfig.deck = selectDeck ? selectDeck.value : "Default";
       ankiConfig.model = selectModel ? selectModel.value : "ToriiDeck";
+      ankiConfig.url = inputUrl && inputUrl.value.trim() ? inputUrl.value.trim() : "http://127.0.0.1:8765";
 
       localStorage.setItem("anki_enabled", ankiConfig.enabled);
       localStorage.setItem("anki_deck", ankiConfig.deck);
       localStorage.setItem("anki_model", ankiConfig.model);
+      localStorage.setItem("anki_url", ankiConfig.url);
 
       if (panelAnki) panelAnki.classList.add("oculto");
       alert("¡Configuración de Anki guardada!");
+      cargarMazosAnki();
     });
   }
 
@@ -699,6 +760,7 @@ async function cargarMazosAnki() {
   const selectDeck = document.getElementById("anki-deck-select");
   const selectModel = document.getElementById("anki-model-select");
   const statusIndicator = document.getElementById("anki-status-indicator");
+  const helpInfo = document.getElementById("anki-help-info");
 
   if (!selectDeck) return;
 
@@ -709,16 +771,38 @@ async function cargarMazosAnki() {
 
   if (resDecks.error || !resDecks.result) {
     selectDeck.innerHTML = '<option value="Default">Default (Offline)</option>';
+    if (selectModel) selectModel.innerHTML = '<option value="ToriiDeck">ToriiDeck (Offline)</option>';
+
     if (statusIndicator) {
-      statusIndicator.textContent = "● Sin conexión";
-      statusIndicator.className = "anki-status offline";
+      if (resDecks.errorType === "MIXED_CONTENT") {
+        statusIndicator.textContent = "● Error HTTPS (Mixed Content)";
+        statusIndicator.className = "anki-status warning";
+      } else {
+        statusIndicator.textContent = "● Sin conexión";
+        statusIndicator.className = "anki-status offline";
+      }
+    }
+
+    if (helpInfo) {
+      helpInfo.style.display = "block";
+      if (resDecks.errorType === "MIXED_CONTENT") {
+        helpInfo.innerHTML = `<strong>⚠️ Bloqueo HTTPS / Mixed Content:</strong> Estás accediendo por HTTPS y el navegador bloquea <code>${ankiConfig.url}</code>.<br><br>💡 <em>Solución:</em> Abre la app web usando <strong>http://</strong> o utiliza un túnel/proxy HTTPS.`;
+      } else {
+        helpInfo.innerHTML = `<strong>⚠️ Sin conexión a AnkiConnect:</strong><br>1. Asegúrate de tener Anki abierto.<br>2. Instala el plugin <strong>AnkiConnect</strong> (código: <code>2055492159</code>).<br>3. En Anki -> Herramientas -> Complementos -> AnkiConnect -> Configuración, verifica que <code>webCorsOriginList</code> contenga <code>"*"</code>.`;
+      }
     }
     return;
   }
 
+  // Conexión exitosa
   if (statusIndicator) {
     statusIndicator.textContent = "● Conectado";
     statusIndicator.className = "anki-status online";
+  }
+
+  if (helpInfo) {
+    helpInfo.style.display = "none";
+    helpInfo.innerHTML = "";
   }
 
   // Cargar Mazos
