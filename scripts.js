@@ -47,6 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- 2.4 INICIALIZACIÓN DE MÓDULOS ---
   initVideoPlayerModule(); // Módulo ToriiTV
   initAnkiConfigModule();  // Módulo Anki
+  initUserProfileModule(); // Módulo Perfil
+  initMinedCardsModule();  // Módulo Tarjetas Minadas
 });
 
 
@@ -429,14 +431,25 @@ function initVideoPlayerModule() {
           e.stopPropagation();
           starBtn.innerText = "⏳";
 
-          try {
-            await window.enviarObjetoAAnki(sub);
-            starBtn.innerText = "★";
-            starBtn.classList.add("active");
-            starBtn.title = "¡Añadida a Anki!";
-          } catch (error) {
-            alert("No se pudo enviar a Anki: " + error.message);
-            starBtn.innerText = "☆";
+          // 1. Siempre guardar copia de respaldo en la lista local de la web
+          agregarTarjetaMinadaLocal(sub);
+          starBtn.innerText = "★";
+          starBtn.classList.add("active");
+
+          // 2. Enviar directamente a Anki vía AnkiConnect
+          if (ankiConfig && ankiConfig.enabled) {
+            try {
+              const resId = await window.enviarObjetoAAnki(sub);
+              mostrarToast("📇 ¡Tarjeta enviada directamente a Anki!");
+              starBtn.title = `¡Enviada a Anki (ID: ${resId}) y guardada en tu lista!`;
+            } catch (error) {
+              console.warn("AnkiConnect no respondió (quedó guardada en tu lista web):", error.message);
+              mostrarToast("⭐ Guardada en tu lista web (Anki offline)");
+              starBtn.title = "¡Añadida a tu lista de la web!";
+            }
+          } else {
+            mostrarToast("⭐ Guardada en tu lista web");
+            starBtn.title = "¡Añadida a tu lista de la web!";
           }
         });
       }
@@ -445,8 +458,18 @@ function initVideoPlayerModule() {
     });
   }
 
-  // Sincronización continua de Video y Subtítulos
+  // Sincronización continua de Video y Subtítulos + Contador de Tiempo de Estudio
+  let ultimoContadorTiempo = Date.now();
   video.addEventListener("timeupdate", () => {
+    // Registrar tiempo de estudio acumulado cada 5 segundos de reproducción activa
+    const ahora = Date.now();
+    if (!video.paused && (ahora - ultimoContadorTiempo) >= 5000) {
+      if (typeof registrarTiempoEstudio === "function") {
+        registrarTiempoEstudio(5);
+      }
+      ultimoContadorTiempo = ahora;
+    }
+
     if (subtitulos.length === 0) return;
 
     const currentTime = video.currentTime;
@@ -632,16 +655,6 @@ function initVideoPlayerModule() {
 async function invokeAnki(action, version = 6, params = {}) {
   const isHttpsSite = window.location.protocol === "https:";
   const targetUrl = (ankiConfig.url || "http://127.0.0.1:8765").trim();
-  const isHttpTarget = targetUrl.startsWith("http://");
-
-  // Si estamos navegando en HTTPS y la URL objetivo es HTTP, los navegadores bloquean Mixed Content
-  if (isHttpsSite && isHttpTarget) {
-    console.warn("AnkiConnect: Bloqueo Mixed Content detectado (página HTTPS -> Anki HTTP).");
-    return {
-      error: "Error Mixed Content (HTTPS): El navegador bloquea conexiones HTTP locales (" + targetUrl + ") desde un sitio cargado por HTTPS. Abre esta página desde HTTP (http://) o usa un proxy/HTTPS para AnkiConnect.",
-      errorType: "MIXED_CONTENT"
-    };
-  }
 
   // Lista de URLs candidatas a intentar (URL configurada + fallbacks locales)
   const candidateUrls = [targetUrl];
@@ -690,7 +703,7 @@ async function invokeAnki(action, version = 6, params = {}) {
     mensajeError = "Tiempo de espera agotado (3s) al intentar conectar con Anki.";
   } else if (isHttpsSite) {
     errorType = "MIXED_CONTENT";
-    mensajeError = "No se pudo conectar con Anki. Es posible que el navegador haya bloqueado la conexión (Mixed Content / SSL).";
+    mensajeError = "No se pudo conectar con Anki. Es posible que el navegador haya bloqueado la solicitud o estés esperando permitir el permiso.";
   }
 
   return {
@@ -865,7 +878,7 @@ window.enviarObjetoAAnki = async function(sub) {
 
   const targetModel = ankiConfig.model || "ToriiDeck";
 
-  // Obtener campos del modelo configurado
+  // Obtener la lista real de campos del modelo configurado en Anki
   const modelFieldsRes = await invokeAnki("modelFieldNames", 6, { modelName: targetModel });
 
   if (modelFieldsRes.error || !modelFieldsRes.result) {
@@ -878,7 +891,7 @@ window.enviarObjetoAAnki = async function(sub) {
   // Inicializar todos los campos vacíos
   camposReales.forEach((campo) => { fieldsObj[campo] = ""; });
 
-  // Limpieza de subtítulo para oración plana
+  // Limpieza de subtítulo para oración plana sin HTML
   const fraseLimpia = sub.texto
     .replace(/<br\s*\/?>/gi, " ")
     .replace(/<[^>]*>/g, "")
@@ -886,12 +899,7 @@ window.enviarObjetoAAnki = async function(sub) {
 
   const timestamp = Date.now();
 
-  // 1. Asignación directa para ToriiDeck
-  if (camposReales.includes("Indice")) fieldsObj["Indice"] = `ToriiTV_${timestamp}`;
-  if (camposReales.includes("Oracion")) fieldsObj["Oracion"] = fraseLimpia;
-  if (camposReales.includes("Furigana")) fieldsObj["Furigana"] = sub.texto;
-
-  // Helper para coincidencia flexible de campos
+  // Helper para coincidencia inteligente de nombres de campo (sin acentos, minúsculas y sin espacios)
   const encontrarCampo = (posiblesNombres) => {
     return camposReales.find((c) =>
       posiblesNombres.some((p) =>
@@ -901,20 +909,32 @@ window.enviarObjetoAAnki = async function(sub) {
     );
   };
 
-  // 2. Buscamos campos alternativos si no encajó directo en ToriiDeck
-  const campoOracionAlt = encontrarCampo(["Japones", "Japanese", "Front", "Texto", "Expression", "Sentence", "Oracion"]);
-  const campoFuriganaAlt = encontrarCampo(["Lectura", "Reading", "Back", "Furigana"]);
-  const campoImagen = encontrarCampo(["Imagen", "Image", "Picture", "Snapshot", "Screenshot", "Fotograma"]);
+  // 1. Buscamos campos para Oración / Frente
+  const campoIndice = encontrarCampo(["Indice", "Index", "ID", "Timestamp"]);
+  const campoOracion = encontrarCampo(["Oracion", "Japones", "Japanese", "Front", "Texto", "Expression", "Sentence", "Pregunta", "Word", "Vocabulario"]);
+  
+  // 2. Buscamos campos para Lectura / Furigana / Reverso
+  const campoFurigana = encontrarCampo(["Furigana", "Lectura", "Reading", "Back", "Respuesta", "Meaning", "Traduccion", "Contexto"]);
+  
+  // 3. Buscamos campos para Imagen / Captura
+  const campoImagen = encontrarCampo(["Imagen", "Image", "Picture", "Snapshot", "Screenshot", "Fotograma", "Captura", "Media"]);
 
-  if (!fieldsObj["Oracion"] && campoOracionAlt) fieldsObj[campoOracionAlt] = fraseLimpia;
-  if (!fieldsObj["Furigana"] && campoFuriganaAlt) fieldsObj[campoFuriganaAlt] = sub.texto;
+  // Asignaciones prioritarias
+  if (campoIndice) fieldsObj[campoIndice] = `ToriiTV_${timestamp}`;
+  if (campoOracion) fieldsObj[campoOracion] = fraseLimpia;
+  if (campoFurigana) fieldsObj[campoFurigana] = sub.texto;
 
-  // Fallback: Si el primer campo sigue vacío, insertamos la frase limpia
-  if (!fieldsObj[camposReales[0]]) {
+  // Garantía de no campos vacíos: Si el primer campo obligatorio sigue vacío, asignar la frase limpia
+  if (camposReales[0] && !fieldsObj[camposReales[0]]) {
     fieldsObj[camposReales[0]] = fraseLimpia;
   }
 
-  // Estructura principal de la tarjeta
+  // Si existe un segundo campo y está vacío, asignar el furigana/texto completo
+  if (camposReales[1] && !fieldsObj[camposReales[1]]) {
+    fieldsObj[camposReales[1]] = sub.texto;
+  }
+
+  // Estructura principal de la nota
   const notePayload = {
     deckName: ankiConfig.deck || "Default",
     modelName: targetModel,
@@ -923,7 +943,7 @@ window.enviarObjetoAAnki = async function(sub) {
     options: { allowDuplicate: true }
   };
 
-  // 3. Adjuntar fotograma en base64 si existe campo de imagen objetivo
+  // Adjuntar fotograma en base64 si existe un campo de imagen
   const imgBase64 = capturarFotogramaVideo();
   if (imgBase64 && campoImagen) {
     notePayload.picture = [{
@@ -943,3 +963,320 @@ window.enviarObjetoAAnki = async function(sub) {
 
   return res.result;
 };
+
+
+// ==========================================================================
+// SECCIÓN 6: MÓDULO PERFIL DEL ESTUDIANTE Y LOGROS
+// ==========================================================================
+let userProfile = {
+  nombre: "Estudiante Torii",
+  avatar: "⛩️",
+  nivelObjetivo: "JLPT N5",
+  rachaDias: 1,
+  ultimaFechaAcceso: new Date().toISOString().split("T")[0],
+  tiempoEstudioSegundos: 0,
+  totalTarjetasMinadas: 0,
+  logros: []
+};
+
+const LOGROS_DEFINICION = [
+  { id: "primer_minado", titulo: "Primer Paso", desc: "Minar tu primera tarjeta", icono: "🥉" },
+  { id: "minero_novato", titulo: "Coleccionista", desc: "Minar 10 tarjetas", icono: "🥈" },
+  { id: "torii_master", titulo: "Torii Master", desc: "Minar 50 tarjetas", icono: "🥇" },
+  { id: "cinefilo", titulo: "Cinéfilo Japanese", desc: "Ver 10 min de video en ToriiTV", icono: "🎬" },
+  { id: "racha_constante", titulo: "Constancia", desc: "Mantener 3 días de racha", icono: "🔥" }
+];
+
+function initUserProfileModule() {
+  const guardado = localStorage.getItem("torii_user_profile");
+  if (guardado) {
+    try {
+      userProfile = { ...userProfile, ...JSON.parse(guardado) };
+    } catch (e) {
+      console.warn("Error al cargar perfil de usuario:", e);
+    }
+  }
+
+  // Actualizar racha diaria
+  const hoy = new Date().toISOString().split("T")[0];
+  if (userProfile.ultimaFechaAcceso !== hoy) {
+    const fechaUltima = new Date(userProfile.ultimaFechaAcceso || hoy);
+    const fechaHoy = new Date(hoy);
+    const diffDias = Math.round((fechaHoy - fechaUltima) / (1000 * 60 * 60 * 24));
+    
+    if (diffDias === 1) {
+      userProfile.rachaDias = (userProfile.rachaDias || 0) + 1;
+    } else if (diffDias > 1) {
+      userProfile.rachaDias = 1;
+    }
+    userProfile.ultimaFechaAcceso = hoy;
+    guardarPerfil();
+  }
+
+  verificarLogros();
+
+  // Listeners del modal de perfil
+  const btnOpenProfile = document.getElementById("btn-open-profile");
+  const modalProfile = document.getElementById("user-profile-modal");
+  const btnCloseProfile = document.getElementById("btn-close-profile");
+
+  if (btnOpenProfile && modalProfile) {
+    btnOpenProfile.addEventListener("click", (e) => {
+      e.preventDefault();
+      renderUserProfileUI();
+      modalProfile.classList.add("active");
+    });
+  }
+
+  if (btnCloseProfile && modalProfile) {
+    btnCloseProfile.addEventListener("click", () => {
+      modalProfile.classList.remove("active");
+    });
+  }
+
+  if (modalProfile) {
+    modalProfile.addEventListener("click", (e) => {
+      if (e.target === modalProfile) {
+        modalProfile.classList.remove("active");
+      }
+    });
+  }
+}
+
+function guardarPerfil() {
+  localStorage.setItem("torii_user_profile", JSON.stringify(userProfile));
+}
+
+function registrarTiempoEstudio(segundos) {
+  userProfile.tiempoEstudioSegundos = (userProfile.tiempoEstudioSegundos || 0) + segundos;
+  guardarPerfil();
+  verificarLogros();
+}
+
+function registrarTarjetaMinadaEnPerfil() {
+  userProfile.totalTarjetasMinadas = (userProfile.totalTarjetasMinadas || 0) + 1;
+  guardarPerfil();
+  verificarLogros();
+}
+
+function verificarLogros() {
+  let nuevosLogros = false;
+  if (!userProfile.logros) userProfile.logros = [];
+
+  if (userProfile.totalTarjetasMinadas >= 1 && !userProfile.logros.includes("primer_minado")) {
+    userProfile.logros.push("primer_minado");
+    nuevosLogros = true;
+    mostrarToast("🏆 ¡Logro desbloqueado: Primer Paso!");
+  }
+
+  if (userProfile.totalTarjetasMinadas >= 10 && !userProfile.logros.includes("minero_novato")) {
+    userProfile.logros.push("minero_novato");
+    nuevosLogros = true;
+    mostrarToast("🏆 ¡Logro desbloqueado: Coleccionista!");
+  }
+
+  if (userProfile.totalTarjetasMinadas >= 50 && !userProfile.logros.includes("torii_master")) {
+    userProfile.logros.push("torii_master");
+    nuevosLogros = true;
+    mostrarToast("🏆 ¡Logro desbloqueado: Torii Master!");
+  }
+
+  if (userProfile.tiempoEstudioSegundos >= 600 && !userProfile.logros.includes("cinefilo")) {
+    userProfile.logros.push("cinefilo");
+    nuevosLogros = true;
+    mostrarToast("🏆 ¡Logro desbloqueado: Cinéfilo Japanese!");
+  }
+
+  if (userProfile.rachaDias >= 3 && !userProfile.logros.includes("racha_constante")) {
+    userProfile.logros.push("racha_constante");
+    nuevosLogros = true;
+    mostrarToast("🏆 ¡Logro desbloqueado: Constancia!");
+  }
+
+  if (nuevosLogros) {
+    guardarPerfil();
+  }
+}
+
+function renderUserProfileUI() {
+  const nameText = document.getElementById("profile-name-text");
+  const targetLevel = document.getElementById("profile-target-level");
+  const cardsMined = document.getElementById("stat-cards-mined");
+  const streakDays = document.getElementById("stat-streak-days");
+  const studyTime = document.getElementById("stat-study-time");
+  const badgesGrid = document.getElementById("badges-grid");
+
+  if (nameText) nameText.textContent = userProfile.nombre || "Estudiante Torii";
+  if (targetLevel) targetLevel.textContent = `Objetivo: ${userProfile.nivelObjetivo || "JLPT N5"}`;
+  if (cardsMined) cardsMined.textContent = userProfile.totalTarjetasMinadas || 0;
+  if (streakDays) streakDays.textContent = `${userProfile.rachaDias || 1} día${(userProfile.rachaDias || 1) > 1 ? "s" : ""}`;
+  
+  if (studyTime) {
+    const mins = Math.floor((userProfile.tiempoEstudioSegundos || 0) / 60);
+    studyTime.textContent = `${mins} min`;
+  }
+
+  if (badgesGrid) {
+    badgesGrid.innerHTML = "";
+    LOGROS_DEFINICION.forEach(logro => {
+      const desbloqueado = (userProfile.logros || []).includes(logro.id);
+      const card = document.createElement("div");
+      card.className = `badge-card ${desbloqueado ? "unlocked" : ""}`;
+      card.title = logro.desc;
+      card.innerHTML = `
+        <div class="badge-icon">${logro.icono}</div>
+        <div class="badge-title">${logro.titulo}</div>
+      `;
+      badgesGrid.appendChild(card);
+    });
+  }
+}
+
+
+// ==========================================================================
+// SECCIÓN 7: MÓDULO DE TARJETAS MINADAS Y EXPORTADOR ANKI
+// ==========================================================================
+let minedCardsList = [];
+
+function initMinedCardsModule() {
+  const guardado = localStorage.getItem("torii_mined_cards");
+  if (guardado) {
+    try {
+      minedCardsList = JSON.parse(guardado);
+    } catch (e) {
+      console.warn("Error al cargar tarjetas minadas:", e);
+      minedCardsList = [];
+    }
+  }
+
+  renderMinedCardsUI();
+
+  const btnExportTxt = document.getElementById("btn-export-anki-txt");
+  const btnClearMined = document.getElementById("btn-clear-mined");
+
+  if (btnExportTxt) {
+    btnExportTxt.addEventListener("click", exportarListaAAnkiTxt);
+  }
+
+  if (btnClearMined) {
+    btnClearMined.addEventListener("click", () => {
+      if (minedCardsList.length === 0) return;
+      if (confirm("¿Estás seguro de vaciar todas las tarjetas minadas de tu lista?")) {
+        minedCardsList = [];
+        guardarTarjetasMinadas();
+        renderMinedCardsUI();
+        mostrarToast("🗑️ Lista de tarjetas minadas vaciada");
+      }
+    });
+  }
+}
+
+function guardarTarjetasMinadas() {
+  localStorage.setItem("torii_mined_cards", JSON.stringify(minedCardsList));
+}
+
+function agregarTarjetaMinadaLocal(sub) {
+  const timestamp = Date.now();
+  const fraseLimpia = sub.texto.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
+
+  const nuevaTarjeta = {
+    id: `ToriiTV_${timestamp}`,
+    oracion: fraseLimpia,
+    furigana: sub.texto,
+    tiempo: sub.inicio ? sub.inicio : 0,
+    fecha: new Date().toLocaleDateString()
+  };
+
+  // Evitar duplicados exactos
+  const yaExiste = minedCardsList.some(t => t.oracion === nuevaTarjeta.oracion);
+  if (!yaExiste) {
+    minedCardsList.unshift(nuevaTarjeta);
+    guardarTarjetasMinadas();
+    renderMinedCardsUI();
+    registrarTarjetaMinadaEnPerfil();
+  }
+
+  mostrarToast("⭐ ¡Tarjeta agregada a tu lista!");
+}
+
+function eliminarTarjetaMinadaLocal(id) {
+  minedCardsList = minedCardsList.filter(t => t.id !== id);
+  guardarTarjetasMinadas();
+  renderMinedCardsUI();
+  mostrarToast("🗑️ Tarjeta eliminada de la lista");
+}
+
+function renderMinedCardsUI() {
+  const badgeCount = document.getElementById("mined-count-badge");
+  const gridContainer = document.getElementById("mined-cards-grid");
+
+  if (badgeCount) {
+    badgeCount.textContent = `${minedCardsList.length} tarjeta${minedCardsList.length !== 1 ? "s" : ""}`;
+  }
+
+  if (!gridContainer) return;
+
+  if (minedCardsList.length === 0) {
+    gridContainer.innerHTML = `
+      <div class="empty-mined-msg" style="grid-column: 1 / -1;">
+        <p>No tienes tarjetas minadas aún. Haz clic en la estrella <strong>⭐</strong> en los subtítulos para agregarlas a tu lista.</p>
+      </div>
+    `;
+    return;
+  }
+
+  gridContainer.innerHTML = "";
+  minedCardsList.forEach(tarjeta => {
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "mined-card-item";
+    cardDiv.innerHTML = `
+      <button class="mined-card-del" title="Eliminar de la lista" onclick="eliminarTarjetaMinadaLocal('${tarjeta.id}')">&times;</button>
+      <span class="mined-card-time">⏱️ ${tarjeta.fecha || "Captura"}</span>
+      <div class="mined-card-text">${tarjeta.furigana}</div>
+    `;
+    gridContainer.appendChild(cardDiv);
+  });
+}
+
+function exportarListaAAnkiTxt() {
+  if (minedCardsList.length === 0) {
+    alert("No tienes ninguna tarjeta en tu lista para exportar.");
+    return;
+  }
+
+  let contenido = "#separator:Tab\n#html:true\n#columns:Indice\tOracion\tFurigana\tTags\n";
+
+  minedCardsList.forEach(t => {
+    contenido += `${t.id}\t${t.oracion}\t${t.furigana}\tToriiTV\n`;
+  });
+
+  const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ToriiTV_Tarjetas_Anki_${Date.now()}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  mostrarToast("📥 Archivo para Anki descargado con éxito");
+}
+
+function mostrarToast(mensaje) {
+  let toast = document.getElementById("torii-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "torii-toast";
+    toast.className = "torii-toast";
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = mensaje;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
+}
+
+// Expuestos globalmente
+window.eliminarTarjetaMinadaLocal = eliminarTarjetaMinadaLocal;

@@ -1623,3 +1623,365 @@ body.dark-mode .anki-input-group select {
 .anki-status.warning {
   color: #ff9800;
 }
+
+/* ==========================================================================
+   18. SECCIÓN DE TARJETAS MINADAS Y EXPORTADOR ANKI
+   ========================================================================== */
+.mined-cards-section {
+  margin-top: 30px;
+  background: var(--blanco2, #ffffff);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.dark-mode .mined-cards-section {
+  background: var(--bg-card, #131c2a);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mined-cards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(150, 150, 150, 0.2);
+}
+
+.mined-cards-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--azul, #1a365d);
+}
+
+body.dark-mode .mined-cards-title {
+  color: #ffffff;
+}
+
+.mined-count-badge {
+  background: var(--naranja, #ff9800);
+  color: #ffffff;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.mined-cards-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-export-anki {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-export-anki:hover {
+  background: #1b5e20;
+  transform: translateY(-2px);
+}
+
+.btn-clear-mined {
+  background: transparent;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-clear-mined:hover {
+  background: rgba(211, 47, 47, 0.1);
+}
+
+.mined-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.mined-card-item {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+body.dark-mode .mined-card-item {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mined-card-item:hover {
+  transform: translateY(-2px);
+}
+
+.mined-card-time {
+  font-size: 0.75rem;
+  color: var(--naranja, #ff9800);
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.mined-card-text {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.mined-card-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.mined-card-del:hover {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.empty-mined-msg {
+  text-align: center;
+  padding: 30px 15px;
+  color: #777;
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   19. MODAL DE PERFIL Y ESTADÍSTICAS DEL ESTUDIANTE
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.profile-modal-content {
+  background: var(--blanco2, #ffffff);
+  color: var(--text-color, #1a1a1a);
+  width: 90%;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+body.dark-mode .profile-modal-content {
+  background: #131c2a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.modal-overlay.active .profile-modal-content {
+  transform: translateY(0);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-close-btn:hover {
+  color: var(--naranja, #ff9800);
+}
+
+.profile-header-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(150, 150, 150, 0.2);
+}
+
+.profile-avatar {
+  font-size: 3rem;
+  background: rgba(255, 152, 0, 0.15);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--naranja, #ff9800);
+}
+
+.profile-info h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.4rem;
+}
+
+.profile-level-badge {
+  background: var(--azul, #1a365d);
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+body.dark-mode .profile-level-badge {
+  background: var(--naranja, #ff9800);
+}
+
+/* Grid de Estadísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--naranja, #ff9800);
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+/* Logros / Medallas */
+.badges-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.badge-card {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  opacity: 0.4;
+  filter: grayscale(1);
+  transition: all 0.3s ease;
+  border: 1px dashed rgba(150, 150, 150, 0.4);
+}
+
+.badge-card.unlocked {
+  opacity: 1;
+  filter: grayscale(0);
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.badge-icon {
+  font-size: 1.8rem;
+}
+
+.badge-title {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+/* Toast Notification */
+.torii-toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #1a365d;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.torii-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
