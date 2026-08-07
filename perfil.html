@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Perfil - Nihongo no Torii</title>
+  
+  <!-- Tipografías de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="page-perfil">
+
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo Nihongo no Torii">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html">Kana</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="manga.html">Manga/Novela</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="perfil.html" class="nav-profile-item active">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+      <span>Perfil</span>
+    </a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Cambiar tema">🌙</button>
+  </nav>
+</header>
+
+<main class="perfil-main-container">
+
+  <!-- SECCIÓN HERO DE PERFIL -->
+  <section class="profile-hero-card">
+    <div class="profile-avatar-container">
+      <div id="profile-avatar-display" class="profile-avatar-large">⛩️</div>
+      <button id="btn-edit-profile" class="btn-edit-avatar-badge" title="Personalizar Perfil">✏️</button>
+    </div>
+
+    <div class="profile-details">
+      <div class="profile-name-row">
+        <h1 id="profile-name-text" class="profile-user-name">Estudiante Torii</h1>
+        <span id="profile-target-level" class="profile-badge-level">Objetivo: JLPT N5</span>
+      </div>
+      <p id="profile-motto-text" class="profile-motto">"¡Paso a paso hacia el dominio del japonés! ⛩️"</p>
+      
+      <div class="profile-quick-stats">
+        <span id="profile-streak-badge" class="quick-stat-pill">🔥 1 día de racha</span>
+        <span id="profile-goal-badge" class="quick-stat-pill">🎯 Meta: 15 min/día</span>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button id="btn-open-edit-modal" class="btn btn-primary btn-edit-profile">✏️ Personalizar Perfil</button>
+    </div>
+  </section>
+
+  <!-- GRID DE ESTADÍSTICAS COMPLETAS -->
+  <section class="perfil-stats-section">
+    <h2 class="section-title">📊 Tus Estadísticas de Estudio</h2>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📇</div>
+        <div id="stat-cards-mined" class="stat-value">0</div>
+        <div class="stat-label">Tarjetas Minadas</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div id="stat-streak-days" class="stat-value">1 día</div>
+        <div class="stat-label">Racha Diaria</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div id="stat-study-time" class="stat-value">0 min</div>
+        <div class="stat-label">Tiempo de Estudio</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div id="stat-daily-progress-text" class="stat-value">0%</div>
+        <div class="stat-label">Meta Diaria Cumplida</div>
+        <div class="progress-bar-bg">
+          <div id="stat-daily-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGROS Y MEDALLAS -->
+  <section class="perfil-badges-section">
+    <div class="section-header-row">
+      <h2 class="section-title">🏆 Logros e Insignias</h2>
+      <span id="badges-unlocked-count" class="badges-count-badge">0 / 5 desbloqueados</span>
+    </div>
+    <div id="badges-grid" class="badges-grid">
+      <!-- Generado dinámicamente -->
+    </div>
+  </section>
+
+  <!-- GESTOR DE TARJETAS MINADAS -->
+  <section class="perfil-mined-cards-section">
+    <div class="section-header-row">
+      <h2 class="section-title">📇 Tus Tarjetas Minadas Localmente</h2>
+      <span id="mined-count-badge" class="badges-count-badge">0 tarjetas</span>
+    </div>
+
+    <div class="mined-actions-bar">
+      <button id="btn-export-anki-txt" class="btn btn-secondary">📥 Exportar a Anki (.txt)</button>
+      <button id="btn-clear-mined" class="btn btn-danger-outline">🗑️ Vaciar Lista</button>
+    </div>
+
+    <div id="mined-cards-grid" class="mined-cards-grid">
+      <!-- Generado dinámicamente desde localStorage -->
+    </div>
+  </section>
+
+  <!-- ESTADO DE CONEXIÓN CON ANKI -->
+  <section class="perfil-anki-section">
+    <div class="section-header-row">
+      <h2 class="section-title">⚡ Estado de Integración con Anki</h2>
+      <span id="anki-status-indicator" class="anki-status offline">● Desconectado</span>
+    </div>
+    
+    <div class="anki-card-summary">
+      <p>Conecta <strong>AnkiConnect</strong> para enviar automáticamente tarjetas minadas desde <strong>ToriiTV</strong> con subtítulos y captura de fotogramas.</p>
+      <button id="btn-connect-anki" class="btn btn-primary">🔗 Verificar Conexión a Anki</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- MODAL PARA PERSONALIZAR EL PERFIL -->
+<div id="edit-profile-modal" class="modal-overlay">
+  <div class="edit-profile-modal-content">
+    <button id="btn-close-edit-modal" class="modal-close-btn" aria-label="Cerrar modal">&times;</button>
+    
+    <div class="modal-header">
+      <h2>✏️ Personalizar Mi Perfil</h2>
+      <p>Adapta tu nombre, avatar y metas de aprendizaje</p>
+    </div>
+
+    <form id="form-edit-profile" onsubmit="event.preventDefault(); guardarEdicionPerfil();">
+      
+      <!-- SELECCIÓN DE AVATAR -->
+      <div class="form-group">
+        <label class="form-label">Elige tu Avatar o Icono</label>
+        <div class="avatar-picker-grid">
+          <button type="button" class="avatar-option-btn" data-avatar="⛩️">⛩️</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🦊">🦊</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🥷">🥷</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🌸">🌸</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🎏">🎏</button>
+          <button type="button" class="avatar-option-btn" data-avatar="👺">👺</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🍙">🍙</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🗾">🗾</button>
+          <button type="button" class="avatar-option-btn" data-avatar="⚔️">⚔️</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🍵">🍵</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🎓">🎓</button>
+          <button type="button" class="avatar-option-btn" data-avatar="🎎">🎎</button>
+        </div>
+        
+        <div class="form-subinput" style="margin-top: 10px;">
+          <input type="text" id="input-custom-avatar" class="form-control" placeholder="O escribe tu propio emoji o URL de imagen..." />
+        </div>
+        
+        <div class="form-subinput" style="margin-top: 10px;">
+          <label for="input-file-avatar" class="form-label" style="font-size: 0.8rem; opacity: 0.85;">📁 O carga una imagen desde tu dispositivo:</label>
+          <input type="file" id="input-file-avatar" accept="image/*" class="form-control" />
+        </div>
+      </div>
+
+      <!-- NOMBRE DEL ESTUDIANTE -->
+      <div class="form-group">
+        <label for="input-profile-name" class="form-label">Nombre o Apodo</label>
+        <input type="text" id="input-profile-name" class="form-control" required placeholder="Ej: Kenji, María..." maxlength="30" />
+      </div>
+
+      <!-- NIVEL OBJETIVO JLPT -->
+      <div class="form-group">
+        <label for="select-profile-level" class="form-label">Nivel Objetivo JLPT / Nivel</label>
+        <select id="select-profile-level" class="form-control">
+          <option value="JLPT N5">JLPT N5 (Principiante)</option>
+          <option value="JLPT N4">JLPT N4 (Básico)</option>
+          <option value="JLPT N3">JLPT N3 (Intermedio)</option>
+          <option value="JLPT N2">JLPT N2 (Avanzado)</option>
+          <option value="JLPT N1">JLPT N1 (Nativo / Experto)</option>
+          <option value="Inmersión Libre">Inmersión Libre</option>
+        </select>
+      </div>
+
+      <!-- LEMA / FRASE DE MOTIVACIÓN -->
+      <div class="form-group">
+        <label for="input-profile-motto" class="form-label">Lema o Frase de Motivación</label>
+        <input type="text" id="input-profile-motto" class="form-control" placeholder="Ej: ¡Practicando todos los días sin falta! 🌸" maxlength="80" />
+      </div>
+
+      <!-- META DIARIA DE ESTUDIO -->
+      <div class="form-group">
+        <label for="select-profile-goal" class="form-label">Meta Diaria de Estudio</label>
+        <select id="select-profile-goal" class="form-control">
+          <option value="5">5 minutos al día (Relajado)</option>
+          <option value="15">15 minutos al día (Recomendado)</option>
+          <option value="30">30 minutos al día (Constante)</option>
+          <option value="45">45 minutos al día (Intenso)</option>
+          <option value="60">60 minutos al día (Modo Bestia)</option>
+        </select>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="modal-footer-btns">
+        <button type="button" id="btn-cancel-edit-profile" class="btn btn-secondary">Cancelar</button>
+        <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script src="scripts.js"></script>
+</body>
+</html>

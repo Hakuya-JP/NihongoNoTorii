@@ -26,6 +26,10 @@
     <a href="biblioteca.html">Biblioteca</a>
     <a href="manga.html">Manga/Novela</a>
     <a href="ToriiTV.html">ToriiTV</a>
+    <a href="perfil.html" class="nav-profile-item">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+      <span>Perfil</span>
+    </a>
     <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
   </nav>
 </header>
@@ -77,8 +81,50 @@
         <a class="btn" href="#">Ver lecciones N1</a>
       </div>
 
+<!-- MODAL DE PERFIL Y ESTADÍSTICAS DEL ESTUDIANTE -->
+<div id="user-profile-modal" class="modal-overlay">
+  <div class="profile-modal-content">
+    <button id="btn-close-profile" class="modal-close-btn" aria-label="Cerrar modal">&times;</button>
+    
+    <div class="profile-header-card">
+      <div id="profile-avatar-icon" class="profile-avatar">⛩️</div>
+      <div class="profile-info">
+        <h2 id="profile-name-text">Estudiante Torii</h2>
+        <span id="profile-target-level" class="profile-level-badge">Objetivo: JLPT N5</span>
+      </div>
     </div>
-  </section>
+
+    <!-- Grid de Estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📇</div>
+        <div id="stat-cards-mined" class="stat-value">0</div>
+        <div class="stat-label">Tarjetas Minadas</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div id="stat-streak-days" class="stat-value">1 día</div>
+        <div class="stat-label">Racha Diaria</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div id="stat-study-time" class="stat-value">0 min</div>
+        <div class="stat-label">Tiempo de Estudio</div>
+      </div>
+    </div>
+
+    <!-- Sección de Logros / Medallas -->
+    <div class="badges-section">
+      <h3>🏆 Logros y Medallas</h3>
+      <div id="badges-grid" class="badges-grid">
+        <!-- Generado dinámicamente -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="scripts.js"></script>
 </body>
 </html>

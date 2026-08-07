@@ -972,18 +972,22 @@ window.enviarObjetoAAnki = async function(sub) {
 
 
 // ==========================================================================
-// SECCIÓN 6: MÓDULO PERFIL DEL ESTUDIANTE Y LOGROS
+// SECCIÓN 6: MÓDULO PERFIL DEL ESTUDIANTE Y PERSONALIZACIÓN
 // ==========================================================================
 let userProfile = {
   nombre: "Estudiante Torii",
   avatar: "⛩️",
   nivelObjetivo: "JLPT N5",
+  lema: "¡Paso a paso hacia el dominio del japonés! ⛩️",
+  metaDiariaMin: 15,
   rachaDias: 1,
   ultimaFechaAcceso: new Date().toISOString().split("T")[0],
   tiempoEstudioSegundos: 0,
   totalTarjetasMinadas: 0,
   logros: []
 };
+
+let avatarSeleccionadoTemporal = null;
 
 const LOGROS_DEFINICION = [
   { id: "primer_minado", titulo: "Primer Paso", desc: "Minar tu primera tarjeta", icono: "🥉" },
@@ -1020,33 +1024,129 @@ function initUserProfileModule() {
   }
 
   verificarLogros();
+  renderUserProfileUI();
 
-  // Listeners del modal de perfil
-  const btnOpenProfile = document.getElementById("btn-open-profile");
-  const modalProfile = document.getElementById("user-profile-modal");
-  const btnCloseProfile = document.getElementById("btn-close-profile");
+  // Listeners del modal de personalización de perfil
+  const btnOpenEditModal = document.getElementById("btn-open-edit-modal");
+  const btnEditAvatarBadge = document.getElementById("btn-edit-profile");
+  const modalEditProfile = document.getElementById("edit-profile-modal");
+  const btnCloseEditModal = document.getElementById("btn-close-edit-modal");
+  const btnCancelEdit = document.getElementById("btn-cancel-edit-profile");
 
-  if (btnOpenProfile && modalProfile) {
-    btnOpenProfile.addEventListener("click", (e) => {
-      e.preventDefault();
-      renderUserProfileUI();
-      modalProfile.classList.add("active");
-    });
-  }
+  if (btnOpenEditModal) btnOpenEditModal.addEventListener("click", abrirModalEditarPerfil);
+  if (btnEditAvatarBadge) btnEditAvatarBadge.addEventListener("click", abrirModalEditarPerfil);
+  if (btnCloseEditModal) btnCloseEditModal.addEventListener("click", cerrarModalEditarPerfil);
+  if (btnCancelEdit) btnCancelEdit.addEventListener("click", cerrarModalEditarPerfil);
 
-  if (btnCloseProfile && modalProfile) {
-    btnCloseProfile.addEventListener("click", () => {
-      modalProfile.classList.remove("active");
-    });
-  }
-
-  if (modalProfile) {
-    modalProfile.addEventListener("click", (e) => {
-      if (e.target === modalProfile) {
-        modalProfile.classList.remove("active");
+  if (modalEditProfile) {
+    modalEditProfile.addEventListener("click", (e) => {
+      if (e.target === modalEditProfile) {
+        cerrarModalEditarPerfil();
       }
     });
   }
+
+  // Selector de avatares predefinidos
+  const avatarButtons = document.querySelectorAll(".avatar-option-btn");
+  avatarButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      avatarButtons.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      avatarSeleccionadoTemporal = btn.getAttribute("data-avatar");
+      const customInput = document.getElementById("input-custom-avatar");
+      if (customInput) customInput.value = "";
+    });
+  });
+
+  // Listener para subida de imagen de archivo local
+  const inputFileAvatar = document.getElementById("input-file-avatar");
+  if (inputFileAvatar) {
+    inputFileAvatar.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          avatarSeleccionadoTemporal = evt.target.result;
+          avatarButtons.forEach(b => b.classList.remove("selected"));
+          const customInput = document.getElementById("input-custom-avatar");
+          if (customInput) customInput.value = "";
+          mostrarToast("🖼️ Imagen local cargada");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+}
+
+function abrirModalEditarPerfil() {
+  const modal = document.getElementById("edit-profile-modal");
+  if (!modal) return;
+
+  const inputName = document.getElementById("input-profile-name");
+  const selectLevel = document.getElementById("select-profile-level");
+  const inputMotto = document.getElementById("input-profile-motto");
+  const selectGoal = document.getElementById("select-profile-goal");
+  const customAvatarInput = document.getElementById("input-custom-avatar");
+
+  if (inputName) inputName.value = userProfile.nombre || "Estudiante Torii";
+  if (selectLevel) selectLevel.value = userProfile.nivelObjetivo || "JLPT N5";
+  if (inputMotto) inputMotto.value = userProfile.lema || "";
+  if (selectGoal) selectGoal.value = userProfile.metaDiariaMin || 15;
+  
+  avatarSeleccionadoTemporal = userProfile.avatar || "⛩️";
+
+  // Resaltar botón de avatar activo
+  const avatarButtons = document.querySelectorAll(".avatar-option-btn");
+  let encontrado = false;
+  avatarButtons.forEach(btn => {
+    btn.classList.remove("selected");
+    if (btn.getAttribute("data-avatar") === avatarSeleccionadoTemporal) {
+      btn.classList.add("selected");
+      encontrado = true;
+    }
+  });
+
+  if (!encontrado && customAvatarInput) {
+    customAvatarInput.value = avatarSeleccionadoTemporal;
+  } else if (customAvatarInput) {
+    customAvatarInput.value = "";
+  }
+
+  modal.classList.add("active");
+}
+
+function cerrarModalEditarPerfil() {
+  const modal = document.getElementById("edit-profile-modal");
+  if (modal) modal.classList.remove("active");
+}
+
+function guardarEdicionPerfil() {
+  const inputName = document.getElementById("input-profile-name");
+  const selectLevel = document.getElementById("select-profile-level");
+  const inputMotto = document.getElementById("input-profile-motto");
+  const selectGoal = document.getElementById("select-profile-goal");
+  const customAvatarInput = document.getElementById("input-custom-avatar");
+
+  const nuevoNombre = inputName && inputName.value.trim() ? inputName.value.trim() : "Estudiante Torii";
+  const nuevoNivel = selectLevel ? selectLevel.value : "JLPT N5";
+  const nuevoLema = inputMotto ? inputMotto.value.trim() : "";
+  const nuevaMeta = selectGoal ? parseInt(selectGoal.value, 10) : 15;
+
+  let nuevoAvatar = avatarSeleccionadoTemporal || "⛩️";
+  if (customAvatarInput && customAvatarInput.value.trim()) {
+    nuevoAvatar = customAvatarInput.value.trim();
+  }
+
+  userProfile.nombre = nuevoNombre;
+  userProfile.nivelObjetivo = nuevoNivel;
+  userProfile.lema = nuevoLema;
+  userProfile.metaDiariaMin = nuevaMeta;
+  userProfile.avatar = nuevoAvatar;
+
+  guardarPerfil();
+  cerrarModalEditarPerfil();
+  renderUserProfileUI();
+  mostrarToast("✨ ¡Perfil personalizado con éxito!");
 }
 
 function guardarPerfil() {
@@ -1057,12 +1157,14 @@ function registrarTiempoEstudio(segundos) {
   userProfile.tiempoEstudioSegundos = (userProfile.tiempoEstudioSegundos || 0) + segundos;
   guardarPerfil();
   verificarLogros();
+  renderUserProfileUI();
 }
 
 function registrarTarjetaMinadaEnPerfil() {
   userProfile.totalTarjetasMinadas = (userProfile.totalTarjetasMinadas || 0) + 1;
   guardarPerfil();
   verificarLogros();
+  renderUserProfileUI();
 }
 
 function verificarLogros() {
@@ -1105,36 +1207,85 @@ function verificarLogros() {
 }
 
 function renderUserProfileUI() {
+  const avatarDisplay = document.getElementById("profile-avatar-display");
   const nameText = document.getElementById("profile-name-text");
   const targetLevel = document.getElementById("profile-target-level");
+  const mottoText = document.getElementById("profile-motto-text");
+  const streakBadge = document.getElementById("profile-streak-badge");
+  const goalBadge = document.getElementById("profile-goal-badge");
+
   const cardsMined = document.getElementById("stat-cards-mined");
   const streakDays = document.getElementById("stat-streak-days");
   const studyTime = document.getElementById("stat-study-time");
+  const dailyProgressText = document.getElementById("stat-daily-progress-text");
+  const dailyProgressBar = document.getElementById("stat-daily-progress-bar");
+
   const badgesGrid = document.getElementById("badges-grid");
+  const badgesUnlockedCount = document.getElementById("badges-unlocked-count");
+
+  // Renderizar Avatar de la página principal (perfil.html)
+  if (avatarDisplay) {
+    const isUrl = userProfile.avatar && (userProfile.avatar.startsWith("http://") || userProfile.avatar.startsWith("https://") || userProfile.avatar.startsWith("data:image/"));
+    if (isUrl) {
+      avatarDisplay.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+    } else {
+      avatarDisplay.textContent = userProfile.avatar || "⛩️";
+    }
+  }
+
+  // Renderizar Avatar en la barra de navegación superior (Global en todas las páginas)
+  const navAvatarBox = document.getElementById("nav-avatar-box");
+  if (navAvatarBox) {
+    const isUrl = userProfile.avatar && (userProfile.avatar.startsWith("http://") || userProfile.avatar.startsWith("https://") || userProfile.avatar.startsWith("data:image/"));
+    if (isUrl) {
+      navAvatarBox.innerHTML = `<img src="${userProfile.avatar}" alt="Perfil" class="nav-avatar-img">`;
+    } else {
+      navAvatarBox.textContent = userProfile.avatar || "⛩️";
+    }
+  }
 
   if (nameText) nameText.textContent = userProfile.nombre || "Estudiante Torii";
   if (targetLevel) targetLevel.textContent = `Objetivo: ${userProfile.nivelObjetivo || "JLPT N5"}`;
+  if (mottoText) mottoText.textContent = userProfile.lema ? `"${userProfile.lema}"` : '"¡Paso a paso hacia el aprendizaje del japonés! ⛩️"';
+  
+  if (streakBadge) streakBadge.textContent = `🔥 ${userProfile.rachaDias || 1} día${(userProfile.rachaDias || 1) > 1 ? "s" : ""} de racha`;
+  if (goalBadge) goalBadge.textContent = `🎯 Meta: ${userProfile.metaDiariaMin || 15} min/día`;
+
   if (cardsMined) cardsMined.textContent = userProfile.totalTarjetasMinadas || 0;
   if (streakDays) streakDays.textContent = `${userProfile.rachaDias || 1} día${(userProfile.rachaDias || 1) > 1 ? "s" : ""}`;
   
+  const minutosEstudio = Math.floor((userProfile.tiempoEstudioSegundos || 0) / 60);
   if (studyTime) {
-    const mins = Math.floor((userProfile.tiempoEstudioSegundos || 0) / 60);
-    studyTime.textContent = `${mins} min`;
+    studyTime.textContent = `${minutosEstudio} min`;
   }
 
+  // Progreso de meta diaria
+  const metaMin = userProfile.metaDiariaMin || 15;
+  const porcentajeMeta = Math.min(100, Math.round((minutosEstudio / metaMin) * 100));
+  if (dailyProgressText) dailyProgressText.textContent = `${porcentajeMeta}%`;
+  if (dailyProgressBar) dailyProgressBar.style.width = `${porcentajeMeta}%`;
+
+  // Logros y Medallas
   if (badgesGrid) {
     badgesGrid.innerHTML = "";
+    let desbloqueados = 0;
     LOGROS_DEFINICION.forEach(logro => {
       const desbloqueado = (userProfile.logros || []).includes(logro.id);
+      if (desbloqueado) desbloqueados++;
       const card = document.createElement("div");
       card.className = `badge-card ${desbloqueado ? "unlocked" : ""}`;
       card.title = logro.desc;
       card.innerHTML = `
         <div class="badge-icon">${logro.icono}</div>
         <div class="badge-title">${logro.titulo}</div>
+        <div class="badge-desc">${logro.desc}</div>
       `;
       badgesGrid.appendChild(card);
     });
+
+    if (badgesUnlockedCount) {
+      badgesUnlockedCount.textContent = `${desbloqueados} / ${LOGROS_DEFINICION.length} desbloqueados`;
+    }
   }
 }
 
