@@ -716,13 +716,25 @@ async function invokeAnki(action, version = 6, params = {}) {
 function initAnkiConfigModule() {
   const btnToggleAnki = document.getElementById("btn-toggle-anki-config");
   const panelAnki = document.getElementById("anki-config-panel");
+  const btnConnectAnki = document.getElementById("btn-connect-anki");
+  const settingsGroup = document.getElementById("anki-settings-group");
   const btnSaveAnki = document.getElementById("btn-save-anki");
   const btnRefreshDecks = document.getElementById("btn-refresh-decks");
   const toggleEnabled = document.getElementById("anki-enabled-toggle");
   const inputUrl = document.getElementById("anki-url-input");
+  const selectModel = document.getElementById("anki-model-select");
 
   if (toggleEnabled) toggleEnabled.checked = ankiConfig.enabled;
   if (inputUrl) inputUrl.value = ankiConfig.url || "http://127.0.0.1:8765";
+  if (selectModel && ankiConfig.model) selectModel.value = ankiConfig.model;
+
+  // Botón de Conexión Inicial (Desencadena el cartel emergente de permiso)
+  if (btnConnectAnki) {
+    btnConnectAnki.addEventListener("click", async () => {
+      btnConnectAnki.innerHTML = "<span>⏳ Solicitando conexión con Anki...</span>";
+      await cargarMazosAnki();
+    });
+  }
 
   if (btnRefreshDecks) {
     btnRefreshDecks.addEventListener("click", cargarMazosAnki);
@@ -732,9 +744,6 @@ function initAnkiConfigModule() {
     btnToggleAnki.addEventListener("click", (e) => {
       e.stopPropagation();
       panelAnki.classList.toggle("oculto");
-      if (!panelAnki.classList.contains("oculto")) {
-        cargarMazosAnki();
-      }
     });
 
     document.addEventListener("click", (e) => {
@@ -747,7 +756,6 @@ function initAnkiConfigModule() {
   if (btnSaveAnki) {
     btnSaveAnki.addEventListener("click", () => {
       const selectDeck = document.getElementById("anki-deck-select");
-      const selectModel = document.getElementById("anki-model-select");
 
       ankiConfig.enabled = toggleEnabled ? toggleEnabled.checked : true;
       ankiConfig.deck = selectDeck ? selectDeck.value : "Default";
@@ -760,48 +768,43 @@ function initAnkiConfigModule() {
       localStorage.setItem("anki_url", ankiConfig.url);
 
       if (panelAnki) panelAnki.classList.add("oculto");
-      alert("¡Configuración de Anki guardada!");
-      cargarMazosAnki();
+      mostrarToast("⚙️ Ajustes de Anki guardados");
     });
   }
-
-  // Carga inicial
-  cargarMazosAnki();
 }
 
 async function cargarMazosAnki() {
   const selectDeck = document.getElementById("anki-deck-select");
-  const selectModel = document.getElementById("anki-model-select");
   const statusIndicator = document.getElementById("anki-status-indicator");
   const helpInfo = document.getElementById("anki-help-info");
+  const btnConnectAnki = document.getElementById("btn-connect-anki");
+  const settingsGroup = document.getElementById("anki-settings-group");
 
   if (!selectDeck) return;
 
-  const [resDecks, resModels] = await Promise.all([
-    invokeAnki("deckNames"),
-    invokeAnki("modelNames")
-  ]);
+  const resDecks = await invokeAnki("deckNames");
 
   if (resDecks.error || !resDecks.result) {
     selectDeck.innerHTML = '<option value="Default">Default (Offline)</option>';
-    if (selectModel) selectModel.innerHTML = '<option value="ToriiDeck">ToriiDeck (Offline)</option>';
 
     if (statusIndicator) {
-      if (resDecks.errorType === "MIXED_CONTENT") {
-        statusIndicator.textContent = "● Error HTTPS (Mixed Content)";
-        statusIndicator.className = "anki-status warning";
-      } else {
-        statusIndicator.textContent = "● Sin conexión";
-        statusIndicator.className = "anki-status offline";
-      }
+      statusIndicator.textContent = "● Desconectado";
+      statusIndicator.className = "anki-status offline";
     }
+
+    if (btnConnectAnki) {
+      btnConnectAnki.style.display = "flex";
+      btnConnectAnki.innerHTML = "<span>🔗 Reintentar Conexión a Anki</span>";
+    }
+
+    if (settingsGroup) settingsGroup.style.display = "none";
 
     if (helpInfo) {
       helpInfo.style.display = "block";
       if (resDecks.errorType === "MIXED_CONTENT") {
-        helpInfo.innerHTML = `<strong>⚠️ Bloqueo HTTPS / Mixed Content:</strong> Estás accediendo por HTTPS y el navegador bloquea <code>${ankiConfig.url}</code>.<br><br>💡 <em>Solución:</em> Abre la app web usando <strong>http://</strong> o utiliza un túnel/proxy HTTPS.`;
+        helpInfo.innerHTML = `<strong>⚠️ Solicitud de Permiso / Conexión:</strong> Si el navegador o Anki abrió una ventana emergente pidiendo permiso, haz clic en <strong>Permitir</strong>.<br><br>💡 Si usas HTTPS, abre la app desde <strong>http://</strong> o permite contenido no seguro en los ajustes de URL.`;
       } else {
-        helpInfo.innerHTML = `<strong>⚠️ Sin conexión a AnkiConnect:</strong><br>1. Asegúrate de tener Anki abierto.<br>2. Instala el plugin <strong>AnkiConnect</strong> (código: <code>2055492159</code>).<br>3. En Anki -> Herramientas -> Complementos -> AnkiConnect -> Configuración, verifica que <code>webCorsOriginList</code> contenga <code>"*"</code>.`;
+        helpInfo.innerHTML = `<strong>⚠️ Anki no responde:</strong><br>1. Asegúrate de tener Anki abierto.<br>2. Revisa que el complemento <strong>AnkiConnect</strong> (código: <code>2055492159</code>) esté instalado.`;
       }
     }
     return;
@@ -813,12 +816,20 @@ async function cargarMazosAnki() {
     statusIndicator.className = "anki-status online";
   }
 
+  if (btnConnectAnki) {
+    btnConnectAnki.style.display = "none";
+  }
+
+  if (settingsGroup) {
+    settingsGroup.style.display = "block";
+  }
+
   if (helpInfo) {
     helpInfo.style.display = "none";
     helpInfo.innerHTML = "";
   }
 
-  // Cargar Mazos
+  // Cargar Mazos detectados de Anki
   selectDeck.innerHTML = "";
   resDecks.result.forEach((deckName) => {
     const option = document.createElement("option");
@@ -828,21 +839,6 @@ async function cargarMazosAnki() {
   });
   if (ankiConfig.deck && resDecks.result.includes(ankiConfig.deck)) {
     selectDeck.value = ankiConfig.deck;
-  }
-
-  // Cargar Modelos (Note Types)
-  if (selectModel && resModels.result) {
-    selectModel.innerHTML = "";
-    resModels.result.forEach((modelName) => {
-      const option = document.createElement("option");
-      option.value = modelName;
-      option.textContent = modelName;
-      selectModel.appendChild(option);
-    });
-
-    if (ankiConfig.model && resModels.result.includes(ankiConfig.model)) {
-      selectModel.value = ankiConfig.model;
-    }
   }
 }
 
@@ -876,30 +872,51 @@ window.enviarObjetoAAnki = async function(sub) {
     throw new Error("La función de Anki está desactivada en los ajustes.");
   }
 
-  const targetModel = ankiConfig.model || "ToriiDeck";
+  let selectedPreset = ankiConfig.model || "ToriiDeck";
+  
+  // Obtener todos los modelos existentes en el Anki del usuario
+  const allModelsRes = await invokeAnki("modelNames");
+  if (allModelsRes.error || !allModelsRes.result || allModelsRes.result.length === 0) {
+    throw new Error("No se pudieron consultar los tipos de tarjeta en Anki.");
+  }
 
-  // Obtener la lista real de campos del modelo configurado en Anki
-  const modelFieldsRes = await invokeAnki("modelFieldNames", 6, { modelName: targetModel });
+  const userModels = allModelsRes.result;
+  
+  // Determinar qué modelo real usar en Anki
+  let realModelName = userModels.find(m => 
+    m.toLowerCase().replace(/[\s_]/g, "") === selectedPreset.toLowerCase().replace(/[\s_]/g, "")
+  );
 
+  // Si el preestablecido no existe exactamente con ese nombre, buscar alternativos estándar en Anki
+  if (!realModelName) {
+    if (selectedPreset === "Basic" || selectedPreset === "BasicImage") {
+      realModelName = userModels.find(m => ["basic", "basico", "básico"].includes(m.toLowerCase()));
+    } else if (selectedPreset === "Japanese") {
+      realModelName = userModels.find(m => ["japanese", "japones", "japonés"].includes(m.toLowerCase()));
+    } else if (selectedPreset === "ToriiDeck") {
+      realModelName = userModels.find(m => ["toriideck", "basic", "basico", "básico"].includes(m.toLowerCase()));
+    }
+  }
+
+  // Si aún no se encuentra, usar el primer modelo disponible en Anki
+  if (!realModelName) {
+    realModelName = userModels[0];
+  }
+
+  // Obtener la lista real de campos del modelo elegido
+  const modelFieldsRes = await invokeAnki("modelFieldNames", 6, { modelName: realModelName });
   if (modelFieldsRes.error || !modelFieldsRes.result) {
-    throw new Error(`El modelo "${targetModel}" no existe en Anki: ${modelFieldsRes.error}`);
+    throw new Error(`Error al leer los campos del modelo "${realModelName}": ${modelFieldsRes.error}`);
   }
 
   const camposReales = modelFieldsRes.result;
   let fieldsObj = {};
 
-  // Inicializar todos los campos vacíos
   camposReales.forEach((campo) => { fieldsObj[campo] = ""; });
 
-  // Limpieza de subtítulo para oración plana sin HTML
-  const fraseLimpia = sub.texto
-    .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<[^>]*>/g, "")
-    .trim();
-
+  const fraseLimpia = sub.texto.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
   const timestamp = Date.now();
 
-  // Helper para coincidencia inteligente de nombres de campo (sin acentos, minúsculas y sin espacios)
   const encontrarCampo = (posiblesNombres) => {
     return camposReales.find((c) =>
       posiblesNombres.some((p) =>
@@ -909,41 +926,31 @@ window.enviarObjetoAAnki = async function(sub) {
     );
   };
 
-  // 1. Buscamos campos para Oración / Frente
   const campoIndice = encontrarCampo(["Indice", "Index", "ID", "Timestamp"]);
-  const campoOracion = encontrarCampo(["Oracion", "Japones", "Japanese", "Front", "Texto", "Expression", "Sentence", "Pregunta", "Word", "Vocabulario"]);
-  
-  // 2. Buscamos campos para Lectura / Furigana / Reverso
-  const campoFurigana = encontrarCampo(["Furigana", "Lectura", "Reading", "Back", "Respuesta", "Meaning", "Traduccion", "Contexto"]);
-  
-  // 3. Buscamos campos para Imagen / Captura
+  const campoOracion = encontrarCampo(["Oracion", "Japones", "Japanese", "Front", "Texto", "Expression", "Sentence", "Pregunta", "Word", "Vocabulario", "Frente"]);
+  const campoFurigana = encontrarCampo(["Furigana", "Lectura", "Reading", "Back", "Respuesta", "Meaning", "Traduccion", "Contexto", "Reverso"]);
   const campoImagen = encontrarCampo(["Imagen", "Image", "Picture", "Snapshot", "Screenshot", "Fotograma", "Captura", "Media"]);
 
-  // Asignaciones prioritarias
   if (campoIndice) fieldsObj[campoIndice] = `ToriiTV_${timestamp}`;
   if (campoOracion) fieldsObj[campoOracion] = fraseLimpia;
   if (campoFurigana) fieldsObj[campoFurigana] = sub.texto;
 
-  // Garantía de no campos vacíos: Si el primer campo obligatorio sigue vacío, asignar la frase limpia
   if (camposReales[0] && !fieldsObj[camposReales[0]]) {
     fieldsObj[camposReales[0]] = fraseLimpia;
   }
 
-  // Si existe un segundo campo y está vacío, asignar el furigana/texto completo
   if (camposReales[1] && !fieldsObj[camposReales[1]]) {
     fieldsObj[camposReales[1]] = sub.texto;
   }
 
-  // Estructura principal de la nota
   const notePayload = {
     deckName: ankiConfig.deck || "Default",
-    modelName: targetModel,
+    modelName: realModelName,
     fields: fieldsObj,
     tags: ["ToriiTV"],
     options: { allowDuplicate: true }
   };
 
-  // Adjuntar fotograma en base64 si existe un campo de imagen
   const imgBase64 = capturarFotogramaVideo();
   if (imgBase64 && campoImagen) {
     notePayload.picture = [{
@@ -953,7 +960,6 @@ window.enviarObjetoAAnki = async function(sub) {
     }];
   }
 
-  // Envío final a AnkiConnect
   const res = await invokeAnki("addNote", 6, { note: notePayload });
 
   if (res.error) {
