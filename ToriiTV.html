@@ -73,8 +73,10 @@
           <!-- Sincronización -->
           <div class="toolbar-group">
             <span class="tool-label">Sincro:</span>
-            <button id="btn-sub-minus" class="btn-tool-sm">-0.5s</button>
-            <button id="btn-sub-plus" class="btn-tool-sm">+0.5s</button>
+            <button id="btn-sub-minus-fast" class="btn-tool-sm" title="Desfasar -0.5 segundos">-0.5s</button>
+            <button id="btn-sub-minus" class="btn-tool-sm" title="Ajuste fino -0.1 segundos">-0.1s</button>
+            <button id="btn-sub-plus" class="btn-tool-sm" title="Ajuste fino +0.1 segundos">+0.1s</button>
+            <button id="btn-sub-plus-fast" class="btn-tool-sm" title="Desfasar +0.5 segundos">+0.5s</button>
           </div>
 
           <!-- Tamaño de texto y Furigana -->
@@ -118,8 +120,13 @@
           </label>
 
           <label class="btn-tool" for="input-sub">
-            <span>💬 Cargar Subtítulo</span>
+            <span>💬 Subtítulo JP</span>
             <input type="file" id="input-sub" accept=".srt,.vtt,.ass,.ssa" hidden />
+          </label>
+
+          <label class="btn-tool" for="input-sub-es" title="Subtítulo en español para tarjetas de Anki">
+            <span>💬 Subtítulo ES (Anki)</span>
+            <input type="file" id="input-sub-es" accept=".srt,.vtt,.ass,.ssa" hidden />
           </label>
 
           <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
