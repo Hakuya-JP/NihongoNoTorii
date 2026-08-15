@@ -66,6 +66,9 @@
     </div>
   </section>
 
+  <!-- MISIONES DIARIAS DEL APRENDIZ (RPG) -->
+  <div id="daily-quests-container"></div>
+
   <!-- GRID DE ESTADÍSTICAS COMPLETAS -->
   <section class="perfil-stats-section">
     <h2 class="section-title">📊 Tus Estadísticas de Estudio</h2>
@@ -119,12 +122,19 @@
     </div>
 
     <div class="mined-actions-bar">
+      <button id="btn-sort-mined" class="btn btn-secondary">🔃 Recientes primero</button>
       <button id="btn-export-anki-txt" class="btn btn-secondary">📥 Exportar a Anki (.txt)</button>
       <button id="btn-clear-mined" class="btn btn-danger-outline">🗑️ Vaciar Lista</button>
     </div>
 
-    <div id="mined-cards-grid" class="mined-cards-grid">
+    <div id="mined-cards-grid" class="mined-cards-grid collapsed">
       <!-- Generado dinámicamente desde localStorage -->
+    </div>
+
+    <div class="mined-expand-bar" style="text-align: center; margin-top: 15px;">
+      <button id="btn-toggle-expand-mined" class="btn-expand-mined">
+        <span>👇 Mostrar más</span>
+      </button>
     </div>
   </section>
 

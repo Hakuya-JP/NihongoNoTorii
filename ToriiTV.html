@@ -223,6 +223,9 @@
         <span id="mined-count-badge" class="mined-count-badge">0 tarjetas</span>
       </h3>
       <div class="mined-cards-actions">
+        <button id="btn-sort-mined" class="btn-sort-mined" title="Ordenar por fecha">
+          <span>🔃 Recientes primero</span>
+        </button>
         <button id="btn-export-anki-txt" class="btn-export-anki" title="Descargar archivo .txt listo para importar en Anki">
           <span>📥 Descargar Archivo para Anki (.txt)</span>
         </button>
@@ -233,10 +236,17 @@
     </div>
 
     <!-- Lista / Grid de Tarjetas Guardadas -->
-    <div id="mined-cards-grid" class="mined-cards-grid">
+    <div id="mined-cards-grid" class="mined-cards-grid collapsed">
       <div class="empty-mined-msg">
         <p>No tienes tarjetas minadas aún. Haz clic en la estrella <strong>⭐</strong> en los subtítulos para agregarlas a tu lista.</p>
       </div>
+    </div>
+
+    <!-- Botón Mostrar Más / Mostrar Menos -->
+    <div class="mined-expand-bar" style="text-align: center; margin-top: 15px;">
+      <button id="btn-toggle-expand-mined" class="btn-expand-mined">
+        <span>Mostrar más</span>
+      </button>
     </div>
   </section>
 </main>

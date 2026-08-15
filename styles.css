@@ -2409,3 +2409,584 @@ body.dark-mode .avatar-option-btn {
   gap: 10px;
   margin-top: 24px;
 }
+
+/* ==========================================================================
+   SECCIÓN 8: SISTEMA DE GAMIFICACIÓN RPG (HUD, NIVELES, DESBLOQUEOS Y MISIONES)
+   ========================================================================== */
+
+/* BARRA SUPERIOR RPG (HUD) */
+.rpg-hud-bar {
+  background: linear-gradient(135deg, #407ead 0%, #407ead 100%);
+  color: #ffffff;
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--naranja, #ff9800);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  z-index: 998;
+  position: relative;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+  body.dark-mode .rpg-hud-bar{
+    background: linear-gradient(135deg, #081e2e 0%, #081e2e 100%);
+}
+
+.rpg-hud-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hud-level-badge {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.9rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.hud-level-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.5px;
+}
+
+.rpg-hud-center {
+  flex: 1;
+  max-width: 450px;
+  margin: 0 15px;
+}
+
+.hud-xp-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: #cbd5e1;
+}
+
+.hud-xp-track {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hud-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+}
+
+.rpg-hud-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.hud-stat-pill {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-sound-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+  font-size: 1rem;
+}
+
+.hud-sound-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* SISTEMA DE TARJETAS BLOQUEADAS (LEVEL UNLOCKING) */
+.card.card-locked,
+.kana-card.card-locked {
+  position: relative;
+  overflow: hidden;
+  filter: grayscale(0.6);
+  opacity: 0.85;
+  transition: all 0.3s ease;
+}
+
+.card.card-locked:hover,
+.kana-card.card-locked:hover {
+  filter: grayscale(0.3);
+  opacity: 0.95;
+}
+
+.card-locked .btn,
+.card-locked a.btn {
+  pointer-events: none;
+  background: #64748b !important;
+  cursor: not-allowed;
+}
+
+.lock-overlay-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #fbbf24;
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.lock-progress-box {
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+}
+
+body.dark-mode .lock-progress-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.lock-progress-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: var(--texto-principal);
+}
+
+.lock-progress-track {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+body.dark-mode .lock-progress-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.lock-progress-fill {
+  height: 100%;
+  background: #ff9800;
+  width: 0%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+/* ANIMACIÓN FLOTANTE DE NOTIFICACIÓN XP */
+.floating-xp-pop {
+  position: fixed;
+  pointer-events: none;
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: #4caf50;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(76, 175, 80, 0.8);
+  z-index: 9999;
+  animation: floatUpAndFade 1.4s ease-out forwards;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+@keyframes floatUpAndFade {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.9);
+  }
+}
+
+/* MODAL CELEBRACIÓN DE LEVEL UP */
+.level-up-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.level-up-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.level-up-card {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  color: #fff;
+  border: 3px solid #fbbf24;
+  border-radius: 28px;
+  padding: 36px 30px;
+  text-align: center;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(251, 191, 36, 0.3);
+  transform: scale(0.7);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.level-up-modal-overlay.active .level-up-card {
+  transform: scale(1);
+}
+
+.level-up-header-badge {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  animation: bounceBanner 1s infinite alternate ease-in-out;
+}
+
+@keyframes bounceBanner {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+.level-up-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fbbf24;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  text-shadow: 0 2px 10px rgba(251, 191, 36, 0.4);
+  margin-bottom: 6px;
+}
+
+.level-up-new-level {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #38bdf8;
+  margin-bottom: 15px;
+}
+
+.level-up-unlock-list {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 20px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.level-up-unlock-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #4ade80;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.level-up-unlock-item {
+  font-size: 0.88rem;
+  opacity: 0.9;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-level-up-continue {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0f172a;
+  font-weight: 900;
+  font-size: 1.1rem;
+  padding: 14px 32px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btn-level-up-continue:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.6);
+}
+
+/* WIDGET Y SECCIÓN DE MISIONES DIARIAS */
+.daily-quests-section {
+  width: 90%;
+  max-width: 1100px;
+  margin: 35px auto;
+  background: var(--blanco2, #ffffff);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border: 2px solid var(--crema, #ffe0b2);
+}
+
+body.dark-mode .daily-quests-section {
+  background: var(--blanco2, #0a425d);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.quests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 15px;
+}
+
+.quest-card {
+  background: var(--gris-suave, #f8fafc);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+}
+
+body.dark-mode .quest-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.quest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.quest-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quest-reward-badge {
+  background: #fef3c7;
+  color: #b45309;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+body.dark-mode .quest-reward-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.quest-desc {
+  font-size: 0.82rem;
+  opacity: 0.8;
+  margin-bottom: 12px;
+}
+
+.quest-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.quest-progress-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+body.dark-mode .quest-progress-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.quest-progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.btn-claim-quest {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-claim-quest:hover {
+  background: #16a34a;
+  transform: scale(1.05);
+}
+
+.btn-claim-quest:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* VISTA COLAPSADA DE TARJETAS MINADAS (1 SOLA FILA) */
+.mined-cards-grid {
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mined-cards-grid.collapsed {
+  max-height: 135px; /* Muestra exactamente 1 fila de tarjetas */
+  overflow: hidden;
+  position: relative;
+}
+
+.mined-cards-grid.collapsed::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--naranja, #ffebd1));
+  pointer-events: none;
+}
+
+body.dark-mode .mined-cards-grid.collapsed::after {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--blanco2, #0a425d));
+}
+
+.btn-expand-mined,
+.btn-sort-mined {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  color: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 8px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body.dark-mode .btn-expand-mined,
+body.dark-mode .btn-sort-mined {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.btn-expand-mined:hover,
+.btn-sort-mined:hover {
+  transform: translateY(-2px);
+  background: var(--naranja, #ff9800);
+  color: #ffffff;
+  border-color: var(--naranja, #ff9800);
+}
+
+/* REPRODUCTOR DE MÚSICA DE FONDO (BGM) EN HUD RPG */
+.hud-bgm-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hud-music-select {
+  background: rgba(15, 23, 42, 0.85);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  max-width: 155px;
+}
+
+.hud-music-select option {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.hud-bgm-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: transform 0.2s ease, background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-bgm-btn:hover {
+  transform: scale(1.2);
+  background: rgba(255, 255, 255, 0.15);
+}
+

@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAnkiConfigModule();  // Módulo Anki
   initUserProfileModule(); // Módulo Perfil
   initMinedCardsModule();  // Módulo Tarjetas Minadas
+  initRpgSystemModule();   // Módulo Sistema RPG (Gamificación)
 });
 
 
@@ -68,6 +69,12 @@ function toggleV(id, botonPresionado = null) {
     } else {
       el.style.display = "block";
       if (boton && boton.tagName === "BUTTON") boton.innerText = "Ocultar respuesta";
+      if (typeof concederXP === "function") {
+        concederXP(2, "👁️ Practicar respuesta", boton);
+        if (typeof actualizarProgresoMision === "function") {
+          actualizarProgresoMision("practica", 1);
+        }
+      }
     }
   }
 }
@@ -1302,7 +1309,7 @@ window.enviarObjetoAAnki = async function(sub) {
 
 
 // ==========================================================================
-// SECCIÓN 6: MÓDULO PERFIL DEL ESTUDIANTE Y PERSONALIZACIÓN
+// SECCIÓN 6: MÓDULO PERFIL DEL ESTUDIANTE Y GAMIFICACIÓN RPG
 // ==========================================================================
 let userProfile = {
   nombre: "Estudiante Torii",
@@ -1314,10 +1321,124 @@ let userProfile = {
   ultimaFechaAcceso: new Date().toISOString().split("T")[0],
   tiempoEstudioSegundos: 0,
   totalTarjetasMinadas: 0,
-  logros: []
+  logros: [],
+  xp: 0,
+  soundEnabled: true,
+  musicEnabled: true,
+  currentMusicIndex: 0,
+  musicVolume: 0.35,
+  misionesDiarias: [],
+  ultimaFechaMisiones: ""
 };
 
 let avatarSeleccionadoTemporal = null;
+
+const BGM_PLAYLIST = [
+  { title: "Light Ambience 1 🌸", src: "audio/Light Ambience 1.mp3" },
+  { title: "Light Ambience 2 🌿", src: "audio/Light Ambience 2.mp3" },
+  { title: "Light Ambience 3 🎏", src: "audio/Light Ambience 3.mp3" },
+  { title: "Light Ambience 4 🍵", src: "audio/Light Ambience 4.mp3" },
+  { title: "Light Ambience 5 ⛩️", src: "audio/Light Ambience 5.mp3" }
+];
+
+let bgmAudioObject = null;
+
+function initBgmPlayer() {
+  if (!bgmAudioObject) {
+    bgmAudioObject = new Audio();
+    bgmAudioObject.volume = userProfile.musicVolume !== undefined ? userProfile.musicVolume : 0.35;
+
+    // BUCLE INFINITO DE PLAYLIST: al terminar una canción, pasa automáticamente a la siguiente (1 -> 2 -> 3 -> 4 -> 5 -> 1...)
+    bgmAudioObject.addEventListener("ended", () => {
+      siguienteCancionBGM(true);
+    });
+
+    bgmAudioObject.addEventListener("error", (e) => {
+      console.warn("No se pudo cargar la canción de fondo BGM:", e);
+    });
+  }
+
+  cargarCancionActualBGM();
+
+  // Autoplay en la primera interacción del usuario con la página
+  const intentarPlayEnInteraccion = () => {
+    if (userProfile.musicEnabled !== false && bgmAudioObject && bgmAudioObject.paused) {
+      bgmAudioObject.play().catch(e => console.log("BGM esperando clic del usuario"));
+    }
+  };
+
+  document.addEventListener("click", intentarPlayEnInteraccion, { once: true });
+}
+
+function cargarCancionActualBGM() {
+  if (!bgmAudioObject) return;
+  let idx = userProfile.currentMusicIndex || 0;
+  if (idx < 0 || idx >= BGM_PLAYLIST.length) idx = 0;
+  
+  const song = BGM_PLAYLIST[idx];
+  const relativeSrc = song.src;
+
+  if (!bgmAudioObject.src.endsWith(encodeURI(relativeSrc)) && !bgmAudioObject.src.endsWith(relativeSrc)) {
+    bgmAudioObject.src = relativeSrc;
+  }
+}
+
+function reproducirOPausarBGM() {
+  if (!bgmAudioObject) initBgmPlayer();
+  cargarCancionActualBGM();
+
+  if (bgmAudioObject.paused) {
+    userProfile.musicEnabled = true;
+    userProfile.soundEnabled = true;
+    guardarPerfil();
+    bgmAudioObject.play().catch(e => console.log("BGM autoplay prevenido"));
+  } else {
+    userProfile.musicEnabled = false;
+    userProfile.soundEnabled = false;
+    guardarPerfil();
+    bgmAudioObject.pause();
+  }
+  renderHeaderRPG_HUD();
+}
+
+function siguienteCancionBGM(autoPlay = true) {
+  let idx = (userProfile.currentMusicIndex || 0) + 1;
+  if (idx >= BGM_PLAYLIST.length) idx = 0; // Vuelve al inicio cuando termina la lista (Bucle)
+  userProfile.currentMusicIndex = idx;
+  guardarPerfil();
+  cargarCancionActualBGM();
+
+  if (autoPlay && userProfile.musicEnabled !== false && bgmAudioObject) {
+    bgmAudioObject.play().catch(e => console.log("Error BGM play"));
+  }
+  renderHeaderRPG_HUD();
+  mostrarToast(`🎵 Sonando: ${BGM_PLAYLIST[idx].title}`);
+}
+
+function cambiarCancionPorIndice(idx) {
+  if (idx < 0 || idx >= BGM_PLAYLIST.length) return;
+  userProfile.currentMusicIndex = idx;
+  guardarPerfil();
+  cargarCancionActualBGM();
+  if (userProfile.musicEnabled !== false && bgmAudioObject) {
+    bgmAudioObject.play().catch(e => console.log("Error BGM play"));
+  }
+  renderHeaderRPG_HUD();
+  mostrarToast(`🎵 Selección: ${BGM_PLAYLIST[idx].title}`);
+}
+
+const RPG_NIVELES = [
+  { level: 1, minXp: 0, maxXp: 249, titulo: "Novato Aprendiz ⛩️", desc: "Introducción al idioma japonés" },
+  { level: 2, minXp: 250, maxXp: 699, titulo: "Iniciado en Hiragana 🌸", desc: "La Familia de los 46 Hiraganas" },
+  { level: 3, minXp: 700, maxXp: 1499, titulo: "Estudiante de Hiragana 🎏", desc: "Desbloquea los sonidos impuros ゛゜y Combinaciones" },
+  { level: 4, minXp: 1500, maxXp: 2499, titulo: "Dominio de Kana ⛩️", desc: "Aprende Katakana" },
+  { level: 5, minXp: 2500, maxXp: 4999, titulo: "Guerrero JLPT N5 ⚔️", desc: "Completa el dominio básico y desbloquea N5" },
+  { level: 6, minXp: 5000, maxXp: 9999, titulo: "Ronin JLPT N4 🏯", desc: "Desbloquea JLPT N4" },
+  { level: 7, minXp: 10000, maxXp: 19999, titulo: "Samurái JLPT N3 🗡️", desc: "Desbloquea JLPT N3" },
+  { level: 8, minXp: 20000, maxXp: 29999, titulo: "Bushi JLPT N2 📜", desc: "Desbloquea JLPT N2" },
+  { level: 9, minXp: 30000, maxXp: 49999, titulo: "Daimyo JLPT N1 🎋", desc: "Desbloquea JLPT N1" },
+  { level: 10, minXp: 50000, maxXp: Infinity, titulo: "Maestro Torii 👑", desc: "Perfeccionamiento del idioma" }
+];
 
 const LOGROS_DEFINICION = [
   { id: "primer_minado", titulo: "Primer Paso", desc: "Minar tu primera tarjeta", icono: "🥉" },
@@ -1326,6 +1447,443 @@ const LOGROS_DEFINICION = [
   { id: "cinefilo", titulo: "Cinéfilo Japanese", desc: "Ver 10 min de video en ToriiTV", icono: "🎬" },
   { id: "racha_constante", titulo: "Constancia", desc: "Mantener 3 días de racha", icono: "🔥" }
 ];
+
+function calcularInfoNivel(xp) {
+  const currentXp = Math.max(0, xp || 0);
+  let index = RPG_NIVELES.findIndex(n => currentXp >= n.minXp && currentXp <= n.maxXp);
+  if (index === -1) index = RPG_NIVELES.length - 1;
+  const nivelActual = RPG_NIVELES[index];
+  const siguienteNivel = RPG_NIVELES[index + 1] || null;
+
+  let porcentaje = 100;
+  let xpEnEsteNivel = currentXp - nivelActual.minXp;
+  let xpRequeridaNivel = (siguienteNivel ? siguienteNivel.minXp : nivelActual.maxXp) - nivelActual.minXp;
+
+  if (siguienteNivel && xpRequeridaNivel > 0) {
+    porcentaje = Math.min(100, Math.max(0, Math.round((xpEnEsteNivel / xpRequeridaNivel) * 100)));
+  }
+
+  return {
+    level: nivelActual.level,
+    titulo: nivelActual.titulo,
+    desc: nivelActual.desc,
+    xpTotal: currentXp,
+    xpEnEsteNivel,
+    xpRequeridaNivel,
+    porcentaje,
+    siguienteNivel
+  };
+}
+
+function playRpgSound(tipo) {
+  if (userProfile.soundEnabled === false) return;
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    
+    if (tipo === "xp") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+    } else if (tipo === "levelup") {
+      const notas = [523.25, 659.25, 783.99, 1046.50];
+      notas.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.1);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime + idx * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + idx * 0.1 + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + idx * 0.1);
+        osc.stop(ctx.currentTime + idx * 0.1 + 0.25);
+      });
+    } else if (tipo === "claim") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    }
+  } catch (e) {
+    console.warn("Error en Web Audio RPG:", e);
+  }
+}
+
+function concederXP(cantidad, razon = "Experiencia ganada", elementoOrigen = null) {
+  if (typeof cantidad !== "number" || cantidad <= 0) return;
+
+  const infoAnt = calcularInfoNivel(userProfile.xp || 0);
+  userProfile.xp = (userProfile.xp || 0) + cantidad;
+  const infoNue = calcularInfoNivel(userProfile.xp);
+
+  guardarPerfil();
+  mostrarPopFlotanteXP(cantidad, elementoOrigen);
+  playRpgSound("xp");
+
+  renderHeaderRPG_HUD();
+  renderUserProfileUI();
+  actualizarBloqueoContenidoUI();
+
+  if (infoNue.level > infoAnt.level) {
+    playRpgSound("levelup");
+    mostrarModalLevelUp(infoNue, infoAnt);
+  }
+}
+
+function mostrarPopFlotanteXP(cantidad, elementoOrigen) {
+  const elPop = document.createElement("div");
+  elPop.className = "floating-xp-pop";
+  elPop.textContent = `+${cantidad} XP ✨`;
+
+  let posX = window.innerWidth / 2 - 40;
+  let posY = window.innerHeight / 2;
+
+  if (elementoOrigen && elementoOrigen.getBoundingClientRect) {
+    const rect = elementoOrigen.getBoundingClientRect();
+    posX = rect.left + rect.width / 2 - 30;
+    posY = rect.top - 10;
+  }
+
+  elPop.style.left = `${Math.max(10, Math.min(window.innerWidth - 100, posX))}px`;
+  elPop.style.top = `${Math.max(10, posY)}px`;
+
+  document.body.appendChild(elPop);
+
+  setTimeout(() => {
+    if (elPop.parentNode) {
+      elPop.parentNode.removeChild(elPop);
+    }
+  }, 1400);
+}
+
+function mostrarModalLevelUp(newInfo) {
+  let modalOverlay = document.getElementById("rpg-level-up-modal");
+  if (!modalOverlay) {
+    modalOverlay = document.createElement("div");
+    modalOverlay.id = "rpg-level-up-modal";
+    modalOverlay.className = "level-up-modal-overlay";
+    modalOverlay.innerHTML = `
+      <div class="level-up-card">
+        <div class="level-up-header-badge">⛩️🎉</div>
+        <div class="level-up-title">¡LEVEL UP!</div>
+        <div id="level-up-new-title" class="level-up-new-level">Nivel 2 - Iniciado en Hiragana</div>
+        <p style="font-size: 0.95rem; opacity: 0.9;">¡Excelente trabajo! Has demostrado constancia en tu aprendizaje del japonés.</p>
+        <div class="level-up-unlock-list">
+          <div class="level-up-unlock-title">🔓 ¡Nuevo Contenido Desbloqueado!</div>
+          <div id="level-up-unlocked-desc" class="level-up-unlock-item">✨ Acceso a nuevos ejercicios y lecciones</div>
+        </div>
+        <button id="btn-close-level-up" class="btn-level-up-continue">¡Continuar Aventura! ⚔️</button>
+      </div>
+    `;
+    document.body.appendChild(modalOverlay);
+
+    modalOverlay.querySelector("#btn-close-level-up").addEventListener("click", () => {
+      modalOverlay.classList.remove("active");
+    });
+  }
+
+  const titleEl = modalOverlay.querySelector("#level-up-new-title");
+  const descEl = modalOverlay.querySelector("#level-up-unlocked-desc");
+
+  if (titleEl) titleEl.textContent = `Nivel ${newInfo.level} - ${newInfo.titulo}`;
+  if (descEl) descEl.textContent = `✨ ${newInfo.desc}`;
+
+  setTimeout(() => {
+    modalOverlay.classList.add("active");
+  }, 100);
+}
+
+function renderHeaderRPG_HUD() {
+  let hud = document.getElementById("rpg-hud-bar");
+  const header = document.querySelector(".main-header");
+  
+  if (!hud && header) {
+    hud = document.createElement("div");
+    hud.id = "rpg-hud-bar";
+    hud.className = "rpg-hud-bar";
+    header.parentNode.insertBefore(hud, header.nextSibling);
+  }
+
+  if (!hud) return;
+
+  const info = calcularInfoNivel(userProfile.xp || 0);
+  const currentSongIdx = userProfile.currentMusicIndex || 0;
+  const isPlaying = bgmAudioObject && !bgmAudioObject.paused;
+  const soundActive = userProfile.musicEnabled !== false && userProfile.soundEnabled !== false;
+
+  hud.innerHTML = `
+    <div class="rpg-hud-left">
+      <span class="hud-level-badge">Lv. ${info.level}</span>
+      <span class="hud-level-title">${info.titulo}</span>
+    </div>
+
+    <div class="rpg-hud-center">
+      <div class="hud-xp-info">
+        <span>Progreso de Nivel</span>
+        <span>${info.siguienteNivel ? `${info.xpEnEsteNivel} / ${info.xpRequeridaNivel} XP (${info.porcentaje}%)` : `MAX XP (${userProfile.xp || 0})`}</span>
+      </div>
+      <div class="hud-xp-track">
+        <div class="hud-xp-fill" style="width: ${info.porcentaje}%;"></div>
+      </div>
+    </div>
+
+    <div class="rpg-hud-right">
+      <!-- REPRODUCTOR Y SELECTOR DE MÚSICA BGM EN EL HUD -->
+      <div class="hud-bgm-container" title="Canciones de fondo en bucle">
+        <span class="bgm-icon">🎵</span>
+        <select id="rpg-music-select" class="hud-music-select" title="Escoge la canción de fondo">
+          ${BGM_PLAYLIST.map((song, i) => `
+            <option value="${i}" ${i === currentSongIdx ? 'selected' : ''}>${song.title}</option>
+          `).join("")}
+        </select>
+        <button id="btn-next-music" class="hud-bgm-btn" title="Siguiente canción de la lista">⏭️</button>
+      </div>
+
+      <span class="hud-stat-pill" title="Puntos de Experiencia Totales">⚡ ${userProfile.xp || 0} XP</span>
+      <span class="hud-stat-pill" title="Racha Diaria">🔥 ${userProfile.rachaDias || 1}d</span>
+      <button id="btn-toggle-rpg-sound" class="hud-sound-btn" title="Reproducir / Silenciar Música">${soundActive && isPlaying ? "🔊" : "🔇"}</button>
+    </div>
+  `;
+
+  const btnSound = hud.querySelector("#btn-toggle-rpg-sound");
+  if (btnSound) {
+    btnSound.addEventListener("click", () => {
+      reproducirOPausarBGM();
+    });
+  }
+
+  const selectMusic = hud.querySelector("#rpg-music-select");
+  if (selectMusic) {
+    selectMusic.addEventListener("change", (e) => {
+      const idx = parseInt(e.target.value, 10);
+      cambiarCancionPorIndice(idx);
+    });
+  }
+
+  const btnNext = hud.querySelector("#btn-next-music");
+  if (btnNext) {
+    btnNext.addEventListener("click", () => {
+      siguienteCancionBGM(true);
+    });
+  }
+}
+
+function actualizarBloqueoContenidoUI() {
+  const infoNivel = calcularInfoNivel(userProfile.xp || 0);
+  const currentLevel = infoNivel.level;
+  const currentXp = infoNivel.xpTotal;
+
+  // 1. LECCIONES (lecciones.html)
+  const leccionesCards = document.querySelectorAll(".grid-lecciones .card");
+  leccionesCards.forEach(card => {
+    const titleText = (card.querySelector("h3") ? card.querySelector("h3").innerText : "").toUpperCase();
+    let requiredLevel = 1;
+    let requiredXp = 0;
+
+    if (titleText.includes("N5")) {
+      requiredLevel = 1; requiredXp = 0;
+    } else if (titleText.includes("N4")) {
+      requiredLevel = 6; requiredXp = 5000;
+    } else if (titleText.includes("N3")) {
+      requiredLevel = 7; requiredXp = 10000;
+    } else if (titleText.includes("N2")) {
+      requiredLevel = 8; requiredXp = 20000;
+    } else if (titleText.includes("N1")) {
+      requiredLevel = 9; requiredXp = 30000;
+    }
+
+    aplicarEstadoBloqueoTarjeta(card, currentLevel, requiredLevel, currentXp, requiredXp);
+  });
+
+  // 2. KANA (kana.html)
+  const kanaCards = document.querySelectorAll(".kana-list .kana-card");
+  kanaCards.forEach(card => {
+    const h3Text = (card.querySelector("h3") ? card.querySelector("h3").innerText : "").toLowerCase();
+    let requiredLevel = 1;
+    let requiredXp = 0;
+
+    if (h3Text.includes("vocal")) {
+      requiredLevel = 1; requiredXp = 0;
+    } else if (h3Text.includes("か") || h3Text.includes("さ")) {
+      requiredLevel = 2; requiredXp = 250;
+    } else if (h3Text.includes("た") || h3Text.includes("な") || h3Text.includes("は")) {
+      requiredLevel = 3; requiredXp = 700;
+    } else if (h3Text.includes("ま") || h3Text.includes("や") || h3Text.includes("ら") || h3Text.includes("わ")) {
+      requiredLevel = 4; requiredXp = 1500;
+    }
+
+    aplicarEstadoBloqueoTarjeta(card, currentLevel, requiredLevel, currentXp, requiredXp);
+  });
+}
+
+function aplicarEstadoBloqueoTarjeta(cardElem, currentLevel, requiredLevel, currentXp, requiredXp) {
+  let lockBadge = cardElem.querySelector(".lock-overlay-badge");
+  let lockBox = cardElem.querySelector(".lock-progress-box");
+
+  if (currentLevel < requiredLevel) {
+    cardElem.classList.add("card-locked");
+
+    if (!lockBadge) {
+      lockBadge = document.createElement("div");
+      lockBadge.className = "lock-overlay-badge";
+      cardElem.appendChild(lockBadge);
+    }
+    lockBadge.innerHTML = `🔒 Requiere Nivel ${requiredLevel}`;
+
+    if (!lockBox) {
+      lockBox = document.createElement("div");
+      lockBox.className = "lock-progress-box";
+      cardElem.appendChild(lockBox);
+    }
+
+    const pct = Math.min(100, Math.round((currentXp / requiredXp) * 100));
+    lockBox.innerHTML = `
+      <div class="lock-progress-text">
+        <span>Progreso de desbloqueo</span>
+        <span>${currentXp} / ${requiredXp} XP (${pct}%)</span>
+      </div>
+      <div class="lock-progress-track">
+        <div class="lock-progress-fill" style="width: ${pct}%;"></div>
+      </div>
+    `;
+
+    const btn = cardElem.querySelector(".btn");
+    if (btn) {
+      btn.classList.add("disabled");
+      btn.style.pointerEvents = "none";
+      btn.style.background = "#64748b";
+      btn.innerText = `🔒 Requisito: Nivel ${requiredLevel}`;
+    }
+  } else {
+    cardElem.classList.remove("card-locked");
+    if (lockBadge) lockBadge.remove();
+    if (lockBox) lockBox.remove();
+
+    const btn = cardElem.querySelector(".btn");
+    if (btn) {
+      btn.classList.remove("disabled");
+      btn.style.pointerEvents = "auto";
+      btn.style.background = "";
+      if (btn.innerText.includes("🔒")) {
+        btn.innerText = "Ver";
+      }
+    }
+  }
+}
+
+function initDailyQuests() {
+  const hoy = new Date().toISOString().split("T")[0];
+
+  if (userProfile.ultimaFechaMisiones !== hoy || !userProfile.misionesDiarias || userProfile.misionesDiarias.length === 0) {
+    userProfile.ultimaFechaMisiones = hoy;
+    userProfile.misionesDiarias = [
+      { id: "mision_practica", titulo: "Practicar 3 Respuestas", tipo: "practica", meta: 3, actual: 0, recompensaXP: 15, completada: false, reclamada: false },
+      { id: "mision_estudio", titulo: "Estudiar 10 Minutos", tipo: "estudio", meta: 10, actual: 0, recompensaXP: 25, completada: false, reclamada: false },
+      { id: "mision_minado", titulo: "Minar 2 Tarjetas", tipo: "minado", meta: 2, actual: 0, recompensaXP: 20, completada: false, reclamada: false }
+    ];
+    guardarPerfil();
+  }
+
+  renderDailyQuestsUI();
+}
+
+function actualizarProgresoMision(tipo, incremento = 1) {
+  if (!userProfile.misionesDiarias) return;
+  let cambio = false;
+
+  userProfile.misionesDiarias.forEach(m => {
+    if (m.tipo === tipo && !m.completada) {
+      m.actual = Math.min(m.meta, m.actual + incremento);
+      if (m.actual >= m.meta) {
+        m.completada = true;
+        mostrarToast(`📜 ¡Misión diaria completada: ${m.titulo}!`);
+      }
+      cambio = true;
+    }
+  });
+
+  if (cambio) {
+    guardarPerfil();
+    renderDailyQuestsUI();
+  }
+}
+
+function reclamarMisionDiaria(index) {
+  if (!userProfile.misionesDiarias || !userProfile.misionesDiarias[index]) return;
+  const mision = userProfile.misionesDiarias[index];
+
+  if (mision.completada && !mision.reclamada) {
+    mision.reclamada = true;
+    guardarPerfil();
+    concederXP(mision.recompensaXP, `📜 Misión reclamada: ${mision.titulo}`);
+    playRpgSound("claim");
+    renderDailyQuestsUI();
+  }
+}
+
+function renderDailyQuestsUI() {
+  const container = document.getElementById("daily-quests-container");
+  if (!container) return;
+
+  if (!userProfile.misionesDiarias || userProfile.misionesDiarias.length === 0) return;
+
+  container.innerHTML = `
+    <div class="daily-quests-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h2 class="seccion-titulo" style="margin: 0; font-size: 1.3rem;">📜 Misiones Diarias del Aprendiz</h2>
+        <span style="font-size: 0.8rem; opacity: 0.8;">Se reinician cada día</span>
+      </div>
+      <div class="quests-grid">
+        ${userProfile.misionesDiarias.map((m, idx) => {
+          const pct = Math.min(100, Math.round((m.actual / m.meta) * 100));
+          return `
+            <div class="quest-card">
+              <div>
+                <div class="quest-header">
+                  <span class="quest-title">${m.reclamada ? "✅" : (m.completada ? "🎁" : "📜")} ${m.titulo}</span>
+                  <span class="quest-reward-badge">+${m.recompensaXP} XP</span>
+                </div>
+                <div class="quest-desc">Progreso: ${m.actual} / ${m.meta}</div>
+              </div>
+              <div class="quest-footer">
+                <div class="quest-progress-track">
+                  <div class="quest-progress-fill" style="width: ${pct}%; background: ${m.completada ? '#22c55e' : '#3b82f6'};"></div>
+                </div>
+                <button class="btn-claim-quest" ${(!m.completada || m.reclamada) ? 'disabled' : ''} onclick="reclamarMisionDiaria(${idx})">
+                  ${m.reclamada ? 'Reclamado' : (m.completada ? 'Reclamar' : `${pct}%`)}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function initRpgSystemModule() {
+  initBgmPlayer();
+  renderHeaderRPG_HUD();
+  actualizarBloqueoContenidoUI();
+  initDailyQuests();
+}
 
 function initUserProfileModule() {
   const guardado = localStorage.getItem("torii_user_profile");
@@ -1337,7 +1895,7 @@ function initUserProfileModule() {
     }
   }
 
-  // Actualizar racha diaria
+  // Actualizar racha diaria y conceder XP
   const hoy = new Date().toISOString().split("T")[0];
   if (userProfile.ultimaFechaAcceso !== hoy) {
     const fechaUltima = new Date(userProfile.ultimaFechaAcceso || hoy);
@@ -1346,8 +1904,10 @@ function initUserProfileModule() {
     
     if (diffDias === 1) {
       userProfile.rachaDias = (userProfile.rachaDias || 0) + 1;
+      concederXP(10, "🔥 Racha Diaria Manteniéndose");
     } else if (diffDias > 1) {
       userProfile.rachaDias = 1;
+      concederXP(10, "🔥 Racha Diaria Reiniciada");
     }
     userProfile.ultimaFechaAcceso = hoy;
     guardarPerfil();
@@ -1484,7 +2044,21 @@ function guardarPerfil() {
 }
 
 function registrarTiempoEstudio(segundos) {
-  userProfile.tiempoEstudioSegundos = (userProfile.tiempoEstudioSegundos || 0) + segundos;
+  const prevSeg = userProfile.tiempoEstudioSegundos || 0;
+  userProfile.tiempoEstudioSegundos = prevSeg + segundos;
+
+  const minPrev = Math.floor(prevSeg / 60);
+  const minNue = Math.floor(userProfile.tiempoEstudioSegundos / 60);
+  if (minNue > minPrev) {
+    const diffMin = minNue - minPrev;
+    if (typeof concederXP === "function") {
+      concederXP(diffMin * 1, "⏱️ Tiempo de estudio");
+      if (typeof actualizarProgresoMision === "function") {
+        actualizarProgresoMision("estudio", diffMin);
+      }
+    }
+  }
+
   guardarPerfil();
   verificarLogros();
   renderUserProfileUI();
@@ -1553,6 +2127,8 @@ function renderUserProfileUI() {
   const badgesGrid = document.getElementById("badges-grid");
   const badgesUnlockedCount = document.getElementById("badges-unlocked-count");
 
+  const infoNivel = calcularInfoNivel(userProfile.xp || 0);
+
   // Renderizar Avatar de la página principal (perfil.html)
   if (avatarDisplay) {
     const isUrl = userProfile.avatar && (userProfile.avatar.startsWith("http://") || userProfile.avatar.startsWith("https://") || userProfile.avatar.startsWith("data:image/"));
@@ -1575,11 +2151,11 @@ function renderUserProfileUI() {
   }
 
   if (nameText) nameText.textContent = userProfile.nombre || "Estudiante Torii";
-  if (targetLevel) targetLevel.textContent = `Objetivo: ${userProfile.nivelObjetivo || "JLPT N5"}`;
+  if (targetLevel) targetLevel.textContent = `Nivel RPG: Lv. ${infoNivel.level} (${infoNivel.titulo})`;
   if (mottoText) mottoText.textContent = userProfile.lema ? `"${userProfile.lema}"` : '"¡Paso a paso hacia el aprendizaje del japonés! ⛩️"';
   
   if (streakBadge) streakBadge.textContent = `🔥 ${userProfile.rachaDias || 1} día${(userProfile.rachaDias || 1) > 1 ? "s" : ""} de racha`;
-  if (goalBadge) goalBadge.textContent = `🎯 Meta: ${userProfile.metaDiariaMin || 15} min/día`;
+  if (goalBadge) goalBadge.textContent = `⚡ Total: ${userProfile.xp || 0} XP`;
 
   if (cardsMined) cardsMined.textContent = userProfile.totalTarjetasMinadas || 0;
   if (streakDays) streakDays.textContent = `${userProfile.rachaDias || 1} día${(userProfile.rachaDias || 1) > 1 ? "s" : ""}`;
@@ -1625,6 +2201,9 @@ function renderUserProfileUI() {
 // ==========================================================================
 let minedCardsList = [];
 
+let minedSortRecentFirst = true;
+let minedExpanded = false;
+
 function initMinedCardsModule() {
   const guardado = localStorage.getItem("torii_mined_cards");
   if (guardado) {
@@ -1640,6 +2219,8 @@ function initMinedCardsModule() {
 
   const btnExportTxt = document.getElementById("btn-export-anki-txt");
   const btnClearMined = document.getElementById("btn-clear-mined");
+  const btnSortMined = document.getElementById("btn-sort-mined");
+  const btnToggleExpand = document.getElementById("btn-toggle-expand-mined");
 
   if (btnExportTxt) {
     btnExportTxt.addEventListener("click", exportarListaAAnkiTxt);
@@ -1654,6 +2235,21 @@ function initMinedCardsModule() {
         renderMinedCardsUI();
         mostrarToast("🗑️ Lista de tarjetas minadas vaciada");
       }
+    });
+  }
+
+  if (btnSortMined) {
+    btnSortMined.addEventListener("click", () => {
+      minedSortRecentFirst = !minedSortRecentFirst;
+      renderMinedCardsUI();
+      mostrarToast(minedSortRecentFirst ? "🔃 Ordenado: Más recientes primero" : "🔃 Ordenado: Más antiguas primero");
+    });
+  }
+
+  if (btnToggleExpand) {
+    btnToggleExpand.addEventListener("click", () => {
+      minedExpanded = !minedExpanded;
+      renderMinedCardsUI();
     });
   }
 }
@@ -1699,6 +2295,12 @@ function agregarTarjetaMinadaLocal(sub) {
     guardarTarjetasMinadas();
     renderMinedCardsUI();
     registrarTarjetaMinadaEnPerfil();
+    if (typeof concederXP === "function") {
+      concederXP(5, "📇 Tarjeta minada");
+      if (typeof actualizarProgresoMision === "function") {
+        actualizarProgresoMision("minado", 1);
+      }
+    }
   }
 
   mostrarToast("⭐ ¡Tarjeta agregada a tu lista!");
@@ -1714,12 +2316,29 @@ function eliminarTarjetaMinadaLocal(id) {
 function renderMinedCardsUI() {
   const badgeCount = document.getElementById("mined-count-badge");
   const gridContainer = document.getElementById("mined-cards-grid");
+  const btnSortMined = document.getElementById("btn-sort-mined");
+  const btnToggleExpand = document.getElementById("btn-toggle-expand-mined");
 
   if (badgeCount) {
     badgeCount.textContent = `${minedCardsList.length} tarjeta${minedCardsList.length !== 1 ? "s" : ""}`;
   }
 
+  if (btnSortMined) {
+    btnSortMined.innerHTML = minedSortRecentFirst ? "<span>🔃 Recientes primero</span>" : "<span>🔃 Antiguas primero</span>";
+  }
+
+  if (btnToggleExpand) {
+    btnToggleExpand.innerHTML = minedExpanded ? "<span>Mostrar menos</span>" : "<span>Mostrar más</span>";
+    btnToggleExpand.style.display = minedCardsList.length > 3 ? "inline-flex" : "none";
+  }
+
   if (!gridContainer) return;
+
+  if (minedExpanded) {
+    gridContainer.classList.remove("collapsed");
+  } else {
+    gridContainer.classList.add("collapsed");
+  }
 
   if (minedCardsList.length === 0) {
     gridContainer.innerHTML = `
@@ -1730,8 +2349,14 @@ function renderMinedCardsUI() {
     return;
   }
 
+  // Copia ordenada para renderizar
+  const listaParaMostrar = [...minedCardsList];
+  if (!minedSortRecentFirst) {
+    listaParaMostrar.reverse();
+  }
+
   gridContainer.innerHTML = "";
-  minedCardsList.forEach(tarjeta => {
+  listaParaMostrar.forEach(tarjeta => {
     const cardDiv = document.createElement("div");
     cardDiv.className = "mined-card-item";
     const tradHtml = tarjeta.traduccion ? `<div class="mined-card-trad" style="font-size: 0.85rem; opacity: 0.85; color: var(--crema2); margin-top: 4px;">ES: ${tarjeta.traduccion}</div>` : '';
