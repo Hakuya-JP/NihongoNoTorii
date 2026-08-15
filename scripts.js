@@ -80,6 +80,15 @@ function toggleV(id, botonPresionado = null) {
   }
 }
 
+// Menú Hamburguesa Móvil
+function toggleMenu() {
+  const menu = document.getElementById("menu");
+  if (menu) {
+    menu.classList.toggle("active");
+  }
+}
+window.toggleMenu = toggleMenu;
+
 // Interruptor Dark Mode
 function toggleDarkMode() {
   const body = document.body;

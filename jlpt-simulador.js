@@ -175,6 +175,16 @@ function comenzarSimulacro() {
   document.getElementById("jlpt-results-screen").style.display = "none";
   document.getElementById("jlpt-exam-screen").style.display = "block";
 
+  // Ocultar HUD de XP, Banner principal y misiones para concentración total del estudiante
+  const hudBar = document.getElementById("rpg-hud-bar");
+  if (hudBar) hudBar.style.display = "none";
+
+  const heroBanner = document.querySelector(".jlpt-hero-banner");
+  if (heroBanner) heroBanner.style.display = "none";
+
+  const questsContainer = document.getElementById("daily-quests-container");
+  if (questsContainer) questsContainer.style.display = "none";
+
   document.getElementById("exam-runner-title").innerText = examData.titulo;
 
   iniciarTemporizador();
@@ -397,6 +407,16 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
   document.getElementById("jlpt-exam-screen").style.display = "none";
   document.getElementById("jlpt-results-screen").style.display = "block";
 
+  // Restaurar barra HUD, Hero Banner y Misiones
+  const hudBar = document.getElementById("rpg-hud-bar");
+  if (hudBar) hudBar.style.display = "flex";
+
+  const heroBanner = document.querySelector(".jlpt-hero-banner");
+  if (heroBanner) heroBanner.style.display = "block";
+
+  const questsContainer = document.getElementById("daily-quests-container");
+  if (questsContainer) questsContainer.style.display = "";
+
   const banner = document.getElementById("results-banner");
   if (banner) {
     const lvlKey = estadoSimulador.nivelActual;
@@ -461,4 +481,14 @@ function volverAlSelectorJLPT() {
   document.getElementById("jlpt-exam-screen").style.display = "none";
   document.getElementById("jlpt-results-screen").style.display = "none";
   document.getElementById("jlpt-selector-screen").style.display = "block";
+
+  // Restaurar barra HUD, Hero Banner y Misiones
+  const hudBar = document.getElementById("rpg-hud-bar");
+  if (hudBar) hudBar.style.display = "flex";
+
+  const heroBanner = document.querySelector(".jlpt-hero-banner");
+  if (heroBanner) heroBanner.style.display = "block";
+
+  const questsContainer = document.getElementById("daily-quests-container");
+  if (questsContainer) questsContainer.style.display = "";
 }

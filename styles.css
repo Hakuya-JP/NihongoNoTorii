@@ -4134,4 +4134,210 @@ body.dark-mode .heatmap-legend-square.level-4 { background: #4ade80; }
   background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
 }
 
+/* ==========================================================================
+   OPTIMIZACIÓN RESPONSIVA PARA TELÉFONOS Y DISPOSITIVOS MÓVILES
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* 1. CABECERA Y MENÚ HAMBURGUESA */
+  .main-header {
+    padding: 10px 16px;
+  }
+
+  .logo-text {
+    font-size: 1.25rem;
+  }
+
+  .nav-logo img {
+    height: 42px;
+    width: 42px;
+  }
+
+  .hamburger {
+    display: block !important;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1.8rem;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+
+  .top-nav {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--azul, #146482);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    padding: 15px 0;
+    z-index: 9999;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  body.dark-mode .top-nav {
+    background: var(--gris-oscuro, #0f172a);
+  }
+
+  .top-nav.active {
+    display: flex !important;
+  }
+
+  .top-nav a {
+    margin: 8px 0 !important;
+    font-size: 1.15rem !important;
+    text-align: center;
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  /* 2. BARRA DE EXPERIENCIA E INTEGRACIÓN BGM EN HUD MÓVIL */
+  .rpg-hud-bar {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .rpg-hud-left {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .rpg-hud-center {
+    max-width: 100%;
+    margin: 0;
+    width: 100%;
+  }
+
+  .rpg-hud-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .hud-bgm-container {
+    width: 100%;
+    justify-content: space-between;
+    padding: 4px 8px;
+  }
+
+  .hud-music-select {
+    max-width: 110px;
+    font-size: 0.72rem;
+  }
+
+  .hud-volume-slider {
+    width: 50px;
+  }
+
+  /* 3. GRID DE LECCIONES Y TARJETAS KANA */
+  .grid-lecciones,
+  .grid-contenido {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+    width: 95%;
+  }
+
+  .kana-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .kana-card {
+    padding: 12px 8px !important;
+  }
+
+  .kana-card h3 {
+    font-size: 1rem !important;
+  }
+
+  .kana-card p {
+    font-size: 0.82rem !important;
+  }
+
+  /* 4. SIMULADOR JLPT EN MÓVIL */
+  .jlpt-levels-grid,
+  .preview-info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .jlpt-simulador-main {
+    width: 95%;
+    margin: 15px auto;
+  }
+
+  .question-options-list .option-chip {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+
+  .question-header-tag {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* 5. SECCIÓN DE PERFIL Y HEATMAP EN MÓVIL */
+  .perfil-stats-summary {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+
+  .perfil-heatmap-section {
+    padding: 14px;
+    margin: 20px 10px;
+  }
+
+  .heatmap-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+
+  /* 6. LISTAS INTERACTIVAS KANA (VOCALES / FAMILIAS) */
+  .vocal-list {
+    padding: 0;
+  }
+
+  .vocal-item {
+    padding: 10px 12px;
+  }
+
+  .vocal-item .top-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .vocal-item .btn-show {
+    align-self: flex-end;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .kana-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .perfil-stats-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .hud-stat-pill {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+}
+
 

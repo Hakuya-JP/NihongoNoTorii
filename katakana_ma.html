@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Familia マ (Katakana) | Nihongo no Torii</title>
+  <meta name="description" content="Practica la familia マ (マ ミ ム メ モ) en Katakana.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
+    <a href="perfil.html" class="nav-profile-item">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+    </a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<div class="content">
+  <h2 class="seccion-titulo" style="text-align: center; margin-top: 30px;">Familia マ (ma - mi - mu - me - mo)</h2>
+  <p class="subtitulo-lecciones" style="text-align: center; margin-bottom: 20px;">Practica la lectura de la familia マ en Katakana.</p>
+
+  <section style="width: 90%; max-width: 900px; margin: 30px auto;">
+    <ul class="vocal-list">
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(masuku) → </span>Mascarilla / Cubrebocas (Mask)</div>
+          <button class="btn-show" onclick="toggleV('kma1')">ver respuesta</button>
+        </div>
+        <p id="kma1" class="significado"> → マスク</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(miruku) → </span>Leche (Milk)</div>
+          <button class="btn-show" onclick="toggleV('kma2')">ver respuesta</button>
+        </div>
+        <p id="kma2" class="significado"> → ミルク</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(mu-bi-) → </span>Película / Video (Movie)</div>
+          <button class="btn-show" onclick="toggleV('kma3')">ver respuesta</button>
+        </div>
+        <p id="kma3" class="significado"> → ムービー</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(me-ru) → </span>Correo electrónico (Email)</div>
+          <button class="btn-show" onclick="toggleV('kma4')">ver respuesta</button>
+        </div>
+        <p id="kma4" class="significado"> → メール</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(monita-) → </span>Monitor (Monitor)</div>
+          <button class="btn-show" onclick="toggleV('kma5')">ver respuesta</button>
+        </div>
+        <p id="kma5" class="significado"> → モニター</p>
+      </li>
+    </ul>
+  </section>
+</div>
+<script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sonidos Impuros Katakana (濁音 ゛・半濁音 ゜) | Nihongo no Torii</title>
+  <meta name="description" content="Practica los sonidos impuros Dakuon (ガ ザ ダ バ) y Handakuon (パ) en Katakana.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
+    <a href="perfil.html" class="nav-profile-item">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+    </a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<div class="content">
+  <h2 class="seccion-titulo" style="text-align: center; margin-top: 30px;">Sonidos Impuros Katakana (ガ ザ ダ バ パ)</h2>
+  <p class="subtitulo-lecciones" style="text-align: center; margin-bottom: 20px;">Los signos (゛ Dakuon) y (゜ Handakuon) modifican el sonido básico en Katakana.</p>
+
+  <section style="width: 90%; max-width: 900px; margin: 30px auto;">
+    <ul class="vocal-list">
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(ga-den) → </span>Jardín (Garden)</div>
+          <button class="btn-show" onclick="toggleV('kd1')">ver respuesta</button>
+        </div>
+        <p id="kd1" class="significado"> → ガーデン</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(zasshi / dezain) → </span>Diseño (Design)</div>
+          <button class="btn-show" onclick="toggleV('kd2')">ver respuesta</button>
+        </div>
+        <p id="kd2" class="significado"> → デザイン</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(dansu) → </span>Danza / Baile (Dance)</div>
+          <button class="btn-show" onclick="toggleV('kd3')">ver respuesta</button>
+        </div>
+        <p id="kd3" class="significado"> → ダンス</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(basu) → </span>Autobús (Bus)</div>
+          <button class="btn-show" onclick="toggleV('kd4')">ver respuesta</button>
+        </div>
+        <p id="kd4" class="significado"> → バス</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(piza) → </span>Pizza</div>
+          <button class="btn-show" onclick="toggleV('kd5')">ver respuesta</button>
+        </div>
+        <p id="kd5" class="significado"> → ピザ</p>
+      </li>
+    </ul>
+  </section>
+</div>
+<script src="scripts.js"></script>
+</body>
+</html>
