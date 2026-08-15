@@ -23,7 +23,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initSimuladorJLPT() {
   renderNivelSelector();
-  seleccionarNivel("N5");
+
+  const params = new URLSearchParams(window.location.search);
+  const targetLevel = (params.get("level") || "N5").toUpperCase();
+  const autoExam = params.get("autoExam") === "true";
+
+  if (["KANA", "N5", "N4", "N3", "N2", "N1"].includes(targetLevel)) {
+    seleccionarNivel(targetLevel);
+  } else {
+    seleccionarNivel("N5");
+  }
+
+  if (autoExam) {
+    setTimeout(() => {
+      comenzarSimulacro();
+    }, 200);
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -34,6 +49,7 @@ function renderNivelSelector() {
   if (!container) return;
 
   const niveles = [
+    { id: "KANA", nombre: "KANA", badge: "Silabarios", desc: "Examen de dominio de Hiragana, Katakana, sonidos impuros y diptongales." },
     { id: "N5", nombre: "JLPT N5", badge: "Principiante", desc: "Vocabulario básico, Hiragana, Katakana y Kanjis elementales." },
     { id: "N4", nombre: "JLPT N4", badge: "Elemental", desc: "Japonés básico cotidiano y estructuras gramaticales fundamentales." },
     { id: "N3", nombre: "JLPT N3", badge: "Intermedio", desc: "Puente hacia el nivel avanzado con lectura de textos cotidianos." },
@@ -59,7 +75,8 @@ function seleccionarNivel(nivelKey) {
   // Actualizar UI nivel activo
   const cards = document.querySelectorAll(".jlpt-level-card");
   cards.forEach(card => card.classList.remove("active"));
-  const activeCard = Array.from(cards).find(c => c.innerHTML.includes(`JLPT ${nivelKey}`));
+  const searchStr = nivelKey === "KANA" ? "KANA" : `JLPT ${nivelKey}`;
+  const activeCard = Array.from(cards).find(c => c.innerHTML.includes(searchStr));
   if (activeCard) activeCard.classList.add("active");
 
   renderExamenesDisponibles();
@@ -321,7 +338,7 @@ function actualizarEstadoPaleta() {
 }
 
 // --------------------------------------------------------------------------
-// 4. CÁLCULO DE RESULTADOS Y ENTREGA
+// 4. CÁLCULO DE RESULTADOS Y ENTREGA DE EXAMEN CON DESBLOQUEO DE NIVEL
 // --------------------------------------------------------------------------
 function finalizarYEntregarExamen() {
   if (estadoSimulador.timerInterval) clearInterval(estadoSimulador.timerInterval);
@@ -350,9 +367,27 @@ function finalizarYEntregarExamen() {
   const porcentaje = Math.round((correctas / total) * 100);
   const aprobado = porcentaje >= 60;
 
-  // Conceder XP si la función RPG existe
-  if (typeof concederXP === "function" && aprobado) {
-    concederXP(50, "🏆 Aprobaste el Simulacro JLPT");
+  // Umbral de XP requerido por nivel JLPT
+  const XP_REQUERIDA_POR_NIVEL = {
+    "KANA": 250,
+    "N5": 0,
+    "N4": 5000,
+    "N3": 10000,
+    "N2": 20000,
+    "N1": 30000
+  };
+
+  const lvlKey = estadoSimulador.nivelActual;
+  const xpRequerida = XP_REQUERIDA_POR_NIVEL[lvlKey] || 0;
+
+  if (aprobado && typeof concederXP === "function") {
+    const currentXp = (window.userProfile && window.userProfile.xp) ? window.userProfile.xp : 0;
+    if (currentXp < xpRequerida) {
+      const xpBonus = xpRequerida - currentXp;
+      concederXP(xpBonus, `🏆 Examen JLPT ${lvlKey} Aprobado - Nivel Desbloqueado`);
+    } else {
+      concederXP(100, `🏆 Examen JLPT ${lvlKey} Aprobado`);
+    }
   }
 
   mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgloseSecciones);
@@ -364,11 +399,12 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
 
   const banner = document.getElementById("results-banner");
   if (banner) {
+    const lvlKey = estadoSimulador.nivelActual;
     banner.className = `results-banner ${aprobado ? 'pass' : 'fail'}`;
     banner.innerHTML = `
       <div class="banner-icon">${aprobado ? '🏆' : '⚠️'}</div>
-      <h2>${aprobado ? '¡FELICITACIONES! APROBASTE EL SIMULACRO' : 'NO HAZ ALCANZADO EL PUNTAJE DE APROBACIÓN'}</h2>
-      <p>${aprobado ? 'Has demostrado los conocimientos requeridos para este nivel JLPT.' : 'Sigue practicando las lecciones y vuelve a intentarlo pronto.'}</p>
+      <h2>${aprobado ? `¡FELICITACIONES! APROBASTE EL EXAMEN JLPT ${lvlKey}` : 'NO HAS ALCANZADO EL PUNTAJE DE APROBACIÓN'}</h2>
+      <p>${aprobado ? `¡Has ganado los XP de este nivel y desbloqueado todas las lecciones del nivel ${lvlKey}! 🔓` : 'Sigue practicando las lecciones y vuelve a intentarlo pronto.'}</p>
     `;
   }
 

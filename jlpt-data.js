@@ -390,5 +390,140 @@ const JLPT_DATA = {
         }
       ]
     }
+  },
+  // ========================================================================
+  // NIVEL KANA (SILABARIOS)
+  // ========================================================================
+  "KANA": {
+    "examen-1": {
+      id: "kana-examen-1",
+      titulo: "Examen de Silabarios KANA (Hiragana & Katakana)",
+      tiempoMinutos: 30,
+      secciones: [
+        {
+          nombre: "Hiragana - Lectura y Sonidos Impuros (ひらがな・濁音)",
+          icono: "🎌",
+          preguntas: [
+            {
+              id: "kana-1-1",
+              pregunta: "¿Cómo se lee el carácter en Hiragana <b>さくら</b>?",
+              opciones: ["1. sakura", "2. zakura", "3. samura", "4. takura"],
+              respuestaCorrecta: 0,
+              explicacion: "さ(sa) + く(ku) + ら(ra) = sakura (cerezo)."
+            },
+            {
+              id: "kana-1-2",
+              pregunta: "¿Cuál es el carácter Hiragana correcto para el sonido <b>'NE'</b> (en palabras como <i>neko</i>)?",
+              opciones: ["1. ぬ", "2. ね", "3. れ", "4. わ"],
+              respuestaCorrecta: 1,
+              explicacion: "ね es 'ne'. ぬ es 'nu', れ es 're', わ es 'wa'."
+            },
+            {
+              id: "kana-1-3",
+              pregunta: "¿Cómo se lee la palabra con dakuon (゛) <b>がっこう</b>?",
+              opciones: ["1. kakkou", "2. gakkou", "3. dankou", "4. hango"],
+              respuestaCorrecta: 1,
+              explicacion: "が (ga) + っ (sokuen / pausa) + こ (ko) + う (u) = gakkou (escuela)."
+            },
+            {
+              id: "kana-1-4",
+              pregunta: "¿Cuál es la lectura correcta de <b>てんき</b>?",
+              opciones: ["1. denki", "2. tenki", "3. senki", "4. kenki"],
+              respuestaCorrecta: 1,
+              explicacion: "て(te) + ん(n) + き(ki) = tenki (tiempo/clima)."
+            },
+            {
+              id: "kana-1-5",
+              pregunta: "¿Cómo se escribe en Hiragana la palabra <b>'pan'</b> (pan) usando handakuon (゜)?",
+              opciones: ["1. ばん", "2. ぱん", "3. はん", "4. まん"],
+              respuestaCorrecta: 1,
+              explicacion: "ぱ (pa) lleva el círculo handakuon (゜) + ん (n) = ぱん (pan)."
+            }
+          ]
+        },
+        {
+          nombre: "Katakana - Lectura y Vocabulario (カタカナ・濁音)",
+          icono: "🔤",
+          preguntas: [
+            {
+              id: "kana-2-1",
+              pregunta: "¿Cómo se lee en Katakana la palabra <b>カメラ</b>?",
+              opciones: ["1. kamera", "2. kumera", "3. kikaia", "4. kagura"],
+              respuestaCorrecta: 0,
+              explicacion: "カ(ka) + メ(me) + ラ(ra) = kamera (cámara)."
+            },
+            {
+              id: "kana-2-2",
+              pregunta: "¿Cuál de los siguientes es el carácter Katakana para el sonido <b>'SO'</b>?",
+              opciones: ["1. ン", "2. シ", "3. ソ", "4. ツ"],
+              respuestaCorrecta: 2,
+              explicacion: "ソ es 'so' (trazo de arriba hacia abajo a la derecha). シ es 'shi', ツ es 'tsu', ン es 'n'."
+            },
+            {
+              id: "kana-2-3",
+              pregunta: "¿Cómo se transcribe a Romaji la palabra <b>バス</b>?",
+              opciones: ["1. hasu", "2. basu", "3. pasu", "4. dasu"],
+              respuestaCorrecta: 1,
+              explicacion: "バ (ba con dakuon) + ス (su) = basu (bús/autobús)."
+            },
+            {
+              id: "kana-2-4",
+              pregunta: "¿Qué significa y cómo se lee la palabra en Katakana <b>コーヒー</b>?",
+              opciones: ["1. ko-hi- (Café)", "2. ko-ki- (Cereal)", "3. go-hi- (Té)", "4. ko-he- (Jugo)"],
+              respuestaCorrecta: 0,
+              explicacion: "コ(ko) + ー(guión largo) + ヒ(hi) + ー(guión largo) = ko-hi- (café)."
+            },
+            {
+              id: "kana-2-5",
+              pregunta: "¿Cuál es el carácter Katakana para la vocal <b>'E'</b>?",
+              opciones: ["1. ア", "2. イ", "3. ウ", "4. エ"],
+              respuestaCorrecta: 3,
+              explicacion: "エ es 'e' en Katakana."
+            }
+          ]
+        },
+        {
+          nombre: "Diptongales y Combinaciones (拗音・ようおん)",
+          icono: "🧩",
+          preguntas: [
+            {
+              id: "kana-3-1",
+              pregunta: "¿Cómo se pronuncia la combinación diptongal en Hiragana <b>しゃしん</b>?",
+              opciones: ["1. shashin", "2. siyasin", "3. chachin", "4. hyashin"],
+              respuestaCorrecta: 0,
+              explicacion: "し(shi) + や pequeñita(ya) = sha + し(shi) + ん(n) = shashin (fotografía)."
+            },
+            {
+              id: "kana-3-2",
+              pregunta: "¿Cómo se escribe en Katakana la palabra <b>'Shirt' / 'Camisa' (shirt / shatsu)</b>?",
+              opciones: ["1. シヤツ", "2. シャツ", "3. チヤツ", "4. ヒヤツ"],
+              respuestaCorrecta: 1,
+              explicacion: "シ(shi) + ャ(ya pequeño) + ツ(tsu) = シャツ (shatsu / camisa)."
+            },
+            {
+              id: "kana-3-3",
+              pregunta: "¿Cuál es la lectura de <b>とうきょう</b>?",
+              opciones: ["1. toukyou (Tokio)", "2. tokuyo", "3. touchou", "4. tokyon"],
+              respuestaCorrecta: 0,
+              explicacion: "と(to) + う(u) + き(ki) + ょ(yo pequeño) + う(u) = toukyou (Tokio)."
+            },
+            {
+              id: "kana-3-4",
+              pregunta: "¿Cómo se escribe <b>'JU'</b> en Hiragana usando el carácter じ (ji)?",
+              opciones: ["1. じゆ", "2. じゅ", "3. じょ", "4. ぢゆ"],
+              respuestaCorrecta: 1,
+              explicacion: "じ (ji) + ゆ pequeño (yu) = じゅ (ju)."
+            },
+            {
+              id: "kana-3-5",
+              pregunta: "¿Cómo se lee en Katakana <b>チョコレート</b>?",
+              opciones: ["1. chokore-to (Chocolate)", "2. tyokoreto", "3. shikore-to", "4. kyokore-to"],
+              respuestaCorrecta: 0,
+              explicacion: "チ(chi) + ョ(yo pequeño) = cho + コ(ko) + レ(re) + ー + ト(to) = chokore-to (chocolate)."
+            }
+          ]
+        }
+      ]
+    }
   }
 };

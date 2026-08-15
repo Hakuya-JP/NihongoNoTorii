@@ -1978,17 +1978,13 @@ function actualizarBloqueoContenidoUI() {
   const kanaCards = document.querySelectorAll(".kana-list .kana-card");
   kanaCards.forEach(card => {
     const h3Text = (card.querySelector("h3") ? card.querySelector("h3").innerText : "").toLowerCase();
-    let requiredLevel = 1;
-    let requiredXp = 0;
+    let requiredLevel = 2;
+    let requiredXp = 250;
 
-    if (h3Text.includes("vocal")) {
+    if (h3Text.includes("vocales") && !h3Text.includes("katakana")) {
       requiredLevel = 1; requiredXp = 0;
-    } else if (h3Text.includes("か") || h3Text.includes("さ")) {
+    } else {
       requiredLevel = 2; requiredXp = 250;
-    } else if (h3Text.includes("た") || h3Text.includes("な") || h3Text.includes("は")) {
-      requiredLevel = 3; requiredXp = 700;
-    } else if (h3Text.includes("ま") || h3Text.includes("や") || h3Text.includes("ら") || h3Text.includes("わ")) {
-      requiredLevel = 4; requiredXp = 1500;
     }
 
     aplicarEstadoBloqueoTarjeta(card, currentLevel, requiredLevel, currentXp, requiredXp);
@@ -2016,17 +2012,43 @@ function aplicarEstadoBloqueoTarjeta(cardElem, currentLevel, requiredLevel, curr
     }
 
     const pct = Math.min(100, Math.round((currentXp / requiredXp) * 100));
+
+    const isKanaCard = cardElem.classList.contains("kana-card") || window.location.pathname.includes("kana.html");
+    const titleText = (cardElem.querySelector("h3") ? cardElem.querySelector("h3").innerText : "").toUpperCase();
+    
+    let jlptKey = "N4";
+    let examLabel = "JLPT N4";
+
+    if (isKanaCard) {
+      jlptKey = "KANA";
+      examLabel = "de KANA";
+    } else if (titleText.includes("N3")) {
+      jlptKey = "N3";
+      examLabel = "JLPT N3";
+    } else if (titleText.includes("N2")) {
+      jlptKey = "N2";
+      examLabel = "JLPT N2";
+    } else if (titleText.includes("N1")) {
+      jlptKey = "N1";
+      examLabel = "JLPT N1";
+    }
+
     lockBox.innerHTML = `
       <div class="lock-progress-text">
-        <span>Progreso de desbloqueo</span>
+        <span>Progreso de XP</span>
         <span>${currentXp} / ${requiredXp} XP (${pct}%)</span>
       </div>
       <div class="lock-progress-track">
         <div class="lock-progress-fill" style="width: ${pct}%;"></div>
       </div>
+      <div style="margin-top: 10px;">
+        <a href="jlpt-simulador.html?level=${jlptKey}&autoExam=true" class="btn-unlock-exam" title="Rendir examen ${examLabel} para desbloquear este nivel de inmediato">
+          ✍️ Desbloquear con Examen ${examLabel}
+        </a>
+      </div>
     `;
 
-    const btn = cardElem.querySelector(".btn");
+    const btn = cardElem.querySelector(".btn:not(.btn-unlock-exam)");
     if (btn) {
       btn.classList.add("disabled");
       btn.style.pointerEvents = "none";
@@ -2870,3 +2892,16 @@ function mostrarToast(mensaje) {
 
 // Expuestos globalmente
 window.eliminarTarjetaMinadaLocal = eliminarTarjetaMinadaLocal;
+
+function toggleV(id) {
+  const elem = document.getElementById(id);
+  if (elem) {
+    elem.classList.toggle("visible");
+    if (elem.style.display === "block") {
+      elem.style.display = "none";
+    } else {
+      elem.style.display = "block";
+    }
+  }
+}
+window.toggleV = toggleV;

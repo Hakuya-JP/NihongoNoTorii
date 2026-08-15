@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Familia わ (Hiragana) | Nihongo no Torii</title>
+  <meta name="description" content="Practica la pronunciación y lectura de la familia わ (わ を ん) en Hiragana.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
+    <a href="perfil.html" class="nav-profile-item">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+    </a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<div class="content">
+  <h2 class="seccion-titulo" style="text-align: center; margin-top: 30px;">Familia わ (wa - wo - n)</h2>
+  <p class="subtitulo-lecciones" style="text-align: center; margin-bottom: 20px;">Practica la lectura y escritura de la familia わ en Hiragana.</p>
+
+  <section style="width: 90%; max-width: 900px; margin: 30px auto;">
+    <ul class="vocal-list">
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(watashi) → </span>Yo</div>
+          <button class="btn-show" onclick="toggleV('wa1')">ver respuesta</button>
+        </div>
+        <p id="wa1" class="significado"> → わたし</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(wani) → </span>Cocodrilo</div>
+          <button class="btn-show" onclick="toggleV('wa2')">ver respuesta</button>
+        </div>
+        <p id="wa2" class="significado"> → わに</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(hon wo yomu) → </span>Partícula Objeto (wo/o)</div>
+          <button class="btn-show" onclick="toggleV('wa3')">ver respuesta</button>
+        </div>
+        <p id="wa3" class="significado"> → ほんをよむ</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(nihon) → </span>Japón (sonido N nasal)</div>
+          <button class="btn-show" onclick="toggleV('wa4')">ver respuesta</button>
+        </div>
+        <p id="wa4" class="significado"> → にほん</p>
+      </li>
+    </ul>
+  </section>
+</div>
+<script src="scripts.js"></script>
+</body>
+</html>

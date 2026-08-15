@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Familia は (Hiragana) | Nihongo no Torii</title>
+  <meta name="description" content="Practica la pronunciación y lectura de la familia は (は ひ ふ へ ほ) en Hiragana.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
+    <a href="perfil.html" class="nav-profile-item">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+    </a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<div class="content">
+  <h2 class="seccion-titulo" style="text-align: center; margin-top: 30px;">Familia は (ha - hi - fu - he - ho)</h2>
+  <p class="subtitulo-lecciones" style="text-align: center; margin-bottom: 20px;">Practica la lectura y escritura de la familia は en Hiragana.</p>
+
+  <section style="width: 90%; max-width: 900px; margin: 30px auto;">
+    <ul class="vocal-list">
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(hana) → </span>Flor / Nariz</div>
+          <button class="btn-show" onclick="toggleV('ha1')">ver respuesta</button>
+        </div>
+        <p id="ha1" class="significado"> → はな</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(hikari) → </span>Luz</div>
+          <button class="btn-show" onclick="toggleV('ha2')">ver respuesta</button>
+        </div>
+        <p id="ha2" class="significado"> → ひかり</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(fune) → </span>Barco / Nave</div>
+          <button class="btn-show" onclick="toggleV('ha3')">ver respuesta</button>
+        </div>
+        <p id="ha3" class="significado"> → ふね</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(heya) → </span>Habitación / Habitación</div>
+          <button class="btn-show" onclick="toggleV('ha4')">ver respuesta</button>
+        </div>
+        <p id="ha4" class="significado"> → へや</p>
+      </li>
+      <li class="vocal-item simple">
+        <div class="top-row">
+          <div class="vocal-text"><span class="romaji">(hon) → </span>Libro</div>
+          <button class="btn-show" onclick="toggleV('ha5')">ver respuesta</button>
+        </div>
+        <p id="ha5" class="significado"> → ほん</p>
+      </li>
+    </ul>
+  </section>
+</div>
+<script src="scripts.js"></script>
+</body>
+</html>
