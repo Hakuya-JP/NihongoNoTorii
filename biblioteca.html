@@ -23,9 +23,9 @@
     <a href="lecciones.html">Lecciones</a>
     <a href="videos.html">Videos</a>
     <a href="kana.html">Kana</a>
-    <a href="biblioteca.html">Biblioteca</a>
-    <a href="manga.html">Manga/Novela</a>
+    <a href="biblioteca.html" class="active">Biblioteca</a>
     <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
     <a href="perfil.html" class="nav-profile-item">
       <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
     </a>
@@ -35,24 +35,153 @@
 
   <section class="biblioteca-controles">
     <div class="search-container">
-      <input type="text" id="buscador-libros" placeholder="Buscar libros por título o autor..." onkeyup="filtrarLibros()">
+      <input type="text" id="buscador-libros" placeholder="Buscar por título, autor o contenido..." onkeyup="filtrarLibros()">
     </div>
     
-    <div class="filter-container">
-      <button class="filter-btn active" onclick="filtrarCategoria('todos', this)">Todos</button>
-      <button class="filter-btn" onclick="filtrarCategoria('Kana', this)">Silabrarios[KANA]</button>
-      <button class="filter-btn" onclick="filtrarCategoria('gramatica', this)">Gramática</button>
-      <button class="filter-btn" onclick="filtrarCategoria('kanji', this)">Kanji</button>
-      <button class="filter-btn" onclick="filtrarCategoria('Vocabulario', this)">Vocabulario</button>
-      <button class="filter-btn" onclick="filtrarCategoria('lectura', this)">Lectura</button>
-      <button class="filter-btn" onclick="filtrarCategoria('auditiva', this)">Comprencion Auditiva</button>
-      <button class="filter-btn" onclick="filtrarCategoria('N5', this)">N5</button>
-      <button class="filter-btn" onclick="filtrarCategoria('N4', this)">N4</button>
-      <button class="filter-btn" onclick="filtrarCategoria('N3', this)">N3</button>
-      <button class="filter-btn" onclick="filtrarCategoria('N2', this)">N2</button>
-      <button class="filter-btn" onclick="filtrarCategoria('N1', this)">N1</button>
+    <div class="biblioteca-filtros-panel">
+      <!-- FILA HORIZONTAL DE BOTONES DE FILTRO -->
+      <div class="filtros-row-bar">
 
+        <!-- SECCIÓN 1: TIPO -->
+        <div class="filter-group collapsed">
+          <div class="filter-group-header" onclick="toggleGrupoFiltro(this)">
+            <span class="filter-group-title">🏷️ Tipo</span>
+            <div class="filter-header-right">
+              <span class="filter-badge-count">0</span>
+              <span class="filter-chevron">▼</span>
+            </div>
+          </div>
+          <div class="filter-dropdown-content">
+            <div class="filter-group-chips">
+              <button class="filter-btn active" data-grupo="tipo" data-categoria-filtro="todos" onclick="filtrarCategoria('todos', this)">Todos</button>
+              <button class="filter-btn" data-grupo="tipo" data-categoria-filtro="libro-texto" onclick="filtrarCategoria('libro-texto', this)">Libro de texto</button>
+              <button class="filter-btn" data-grupo="tipo" data-categoria-filtro="manga" onclick="filtrarCategoria('manga', this)">Manga</button>
+              <button class="filter-btn" data-grupo="tipo" data-categoria-filtro="novela" onclick="filtrarCategoria('novela', this)">Novela</button>
+              <button class="filter-btn" data-grupo="tipo" data-categoria-filtro="visual-novel" onclick="filtrarCategoria('visual-novel', this)">Visual Novel</button>
+              <button class="filter-btn" data-grupo="tipo" data-categoria-filtro="game" onclick="filtrarCategoria('game', this)">Juegos / Games</button>
+            </div>
+          </div>
+        </div>
 
+        <!-- SECCIÓN 2: NIVEL -->
+        <div class="filter-group collapsed">
+          <div class="filter-group-header" onclick="toggleGrupoFiltro(this)">
+            <span class="filter-group-title">📊 Nivel</span>
+            <div class="filter-header-right">
+              <span class="filter-badge-count">0</span>
+              <span class="filter-chevron">▼</span>
+            </div>
+          </div>
+          <div class="filter-dropdown-content">
+            <div class="filter-group-chips">
+              <button class="filter-btn" data-grupo="nivel" data-categoria-filtro="Kana" onclick="filtrarCategoria('Kana', this)">Silabrarios (Kana)</button>
+              <button class="filter-btn" data-grupo="nivel" data-categoria-filtro="N5" onclick="filtrarCategoria('N5', this)">N5</button>
+              <button class="filter-btn" data-grupo="nivel" data-categoria-filtro="N4" onclick="filtrarCategoria('N4', this)">N4</button>
+              <button class="filter-btn" data-grupo="nivel" data-categoria-filtro="N3" onclick="filtrarCategoria('N3', this)">N3</button>
+              <button class="filter-btn" data-grupo="nivel" data-categoria-filtro="N2" onclick="filtrarCategoria('N2', this)">N2</button>
+              <button class="filter-btn" data-grupo="nivel" data-categoria-filtro="N1" onclick="filtrarCategoria('N1', this)">N1</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: CATEGORÍA LIBRO DE TEXTO -->
+        <div class="filter-group collapsed">
+          <div class="filter-group-header" onclick="toggleGrupoFiltro(this)">
+            <span class="filter-group-title">📚 Categoría</span>
+            <div class="filter-header-right">
+              <span class="filter-badge-count">0</span>
+              <span class="filter-chevron">▼</span>
+            </div>
+          </div>
+          <div class="filter-dropdown-content">
+            <div class="filter-group-chips">
+              <button class="filter-btn" data-grupo="categoria-libro" data-categoria-filtro="Vocabulario" onclick="filtrarCategoria('Vocabulario', this)">Vocabulario</button>
+              <button class="filter-btn" data-grupo="categoria-libro" data-categoria-filtro="lectura" onclick="filtrarCategoria('lectura', this)">Comprensión Lectora</button>
+              <button class="filter-btn" data-grupo="categoria-libro" data-categoria-filtro="auditiva" onclick="filtrarCategoria('auditiva', this)">Comprensión Auditiva</button>
+              <button class="filter-btn" data-grupo="categoria-libro" data-categoria-filtro="kanji" onclick="filtrarCategoria('kanji', this)">Kanji</button>
+              <button class="filter-btn" data-grupo="categoria-libro" data-categoria-filtro="gramatica" onclick="filtrarCategoria('gramatica', this)">Gramática</button>
+              <button class="filter-btn" data-grupo="categoria-libro" data-categoria-filtro="jlpt" onclick="filtrarCategoria('jlpt', this)">JLPT</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: GÉNEROS -->
+        <div class="filter-group collapsed">
+          <div class="filter-group-header" onclick="toggleGrupoFiltro(this)">
+            <span class="filter-group-title">🎭 Géneros</span>
+            <div class="filter-header-right">
+              <span class="filter-badge-count">0</span>
+              <span class="filter-chevron">▼</span>
+            </div>
+          </div>
+          <div class="filter-dropdown-content">
+            <div class="filter-group-chips">
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Accion" onclick="filtrarCategoria('Accion', this)">Acción</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Artes-Marciales" onclick="filtrarCategoria('Artes-Marciales', this)">Artes Marciales</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Aventuras" onclick="filtrarCategoria('Aventuras', this)">Aventuras</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Carreras" onclick="filtrarCategoria('Carreras', this)">Carreras</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Ciencia-Ficcion" onclick="filtrarCategoria('Ciencia-Ficcion', this)">Ciencia Ficción</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Comedia" onclick="filtrarCategoria('Comedia', this)">Comedia</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Demencia" onclick="filtrarCategoria('Demencia', this)">Demencia</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Demonios" onclick="filtrarCategoria('Demonios', this)">Demonios</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Deportes" onclick="filtrarCategoria('Deportes', this)">Deportes</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Drama" onclick="filtrarCategoria('Drama', this)">Drama</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Ecchi" onclick="filtrarCategoria('Ecchi', this)">Ecchi</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Escolares" onclick="filtrarCategoria('Escolares', this)">Escolares</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Espacial" onclick="filtrarCategoria('Espacial', this)">Espacial</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Fantasia" onclick="filtrarCategoria('Fantasia', this)">Fantasía</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Harem" onclick="filtrarCategoria('Harem', this)">Harem</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Historico" onclick="filtrarCategoria('Historico', this)">Histórico</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Infantil" onclick="filtrarCategoria('Infantil', this)">Infantil</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Isekai" onclick="filtrarCategoria('Isekai', this)">Isekai</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Josei" onclick="filtrarCategoria('Josei', this)">Josei</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Juegos" onclick="filtrarCategoria('Juegos', this)">Juegos</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Magia" onclick="filtrarCategoria('Magia', this)">Magia</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Mecha" onclick="filtrarCategoria('Mecha', this)">Mecha</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Militar" onclick="filtrarCategoria('Militar', this)">Militar</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Misterio" onclick="filtrarCategoria('Misterio', this)">Misterio</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Musica" onclick="filtrarCategoria('Musica', this)">Música</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Parodia" onclick="filtrarCategoria('Parodia', this)">Parodia</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Policia" onclick="filtrarCategoria('Policia', this)">Policía</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Psicologico" onclick="filtrarCategoria('Psicologico', this)">Psicológico</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Vida-diaria" onclick="filtrarCategoria('Vida-diaria', this)">Recuentos de la vida</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Romance" onclick="filtrarCategoria('Romance', this)">Romance</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Samurai" onclick="filtrarCategoria('Samurai', this)">Samurai</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Seinen" onclick="filtrarCategoria('Seinen', this)">Seinen</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Shoujo" onclick="filtrarCategoria('Shoujo', this)">Shoujo</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Shounen" onclick="filtrarCategoria('Shounen', this)">Shounen</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Sobrenatural" onclick="filtrarCategoria('Sobrenatural', this)">Sobrenatural</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Superpoderes" onclick="filtrarCategoria('Superpoderes', this)">Superpoderes</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Suspenso" onclick="filtrarCategoria('Suspenso', this)">Suspenso</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Terror" onclick="filtrarCategoria('Terror', this)">Terror</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Vampiros" onclick="filtrarCategoria('Vampiros', this)">Vampiros</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Yaoi" onclick="filtrarCategoria('Yaoi', this)">Yaoi</button>
+              <button class="filter-btn" data-grupo="genero" data-categoria-filtro="Yuri" onclick="filtrarCategoria('Yuri', this)">Yuri</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 5: RECURSOS Y EXTRAS -->
+        <div class="filter-group collapsed">
+          <div class="filter-group-header" onclick="toggleGrupoFiltro(this)">
+            <span class="filter-group-title">✨ Recursos</span>
+            <div class="filter-header-right">
+              <span class="filter-badge-count">0</span>
+              <span class="filter-chevron">▼</span>
+            </div>
+          </div>
+          <div class="filter-dropdown-content">
+            <div class="filter-group-chips">
+              <button class="filter-btn" data-grupo="recursos" data-categoria-filtro="con-audio" onclick="filtrarCategoria('con-audio', this)">🎧 Con Audio</button>
+              <button class="filter-btn" data-grupo="recursos" data-categoria-filtro="con-ejercicios" onclick="filtrarCategoria('con-ejercicios', this)">📝 Con Ejercicios</button>
+              <button class="filter-btn" data-grupo="recursos" data-categoria-filtro="espanol" onclick="filtrarCategoria('espanol', this)">🇪🇸 Versión Español</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTÓN RESET -->
+        <button class="btn-reset-filtros" onclick="resetearTodosLosFiltros()">🔄 Limpiar</button>
+      </div>
     </div>
   </section>
 
@@ -85,7 +214,7 @@
 
             <!-- Nihongo No Torii [Hiragana] -->
 
-  <div class="libro-card" data-categoria="Kana" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto Kana espanol" onclick="verDetalle(
   'Nihongo No Torii [Hiragana]', 
   'image/nnthiragana.png', 
   'Este libro es excelente para aprender y practicar Hiragana desde cero, con ejercicios claros y trazos guiados.', 
@@ -99,7 +228,7 @@
         
       <!-- Kanji Para Recordar  -->
 
-      <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto kanji espanol" onclick="verDetalle(
   'Kanji Para Recordar', 
   'image/RTK.jpg', 
   'Este primer libro de la trilogia de James Heisig. Una excelente guía para aprender los kanjis de uso comun al rededor 2200.', 
@@ -111,7 +240,7 @@
 
       <!-- Nihongo Sou Matome N5 -->
 
-      <div class="libro-card" data-categoria="kanji gramatica N5" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto kanji gramatica Vocabulario lectura auditiva jlpt N5 con-audio con-ejercicios" onclick="verDetalle(
   'Nihongo Sou Matome N5', 
   'image/Soumatome5.png', 
   `¡Aprenda los puntos importantes de todos los kanji, vocabulario, gramática y comprensión auditiva y lectora que aparecen con frecuencia en el nivel N5 JLPT en un solo volumen!
@@ -127,7 +256,7 @@
 
       <!-- Nihongo Sou Matome N4 Bunpou ,Dokkai, Choukai -->
 
-      <div class="libro-card" data-categoria="Kanji gramatica N4" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto kanji gramatica lectura auditiva jlpt N4 con-audio" onclick="verDetalle(
   `Nihongo Sou Matome N4 
    Bunpou ,Dokkai, Choukai`, 
   'image/Soumatome4BDC.jpg', 
@@ -146,7 +275,7 @@
 
       <!-- Nihongo Sou Matome N4 Kanji, Kotoba -->
 
-      <div class="libro-card" data-categoria="kanji N4" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto kanji Vocabulario jlpt N4" onclick="verDetalle(
   `Nihongo Sou Matome N4 
    Kanji, Kotoba`, 
   'image/Soumatome4KK.png', 
@@ -162,7 +291,7 @@
 
       <!-- Nihongo Sou Matome N3 Bumpou -->
 
-      <div class="libro-card" data-categoria="gramatica N3" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto gramatica jlpt N3" onclick="verDetalle(
   `Nihongo Sou Matome N3 
    Bumpou`, 
   'image/Soumatome3B.png', 
@@ -178,7 +307,7 @@
 
       <!-- Nihongo Sou Matome N3 Kanji -->
 
-      <div class="libro-card" data-categoria="kanji N3" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto kanji jlpt N3" onclick="verDetalle(
   `Nihongo Sou Matome N3 
    Kanji`, 
   'image/Soumatome3k.png', 
@@ -194,7 +323,7 @@
 
       <!-- Nihongo Sou Matome N3 Vocabulario -->
 
-      <div class="libro-card" data-categoria="vocabulario N3" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto Vocabulario jlpt N3" onclick="verDetalle(
   `Nihongo Sou Matome N3 
    Vocabulario`, 
   'image/Soumatome3G.png', 
@@ -210,7 +339,7 @@
 
       <!-- Nihongo Sou Matome N3 Comprension Lectura -->
 
-      <div class="libro-card" data-categoria="lectura N3" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto lectura jlpt N3" onclick="verDetalle(
   `Nihongo Sou Matome N3 
    Comprension Lectura`, 
   'image/Soumatome3D.png', 
@@ -226,7 +355,7 @@
 
       <!-- Nihongo Sou Matome N3 Comprension Auditiva -->
 
-      <div class="libro-card" data-categoria="auditiva N3" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto auditiva jlpt N3 con-audio" onclick="verDetalle(
   `Nihongo Sou Matome N3 
    Comprension Auditiva`, 
   'image/Soumatome3C.png', 
@@ -242,7 +371,7 @@
 
       <!-- GENKI 1 (Version Español) -->
 
-      <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+      <div class="libro-card" data-categoria="libro-texto gramatica N5 con-audio espanol" onclick="verDetalle(
   'GENKI 1 (Version Español)', 
   'image/genki.png', 
   'Tercera edición revisada de Genki\nEste es el primer libro de texto de la serie que incluye 12 lecciones en las que el estudiante aprenderá los aspectos básicos del japonés. Cada una de las lecciones contiene un tema específico en el que se practica vocabulario y gramática. ', 
@@ -256,7 +385,7 @@
 
       <!-- GENKI 1 [Libro de Ejercicios] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica N5 con-audio con-ejercicios espanol" onclick="verDetalle(
   'GENKI 1 [Libro de Ejercicios]', 
   'image/genkiejercicios.png', 
   'Libro complementario de GENKI 1\n\n Este libro te ayudara a consolidar y reforsar lo visto en el libro de texto principal.', 
@@ -270,7 +399,7 @@
 
       <!-- GENKI 2 (Version Español) -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica N4 espanol" onclick="verDetalle(
   'GENKI 2 (Version Español)', 
   'image/genki2.png', 
   'Tercera edición revisada de Genki\n\nEste es el segundo libro de texto de la serie que incluye 11 lecciones en las que el estudiante aprenderá  todos los aspectos que completan el nivel básico del japonés.', 
@@ -284,7 +413,7 @@
 
       <!-- GENKI 2 [Libro de Ejercicios]-->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica N4 espanol" onclick="verDetalle(
   'GENKI 2 [Libro de Ejercicios]', 
   'image/genki2ejercicios.png', 
   'Libro complementario de GENKI 2\n\n Este libro te ayudara a repasar y reforsar lo visto en el libro de texto principal.', 
@@ -298,7 +427,7 @@
 
       <!-- Los silabarios japoneses Kana-->
 
-  <div class="libro-card" data-categoria="Kana" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto Kana espanol" onclick="verDetalle(
   'Los silabarios japoneses Kana', 
   'image/Silabarioskana.jpg', 
   'Uno de tanto libros para aprender KANA este se enfoca en explicar y poner dibujos para reforzar la memorización es bastante limpio y muy bonito el libro.\n\nNOTA: Esta en español y con tinta azul en vez de negra.', 
@@ -312,7 +441,7 @@
 
       <!-- GIONGO GITAIGO [Onomatopeyas]-->
 
-  <div class="libro-card" data-categoria="Kana" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto Kana Vocabulario" onclick="verDetalle(
   'GIONGO GITAIGO [Onomatopeyas]', 
   'image/GIONGO.png', 
   'Un libro muy bueno para aprender onomatopeyas japonesas.\n\nNotas: el libro esta en Ingles-japones', 
@@ -326,7 +455,7 @@
 
       <!-- Kanken Nivel 10 (漢検10級漢字学習ステップ 2012 )-->
 
-  <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto kanji N5 con-ejercicios" onclick="verDetalle(
   'Kanken Nivel 10 (漢検10級漢字学習ステップ 2012 )', 
   'image/Kanken10.png', 
   `Este libro es la primera edición de los libros para pasar el examen de Kanken que va del nievel 10 el mas sensillo hasta el 1
@@ -344,7 +473,7 @@
 
       <!-- Kanken Nivel 9 (漢検09級漢字学習ステップ 2012 ) -->
 
-  <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto kanji N5" onclick="verDetalle(
   'Kanken Nivel 9 (漢検09級漢字学習ステップ 2012 )', 
   'image/Kanken9.png', 
   `En este segundo nivel tendrás que estudiar la lectura, escritura y el correcto empleo de 160 kanjis. 
@@ -359,7 +488,7 @@
 
       <!-- Kanken Nivel 8 (漢検08級漢字学習ステップ 2012 ) -->
 
-  <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto kanji N4" onclick="verDetalle(
   'Kanken Nivel 8 (漢検08級漢字学習ステップ 2012 )', 
   'image/kanken8.png', 
   `En este nivel tendrás que estudiar la lectura, escritura y el correcto empleo de 200 kanjis. 
@@ -374,7 +503,7 @@
 
       <!-- Novela Miler-san 小説 ミラーさん) -->
 
-  <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  <div class="libro-card" data-categoria="manga novela kanji lectura Vida-diaria N5" onclick="verDetalle(
   'Novela Miler-san 小説 ミラーさん', 
   'image/milersan-novela1.png', 
   `Novela que narra las despampanantes aventuras de Miller-san
@@ -389,7 +518,7 @@
 
       <!-- Kanji Master N5 (漢字マスターN5 改訂版) -->
 
-  <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto kanji N5 con-ejercicios" onclick="verDetalle(
   'Kanji Master N5 (漢字マスターN5 改訂版)', 
   'image/kanjimaster5.png', 
   `Kanji Master N5, un libro para aprender todos los kanjis pertenecientes al nivel N5 del examen Noken JLPT. Los kanjis se presentan por orden de dificultad, en total, el libro reúne 119 kanjis. 
@@ -405,7 +534,7 @@
 
       <!-- Kanji Master N4 (漢字マスターN4 改訂版) -->
 
-  <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto kanji N4 con-ejercicios" onclick="verDetalle(
   'Kanji Master N4 (漢字マスターN4 改訂版)', 
   'image/kanjimaster4.png', 
   `Kanji Master N4, un libro para aprender todos los kanjis pertenecientes N4 del examen oficial Noken. 
@@ -423,7 +552,7 @@
 
       <!-- Kanji Master N3 (漢字マスターN3 改訂版) -->
 
-  <div class="libro-card" data-categoria="kanji" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto kanji N3 con-ejercicios" onclick="verDetalle(
   'Kanji Master N3 (漢字マスターN3 改訂版)', 
   'image/kanjimaster3.png', 
   `Kanji Master N3, un libro para aprender todos los kanjis pertenecientes N4 del examen oficial Noken. Con este libro el estudiante aprenderá los 349 kanjis del N3. 
@@ -440,7 +569,7 @@
 
       <!-- La estructura de la gramática japonesa [日本語文法のしくみ] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica" onclick="verDetalle(
   `La estructura de la gramática japonesa
    [日本語文法のしくみ]`, 
   'image/shikumi1.png', 
@@ -456,7 +585,7 @@
 
       <!-- La estructura de la fonética japonesa [日本語音声学のしくみ] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica" onclick="verDetalle(
   `La estructura de la fonética japonesa
    [日本語音声学のしくみ]`, 
   'image/shikumi2.png', 
@@ -474,7 +603,7 @@
 
       <!-- La estructura de la lengua [言語学のしくみ] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica" onclick="verDetalle(
   `La estructura de la lengua 
    [言語学のしくみ]`, 
   'image/shikumi3.png', 
@@ -491,7 +620,7 @@
 
       <!-- La estructura de la lingüística japonesa [日本語学のしくみ] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica" onclick="verDetalle(
   `Los fundamentos de la lingüística japonesa 
    [日本語言語学のしくみ]`, 
   'image/shikumi4.png', 
@@ -507,7 +636,7 @@
 
  <!-- El funcionamiento de la semántica cognitiva [認知意味論のしくみ] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica" onclick="verDetalle(
   `El funcionamiento de la semántica cognitiva
    [認知意味論のしくみ]`, 
   'image/shikumi5.png', 
@@ -522,7 +651,7 @@
 
 <!-- La estructura de la pragmática del japonés [日本語語用論のしくみ] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica" onclick="verDetalle(
   `La estructura de la pragmática del japonés
    [日本語語用論のしくみ]`, 
   'image/shikumi6.png', 
@@ -539,7 +668,7 @@
 
 <!-- La estructura de la sociolingüística [社会言語学のしくみ] -->
 
-  <div class="libro-card" data-categoria="gramatica" onclick="verDetalle(
+  <div class="libro-card" data-categoria="libro-texto gramatica" onclick="verDetalle(
   `La estructura de la sociolingüística
    [社会言語学のしくみ]`, 
   'image/shikumi7.png', 

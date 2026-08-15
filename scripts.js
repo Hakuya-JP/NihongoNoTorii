@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initUserProfileModule(); // Módulo Perfil
   initMinedCardsModule();  // Módulo Tarjetas Minadas
   initRpgSystemModule();   // Módulo Sistema RPG (Gamificación)
+  initBibliotecaFiltrosUrl(); // Filtro URL Biblioteca
 });
 
 
@@ -139,53 +140,201 @@ function cerrarDetalle() {
   if (mainContainer) mainContainer.classList.remove('sidebar-abierto');
 }
 
-// Filtros Biblioteca
-function filtrarLibros() {
+// Filtros Biblioteca (Soporte Faceteado por Secciones y Reseteo)
+function aplicarFiltrosBiblioteca() {
   const buscador = document.getElementById('buscador-libros');
-  if (!buscador) return;
-
-  const input = buscador.value.toLowerCase();
+  const query = buscador ? buscador.value.trim().toLowerCase() : "";
   const libros = document.getElementsByClassName('libro-card');
-  
-  resetearBotonesFiltro();
+  const botones = document.getElementsByClassName('filter-btn');
+
+  // Organizar filtros activos por grupo
+  const gruposFiltros = {};
+
+  for (let btn of botones) {
+    if (btn.classList.contains('active')) {
+      const grupo = btn.getAttribute('data-grupo') || 'general';
+      const cat = btn.getAttribute('data-categoria-filtro') || 
+                  (btn.getAttribute('onclick')?.match(/filtrarCategoria\('([^']+)'/)?.[1]) || '';
+      if (cat && cat !== 'todos') {
+        if (!gruposFiltros[grupo]) gruposFiltros[grupo] = [];
+        gruposFiltros[grupo].push(cat);
+      }
+    }
+  }
+
+  const nombresGrupos = Object.keys(gruposFiltros);
 
   for (let i = 0; i < libros.length; i++) {
-    let titulo = libros[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-    libros[i].style.display = titulo.includes(input) ? "block" : "none";
+    const libro = libros[i];
+    const titulo = (libro.getElementsByTagName('h3')[0]?.innerText || "").toLowerCase();
+    const descripcion = (libro.querySelector('p')?.innerText || "").toLowerCase();
+    const catLibroStr = libro.getAttribute('data-categoria') || "";
+    const listaCategoriasLibro = catLibroStr.split(" ").map(c => c.trim()).filter(Boolean);
+
+    // Coincidencia con texto de búsqueda
+    const coincideTexto = !query || titulo.includes(query) || descripcion.includes(query);
+
+    // Coincidencia faceteada: Para cada grupo activo, el libro debe tener al menos UNA de las etiquetas de ese grupo (OR dentro de grupo, AND entre grupos)
+    const coincideGrupos = nombresGrupos.every(grupo => {
+      const tagsGrupo = gruposFiltros[grupo];
+      return tagsGrupo.some(tag => listaCategoriasLibro.includes(tag));
+    });
+
+    if (coincideTexto && coincideGrupos) {
+      libro.style.display = "block";
+    } else {
+      libro.style.display = "none";
+    }
+  }
+
+  actualizarContadoresFiltros();
+}
+
+function toggleGrupoFiltro(headerElement) {
+  const targetGroup = headerElement.closest('.filter-group');
+  if (!targetGroup) return;
+
+  const isCurrentlyOpen = targetGroup.classList.contains('open');
+
+  // Cerrar todos los demás grupos para que no queden encimados
+  const todosGrupos = document.querySelectorAll('.filter-group');
+  todosGrupos.forEach(grupo => {
+    grupo.classList.add('collapsed');
+    grupo.classList.remove('open');
+  });
+
+  // Si el grupo seleccionado no estaba abierto, abrirlo
+  if (!isCurrentlyOpen) {
+    targetGroup.classList.remove('collapsed');
+    targetGroup.classList.add('open');
   }
 }
 
+function actualizarContadoresFiltros() {
+  const grupos = document.querySelectorAll('.filter-group');
+  grupos.forEach(grupo => {
+    const badge = grupo.querySelector('.filter-badge-count');
+    if (!badge) return;
+
+    const botonesActivos = grupo.querySelectorAll('.filter-btn.active:not([data-categoria-filtro="todos"])');
+    const cantidad = botonesActivos.length;
+
+    if (cantidad > 0) {
+      badge.innerText = cantidad;
+      badge.classList.add('visible');
+    } else {
+      badge.innerText = '0';
+      badge.classList.remove('visible');
+    }
+  });
+}
+
+function filtrarLibros() {
+  aplicarFiltrosBiblioteca();
+}
+
 function filtrarCategoria(categoria, botonPresionado) {
-  const libros = document.getElementsByClassName('libro-card');
+  const botones = document.getElementsByClassName('filter-btn');
+  let btnTodos = null;
+
+  for (let btn of botones) {
+    const cat = btn.getAttribute('data-categoria-filtro') || 
+                (btn.getAttribute('onclick')?.match(/filtrarCategoria\('([^']+)'/)?.[1]) || '';
+    if (cat === 'todos') {
+      btnTodos = btn;
+      break;
+    }
+  }
+  if (!btnTodos && botones.length > 0) btnTodos = botones[0];
+
+  if (categoria === 'todos') {
+    for (let btn of botones) {
+      const grupo = btn.getAttribute('data-grupo');
+      if (grupo === 'tipo' || !grupo) {
+        btn.classList.remove('active');
+      }
+    }
+    if (btnTodos) btnTodos.classList.add('active');
+  } else {
+    if (botonPresionado) {
+      botonPresionado.classList.toggle('active');
+    }
+
+    if (btnTodos && btnTodos.classList.contains('active')) {
+      btnTodos.classList.remove('active');
+    }
+
+    let algunTipoActivo = false;
+    for (let btn of botones) {
+      const grupo = btn.getAttribute('data-grupo');
+      const cat = btn.getAttribute('data-categoria-filtro') || '';
+      if ((grupo === 'tipo' || !grupo) && cat !== 'todos' && btn.classList.contains('active')) {
+        algunTipoActivo = true;
+        break;
+      }
+    }
+
+    if (!algunTipoActivo && btnTodos) {
+      btnTodos.classList.add('active');
+    }
+  }
+
+  aplicarFiltrosBiblioteca();
+}
+
+function resetearTodosLosFiltros() {
   const buscador = document.getElementById('buscador-libros');
-  
   if (buscador) buscador.value = "";
 
   const botones = document.getElementsByClassName('filter-btn');
   for (let btn of botones) {
     btn.classList.remove('active');
   }
-  
-  if (botonPresionado) botonPresionado.classList.add('active');
 
-  for (let i = 0; i < libros.length; i++) {
-    let catLibro = libros[i].getAttribute('data-categoria') || "";
-    const listaCategorias = catLibro.split(" ");
-
-    if (categoria === 'todos' || listaCategorias.includes(categoria)) {
-      libros[i].style.display = "block";
-    } else {
-      libros[i].style.display = "none";
+  let btnTodos = null;
+  for (let btn of botones) {
+    const cat = btn.getAttribute('data-categoria-filtro') || '';
+    if (cat === 'todos') {
+      btnTodos = btn;
+      break;
     }
   }
+  if (btnTodos) btnTodos.classList.add('active');
+
+  aplicarFiltrosBiblioteca();
 }
 
 function resetearBotonesFiltro() {
-  const botones = document.getElementsByClassName('filter-btn');
-  for (let btn of botones) {
-    btn.classList.remove('active');
+  resetearTodosLosFiltros();
+}
+
+function initBibliotecaFiltrosUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const catParam = params.get('cat') || params.get('tipo');
+  if (catParam) {
+    const cats = catParam.split(',').map(c => c.trim()).filter(Boolean);
+    const botones = document.getElementsByClassName('filter-btn');
+    let algunaCoincidencia = false;
+
+    for (let btn of botones) {
+      const catFiltro = btn.getAttribute('data-categoria-filtro') || 
+                        (btn.getAttribute('onclick')?.match(/filtrarCategoria\('([^']+)'/)?.[1]) || '';
+      if (cats.includes(catFiltro)) {
+        btn.classList.add('active');
+        algunaCoincidencia = true;
+      }
+    }
+
+    if (algunaCoincidencia) {
+      for (let btn of botones) {
+        const catFiltro = btn.getAttribute('data-categoria-filtro') || '';
+        if (catFiltro === 'todos') {
+          btn.classList.remove('active');
+        }
+      }
+      aplicarFiltrosBiblioteca();
+    }
   }
-  if (botones[0]) botones[0].classList.add('active');
 }
 
 function toggleMenu() {
@@ -1348,6 +1497,22 @@ function initBgmPlayer() {
     bgmAudioObject = new Audio();
     bgmAudioObject.volume = userProfile.musicVolume !== undefined ? userProfile.musicVolume : 0.35;
 
+    // Listeners de actualización de estado para sincronizar la UI del HUD inmediatamente
+    bgmAudioObject.addEventListener("play", () => {
+      userProfile.musicEnabled = true;
+      userProfile.soundEnabled = true;
+      guardarPerfil();
+      renderHeaderRPG_HUD();
+    });
+
+    bgmAudioObject.addEventListener("pause", () => {
+      renderHeaderRPG_HUD();
+    });
+
+    bgmAudioObject.addEventListener("volumechange", () => {
+      renderHeaderRPG_HUD();
+    });
+
     // BUCLE INFINITO DE PLAYLIST: al terminar una canción, pasa automáticamente a la siguiente (1 -> 2 -> 3 -> 4 -> 5 -> 1...)
     bgmAudioObject.addEventListener("ended", () => {
       siguienteCancionBGM(true);
@@ -1363,7 +1528,12 @@ function initBgmPlayer() {
   // Autoplay en la primera interacción del usuario con la página
   const intentarPlayEnInteraccion = () => {
     if (userProfile.musicEnabled !== false && bgmAudioObject && bgmAudioObject.paused) {
-      bgmAudioObject.play().catch(e => console.log("BGM esperando clic del usuario"));
+      bgmAudioObject.play().then(() => {
+        userProfile.musicEnabled = true;
+        userProfile.soundEnabled = true;
+        guardarPerfil();
+        renderHeaderRPG_HUD();
+      }).catch(e => console.log("BGM esperando clic del usuario"));
     }
   };
 
@@ -1397,6 +1567,34 @@ function reproducirOPausarBGM() {
     userProfile.soundEnabled = false;
     guardarPerfil();
     bgmAudioObject.pause();
+  }
+  renderHeaderRPG_HUD();
+}
+
+function cambiarVolumenBGM(nuevoVolumen) {
+  let vol = parseFloat(nuevoVolumen);
+  if (isNaN(vol)) vol = 0.35;
+  vol = Math.max(0, Math.min(1, vol));
+
+  userProfile.musicVolume = vol;
+
+  if (vol > 0 && userProfile.musicEnabled === false) {
+    userProfile.musicEnabled = true;
+    userProfile.soundEnabled = true;
+  } else if (vol === 0) {
+    userProfile.musicEnabled = false;
+  }
+
+  guardarPerfil();
+
+  if (!bgmAudioObject) initBgmPlayer();
+  if (bgmAudioObject) {
+    bgmAudioObject.volume = vol;
+    if (vol > 0 && bgmAudioObject.paused && userProfile.musicEnabled !== false) {
+      bgmAudioObject.play().catch(e => console.log("BGM play error"));
+    } else if (vol === 0 && !bgmAudioObject.paused) {
+      bgmAudioObject.pause();
+    }
   }
   renderHeaderRPG_HUD();
 }
@@ -1537,6 +1735,8 @@ function concederXP(cantidad, razon = "Experiencia ganada", elementoOrigen = nul
   mostrarPopFlotanteXP(cantidad, elementoOrigen);
   playRpgSound("xp");
 
+  registrarActividadHoy(cantidad, 0, 0);
+
   renderHeaderRPG_HUD();
   renderUserProfileUI();
   actualizarBloqueoContenidoUI();
@@ -1625,8 +1825,18 @@ function renderHeaderRPG_HUD() {
 
   const info = calcularInfoNivel(userProfile.xp || 0);
   const currentSongIdx = userProfile.currentMusicIndex || 0;
+  const currentVolume = userProfile.musicVolume !== undefined ? userProfile.musicVolume : 0.35;
   const isPlaying = bgmAudioObject && !bgmAudioObject.paused;
   const soundActive = userProfile.musicEnabled !== false && userProfile.soundEnabled !== false;
+  const isMuted = !soundActive || !isPlaying || currentVolume === 0;
+
+  let volIcon = "🔊";
+  if (isMuted) volIcon = "🔇";
+  else if (currentVolume < 0.35) volIcon = "🔈";
+  else if (currentVolume < 0.7) volIcon = "🔉";
+
+  const questsContainer = document.getElementById("daily-quests-container");
+  const isExpanded = questsContainer && questsContainer.classList.contains("expanded");
 
   hud.innerHTML = `
     <div class="rpg-hud-left">
@@ -1634,9 +1844,9 @@ function renderHeaderRPG_HUD() {
       <span class="hud-level-title">${info.titulo}</span>
     </div>
 
-    <div class="rpg-hud-center">
+    <div class="rpg-hud-center interactive-hud-progress" id="hud-level-progress-btn" title="Haz clic para desplegar / ocultar las Misiones Diarias del Aprendiz 📜">
       <div class="hud-xp-info">
-        <span>Progreso de Nivel</span>
+        <span>Progreso de Nivel <span class="hud-quest-toggle-arrow">${isExpanded ? "📜 Misiones ▲" : "📜 Misiones ▼"}</span></span>
         <span>${info.siguienteNivel ? `${info.xpEnEsteNivel} / ${info.xpRequeridaNivel} XP (${info.porcentaje}%)` : `MAX XP (${userProfile.xp || 0})`}</span>
       </div>
       <div class="hud-xp-track">
@@ -1645,7 +1855,7 @@ function renderHeaderRPG_HUD() {
     </div>
 
     <div class="rpg-hud-right">
-      <!-- REPRODUCTOR Y SELECTOR DE MÚSICA BGM EN EL HUD -->
+      <!-- REPRODUCTOR, SELECTOR Y CONTROL UNIFICADO DE VOLUMEN/MUTEO BGM EN EL HUD -->
       <div class="hud-bgm-container" title="Canciones de fondo en bucle">
         <span class="bgm-icon">🎵</span>
         <select id="rpg-music-select" class="hud-music-select" title="Escoge la canción de fondo">
@@ -1654,13 +1864,32 @@ function renderHeaderRPG_HUD() {
           `).join("")}
         </select>
         <button id="btn-next-music" class="hud-bgm-btn" title="Siguiente canción de la lista">⏭️</button>
+
+        <div class="hud-volume-box" title="Ajustar volumen / Silenciar (${Math.round(currentVolume * 100)}%)">
+          <button id="btn-toggle-rpg-sound" class="hud-sound-btn" title="Reproducir / Silenciar Música">${volIcon}</button>
+          <input type="range" id="rpg-volume-slider" class="hud-volume-slider" min="0" max="1" step="0.05" value="${currentVolume}">
+        </div>
       </div>
 
       <span class="hud-stat-pill" title="Puntos de Experiencia Totales">⚡ ${userProfile.xp || 0} XP</span>
       <span class="hud-stat-pill" title="Racha Diaria">🔥 ${userProfile.rachaDias || 1}d</span>
-      <button id="btn-toggle-rpg-sound" class="hud-sound-btn" title="Reproducir / Silenciar Música">${soundActive && isPlaying ? "🔊" : "🔇"}</button>
     </div>
   `;
+
+  const btnProgress = hud.querySelector("#hud-level-progress-btn");
+  if (btnProgress) {
+    btnProgress.addEventListener("click", () => {
+      const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil.html");
+      if (isPerfil) {
+        const qContainer = document.getElementById("daily-quests-container");
+        if (qContainer) {
+          qContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      } else {
+        toggleDailyQuestsPanel();
+      }
+    });
+  }
 
   const btnSound = hud.querySelector("#btn-toggle-rpg-sound");
   if (btnSound) {
@@ -1682,6 +1911,39 @@ function renderHeaderRPG_HUD() {
     btnNext.addEventListener("click", () => {
       siguienteCancionBGM(true);
     });
+  }
+
+  const sliderVol = hud.querySelector("#rpg-volume-slider");
+  if (sliderVol) {
+    sliderVol.addEventListener("input", (e) => {
+      cambiarVolumenBGM(e.target.value);
+    });
+  }
+}
+
+function toggleDailyQuestsPanel() {
+  let container = document.getElementById("daily-quests-container");
+  const hud = document.getElementById("rpg-hud-bar");
+
+  if (!container && hud) {
+    container = document.createElement("div");
+    container.id = "daily-quests-container";
+    hud.parentNode.insertBefore(container, hud.nextSibling);
+  }
+
+  if (!container) return;
+
+  const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil.html");
+  if (!isPerfil) {
+    container.classList.add("collapsible-quests-panel");
+  }
+
+  container.classList.toggle("expanded");
+  renderDailyQuestsUI();
+  
+  const arrow = document.querySelector(".hud-quest-toggle-arrow");
+  if (arrow) {
+    arrow.textContent = container.classList.contains("expanded") ? "📜 Misiones ▲" : "📜 Misiones ▼";
   }
 }
 
@@ -1839,8 +2101,24 @@ function reclamarMisionDiaria(index) {
 }
 
 function renderDailyQuestsUI() {
-  const container = document.getElementById("daily-quests-container");
+  let container = document.getElementById("daily-quests-container");
+  const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil.html");
+
+  if (!container && !isPerfil) {
+    const hud = document.getElementById("rpg-hud-bar");
+    if (hud) {
+      container = document.createElement("div");
+      container.id = "daily-quests-container";
+      container.className = "collapsible-quests-panel";
+      hud.parentNode.insertBefore(container, hud.nextSibling);
+    }
+  }
+
   if (!container) return;
+
+  if (!isPerfil && !container.classList.contains("collapsible-quests-panel")) {
+    container.classList.add("collapsible-quests-panel");
+  }
 
   if (!userProfile.misionesDiarias || userProfile.misionesDiarias.length === 0) return;
 
@@ -1848,7 +2126,10 @@ function renderDailyQuestsUI() {
     <div class="daily-quests-section">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h2 class="seccion-titulo" style="margin: 0; font-size: 1.3rem;">📜 Misiones Diarias del Aprendiz</h2>
-        <span style="font-size: 0.8rem; opacity: 0.8;">Se reinician cada día</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.8rem; opacity: 0.8;">Se reinician cada día</span>
+          ${!isPerfil ? `<button onclick="toggleDailyQuestsPanel()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; line-height: 1;" title="Cerrar panel">&times;</button>` : ''}
+        </div>
       </div>
       <div class="quests-grid">
         ${userProfile.misionesDiarias.map((m, idx) => {
@@ -2043,6 +2324,178 @@ function guardarPerfil() {
   localStorage.setItem("torii_user_profile", JSON.stringify(userProfile));
 }
 
+function registrarActividadHoy(xpDelta = 0, minutosDelta = 0, tarjetasDelta = 0) {
+  const hoy = new Date().toISOString().split("T")[0];
+  if (!userProfile.historialActividad) {
+    userProfile.historialActividad = {};
+  }
+  if (!userProfile.historialActividad[hoy]) {
+    userProfile.historialActividad[hoy] = { xp: 0, minutos: 0, tarjetas: 0 };
+  }
+
+  if (xpDelta > 0) userProfile.historialActividad[hoy].xp += xpDelta;
+  if (minutosDelta > 0) userProfile.historialActividad[hoy].minutos += minutosDelta;
+  if (tarjetasDelta > 0) userProfile.historialActividad[hoy].tarjetas += tarjetasDelta;
+
+  guardarPerfil();
+  renderActivityHeatmap();
+}
+
+function renderActivityHeatmap() {
+  const gridContainer = document.getElementById("heatmap-grid-container");
+  const monthsRow = document.getElementById("heatmap-months-row");
+  if (!gridContainer) return;
+
+  const historial = userProfile.historialActividad || {};
+
+  // Asegurar que hoy esté registrado al menos con 0 actividad para renderizar
+  const hoy = new Date();
+  const hoyStr = hoy.toISOString().split("T")[0];
+  if (!historial[hoyStr]) {
+    historial[hoyStr] = { xp: 0, minutos: 0, tarjetas: 0 };
+  }
+
+  // Generar 52 semanas x 7 días
+  const diaSemanaHoy = hoy.getDay(); // 0 es Domingo
+  const numSemanas = 52;
+  const totalDias = numSemanas * 7;
+
+  // Ajustar fecha de inicio hace (52 semanas - offset)
+  const fechaInicio = new Date(hoy);
+  fechaInicio.setDate(hoy.getDate() - totalDias + (7 - diaSemanaHoy));
+
+  gridContainer.innerHTML = "";
+  if (monthsRow) monthsRow.innerHTML = "";
+
+  let mesActualStr = "";
+  const mesesNombres = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  let diasActivos = 0;
+  let totalXp = 0;
+  let rachaContador = 0;
+  let mejorRacha = 0;
+
+  for (let sem = 0; sem < numSemanas; sem++) {
+    const colDiv = document.createElement("div");
+    colDiv.className = "heatmap-week-col";
+
+    const primerDiaSemana = new Date(fechaInicio);
+    primerDiaSemana.setDate(fechaInicio.getDate() + (sem * 7));
+    const nombreMes = mesesNombres[primerDiaSemana.getMonth()];
+
+    if (monthsRow) {
+      const monthLabel = document.createElement("span");
+      monthLabel.className = "heatmap-month-label";
+      if (nombreMes !== mesActualStr && (sem === 0 || primerDiaSemana.getDate() <= 7)) {
+        monthLabel.textContent = nombreMes;
+        mesActualStr = nombreMes;
+      } else {
+        monthLabel.textContent = "";
+      }
+      monthsRow.appendChild(monthLabel);
+    }
+
+    for (let d = 0; d < 7; d++) {
+      const fechaDia = new Date(fechaInicio);
+      fechaDia.setDate(fechaInicio.getDate() + (sem * 7) + d);
+
+      const fechaIso = fechaDia.toISOString().split("T")[0];
+      const datosDia = historial[fechaIso] || { xp: 0, minutos: 0, tarjetas: 0 };
+      const xpDia = datosDia.xp || 0;
+      const minDia = datosDia.minutos || 0;
+      const tarjDia = datosDia.tarjetas || 0;
+
+      if (xpDia > 0 || minDia > 0 || tarjDia > 0) {
+        diasActivos++;
+        rachaContador++;
+        if (rachaContador > mejorRacha) mejorRacha = rachaContador;
+      } else {
+        rachaContador = 0;
+      }
+      totalXp += xpDia;
+
+      let level = 0;
+      if (xpDia >= 50) level = 4;
+      else if (xpDia >= 31) level = 3;
+      else if (xpDia >= 16) level = 2;
+      else if (xpDia >= 1) level = 1;
+
+      const square = document.createElement("div");
+      square.className = `heatmap-day-square level-${level}`;
+
+      const fechaFormateada = fechaDia.toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" });
+      let infoTooltip = `${fechaFormateada}\n`;
+      if (xpDia > 0 || minDia > 0 || tarjDia > 0) {
+        infoTooltip += `⚡ ${xpDia} XP  |  ⏱️ ${minDia} min  |  📇 ${tarjDia} tarjetas`;
+      } else {
+        infoTooltip += `Sin actividad registrada`;
+      }
+
+      square.setAttribute("data-tooltip", infoTooltip);
+      colDiv.appendChild(square);
+    }
+
+    gridContainer.appendChild(colDiv);
+  }
+
+  // Actualizar estadísticas en UI
+  const elActiveDays = document.getElementById("heatmap-stat-active-days");
+  const elCurrentStreak = document.getElementById("heatmap-stat-current-streak");
+  const elBestStreak = document.getElementById("heatmap-stat-best-streak");
+  const elTotalXp = document.getElementById("heatmap-stat-total-xp");
+  const elStreakSummary = document.getElementById("heatmap-streak-summary");
+
+  if (elActiveDays) elActiveDays.textContent = diasActivos;
+  if (elCurrentStreak) elCurrentStreak.textContent = userProfile.rachaDias || 1;
+  if (elBestStreak) elBestStreak.textContent = Math.max(userProfile.rachaDias || 1, mejorRacha);
+  if (elTotalXp) elTotalXp.textContent = `${totalXp} XP`;
+  if (elStreakSummary) elStreakSummary.textContent = `🔥 ${diasActivos} día${diasActivos !== 1 ? 's' : ''} activo${diasActivos !== 1 ? 's' : ''} este año`;
+
+  // Configurar tooltip flotante global que no se corta por desbordamiento de marco/contenedor
+  const scrollContainer = document.querySelector(".heatmap-scroll-container");
+  if (scrollContainer && !scrollContainer.dataset.tooltipBound) {
+    scrollContainer.dataset.tooltipBound = "true";
+
+    const updateTooltipPos = (e) => {
+      const sq = e.target.closest(".heatmap-day-square");
+      let tooltip = document.getElementById("heatmap-global-tooltip");
+      if (!tooltip) {
+        tooltip = document.createElement("div");
+        tooltip.id = "heatmap-global-tooltip";
+        tooltip.className = "heatmap-global-tooltip";
+        document.body.appendChild(tooltip);
+      }
+
+      if (sq && sq.getAttribute("data-tooltip")) {
+        tooltip.textContent = sq.getAttribute("data-tooltip");
+        tooltip.classList.add("visible");
+
+        const rect = sq.getBoundingClientRect();
+        const toolRect = tooltip.getBoundingClientRect();
+
+        let left = rect.left + (rect.width / 2) - (toolRect.width / 2);
+        let top = rect.top - toolRect.height - 10;
+
+        if (top < 10) top = rect.bottom + 10;
+        if (left < 10) left = 10;
+        if (left + toolRect.width > window.innerWidth - 10) {
+          left = window.innerWidth - toolRect.width - 10;
+        }
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+      } else {
+        tooltip.classList.remove("visible");
+      }
+    };
+
+    scrollContainer.addEventListener("mousemove", updateTooltipPos);
+    scrollContainer.addEventListener("mouseleave", () => {
+      const tooltip = document.getElementById("heatmap-global-tooltip");
+      if (tooltip) tooltip.classList.remove("visible");
+    });
+  }
+}
+
 function registrarTiempoEstudio(segundos) {
   const prevSeg = userProfile.tiempoEstudioSegundos || 0;
   userProfile.tiempoEstudioSegundos = prevSeg + segundos;
@@ -2051,6 +2504,7 @@ function registrarTiempoEstudio(segundos) {
   const minNue = Math.floor(userProfile.tiempoEstudioSegundos / 60);
   if (minNue > minPrev) {
     const diffMin = minNue - minPrev;
+    registrarActividadHoy(0, diffMin, 0);
     if (typeof concederXP === "function") {
       concederXP(diffMin * 1, "⏱️ Tiempo de estudio");
       if (typeof actualizarProgresoMision === "function") {
@@ -2066,6 +2520,7 @@ function registrarTiempoEstudio(segundos) {
 
 function registrarTarjetaMinadaEnPerfil() {
   userProfile.totalTarjetasMinadas = (userProfile.totalTarjetasMinadas || 0) + 1;
+  registrarActividadHoy(0, 0, 1);
   guardarPerfil();
   verificarLogros();
   renderUserProfileUI();
@@ -2170,6 +2625,9 @@ function renderUserProfileUI() {
   const porcentajeMeta = Math.min(100, Math.round((minutosEstudio / metaMin) * 100));
   if (dailyProgressText) dailyProgressText.textContent = `${porcentajeMeta}%`;
   if (dailyProgressBar) dailyProgressBar.style.width = `${porcentajeMeta}%`;
+
+  // Renderizar Heatmap de Actividad en Perfil
+  renderActivityHeatmap();
 
   // Logros y Medallas
   if (badgesGrid) {

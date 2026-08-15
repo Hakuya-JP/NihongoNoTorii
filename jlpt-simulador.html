@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador de Exámenes JLPT - Nihongo no Torii</title>
+  
+  <!-- Tipografías de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="page-jlpt-simulador">
+
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo Nihongo no Torii">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="kana.html">Kana</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html" class="active">Simulador JLPT</a>
+    <a href="perfil.html" class="nav-profile-item">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+    </a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Cambiar tema">🌙</button>
+  </nav>
+</header>
+
+<main id="jlpt-simulador-app" class="jlpt-simulador-main">
+  
+  <!-- BANNER DE ENCABEZADO -->
+  <section class="jlpt-hero-banner">
+    <div class="jlpt-hero-content">
+      <span class="jlpt-badge">🎯 Evaluación Oficial JLPT</span>
+      <h1>Simulador de Exámenes JLPT</h1>
+      <p>Practica con los Exámenes Oficiales Muestra de Japón (N5 a N1) con temporizador, cronómetro y desgloses detallados.</p>
+    </div>
+  </section>
+
+  <!-- PANTALLA 1: SELECTOR DE NIVEL Y EXAMEN -->
+  <section id="jlpt-selector-screen" class="jlpt-screen-container">
+    
+    <div class="selector-section-title">
+      <h3>1. Selecciona tu Nivel JLPT:</h3>
+    </div>
+
+    <!-- Grid de Niveles (N5, N4, N3, N2, N1) -->
+    <div id="nivel-cards-container" class="jlpt-levels-grid"></div>
+
+    <div class="selector-section-title" style="margin-top: 30px;">
+      <h3>2. Selecciona la Versión del Examen:</h3>
+    </div>
+
+    <div class="exam-config-card">
+      <div class="config-field">
+        <label for="select-version-examen">Examen Disponible:</label>
+        <select id="select-version-examen" class="jlpt-custom-select" onchange="cambiarExamenSeleccionado()">
+          <!-- Rellenado dinámicamente -->
+        </select>
+      </div>
+
+      <!-- Preview de Información del Examen -->
+      <div id="examen-info-preview" class="examen-preview-box"></div>
+
+      <button class="btn-start-exam" onclick="comenzarSimulacro()">
+        🚀 Comenzar Simulacro
+      </button>
+    </div>
+  </section>
+
+  <!-- PANTALLA 2: MODO EXAMEN (RUNNER INTERACTIVO) -->
+  <section id="jlpt-exam-screen" class="jlpt-screen-container" style="display: none;">
+    
+    <!-- Header del Examen (Reloj y Progreso) -->
+    <div class="exam-top-bar">
+      <div class="exam-title-badge">
+        <h3 id="exam-runner-title">JLPT Examen</h3>
+      </div>
+      
+      <div class="exam-progress-box">
+        <span id="progress-text">Pregunta 1 de 10</span>
+        <div class="progress-bar-bg">
+          <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="exam-timer-box">
+        <span>⏱️ Tiempo Restante:</span>
+        <span id="timer-badge-text" class="timer-badge">00:00</span>
+      </div>
+    </div>
+
+    <!-- Contenedor Principal de la Pregunta -->
+    <div class="exam-body-layout">
+      
+      <!-- Área Central de Pregunta y Opciones -->
+      <div id="pregunta-card-container" class="pregunta-card">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <!-- Paleta Lateral de Preguntas -->
+      <aside class="exam-sidebar-palette">
+        <h4>Navegación de Preguntas</h4>
+        <div id="paleta-preguntas-grid" class="palette-grid">
+          <!-- Generado dinámicamente -->
+        </div>
+
+        <div class="palette-legend">
+          <span><span class="leg-box current"></span> Actual</span>
+          <span><span class="leg-box answered"></span> Respondida</span>
+          <span><span class="leg-box flagged"></span> Marcada</span>
+        </div>
+
+        <button class="btn-submit-exam" onclick="finalizarYEntregarExamen()">
+          🏁 Finalizar y Entregar Examen
+        </button>
+      </aside>
+
+    </div>
+
+    <!-- Barra Inferior de Navegación -->
+    <div class="exam-bottom-nav">
+      <button id="btn-prev-question" class="btn-nav-step" onclick="anteriorPregunta()">⬅️ Anterior</button>
+      <button id="btn-next-question" class="btn-nav-step" onclick="siguientePregunta()">Siguiente ➡️</button>
+    </div>
+
+  </section>
+
+  <!-- PANTALLA 3: RESULTADOS Y REVISIÓN -->
+  <section id="jlpt-results-screen" class="jlpt-screen-container" style="display: none;">
+    
+    <!-- Banner Dictamen -->
+    <div id="results-banner" class="results-banner"></div>
+
+    <div class="results-summary-grid">
+      <div class="summary-score-card">
+        <h3>Puntuación Global</h3>
+        <div id="result-score-number" class="score-large-text">0 / 0</div>
+        <div id="result-percentage" class="score-percentage-badge">0%</div>
+      </div>
+
+      <div class="summary-sections-card">
+        <h3>Desglose por Secciones</h3>
+        <div id="results-sections-breakdown" class="sections-breakdown-list"></div>
+      </div>
+    </div>
+
+    <!-- Lista de Revisión Detallada de Preguntas -->
+    <div class="results-review-container">
+      <h3>🔍 Revisión Detallada de Preguntas</h3>
+      <div id="results-questions-review" class="questions-review-list"></div>
+    </div>
+
+    <div class="results-actions-bar">
+      <button class="btn" onclick="volverAlSelectorJLPT()">🔄 Elegir Otro Examen</button>
+    </div>
+
+  </section>
+
+</main>
+
+<script src="scripts.js"></script>
+<script src="jlpt-data.js"></script>
+<script src="jlpt-simulador.js"></script>
+
+</body>
+</html>

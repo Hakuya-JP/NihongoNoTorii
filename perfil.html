@@ -30,8 +30,8 @@
     <a href="videos.html">Videos</a>
     <a href="kana.html">Kana</a>
     <a href="biblioteca.html">Biblioteca</a>
-    <a href="manga.html">Manga/Novela</a>
     <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
     <a href="perfil.html" class="nav-profile-item active">
       <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
     </a>
@@ -103,6 +103,59 @@
     </div>
   </section>
 
+  <!-- CALENDARIO DE PROGRESO (ESTILO ANKI / GITHUB HEATMAP) -->
+  <section class="perfil-heatmap-section">
+    <div class="section-header-row">
+      <h2 class="section-title">📅 Calendario de Actividad y Progreso</h2>
+      <span id="heatmap-streak-summary" class="badges-count-badge">🔥 0 días activos este año</span>
+    </div>
+    
+    <div class="heatmap-card">
+      <div class="heatmap-summary-row">
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-stat-active-days">0</span>
+          <span class="heatmap-stat-lbl">Días de Estudio</span>
+        </div>
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-stat-current-streak">0</span>
+          <span class="heatmap-stat-lbl">Racha Actual</span>
+        </div>
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-stat-best-streak">0</span>
+          <span class="heatmap-stat-lbl">Mejor Racha</span>
+        </div>
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-stat-total-xp">0</span>
+          <span class="heatmap-stat-lbl">XP en Período</span>
+        </div>
+      </div>
+
+      <div class="heatmap-scroll-container">
+        <div id="heatmap-months-row" class="heatmap-months-row"></div>
+        <div class="heatmap-body-flex">
+          <div class="heatmap-days-col">
+            <span>Lun</span>
+            <span>Mié</span>
+            <span>Vie</span>
+          </div>
+          <div id="heatmap-grid-container" class="heatmap-grid"></div>
+        </div>
+      </div>
+
+      <div class="heatmap-footer-row">
+        <div class="heatmap-legend">
+          <span>Menos</span>
+          <div class="heatmap-legend-square level-0" title="0 XP / Actividad"></div>
+          <div class="heatmap-legend-square level-1" title="1-15 XP (Actividad Inicial)"></div>
+          <div class="heatmap-legend-square level-2" title="16-30 XP (Progreso Medio)"></div>
+          <div class="heatmap-legend-square level-3" title="31-50 XP (Progreso Avanzado)"></div>
+          <div class="heatmap-legend-square level-4" title="50+ XP (Gran Logro)"></div>
+          <span>Más</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- LOGROS Y MEDALLAS -->
   <section class="perfil-badges-section">
     <div class="section-header-row">
@@ -135,19 +188,6 @@
       <button id="btn-toggle-expand-mined" class="btn-expand-mined">
         <span>👇 Mostrar más</span>
       </button>
-    </div>
-  </section>
-
-  <!-- ESTADO DE CONEXIÓN CON ANKI -->
-  <section class="perfil-anki-section">
-    <div class="section-header-row">
-      <h2 class="section-title">⚡ Estado de Integración con Anki</h2>
-      <span id="anki-status-indicator" class="anki-status offline">● Desconectado</span>
-    </div>
-    
-    <div class="anki-card-summary">
-      <p>Conecta <strong>AnkiConnect</strong> para enviar automáticamente tarjetas minadas desde <strong>ToriiTV</strong> con subtítulos y captura de fotogramas.</p>
-      <button id="btn-connect-anki" class="btn btn-primary">🔗 Verificar Conexión a Anki</button>
     </div>
   </section>
 
