@@ -70,10 +70,61 @@ body.dark-mode {
   scroll-behavior: smooth;
 }
 
+html {
+  background-color: var(--gris-suave, #f3f3f3);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+html.dark-mode {
+  background-color: #0a2232 !important;
+}
+
 body {
-  background: var(--gris-suave);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 0 40px 0;
+  background-color: var(--gris-suave, #f3f3f3);
+  background-image: 
+    linear-gradient(180deg, rgba(243, 243, 243, 0.78) 0%, rgba(243, 243, 243, 0.85) 100%),
+    url('image/olafondo.png');
+  background-repeat: repeat;
+  background-position: center top;
+  background-attachment: fixed;
+  background-size: 700px auto;
   color: var(--texto-principal);
   transition: background 0.3s ease, color 0.3s ease; 
+  overflow-x: hidden;
+}
+
+body.dark-mode {
+  background-color: var(--gris-suave, #0a2232);
+  background-image: 
+    linear-gradient(180deg, rgba(10, 34, 50, 0.82) 0%, rgba(10, 34, 50, 0.88) 100%),
+    url('image/olafondo2.png');
+}
+
+/* OVERLAY SUTIL DE TRANSICIÓN ADAPTADO AL TEMA (CLARO/OSCURO) */
+#page-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--gris-suave, #f3f3f3);
+  z-index: 999999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.14s ease-in-out;
+}
+
+body.dark-mode #page-transition-overlay {
+  background-color: var(--gris-suave, #0a2232);
+}
+
+#page-transition-overlay.active {
+  opacity: 0.45;
 }
 
 
@@ -502,11 +553,18 @@ body {
 
 .libro-box {
   margin-top: 50px;
-  padding: 20px;
-  background: var(--blanco);
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  margin-bottom: 30px;
+  padding: 24px;
+  background: var(--blanco2, #ffeedb);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .libro-box {
+  background: var(--blanco2, #0a425d);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .libro-box h3, .libro-box h4 {

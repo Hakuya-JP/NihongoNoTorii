@@ -24,10 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- 2.2 MODO OSCURO (INICIALIZACIÓN) ---
   const savedTheme = localStorage.getItem('theme');
   const body = document.body;
+  const html = document.documentElement;
   const btnDark = document.getElementById('dark-mode-toggle');
   
   if (savedTheme === 'dark') {
     body.classList.add('dark-mode');
+    html.classList.add('dark-mode');
     if (btnDark) btnDark.innerText = "☀️";
   }
 
@@ -45,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // --- 2.4 INICIALIZACIÓN DE MÓDULOS ---
+  initPageTransitions();   // Transición suave entre páginas
   initVideoPlayerModule(); // Módulo ToriiTV
   initAnkiConfigModule();  // Módulo Anki
   initUserProfileModule(); // Módulo Perfil
@@ -52,6 +55,39 @@ document.addEventListener("DOMContentLoaded", () => {
   initRpgSystemModule();   // Módulo Sistema RPG (Gamificación)
   initBibliotecaFiltrosUrl(); // Filtro URL Biblioteca
 });
+
+function initPageTransitions() {
+  let overlay = document.getElementById("page-transition-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "page-transition-overlay";
+    document.body.appendChild(overlay);
+  }
+
+  setTimeout(() => {
+    overlay.classList.remove("active");
+  }, 50);
+
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a");
+    if (!link) return;
+
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("javascript:") || link.target === "_blank") return;
+
+    if (link.origin === window.location.origin) {
+      e.preventDefault();
+      overlay.classList.add("active");
+      setTimeout(() => {
+        window.location.href = href;
+      }, 140);
+    }
+  });
+
+  window.addEventListener("pageshow", () => {
+    if (overlay) overlay.classList.remove("active");
+  });
+}
 
 
 // ==========================================================================
@@ -92,9 +128,11 @@ window.toggleMenu = toggleMenu;
 // Interruptor Dark Mode
 function toggleDarkMode() {
   const body = document.body;
+  const html = document.documentElement;
   const btn = document.getElementById('dark-mode-toggle');
   
   body.classList.toggle('dark-mode');
+  html.classList.toggle('dark-mode');
   
   if (body.classList.contains('dark-mode')) {
     if (btn) btn.innerText = "☀️";
@@ -1499,7 +1537,22 @@ const BGM_PLAYLIST = [
   { title: "Light Ambience 5 ⛩️", src: "audio/Light Ambience 5.mp3" }
 ];
 
+// ==========================================================================
+// SECCIÓN BGM AUDIO SYSTEM: REPRODUCTOR DE MÚSICA DE FONDO CON PERSISTENCIA
+// ==========================================================================
+
 let bgmAudioObject = null;
+
+function guardarEstadoPlaybackBGM() {
+  if (!bgmAudioObject) return;
+  try {
+    sessionStorage.setItem("bgm_track_index", userProfile.currentMusicIndex || 0);
+    sessionStorage.setItem("bgm_time", bgmAudioObject.currentTime || 0);
+    sessionStorage.setItem("bgm_timestamp", Date.now());
+  } catch (e) {
+    console.warn("No se pudo guardar estado BGM en sessionStorage", e);
+  }
+}
 
 function initBgmPlayer() {
   if (!bgmAudioObject) {
@@ -1511,6 +1564,7 @@ function initBgmPlayer() {
       userProfile.musicEnabled = true;
       userProfile.soundEnabled = true;
       guardarPerfil();
+      sessionStorage.setItem("user_has_interacted", "true");
       renderHeaderRPG_HUD();
     });
 
@@ -1522,31 +1576,80 @@ function initBgmPlayer() {
       renderHeaderRPG_HUD();
     });
 
-    // BUCLE INFINITO DE PLAYLIST: al terminar una canción, pasa automáticamente a la siguiente (1 -> 2 -> 3 -> 4 -> 5 -> 1...)
+    bgmAudioObject.addEventListener("timeupdate", () => {
+      guardarEstadoPlaybackBGM();
+    });
+
+    // BUCLE INFINITO DE PLAYLIST: al terminar una canción, pasa automáticamente a la siguiente
     bgmAudioObject.addEventListener("ended", () => {
+      sessionStorage.setItem("bgm_time", 0);
       siguienteCancionBGM(true);
     });
 
     bgmAudioObject.addEventListener("error", (e) => {
       console.warn("No se pudo cargar la canción de fondo BGM:", e);
     });
+
+    window.addEventListener("beforeunload", () => {
+      guardarEstadoPlaybackBGM();
+    });
   }
 
   cargarCancionActualBGM();
 
-  // Autoplay en la primera interacción del usuario con la página
-  const intentarPlayEnInteraccion = () => {
-    if (userProfile.musicEnabled !== false && bgmAudioObject && bgmAudioObject.paused) {
-      bgmAudioObject.play().then(() => {
-        userProfile.musicEnabled = true;
-        userProfile.soundEnabled = true;
-        guardarPerfil();
-        renderHeaderRPG_HUD();
-      }).catch(e => console.log("BGM esperando clic del usuario"));
+  // Restaurar tiempo exacto de reproducción entre páginas
+  const savedTime = parseFloat(sessionStorage.getItem("bgm_time"));
+  const savedTimestamp = parseInt(sessionStorage.getItem("bgm_timestamp"), 10);
+  let initialSeekTime = 0;
+
+  if (!isNaN(savedTime) && !isNaN(savedTimestamp)) {
+    const elapsed = (Date.now() - savedTimestamp) / 1000;
+    initialSeekTime = Math.max(0, savedTime + elapsed);
+  }
+
+  const applySeekTime = () => {
+    if (bgmAudioObject && initialSeekTime > 0) {
+      if (bgmAudioObject.duration && initialSeekTime >= bgmAudioObject.duration) {
+        sessionStorage.setItem("bgm_time", 0);
+      } else {
+        try {
+          bgmAudioObject.currentTime = initialSeekTime;
+        } catch (err) {
+          console.log("No se pudo asignar currentTime:", err);
+        }
+      }
     }
   };
 
-  document.addEventListener("click", intentarPlayEnInteraccion, { once: true });
+  bgmAudioObject.addEventListener("loadedmetadata", applySeekTime, { once: true });
+
+  const userHasInteracted = sessionStorage.getItem("user_has_interacted") === "true";
+  const shouldPlay = userProfile.musicEnabled !== false && (userProfile.musicVolume === undefined || userProfile.musicVolume > 0);
+
+  if (shouldPlay) {
+    if (userHasInteracted) {
+      bgmAudioObject.play().then(() => {
+        applySeekTime();
+        renderHeaderRPG_HUD();
+      }).catch(e => {
+        console.log("Esperando interacción inicial para BGM");
+      });
+    }
+  } else {
+    bgmAudioObject.pause();
+  }
+
+  const registrarInteraccionGlobal = () => {
+    sessionStorage.setItem("user_has_interacted", "true");
+    if (userProfile.musicEnabled !== false && bgmAudioObject && bgmAudioObject.paused && (userProfile.musicVolume === undefined || userProfile.musicVolume > 0)) {
+      bgmAudioObject.play().then(() => {
+        applySeekTime();
+        renderHeaderRPG_HUD();
+      }).catch(e => console.log("Error al reproducir BGM en interacción"));
+    }
+  };
+
+  document.addEventListener("click", registrarInteraccionGlobal, { once: true });
 }
 
 function cargarCancionActualBGM() {
@@ -1570,6 +1673,7 @@ function reproducirOPausarBGM() {
     userProfile.musicEnabled = true;
     userProfile.soundEnabled = true;
     guardarPerfil();
+    sessionStorage.setItem("user_has_interacted", "true");
     bgmAudioObject.play().catch(e => console.log("BGM autoplay prevenido"));
   } else {
     userProfile.musicEnabled = false;
@@ -1600,6 +1704,7 @@ function cambiarVolumenBGM(nuevoVolumen) {
   if (bgmAudioObject) {
     bgmAudioObject.volume = vol;
     if (vol > 0 && bgmAudioObject.paused && userProfile.musicEnabled !== false) {
+      sessionStorage.setItem("user_has_interacted", "true");
       bgmAudioObject.play().catch(e => console.log("BGM play error"));
     } else if (vol === 0 && !bgmAudioObject.paused) {
       bgmAudioObject.pause();
@@ -1609,8 +1714,9 @@ function cambiarVolumenBGM(nuevoVolumen) {
 }
 
 function siguienteCancionBGM(autoPlay = true) {
+  sessionStorage.setItem("bgm_time", 0);
   let idx = (userProfile.currentMusicIndex || 0) + 1;
-  if (idx >= BGM_PLAYLIST.length) idx = 0; // Vuelve al inicio cuando termina la lista (Bucle)
+  if (idx >= BGM_PLAYLIST.length) idx = 0;
   userProfile.currentMusicIndex = idx;
   guardarPerfil();
   cargarCancionActualBGM();
@@ -1624,6 +1730,7 @@ function siguienteCancionBGM(autoPlay = true) {
 
 function cambiarCancionPorIndice(idx) {
   if (idx < 0 || idx >= BGM_PLAYLIST.length) return;
+  sessionStorage.setItem("bgm_time", 0);
   userProfile.currentMusicIndex = idx;
   guardarPerfil();
   cargarCancionActualBGM();
