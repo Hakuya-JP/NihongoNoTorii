@@ -350,9 +350,9 @@ body.dark-mode #page-transition-overlay {
 }
 
 .grid-contenido .card {
-  background: var(--blanco);
-  padding: 16px;
-  border-radius: 16px;
+  background: var(--blanco2);
+  padding: 17px;
+  border-radius: 17px;
   text-align: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
