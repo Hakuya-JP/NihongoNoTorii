@@ -11,15 +11,15 @@
 
    {
      id: "n5-1-1",                    // ID único para la pregunta
-     pregunta: "Texto de la pregunta (puedes usar HTML como <u>subrayado</u> o <b>negrilla</b>)",
-     contexto: "Frase de contexto o lectura previa (opcional, borra esta línea si no se usa)",
-     audioUrl: "audio/n5_listening_1.mp3", // Enlace a archivo de audio MP3 (opcional para listening)
-     imagenUrl: "image/n5_diagra_1.png",   // Enlace a imagen de apoyo (opcional)
+     pregunta: "<u>先週</u> デパートに いきました。", // Oración principal (soporta <u>subrayado</u>, <b>negrilla</b>, etc.)
+     instruccion: "______の ことばは ひらがなで どう かきますか。", // Instrucción/contexto (se muestra en un bloque separado arriba)
+     imagenUrl: "image/ejemplo.png",  // (OPCIONAL) Enlace a la imagen (puedes usar 'imagenUrl', 'imagen' o 'image')
+     audioUrl: "audio/ejemplo.mp3",   // (OPCIONAL) Enlace a archivo de audio MP3 (puedes usar 'audioUrl' o 'audio')
      opciones: [
-       "1. Opción 1",
-       "2. Opción 2",
-       "3. Opción 3",
-       "4. Opción 4"
+       "1. せんしゅ",
+       "2. せんしゅう",
+       "3. ぜんしゅ",
+       "4. ぜんしゅう"
      ],
      respuestaCorrecta: 1,            // Índice de la respuesta correcta (0 = Opción 1, 1 = Opción 2, 2 = Opción 3, 3 = Opción 4)
      explicacion: "Explicación detallada de por qué es la respuesta correcta."
@@ -27,7 +27,7 @@
 
    2. ESTRUCTURA POR NIVEL Y EXAMEN:
    ---------------------------------
-   Nivel (N5, N4, N3, N2, N1) 
+   Nivel (N5, N4, N3, N2, N1, KANA) 
      └─ Examen ("examen-1", "examen-2")
          └─ Secciones (Vocabulario, Gramática y Lectura, Comprensión Auditiva)
              └─ Preguntas [...]
@@ -41,52 +41,447 @@ const JLPT_DATA = {
   "N5": {
     "examen-1": {
       id: "n5-examen-1",
-      titulo: "JLPT N5 - Examen Oficial Muestra 1",
+      titulo: "JLPT N5 - Examen Oficial Opccion 1",
       tiempoMinutos: 90,
       secciones: [
         {
           nombre: "Vocabulario (文字・語彙)",
           icono: "🔤",
-          preguntas: [
-            {
-              id: "n5-1-v1",
-              pregunta: "<u>山</u>に のぼります。",
-              contexto: "______の ことばは ひらがなで どう かきますか。",
-              opciones: [
-                "1. かわ",
-                "2. やま",
-                "3. うみ",
-                "4. そら"
-              ],
-              respuestaCorrecta: 1,
-              explicacion: "El kanji 「山」 se lee やま (yama) y significa 'montaña'."
-            },
-            {
-              id: "n5-1-v2",
-              pregunta: "きのう <u>学校</u>へ いきました。",
-              contexto: "______の ことばは ひらがなで どう かきますか。",
-              opciones: [
-                "1. がっこう",
-                "2. かっこう",
-                "3. がこう",
-                "4. かこう"
-              ],
-              respuestaCorrecta: 0,
-              explicacion: "「学校」 se lee がっこう (gakkou) y significa 'escuela'."
-            },
-            {
-              id: "n5-1-v3",
-              pregunta: "わたしは 毎朝 <u>みず</u>を のみます。",
-              contexto: "______の ことばは 漢字(かんじ)で どう かきますか。",
-              opciones: [
-                "1. 木",
-                "2. 水",
-                "3. 火",
-                "4. 土"
-              ],
-              respuestaCorrecta: 1,
-              explicacion: "「みず」 (mizu - agua) se escribe con el kanji 「水」."
-            }
+          preguntas:[
+  {
+    id: "n5-1-v1",
+    pregunta: "<u>先週</u> デパートに かいものに いきました。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. せんしゅ",
+      "2. せんしゅう",
+      "3. ぜんしゅ",
+      "4. ぜんしゅう"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "El kanji 「先週」 se lee せんしゅう (senshuu) y significa 'la semana pasada'."
+  },
+  {
+    id: "n5-1-v2",
+    pregunta: "ごはんの <u>後</u>で さんぽします。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. つぎ",
+      "2. うしろ",
+      "3. まえ",
+      "4. あと"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "El kanji 「後」 en la expresión 「後で」 se lee あと (ato) y significa 'después'."
+  },
+  {
+    id: "n5-1-v3",
+    pregunta: "もう いちど <u>言って</u> ください。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. いって",
+      "2. きって",
+      "3. まって",
+      "4. たって"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "El kanji 「言」 del verbo 言う se lee い (i) en la forma -te (言って = いって / itte), que significa 'decir'."
+  },
+  {
+    id: "n5-1-v4",
+    pregunta: "ちかくに <u>山</u>が あります。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. かわ",
+      "2. やま",
+      "3. いけ",
+      "4. うみ"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "El kanji 「山」 se lee やま (yama) y significa 'montaña'."
+  },
+  {
+    id: "n5-1-v5",
+    pregunta: "この ホテルは へやが <u>多い</u>です。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. すくない",
+      "2. おおい",
+      "3. せまい",
+      "4. ひろい"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "El kanji 「多」 en 「多い」 se lee おおい (ooi) y significa 'muchos/numerosos'."
+  },
+  {
+    id: "n5-1-v6",
+    pregunta: "ともだちと いっしょに <u>学校</u>に いきます。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. がこう",
+      "2. がこお",
+      "3. がっこう",
+      "4. がっこお"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "El kanji 「学校」 se lee がっこう (gakkou) y significa 'escuela'."
+  },
+
+  {
+    id: "n5-1-v7",
+    pregunta: "えんぴつが <u>六本</u> あります。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. ろくぼん",
+      "2. ろくぽん",
+      "3. ろっぽん",
+      "4. ろっぽん"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "El contador de objetos alargados 「本」 con el número 6 「六本」 se pronuncia ろっぽん (roppon)."
+  },
+  {
+    id: "n5-1-v8",
+    pregunta: "この <u>新聞</u>は いくらですか。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. しんむん",
+      "2. しんぶん",
+      "3. しむん",
+      "4. しぶん"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "El kanji 「新聞」 se lee しんぶん (shinbun) y significa 'periódico'."
+  },
+  {
+    id: "n5-1-v9",
+    pregunta: "この カメラは <u>安い</u>です。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. たかい",
+      "2. やすい",
+      "3. おもい",
+      "4. かるい"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "El kanji 「安」 en 「安い」 se lee やすい (yasui) y significa 'barato'."
+  },
+  {
+    id: "n5-1-v10",
+    pregunta: "かさは <u>外</u>に あります。",
+    contexto: "______の ことばは ひらがなで どう かきますか。",
+    opciones: [
+      "1. いえ",
+      "2. なか",
+      "3. そと",
+      "4. にわ"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "El kanji 「外」 se lee そと (soto) y significa 'afuera' o 'exterior'."
+  },
+  {
+    id: "n5-2-v11",
+    pregunta: "けさ <u>しゃわー</u>を あびました。",
+    contexto: "______の ことばは カタカナで どう かきますか。",
+    opciones: [
+      "1. シヤワー",
+      "2. シャワー",
+      "3. ツヤワー",
+      "4. ツャワー"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "La palabra 'ducha' (shower) se escribe en katakana como シャワー (con ャ pequeño)."
+  },
+  {
+    id: "n5-2-v12",
+    pregunta: "コーヒーを <u>のみました</u>。",
+    contexto: "______の ことばは 漢字で どう かきますか。",
+    opciones: [
+      "1. 飯みました",
+      "2. 飲みました",
+      "3. 餃みました",
+      "4. 飲りました"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "El verbo 'beber' (nomimashita) se escribe con el kanji 「飲」: 飲みました."
+  },
+  {
+    id: "n5-2-v13",
+    pregunta: "あたらしい <u>くるま</u>を かいました。",
+    contexto: "______の ことばは 漢字で どう かきますか。",
+    opciones: [
+      "1. 卓",
+      "2. 草",
+      "3. 車",
+      "4. 筆"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La palabra 'coche/auto' (kuruma) se escribe con el kanji 「車」."
+  },
+  {
+    id: "n5-2-v14",
+    pregunta: "この ぼうしは <u>1000えん</u>です。",
+    contexto: "______の ことばは 漢字で どう かきますか。",
+    opciones: [
+      "1. 1000内",
+      "2. 1000用",
+      "3. 1000冊",
+      "4. 1000円"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "La moneda japonesa 'yen' (en) se escribe con el kanji 「円」: 1000円."
+  },
+  {
+    id: "n5-2-v15",
+    pregunta: "しゅくだいが <u>はんぶん</u> おわりました。",
+    contexto: "______の ことばは 漢字で どう かきますか。",
+    opciones: [
+      "1. 羊合",
+      "2. 米分",
+      "3. 羊分",
+      "4. 半分"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "La palabra 'la mitad' (hanbun) se escribe con los kanjis 「半分」."
+  },
+  {
+    id: "n5-2-v16",
+    pregunta: "わたしの うちに <u>きませんか</u>。",
+    contexto: "______の ことばは 漢字で どう かきますか。",
+    opciones: [
+      "1. 来ませんか",
+      "2. 采ませんか",
+      "3. 木ませんか",
+      "4. 未ませんか"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "El verbo 'venir' (kimasen) se escribe con el kanji 「来」: 来ません."
+  },
+
+  {
+    id: "n5-2-v17",
+    pregunta: "きのう たなかさんと <u>あいました</u>。",
+    contexto: "______の ことばは 漢字で どう かきますか。",
+    opciones: [
+      "1. 見いました",
+      "2. 書きました",
+      "3. 会いました",
+      "4. 話しました"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "El verbo 'encontrarse con/ver a alguien' (aimashita) se escribe con el kanji 「会」: 会いました."
+  },
+  {
+    id: "n5-2-v18",
+    pregunta: "いもうとと <u>おなじ</u> ふくを かいました。",
+    contexto: "______の ことばは 漢字で どう かきますか。",
+    opciones: [
+      "1. 同じ",
+      "2. 回じ",
+      "3. 向じ",
+      "4. 司じ"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "La palabra 'mismo/igual' (onaji) se escribe con el kanji 「同」: 同じ."
+  },
+  {
+    id: "n5-3-v19",
+    pregunta: "わたしの へやは この （ ）の ２かいです。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. エレベーター",
+      "2. プール",
+      "3. エアコン",
+      "4. アパート"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "アパート (apartamento/edificio de departamentos) indica dónde se encuentra la habitación en el segundo piso."
+  },
+  {
+    id: "n5-3-v20",
+    pregunta: "さとうさんは ギターを じょうずに （ ）。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. うたいます",
+      "2. ききます",
+      "3. ひきます",
+      "4. あそびます"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "El verbo para 'tocar' instrumentos de cuerda como la guitarra es ひきます (hikimasu)."
+  },
+  {
+    id: "n5-3-v21",
+    pregunta: "テーブルに おさらと はしを （ ） ください。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. ならべて",
+      "2. とって",
+      "3. たべて",
+      "4. あらって"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "ならべて (narabete, de ならべる) significa 'alinear' u 'ordenar/colocar' platos y palillos sobre la mesa."
+  },
+  {
+    id: "n5-3-v22",
+    pregunta: "けさ そうじを したから へやは （ ） です。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. きれい",
+      "2. きたない",
+      "3. あかるい",
+      "4. くらい"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "Al haber limpiado (そうじを したから), la habitación está limpia (きれい)."
+  },
+  {
+    id: "n5-3-v23",
+    pregunta: "きょうは 500（ ） およぎました。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. ど",
+      "2. ばん",
+      "3. メートル",
+      "4. グラム"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La unidad de medida adecuada para la distancia nadada (およぎました) es メートル (metros)."
+  },
+  {
+    id: "n5-3-v24",
+    pregunta: "えきから たいしかんまでの （ ）を かいて ください。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. しゃしん",
+      "2. ちず",
+      "3. てがみ",
+      "4. きっぷ"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "Dibuja/escribe (かいて) un mapa (ちず) desde la estación hasta la embajada."
+  },
+  {
+    id: "n5-3-v25",
+    pregunta: "うるさいから テレビを （ ） ください。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. けして",
+      "2. つけて",
+      "3. しめて",
+      "4. あけて"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "Como está ruidoso (うるさいから), se pide apagar la televisión: けして (apagar aparatos eléctricos/luz)."
+  },
+  {
+    id: "n5-3-v26",
+    pregunta: "きょうは （ ）が ふって います。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. くもり",
+      "2. はれ",
+      "3. かぜ",
+      "4. ゆき"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "El verbo ふって います (caer precipitaciones) se utiliza con lluvia (あめ) o nieve (ゆき). En este caso, ゆき (nieve) es la opción correcta."
+  },
+  {
+    id: "n5-3-v27",
+    pregunta: "はこに りんごが （ ） あります。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    imagenUrl: "image/27-n5.jpg",
+    opciones: [
+      "1. よっつ",
+      "2. いつつ",
+      "3. むっつ",
+      "4. ななつ"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "En la imagen se observan 6 manzanas dentro de la caja. El contador nativo para 6 objetos es むっつ (muttsu)."
+  },
+  {
+    id: "n5-3-v28",
+    pregunta: "めがねは つくえの （ ）に あります。",
+    contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    imagenUrl: "image/28-n5.png",
+    opciones: [
+      "1. そば",
+      "2. よこ",
+      "3. した",
+      "4. うえ"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "En la ilustración, los lentes (めがね) están encima (うえ) del escritorio (つくえ)."
+  },
+  {
+    id: "n5-4-v29",
+    pregunta: "<u>まいばん くにの かぞくに でんわします。</u>",
+    contexto: "______の ぶんと だいたい おなじ いみの ぶんが あります。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. よるは ときどき くにの かぞくに でんわします。",
+      "2. あさは ときどき くにの かぞくに でんわします。",
+      "3. よるは いつも くにの かぞくに でんわします。",
+      "4. あさは いつも くにの かぞくに でんわします。"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "「まいばん」 (todas las noches) equivale a 「よるは いつも」 (por las noches, siempre en la noche)."
+  },
+  {
+    id: "n5-4-v30",
+    pregunta: "<u>この まちには ゆうめいな たてものが あります。</u>",
+    contexto: "______の ぶんと だいたい おなじ いみの ぶんが あります。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. この まちには ゆうめいな ビルが あります。",
+      "2. この まちには ゆうめいな おちゃが あります。",
+      "3. この まちには ゆうめいな ケーキが あります。",
+      "4. この まちには ゆうめいな こうえんが あります。"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "「たてもの」 significa 'edificio/construcción', lo cual equivale de forma general a 「ビル」 (edificio)."
+  },
+  {
+    id: "n5-4-v31",
+    pregunta: "<u>その えいがは おもしろくなかったです。</u>",
+    contexto: "______の ぶんと だいたい おなじ いみの ぶんが あります。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. その えいがは たのしかったです。",
+      "2. その えいがは つまらなかったです。",
+      "3. その えいがは みじかかったです。",
+      "4. その えいがは ながかったです。"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "「おもしろくなかった」 (no fue interesante) equivale a 「つまらなかった」 (fue aburrido)."
+  },
+  {
+    id: "n5-4-v32",
+    pregunta: "<u>たんじょうびは 6がつ15にちです。</u>",
+    contexto: "______の ぶんと だいたい おなじ いみの ぶんが あります。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. 6がつ15にちに けっこんしました。",
+      "2. 6がつ15にちに テストが はじまりました。",
+      "3. 6がつ15にちに うまれました。",
+      "4. 6がつ15にちに くにへ かえりました。"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "El cumpleaños (たんじょうび) indica el día en que alguien nació (うまれました)."
+  },
+  {
+    id: "n5-4-v33",
+    pregunta: "<u>にねんまえに きょうとへ いきました。</u>",
+    contexto: "______の ぶんと だいたい おなじ いみの ぶんが あります。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
+    opciones: [
+      "1. きのう きょうとへ いきました。",
+      "2. おととい きょうとへ いきました。",
+      "3. きょねん きょうとへ いきました。",
+      "4. おとし きょうとへ いきました。"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "「にねんまえ」 (hace dos años) equivale a 「おとし」 (anteayer para años / hace dos años)."
+  },
+
           ]
         },
         {
@@ -135,6 +530,20 @@ const JLPT_DATA = {
               ],
               respuestaCorrecta: 2,
               explicacion: "En la conversación acuerdan encontrarse a las 3:30 (3時半 - sanji han)."
+            },
+            {
+              id: "n5-1-c2",
+              instruccion: "イラストを みて 質問に こたえて ください。(Mira la imagen de apoyo y responde a la pregunta)",
+              pregunta: "男の人と 女の人が えを ⾒ています。男の人が えらんだ マークは どれですか。",
+              imagenUrl: "image/27-n5.jpg",
+              opciones: [
+                "1. Nihongo no Torii (Torii Rojo)",
+                "2. Fuji-san (Monte Fuji)",
+                "3. Sakura (Flor de cerezo)",
+                "4. Shinkansen (Tren bala)"
+              ],
+              respuestaCorrecta: 0,
+              explicacion: "La imagen muestra el emblema oficial del Torii tradicional de Nihongo no Torii (Opción 1)."
             }
           ]
         }

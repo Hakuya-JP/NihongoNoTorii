@@ -245,6 +245,11 @@ function renderPreguntaActual() {
   const respuestaGuardada = estadoSimulador.respuestasUsuario[idx];
   const estaMarcada = estadoSimulador.preguntasMarcadas[idx] || false;
 
+  // Detectar propiedades flexibles de imagen, audio e instrucción/contexto
+  const imgUrl = pregunta.imagenUrl || pregunta.imagen || pregunta.image;
+  const audioUrl = pregunta.audioUrl || pregunta.audio;
+  const instruccionTexto = pregunta.instruccion || pregunta.contexto;
+
   container.innerHTML = `
     <div class="question-header-tag">
       <span>${pregunta.seccionIcono} ${pregunta.seccionNombre}</span>
@@ -253,19 +258,29 @@ function renderPreguntaActual() {
       </button>
     </div>
 
-    ${pregunta.contexto ? `<div class="question-context-box">${pregunta.contexto}</div>` : ''}
-
-    <div class="question-text">${pregunta.pregunta}</div>
-
-    ${pregunta.audioUrl ? `
-      <div class="question-audio-player">
-        <audio controls src="${pregunta.audioUrl}"></audio>
+    ${instruccionTexto ? `
+      <div class="question-instruction-box">
+        <span class="instruction-badge">📋 Instrucción / Contexto:</span>
+        <div class="instruction-body">${instruccionTexto}</div>
       </div>
     ` : ''}
 
-    ${pregunta.imagenUrl ? `
+    <div class="question-sentence-card">
+      <div class="question-text">${pregunta.pregunta}</div>
+    </div>
+
+    ${audioUrl ? `
+      <div class="question-audio-player">
+        <audio controls src="${audioUrl}"></audio>
+      </div>
+    ` : ''}
+
+    ${imgUrl ? `
       <div class="question-image-box">
-        <img src="${pregunta.imagenUrl}" alt="Apoyo gráfico">
+        <div class="question-image-wrapper" onclick="abrirModalImagen('${imgUrl}')" title="Haz clic para ampliar la imagen">
+          <img src="${imgUrl}" alt="Imagen de apoyo para la pregunta">
+          <span class="image-zoom-hint">🔍 Haz clic para ampliar</span>
+        </div>
       </div>
     ` : ''}
 
@@ -458,13 +473,41 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
       const respUserStr = (respUser !== undefined) ? p.opciones[respUser] : "Sin responder";
       const respCorrectaStr = p.opciones[p.respuestaCorrecta];
 
+      const imgUrl = p.imagenUrl || p.imagen || p.image;
+      const audioUrl = p.audioUrl || p.audio;
+      const instruccionTexto = p.instruccion || p.contexto;
+
       return `
         <div class="review-question-card ${esCorrecta ? 'correct' : 'incorrect'}">
           <div class="review-card-header">
             <span class="review-q-num">Pregunta ${idx + 1} (${p.seccionNombre})</span>
             <span class="review-q-status">${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}</span>
           </div>
+
+          ${instruccionTexto ? `
+            <div class="question-instruction-box" style="margin-bottom: 12px; padding: 10px 14px; font-size: 1.05rem;">
+              <span class="instruction-badge">📋 Instrucción / Contexto:</span>
+              <div class="instruction-body">${instruccionTexto}</div>
+            </div>
+          ` : ''}
+
           <div class="review-q-text">${p.pregunta}</div>
+
+          ${audioUrl ? `
+            <div class="question-audio-player" style="margin-bottom: 12px;">
+              <audio controls src="${audioUrl}"></audio>
+            </div>
+          ` : ''}
+
+          ${imgUrl ? `
+            <div class="question-image-box" style="margin-bottom: 14px;">
+              <div class="question-image-wrapper" onclick="abrirModalImagen('${imgUrl}')" title="Haz clic para ampliar">
+                <img src="${imgUrl}" alt="Imagen de apoyo">
+                <span class="image-zoom-hint">🔍 Ampliar</span>
+              </div>
+            </div>
+          ` : ''}
+
           <div class="review-answers-box">
             <p><strong>Tu respuesta:</strong> <span class="${esCorrecta ? 'text-correct' : 'text-incorrect'}">${respUserStr}</span></p>
             ${!esCorrecta ? `<p><strong>Respuesta correcta:</strong> <span class="text-correct">${respCorrectaStr}</span></p>` : ''}
@@ -491,4 +534,25 @@ function volverAlSelectorJLPT() {
 
   const questsContainer = document.getElementById("daily-quests-container");
   if (questsContainer) questsContainer.style.display = "";
+}
+
+// --------------------------------------------------------------------------
+// 5. FUNCIONES PARA EL MODAL LIGHTBOX DE IMÁGENES
+// --------------------------------------------------------------------------
+function abrirModalImagen(src) {
+  const modal = document.getElementById("jlpt-image-modal");
+  const modalImg = document.getElementById("jlpt-modal-img");
+  if (modal && modalImg) {
+    modalImg.src = src;
+    modal.classList.add("active");
+  }
+}
+
+function cerrarModalImagen(event) {
+  if (!event || event.target.id === "jlpt-image-modal" || event.target.classList.contains("jlpt-image-modal-close")) {
+    const modal = document.getElementById("jlpt-image-modal");
+    if (modal) {
+      modal.classList.remove("active");
+    }
+  }
 }

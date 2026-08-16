@@ -169,6 +169,14 @@
 
   </section>
 
+  <!-- MODAL LIGHTBOX PARA AMPLIACIÓN DE IMÁGENES -->
+  <div id="jlpt-image-modal" class="jlpt-image-modal" onclick="cerrarModalImagen(event)">
+    <div class="jlpt-image-modal-content">
+      <button class="jlpt-image-modal-close" onclick="cerrarModalImagen(event)">&times;</button>
+      <img id="jlpt-modal-img" src="" alt="Vista ampliada de la imagen de la pregunta">
+    </div>
+  </div>
+
 </main>
 
 <script src="scripts.js"></script>

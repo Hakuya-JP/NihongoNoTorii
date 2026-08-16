@@ -1530,11 +1530,16 @@ let userProfile = {
 let avatarSeleccionadoTemporal = null;
 
 const BGM_PLAYLIST = [
-  { title: "Light Ambience 1 🌸", src: "audio/Light Ambience 1.mp3" },
-  { title: "Light Ambience 2 🌿", src: "audio/Light Ambience 2.mp3" },
-  { title: "Light Ambience 3 🎏", src: "audio/Light Ambience 3.mp3" },
-  { title: "Light Ambience 4 🍵", src: "audio/Light Ambience 4.mp3" },
-  { title: "Light Ambience 5 ⛩️", src: "audio/Light Ambience 5.mp3" }
+  { title: "Un Pensamiento", src: "audio/Light Ambience 1.mp3" },
+  { title: "Curiosa Obsesión", src: "audio/Light Ambience 2.mp3" },
+  { title: "Anochecer", src: "audio/Light Ambience 3.mp3" },
+  { title: "Epilogo", src: "audio/Light Ambience 4.mp3" },
+  { title: "Una Oportunidad", src: "audio/Light Ambience 5.mp3" },
+  { title: "Ecos de soledad", src: "audio/Ambient 6.mp3" },
+  { title: "Suave anochecer", src: "audio/Ambient 10.mp3" },
+  { title: "Camino luminoso", src: "audio/Ambient 5.mp3" },
+  { title: "Nube roja", src: "audio/Ambient 1.mp3" },
+  { title: "Cielo", src: "audio/Ambient 2.mp3" }
 ];
 
 // ==========================================================================
@@ -2924,16 +2929,20 @@ function renderMinedCardsUI() {
   }
 
   if (btnToggleExpand) {
-    btnToggleExpand.innerHTML = minedExpanded ? "<span>Mostrar menos</span>" : "<span>Mostrar más</span>";
+    btnToggleExpand.innerHTML = minedExpanded ? "<span>Mostrar menos 🔺</span>" : "<span>Mostrar más 🔻</span>";
     btnToggleExpand.style.display = minedCardsList.length > 3 ? "inline-flex" : "none";
   }
 
   if (!gridContainer) return;
 
+  const wrapper = gridContainer.closest(".mined-cards-wrapper");
+
   if (minedExpanded) {
     gridContainer.classList.remove("collapsed");
+    if (wrapper) wrapper.classList.add("expanded");
   } else {
     gridContainer.classList.add("collapsed");
+    if (wrapper) wrapper.classList.remove("expanded");
   }
 
   if (minedCardsList.length === 0) {
