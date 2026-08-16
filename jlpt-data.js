@@ -392,7 +392,7 @@ const JLPT_DATA = {
     id: "n5-3-v27",
     pregunta: "はこに りんごが （ ） あります。",
     contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
-    imagenUrl: "image/27-n5.jpg",
+    imagenUrl: "image/JLPT/N5/27-n5.jpg",
     opciones: [
       "1. よっつ",
       "2. いつつ",
@@ -406,7 +406,7 @@ const JLPT_DATA = {
     id: "n5-3-v28",
     pregunta: "めがねは つくえの （ ）に あります。",
     contexto: "（ ）に なにを いれますか。１・２・３・４から いちばん いい ものを ひとつ えらんで ください。",
-    imagenUrl: "image/28-n5.png",
+    imagenUrl: "image/JLPT/N5/28-n5.png",
     opciones: [
       "1. そば",
       "2. よこ",
@@ -480,41 +480,236 @@ const JLPT_DATA = {
     ],
     respuestaCorrecta: 4,
     explicacion: "「にねんまえ」 (hace dos años) equivale a 「おとし」 (anteayer para años / hace dos años)."
-  },
-
-          ]
-        },
+  },]},
         {
           nombre: "Gramática y Lectura (文法・読解)",
           icono: "📖",
           preguntas: [
-            {
-              id: "n5-1-g1",
-              pregunta: "わたしは たなか ( ____ ) もうします。",
-              opciones: [
-                "1. と",
-                "2. に",
-                "3. を",
-                "4. が"
-              ],
-              respuestaCorrecta: 0,
-              explicacion: "La partícula と (to) se usa con el verbo 申します (moushimasu) para presentar el nombre de uno mismo."
-            },
-            {
-              id: "n5-1-g2",
-              pregunta: "明日、図書館へ 本を 返し ( ____ ) 行きます。",
-              opciones: [
-                "1. に",
-                "2. で",
-                "3. を",
-                "4. へ"
-              ],
-              respuestaCorrecta: 0,
-              explicacion: "La forma raíz verbal + に + 行きます (ni ikimasu) indica el propósito del movimiento ('voy a devolver el libro')."
-            }
-          ]
-        },
-        {
+  {
+    id: "n5-1-g1",
+    pregunta: "日本（ ____ ）ラーメンは おいしいです。",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. に",
+      "2. の",
+      "3. を",
+      "4. へ"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "La partícula 「の」 conecta dos sustantivos (日本 y ラーメン) para indicar origen o procedencia: 'el ramen de Japón'."
+  },
+  {
+    id: "n5-1-g2",
+    pregunta: "わたしには きょうだいが 二人 います。弟（ ____ ）妹です。",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. は",
+      "2. も",
+      "3. と",
+      "4. か"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La partícula 「と」 actúa como conjunción 'y' para listar sustantivos completos: 'un hermano menor y una hermana menor'."
+  },
+  {
+    id: "n5-1-g3",
+    pregunta: "山下「田中さん（ ____ ）きのう どこかに 出かけましたか。」\n田中「いいえ、いえに いました。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. で",
+      "2. は",
+      "3. を",
+      "4. に"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "La partícula 「は」 marca el tema de la oración después del nombre de la persona a la que se le pregunta (田中さんは...)."
+  },
+  {
+    id: "n5-1-g4",
+    pregunta: "（タクシーで）\nA「つぎの かどを 右（ ____ ）まがって ください。」\nB「わかりました。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. が",
+      "2. や",
+      "3. か",
+      "4. に"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "La partícula 「に」 indica la dirección u orientación hacia la que se realiza un giro (右にまがる = girar a la derecha)."
+  },
+  {
+    id: "n5-1-g5",
+    pregunta: "きのう、わたしは ひとり（ ____ ）えいがを 見に 行きました。",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. が",
+      "2. を",
+      "3. で",
+      "4. は"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La expresión 「ひとりで」 utiliza la partícula 「で」 para indicar el modo o estado en que se realiza una acción ('solo / por mi cuenta')."
+  },
+  {
+    id: "n5-1-g6",
+    pregunta: "山下「今日 パーティーが ありますから、田中さん（ ____ ）来て ください。」\n田中「ありがとうございます。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. に",
+      "2. も",
+      "3. や",
+      "4. で"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "La partícula 「も」 significa 'también'. En este contexto, invita a Tanaka-san diciendo: 'Tanaka-san, usted también venga, por favor'."
+  },
+  {
+    id: "n5-1-g7",
+    pregunta: "田中「この ぼうしは 山田さん（ ____ ）ですか。」\n山田「はい。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. や",
+      "2. は",
+      "3. の",
+      "4. か"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La partícula 「の」 indica posesión: '¿Este sombrero es de Yamada-san?'."
+  },
+  {
+    id: "n5-1-g8",
+    pregunta: "駅まで タクシーで 1000円（ ____ ）です。",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. ぐらい",
+      "2. など",
+      "3. ごろ",
+      "4. も"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "「ぐらい」 se usa para indicar una cantidad o monto aproximado ('alrededor de 1000 yenes'). 「ごろ」 se usa únicamente para horas o puntos específicos en el tiempo."
+  },
+  {
+    id: "n5-1-g9",
+    pregunta: "A「さようなら。」\nB「さようなら。また（ ____ ）。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. おととい",
+      "2. 今日",
+      "3. 来週",
+      "4. 今月"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La expresión 「また来週」 (hasta la próxima semana / nos vemos la próxima semana) es la única despedida lógica hacia el futuro entre las opciones."
+  },
+  {
+    id: "n5-1-g10",
+    pregunta: "わたしの 母は 50さいです。父は 55さいです。母は 父（ ____ ）5さい わかいです。",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. から",
+      "2. まで",
+      "3. より",
+      "4. のほうが"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La partícula 「より」 marca el punto de comparación ('más... que'). 「母は 父より 5さい わかいです」 significa 'mi madre es 5 años más joven que mi padre'."
+  },
+  {
+    id: "n5-1-g11",
+    pregunta: "子ども「いただきます。」\n母「あ、食べる（ ____ ）手を あらいましょう。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. まえに",
+      "2. のまえに",
+      "3. あとに",
+      "4. のあとに"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "Cuando se conecta directamente un verbo en forma diccionario (食べる), se usa directamente 「まえに」 ('antes de comer')."
+  },
+  {
+    id: "n5-1-g12",
+    pregunta: "A「東京でも 雪が ふりますか。」\nB「ええ、ふりますよ。でも、きょねんは あまり（ ____ ）。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. ふりませんでした",
+      "2. ふりません",
+      "3. ふりました",
+      "4. ふります"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "El adverbio 「あまり」 requiere una forma negativa, y al referirse al año pasado (きょねん), debe ir en pasado negativo: 「ふりませんでした」."
+  },{
+    id: "n5-1-g13",
+    pregunta: "（川で）\nA「見て ください。小さな 魚が たくさん（ ____ ）よ。」\nB「ほんとうですね。30ぴきくらい いますね。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. およぎます",
+      "2. およぎません",
+      "3. およぎました",
+      "4. およいで います"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "Al señalar algo que está ocurriendo en ese preciso momento ('mira'), se utiliza la forma continua ~ています: およいで います (están nadando)."
+  },
+  {
+    id: "n5-1-g14",
+    pregunta: "中川「山田さんの その カメラは いいですね。どこで かいましたか。」\n山田「いえ、これは 兄に（ ____ ）。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. あげました",
+      "2. もらいました",
+      "3. うりました",
+      "4. かいました"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "La estructura 「[persona] に もらいました」 indica recibir algo de alguien ('lo recibí de mi hermano mayor')."
+  },
+  {
+    id: "n5-1-g15",
+    pregunta: "たまごりょうりの じょうずな 作りかたを（ ____ ）読みました。",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. 何に",
+      "2. 何も",
+      "3. 何かへ",
+      "4. 何かで"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "「何かで」 indica el medio o recurso no especificado mediante el cual se realizó la lectura ('lo leí en algún sitio / por algún medio')."
+  },
+  {
+    id: "n5-1-g16",
+    pregunta: "（電話で）\n本田「はい、本田です。」\n北山「あ、北山花子です。すみません、（ ____ ）。」\n本田「はい。ちょっと まって くださいね。」",
+    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    opciones: [
+      "1. ひろこさんを おねがいします",
+      "2. ひろこさんを ください",
+      "3. ひろこさんと 話しますか",
+      "4. ひろこさんと 話しませんか"
+    ],
+    respuestaCorrecta: 1,
+    explicacion: "En una llamada telefónica, la expresión fija para pedir hablar con alguien es 「[nombre] を おねがいします」 ('¿me podría comunicar con Hiroko-san, por favor?')."
+  },
+  {
+    id: "n5-2-g17",
+    pregunta: "（店で）\n田中「すみません。くだもの ＿ ＿ ★ ＿ か。」\n店の人「こちらです。」",
+    contexto: "★ に 入る ものは どれですか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    imagenUrl: "image/JLPT/N5/EjemploN5GM2.png",
+    opciones: [
+      "1. どこ",
+      "2. あります",
+      "3. は",
+      "4. に"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "El orden correcto de la oración es 「くだもの [3. は] [1. どこ] [4. に] [2. あります] か」(くだものは どこに ありますか). Por lo tanto, la opción que ocupa la posición de la estrella (★) es la 4 (に)."
+  },
+
+] },
+        
+  {
           nombre: "Comprensión Auditiva (聴解)",
           icono: "🎧",
           preguntas: [
