@@ -664,7 +664,7 @@ function initVideoPlayerModule() {
       lineDiv.addEventListener("click", (e) => {
         if (e.target.classList.contains("btn-anki-star")) return;
         video.currentTime = sub.inicio + timeOffset;
-        video.play();
+        video.play().catch(() => {});
       });
 
       const starBtn = lineDiv.querySelector(".btn-anki-star");
