@@ -4749,7 +4749,7 @@ body.dark-mode .exam-section-badge {
 }
 
 .jlpt-modal-card {
-  background: var(--blanco, #ffffff);
+  background: var(--blanco3, #ffffff);
   border: 2px solid var(--crema2, #ffeedb);
   border-radius: 20px;
   width: 100%;

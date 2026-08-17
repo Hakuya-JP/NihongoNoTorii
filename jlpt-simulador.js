@@ -2,6 +2,71 @@
 // SECCIÓN: LÓGICA Y MOTOR DEL SIMULADOR JLPT POR SECCIONES
 // ==========================================================================
 
+/* ==========================================================================
+   PANEL DE CONTROL Y CONFIGURACIÓN DE AUDIOS DEL SIMULADOR JLPT
+   --------------------------------------------------------------------------
+   Desde este panel puedes controlar todos los audios del examen:
+   - audioHabilitadoGlobal: true / false (Apaga o enciende todos los sonidos).
+   - activo: true / false (Enciende o apaga un sonido en específico).
+   - archivo: Ruta del archivo de audio MP3/WAV.
+   - volumen: Nivel de volumen de 0.0 (silencio) a 1.0 (máximo).
+   - duracionSegundos: null (reproduce la canción/sonido completa) o un número
+     de segundos para cortar la reproducción automáticamente (ej. 3 para 3s).
+   ========================================================================== */
+const CONFIGURACION_AUDIO_JLPT = {
+  audioHabilitadoGlobal: true,
+
+  eventos: {
+    // 1. Mensaje / Modal de Inicio del Examen
+    inicioExamen: {
+      activo: false,
+      archivo: "audio/sonidos/Campanajaponesa.mp3",
+      volumen: 0.8,
+      duracionSegundos: null // null = completo, o número de segundos (ej: 4)
+    },
+
+    // 2. Al comenzar cada Sección (Sección 1, Sección 2, Sección 3)
+    inicioSeccion: {
+      activo: true,
+      archivo: "audio/sonidos/Campanajaponesa.mp3",
+      volumen: 0.8,
+      duracionSegundos: null
+    },
+
+    // 3. Al iniciar el descanso de 15 minutos entre secciones
+    inicioDescanso: {
+      activo: true,
+      archivo: "audio/sonidos/Campanajaponesa.mp3",
+      volumen: 0.8,
+      duracionSegundos: null
+    },
+
+    // 4. Al finalizar u omitir el descanso para pasar a la siguiente sección
+    finDescanso: {
+      activo: true,
+      archivo: "audio/sonidos/Campanajaponesa.mp3",
+      volumen: 0.8,
+      duracionSegundos: null
+    },
+
+    // 5. Al finalizar y entregar todo el examen
+    finalExamen: {
+      activo: true,
+      archivo: "audio/sonidos/Campanajaponesa.mp3",
+      volumen: 0.8,
+      duracionSegundos: null
+    },
+
+    // 6. Al agotarse el tiempo del temporizador de una sección
+    tiempoAgotado: {
+      activo: true,
+      archivo: "audio/sonidos/Campanajaponesa.mp3",
+      volumen: 0.8,
+      duracionSegundos: null
+    }
+  }
+};
+
 let estadoSimulador = {
   nivelActual: "N5",
   examenActualKey: "examen-1",
@@ -47,16 +112,38 @@ function initSimuladorJLPT() {
 }
 
 // --------------------------------------------------------------------------
-// REPRODUCTOR AUDIO DE CAMPANA JLPT
+// MOTOR DE REPRODUCCIÓN Y CONTROL DE AUDIO CONFIGURABLE
 // --------------------------------------------------------------------------
-function reproducirCampanaJLPT() {
+function reproducirAudioEvento(nombreEvento) {
+  if (!CONFIGURACION_AUDIO_JLPT || !CONFIGURACION_AUDIO_JLPT.audioHabilitadoGlobal) return;
+
+  const cfg = CONFIGURACION_AUDIO_JLPT.eventos?.[nombreEvento];
+  if (!cfg || !cfg.activo || !cfg.archivo) return;
+
   try {
-    const audio = new Audio("audio/sonidos/Campanajaponesa.mp3");
-    audio.volume = 0.8;
-    audio.play().catch(err => console.log("Audio campana no reproducido (requiere interacción previa):", err));
+    const audio = new Audio(cfg.archivo);
+    audio.volume = (typeof cfg.volumen === "number") ? Math.max(0, Math.min(1, cfg.volumen)) : 0.8;
+    
+    audio.play().then(() => {
+      // Si se configuró una duración límite en segundos, pausar automáticamente al cumplirse el tiempo
+      if (typeof cfg.duracionSegundos === "number" && cfg.duracionSegundos > 0) {
+        setTimeout(() => {
+          if (!audio.paused) {
+            audio.pause();
+            audio.currentTime = 0;
+          }
+        }, cfg.duracionSegundos * 1000);
+      }
+    }).catch(err => console.log(`Audio (${nombreEvento}) no reproducido (requiere interacción previa):`, err));
+
   } catch (e) {
-    console.log("Error al reproducir campana JLPT:", e);
+    console.log(`Error al reproducir audio del evento '${nombreEvento}':`, e);
   }
+}
+
+// Función de compatibilidad
+function reproducirCampanaJLPT() {
+  reproducirAudioEvento("inicioExamen");
 }
 
 // --------------------------------------------------------------------------
@@ -192,7 +279,7 @@ function comenzarSimulacro() {
 }
 
 function abrirModalInicio() {
-  reproducirCampanaJLPT();
+  reproducirAudioEvento("inicioExamen");
 
   const modal = document.getElementById("jlpt-start-modal");
   const title = document.getElementById("start-modal-title");
@@ -248,7 +335,7 @@ function iniciarSeccionActual() {
   document.getElementById("jlpt-results-screen").style.display = "none";
   document.getElementById("jlpt-exam-screen").style.display = "block";
 
-  reproducirCampanaJLPT();
+  reproducirAudioEvento("inicioSeccion");
 
   const secData = estadoSimulador.examenActual.secciones[estadoSimulador.seccionActualIndex];
   estadoSimulador.listaPreguntasSeccion = estadoSimulador.listaPreguntasTodas.filter(
@@ -286,6 +373,7 @@ function iniciarTemporizador() {
       actualizarDisplayTimer();
     } else {
       clearInterval(estadoSimulador.timerInterval);
+      reproducirAudioEvento("tiempoAgotado");
       alert("⏱️ El tiempo de esta sección ha finalizado.");
       finalizarSeccionActual();
     }
@@ -478,7 +566,7 @@ function finalizarSeccionActual() {
 function abrirModalDescanso() {
   if (estadoSimulador.timerInterval) clearInterval(estadoSimulador.timerInterval);
 
-  reproducirCampanaJLPT();
+  reproducirAudioEvento("inicioDescanso");
 
   // Ocultar runner y mostrar modal de descanso
   document.getElementById("jlpt-exam-screen").style.display = "none";
@@ -566,6 +654,8 @@ function omitirDescanso() {
     clearInterval(estadoSimulador.descansoTimerInterval);
   }
 
+  reproducirAudioEvento("finDescanso");
+
   estadoSimulador.seccionActualIndex++;
   iniciarSeccionActual();
 }
@@ -577,7 +667,7 @@ function finalizarYEntregarExamen() {
   if (estadoSimulador.timerInterval) clearInterval(estadoSimulador.timerInterval);
   if (estadoSimulador.descansoTimerInterval) clearInterval(estadoSimulador.descansoTimerInterval);
 
-  reproducirCampanaJLPT();
+  reproducirAudioEvento("finalExamen");
 
   estadoSimulador.examenCompletado = true;
 
