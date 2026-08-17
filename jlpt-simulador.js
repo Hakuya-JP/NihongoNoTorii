@@ -1,17 +1,22 @@
 // ==========================================================================
-// SECCIÓN: LÓGICA Y MOTOR DEL SIMULADOR JLPT
+// SECCIÓN: LÓGICA Y MOTOR DEL SIMULADOR JLPT POR SECCIONES
 // ==========================================================================
 
 let estadoSimulador = {
   nivelActual: "N5",
   examenActualKey: "examen-1",
   examenActual: null,
-  listaPreguntas: [], // Arreglo plano de todas las preguntas del examen
-  respuestasUsuario: {}, // { indexPregunta: indiceOpcion }
-  preguntasMarcadas: {}, // { indexPregunta: boolean }
-  indexPreguntaActual: 0,
+  seccionActualIndex: 0,
+  listaPreguntasSeccion: [],   // Preguntas de la sección activa
+  listaPreguntasTodas: [],     // Arreglo global de preguntas (para evaluación final)
+  respuestasUsuario: {},       // { indexPreguntaGlobal: indiceOpcion }
+  preguntasMarcadas: {},       // { indexPreguntaGlobal: boolean }
+  indexPreguntaActual: 0,      // Índice dentro de la sección actual
   tiempoRestanteSegundos: 0,
   timerInterval: null,
+  descansoTimerInterval: null,
+  tiempoDescansoRestante: 0,
+  tiempoDescansoObligatorioRestante: 0,
   examenCompletado: false
 };
 
@@ -38,6 +43,19 @@ function initSimuladorJLPT() {
     setTimeout(() => {
       comenzarSimulacro();
     }, 200);
+  }
+}
+
+// --------------------------------------------------------------------------
+// REPRODUCTOR AUDIO DE CAMPANA JLPT
+// --------------------------------------------------------------------------
+function reproducirCampanaJLPT() {
+  try {
+    const audio = new Audio("audio/sonidos/Campanajaponesa.mp3");
+    audio.volume = 0.8;
+    audio.play().catch(err => console.log("Audio campana no reproducido (requiere interacción previa):", err));
+  } catch (e) {
+    console.log("Error al reproducir campana JLPT:", e);
   }
 }
 
@@ -72,7 +90,6 @@ function seleccionarNivel(nivelKey) {
   estadoSimulador.nivelActual = nivelKey;
   estadoSimulador.examenActualKey = "examen-1";
   
-  // Actualizar UI nivel activo
   const cards = document.querySelectorAll(".jlpt-level-card");
   cards.forEach(card => card.classList.remove("active"));
   const searchStr = nivelKey === "KANA" ? "KANA" : `JLPT ${nivelKey}`;
@@ -95,7 +112,6 @@ function renderExamenesDisponibles() {
   `).join("");
 
   selectExamen.value = estadoSimulador.examenActualKey;
-
   actualizarExamenPreview();
 }
 
@@ -113,7 +129,6 @@ function actualizarExamenPreview() {
 
   if (!examData || !infoContainer) return;
 
-  // Contar total preguntas
   let totalPreguntas = 0;
   examData.secciones.forEach(sec => totalPreguntas += sec.preguntas.length);
 
@@ -122,8 +137,15 @@ function actualizarExamenPreview() {
       <div class="preview-item">
         <span class="preview-icon">⏱️</span>
         <div>
-          <strong>Tiempo Límite:</strong>
-          <p>${examData.tiempoMinutos} Minutos</p>
+          <strong>Tiempo Examen:</strong>
+          <p>${examData.tiempoMinutos} Min (3 Secciones)</p>
+        </div>
+      </div>
+      <div class="preview-item">
+        <span class="preview-icon">☕</span>
+        <div>
+          <strong>Descansos:</strong>
+          <p>15 Min entre Secciones (2 Min obligatorios)</p>
         </div>
       </div>
       <div class="preview-item">
@@ -133,49 +155,85 @@ function actualizarExamenPreview() {
           <p>${totalPreguntas} Reactivos</p>
         </div>
       </div>
-      <div class="preview-item">
-        <span class="preview-icon">🧩</span>
-        <div>
-          <strong>Secciones:</strong>
-          <p>${examData.secciones.map(s => s.nombre).join(" • ")}</p>
-        </div>
-      </div>
     </div>
   `;
 }
 
 // --------------------------------------------------------------------------
-// 2. INICIO Y EJECUCIÓN DEL EXAMEN
+// 2. MODAL DE INICIO DE EXAMEN
 // --------------------------------------------------------------------------
 function comenzarSimulacro() {
   const examData = JLPT_DATA[estadoSimulador.nivelActual]?.[estadoSimulador.examenActualKey];
   if (!examData) return;
 
   estadoSimulador.examenActual = examData;
-  estadoSimulador.listaPreguntas = [];
+  estadoSimulador.seccionActualIndex = 0;
   estadoSimulador.respuestasUsuario = {};
   estadoSimulador.preguntasMarcadas = {};
-  estadoSimulador.indexPreguntaActual = 0;
   estadoSimulador.examenCompletado = false;
-  estadoSimulador.tiempoRestanteSegundos = examData.tiempoMinutos * 60;
 
-  // Aplanar preguntas asociándoles su sección
-  examData.secciones.forEach(sec => {
+  // Aplanar todas las preguntas asignándoles un ID global plano
+  estadoSimulador.listaPreguntasTodas = [];
+  let globalIndex = 0;
+
+  examData.secciones.forEach((sec, sIdx) => {
     sec.preguntas.forEach(p => {
-      estadoSimulador.listaPreguntas.push({
+      estadoSimulador.listaPreguntasTodas.push({
         ...p,
+        globalIndex: globalIndex++,
+        seccionIndex: sIdx,
         seccionNombre: sec.nombre,
         seccionIcono: sec.icono || "📝"
       });
     });
   });
 
-  // Ocultar selector y mostrar pantalla de examen
-  document.getElementById("jlpt-selector-screen").style.display = "none";
-  document.getElementById("jlpt-results-screen").style.display = "none";
-  document.getElementById("jlpt-exam-screen").style.display = "block";
+  abrirModalInicio();
+}
 
-  // Ocultar HUD de XP, Banner principal y misiones para concentración total del estudiante
+function abrirModalInicio() {
+  reproducirCampanaJLPT();
+
+  const modal = document.getElementById("jlpt-start-modal");
+  const title = document.getElementById("start-modal-title");
+  const subtitle = document.getElementById("start-modal-subtitle");
+  const btnStart = document.getElementById("btn-iniciar-seccion-1");
+
+  if (title) title.innerText = `⛩️ Inicio del Examen ${estadoSimulador.nivelActual}`;
+  if (subtitle) subtitle.innerText = estadoSimulador.examenActual.titulo;
+
+  const listContainer = document.querySelector(".sections-list-preview");
+  if (listContainer) {
+    listContainer.innerHTML = estadoSimulador.examenActual.secciones.map((sec, idx) => `
+      <li>
+        <span class="sec-num">${idx + 1}</span> 
+        <strong>${sec.nombre}</strong> (${sec.preguntas.length} reactivos)
+      </li>
+    `).join("");
+  }
+
+  const primeraSeccionNombre = estadoSimulador.examenActual.secciones[0]?.nombre || "Vocabulario (文字・語彙)";
+  if (btnStart) {
+    btnStart.innerHTML = `🔔 Comenzar Sección 1: ${primeraSeccionNombre}`;
+  }
+
+  if (modal) modal.style.display = "flex";
+}
+
+// --------------------------------------------------------------------------
+// 3. EJECUCIÓN DE SECCIÓN Y TEMPORIZADOR
+// --------------------------------------------------------------------------
+function iniciarSeccionActual() {
+  const startModal = document.getElementById("jlpt-start-modal");
+  const breakModal = document.getElementById("jlpt-break-modal");
+  if (startModal) startModal.style.display = "none";
+  if (breakModal) breakModal.style.display = "none";
+
+  if (estadoSimulador.descansoTimerInterval) {
+    clearInterval(estadoSimulador.descansoTimerInterval);
+  }
+
+  // Ocultar HUD, Banner y Misiones
   const hudBar = document.getElementById("rpg-hud-bar");
   if (hudBar) hudBar.style.display = "none";
 
@@ -185,7 +243,33 @@ function comenzarSimulacro() {
   const questsContainer = document.getElementById("daily-quests-container");
   if (questsContainer) questsContainer.style.display = "none";
 
-  document.getElementById("exam-runner-title").innerText = examData.titulo;
+  // Mostrar runner de examen
+  document.getElementById("jlpt-selector-screen").style.display = "none";
+  document.getElementById("jlpt-results-screen").style.display = "none";
+  document.getElementById("jlpt-exam-screen").style.display = "block";
+
+  reproducirCampanaJLPT();
+
+  const secData = estadoSimulador.examenActual.secciones[estadoSimulador.seccionActualIndex];
+  estadoSimulador.listaPreguntasSeccion = estadoSimulador.listaPreguntasTodas.filter(
+    p => p.seccionIndex === estadoSimulador.seccionActualIndex
+  );
+  estadoSimulador.indexPreguntaActual = 0;
+
+  // Asignar tiempo de la sección
+  const totalMinutos = estadoSimulador.examenActual.tiempoMinutos || 90;
+  const totalPreguntasGlobal = estadoSimulador.listaPreguntasTodas.length;
+  const preguntasSeccionCount = estadoSimulador.listaPreguntasSeccion.length;
+
+  const minutosSeccion = secData.tiempoMinutos || Math.max(10, Math.round(totalMinutos * (preguntasSeccionCount / totalPreguntasGlobal)));
+  estadoSimulador.tiempoRestanteSegundos = minutosSeccion * 60;
+
+  // Actualizar encabezado del examen
+  document.getElementById("exam-runner-title").innerText = estadoSimulador.examenActual.titulo;
+  const secBadge = document.getElementById("exam-section-badge");
+  if (secBadge) {
+    secBadge.innerText = `Sección ${estadoSimulador.seccionActualIndex + 1} de ${estadoSimulador.examenActual.secciones.length}: ${secData.nombre}`;
+  }
 
   iniciarTemporizador();
   renderPreguntaActual();
@@ -202,8 +286,8 @@ function iniciarTemporizador() {
       actualizarDisplayTimer();
     } else {
       clearInterval(estadoSimulador.timerInterval);
-      alert("⏱️ El tiempo ha finalizado. Se entregará el examen automáticamente.");
-      finalizarYEntregarExamen();
+      alert("⏱️ El tiempo de esta sección ha finalizado.");
+      finalizarSeccionActual();
     }
   }, 1000);
 }
@@ -219,7 +303,7 @@ function actualizarDisplayTimer() {
 
   timerBadge.innerText = `${minStr}:${segStr}`;
 
-  if (estadoSimulador.tiempoRestanteSegundos < 300) {
+  if (estadoSimulador.tiempoRestanteSegundos < 180) {
     timerBadge.classList.add("warning-timer");
   } else {
     timerBadge.classList.remove("warning-timer");
@@ -227,25 +311,24 @@ function actualizarDisplayTimer() {
 }
 
 // --------------------------------------------------------------------------
-// 3. RENDERIZADO DE PREGUNTA Y PALETA
+// 4. RENDERIZADO DE PREGUNTA Y PALETA
 // --------------------------------------------------------------------------
 function renderPreguntaActual() {
   const container = document.getElementById("pregunta-card-container");
   const idx = estadoSimulador.indexPreguntaActual;
-  const total = estadoSimulador.listaPreguntas.length;
-  const pregunta = estadoSimulador.listaPreguntas[idx];
+  const totalSec = estadoSimulador.listaPreguntasSeccion.length;
+  const pregunta = estadoSimulador.listaPreguntasSeccion[idx];
 
   if (!container || !pregunta) return;
 
-  // Actualizar barra de progreso
-  const progressPercent = ((idx + 1) / total) * 100;
+  // Barra de progreso
+  const progressPercent = ((idx + 1) / totalSec) * 100;
   document.getElementById("progress-bar-fill").style.width = `${progressPercent}%`;
-  document.getElementById("progress-text").innerText = `Pregunta ${idx + 1} de ${total}`;
+  document.getElementById("progress-text").innerText = `Pregunta ${idx + 1} de ${totalSec} (Sección ${estadoSimulador.seccionActualIndex + 1})`;
 
-  const respuestaGuardada = estadoSimulador.respuestasUsuario[idx];
-  const estaMarcada = estadoSimulador.preguntasMarcadas[idx] || false;
+  const respuestaGuardada = estadoSimulador.respuestasUsuario[pregunta.globalIndex];
+  const estaMarcada = estadoSimulador.preguntasMarcadas[pregunta.globalIndex] || false;
 
-  // Detectar propiedades flexibles de imagen, audio e instrucción/contexto
   const imgUrl = pregunta.imagenUrl || pregunta.imagen || pregunta.image;
   const audioUrl = pregunta.audioUrl || pregunta.audio;
   const instruccionTexto = pregunta.instruccion || pregunta.contexto;
@@ -253,7 +336,7 @@ function renderPreguntaActual() {
   container.innerHTML = `
     <div class="question-header-tag">
       <span>${pregunta.seccionIcono} ${pregunta.seccionNombre}</span>
-      <button class="btn-flag-question ${estaMarcada ? 'flagged' : ''}" onclick="toggleMarcarPregunta(${idx})">
+      <button class="btn-flag-question ${estaMarcada ? 'flagged' : ''}" onclick="toggleMarcarPregunta(${pregunta.globalIndex})">
         ${estaMarcada ? '📌 Marcada para revisión' : '📍 Marcar pregunta'}
       </button>
     </div>
@@ -286,7 +369,7 @@ function renderPreguntaActual() {
 
     <div class="question-options-list">
       ${pregunta.opciones.map((opcionStr, opcIdx) => `
-        <div class="option-chip ${respuestaGuardada === opcIdx ? 'selected' : ''}" onclick="seleccionarRespuesta(${idx}, ${opcIdx})">
+        <div class="option-chip ${respuestaGuardada === opcIdx ? 'selected' : ''}" onclick="seleccionarRespuesta(${pregunta.globalIndex}, ${opcIdx})">
           <span class="option-radio">${respuestaGuardada === opcIdx ? '🔘' : '⚪'}</span>
           <span class="option-text">${opcionStr}</span>
         </div>
@@ -294,22 +377,22 @@ function renderPreguntaActual() {
     </div>
   `;
 
-  // Actualizar botones de navegación
+  // Actualizar botones de navegación inferior
   const btnPrev = document.getElementById("btn-prev-question");
   const btnNext = document.getElementById("btn-next-question");
   if (btnPrev) btnPrev.disabled = (idx === 0);
-  if (btnNext) btnNext.disabled = (idx === total - 1);
+  if (btnNext) btnNext.disabled = (idx === totalSec - 1);
 
   actualizarEstadoPaleta();
 }
 
-function seleccionarRespuesta(preguntaIdx, opcionIdx) {
-  estadoSimulador.respuestasUsuario[preguntaIdx] = opcionIdx;
+function seleccionarRespuesta(globalIdx, opcionIdx) {
+  estadoSimulador.respuestasUsuario[globalIdx] = opcionIdx;
   renderPreguntaActual();
 }
 
-function toggleMarcarPregunta(preguntaIdx) {
-  estadoSimulador.preguntasMarcadas[preguntaIdx] = !estadoSimulador.preguntasMarcadas[preguntaIdx];
+function toggleMarcarPregunta(globalIdx) {
+  estadoSimulador.preguntasMarcadas[globalIdx] = !estadoSimulador.preguntasMarcadas[globalIdx];
   renderPreguntaActual();
 }
 
@@ -321,15 +404,15 @@ function anteriorPregunta() {
 }
 
 function siguientePregunta() {
-  if (estadoSimulador.indexPreguntaActual < estadoSimulador.listaPreguntas.length - 1) {
+  if (estadoSimulador.indexPreguntaActual < estadoSimulador.listaPreguntasSeccion.length - 1) {
     estadoSimulador.indexPreguntaActual++;
     renderPreguntaActual();
   }
 }
 
-function irAPregunta(idx) {
-  if (idx >= 0 && idx < estadoSimulador.listaPreguntas.length) {
-    estadoSimulador.indexPreguntaActual = idx;
+function irAPregunta(idxRelativo) {
+  if (idxRelativo >= 0 && idxRelativo < estadoSimulador.listaPreguntasSeccion.length) {
+    estadoSimulador.indexPreguntaActual = idxRelativo;
     renderPreguntaActual();
   }
 }
@@ -338,7 +421,7 @@ function renderPaletaNavegacion() {
   const container = document.getElementById("paleta-preguntas-grid");
   if (!container) return;
 
-  const total = estadoSimulador.listaPreguntas.length;
+  const total = estadoSimulador.listaPreguntasSeccion.length;
   let html = "";
 
   for (let i = 0; i < total; i++) {
@@ -346,53 +429,178 @@ function renderPaletaNavegacion() {
   }
 
   container.innerHTML = html;
+
+  // Actualizar botón de entregar de la paleta
+  const submitBtn = document.querySelector(".btn-submit-exam");
+  if (submitBtn) {
+    const esUltimaSeccion = (estadoSimulador.seccionActualIndex === estadoSimulador.examenActual.secciones.length - 1);
+    if (esUltimaSeccion) {
+      submitBtn.innerHTML = "🏁 Finalizar y Entregar Examen";
+      submitBtn.onclick = () => finalizarSeccionActual();
+    } else {
+      submitBtn.innerHTML = `☕ Completar Sección ${estadoSimulador.seccionActualIndex + 1}`;
+      submitBtn.onclick = () => finalizarSeccionActual();
+    }
+  }
+
   actualizarEstadoPaleta();
 }
 
 function actualizarEstadoPaleta() {
-  const total = estadoSimulador.listaPreguntas.length;
+  const total = estadoSimulador.listaPreguntasSeccion.length;
   for (let i = 0; i < total; i++) {
     const btn = document.getElementById(`palette-btn-${i}`);
     if (!btn) continue;
 
+    const preg = estadoSimulador.listaPreguntasSeccion[i];
     btn.className = "palette-num-btn";
     if (i === estadoSimulador.indexPreguntaActual) btn.classList.add("current");
-    if (estadoSimulador.respuestasUsuario[i] !== undefined) btn.classList.add("answered");
-    if (estadoSimulador.preguntasMarcadas[i]) btn.classList.add("flagged");
+    if (estadoSimulador.respuestasUsuario[preg.globalIndex] !== undefined) btn.classList.add("answered");
+    if (estadoSimulador.preguntasMarcadas[preg.globalIndex]) btn.classList.add("flagged");
   }
 }
 
 // --------------------------------------------------------------------------
-// 4. CÁLCULO DE RESULTADOS Y ENTREGA DE EXAMEN CON DESBLOQUEO DE NIVEL
+// 5. FINALIZAR SECCIÓN Y SISTEMA DE DESCANSO DE 15 MINUTOS
+// --------------------------------------------------------------------------
+function finalizarSeccionActual() {
+  if (estadoSimulador.timerInterval) clearInterval(estadoSimulador.timerInterval);
+
+  const esUltimaSeccion = (estadoSimulador.seccionActualIndex >= estadoSimulador.examenActual.secciones.length - 1);
+
+  if (esUltimaSeccion) {
+    finalizarYEntregarExamen();
+  } else {
+    abrirModalDescanso();
+  }
+}
+
+function abrirModalDescanso() {
+  if (estadoSimulador.timerInterval) clearInterval(estadoSimulador.timerInterval);
+
+  reproducirCampanaJLPT();
+
+  // Ocultar runner y mostrar modal de descanso
+  document.getElementById("jlpt-exam-screen").style.display = "none";
+  const breakModal = document.getElementById("jlpt-break-modal");
+  if (breakModal) breakModal.style.display = "flex";
+
+  const secCompletada = estadoSimulador.examenActual.secciones[estadoSimulador.seccionActualIndex];
+  const secSiguiente = estadoSimulador.examenActual.secciones[estadoSimulador.seccionActualIndex + 1];
+
+  const titleCompleted = document.getElementById("break-completed-sec-title");
+  const titleNext = document.getElementById("break-next-section-title");
+
+  if (titleCompleted) {
+    titleCompleted.innerText = `¡Has completado la Sección ${estadoSimulador.seccionActualIndex + 1}: ${secCompletada.nombre}!`;
+  }
+  if (titleNext) {
+    titleNext.innerText = `Sección ${estadoSimulador.seccionActualIndex + 2}: ${secSiguiente.nombre}`;
+  }
+
+  // 15 minutos (900 seg) total, 2 minutos (120 seg) obligatorios
+  estadoSimulador.tiempoDescansoRestante = 15 * 60;
+  estadoSimulador.tiempoDescansoObligatorioRestante = 2 * 60;
+
+  actualizarDisplayDescanso();
+
+  if (estadoSimulador.descansoTimerInterval) clearInterval(estadoSimulador.descansoTimerInterval);
+
+  estadoSimulador.descansoTimerInterval = setInterval(() => {
+    if (estadoSimulador.tiempoDescansoRestante > 0) {
+      estadoSimulador.tiempoDescansoRestante--;
+      if (estadoSimulador.tiempoDescansoObligatorioRestante > 0) {
+        estadoSimulador.tiempoDescansoObligatorioRestante--;
+      }
+      actualizarDisplayDescanso();
+    } else {
+      clearInterval(estadoSimulador.descansoTimerInterval);
+      omitirDescanso();
+    }
+  }, 1000);
+}
+
+function actualizarDisplayDescanso() {
+  const clock = document.getElementById("break-timer-clock");
+  const mandClock = document.getElementById("break-mandatory-clock");
+  const mandStatus = document.getElementById("break-mandatory-status");
+  const btnSkip = document.getElementById("btn-skip-break");
+
+  const minD = Math.floor(estadoSimulador.tiempoDescansoRestante / 60);
+  const segD = estadoSimulador.tiempoDescansoRestante % 60;
+  if (clock) {
+    clock.innerText = `${String(minD).padStart(2, '0')}:${String(segD).padStart(2, '0')}`;
+  }
+
+  const minO = Math.floor(estadoSimulador.tiempoDescansoObligatorioRestante / 60);
+  const segO = estadoSimulador.tiempoDescansoObligatorioRestante % 60;
+  const timeObligStr = `${String(minO).padStart(2, '0')}:${String(segO).padStart(2, '0')}`;
+
+  if (mandClock) mandClock.innerText = timeObligStr;
+
+  const secSiguiente = estadoSimulador.examenActual.secciones[estadoSimulador.seccionActualIndex + 1];
+
+  if (estadoSimulador.tiempoDescansoObligatorioRestante > 0) {
+    if (mandStatus) {
+      mandStatus.className = "break-mandatory-status mandatory-active";
+      mandStatus.innerHTML = `⏳ Tiempo obligatorio de descanso: <strong>${timeObligStr}</strong> restantes para poder omitir.`;
+    }
+    if (btnSkip) {
+      btnSkip.disabled = true;
+      btnSkip.innerHTML = `🔒 Omitir descanso (Disponible en ${timeObligStr})`;
+    }
+  } else {
+    if (mandStatus) {
+      mandStatus.className = "break-mandatory-status mandatory-done";
+      mandStatus.innerHTML = `✅ ¡Has cumplido el tiempo obligatorio de descanso! Puedes continuar cuando desees.`;
+    }
+    if (btnSkip) {
+      btnSkip.disabled = false;
+      btnSkip.innerHTML = `⏩ Omitir descanso e iniciar Sección ${estadoSimulador.seccionActualIndex + 2}: ${secSiguiente?.nombre || ''}`;
+    }
+  }
+}
+
+function omitirDescanso() {
+  if (estadoSimulador.descansoTimerInterval) {
+    clearInterval(estadoSimulador.descansoTimerInterval);
+  }
+
+  estadoSimulador.seccionActualIndex++;
+  iniciarSeccionActual();
+}
+
+// --------------------------------------------------------------------------
+// 6. RESULTADOS GLOBALES Y REVISIÓN DE LAS 3 SECCIONES
 // --------------------------------------------------------------------------
 function finalizarYEntregarExamen() {
   if (estadoSimulador.timerInterval) clearInterval(estadoSimulador.timerInterval);
+  if (estadoSimulador.descansoTimerInterval) clearInterval(estadoSimulador.descansoTimerInterval);
+
+  reproducirCampanaJLPT();
 
   estadoSimulador.examenCompletado = true;
 
-  const total = estadoSimulador.listaPreguntas.length;
+  const total = estadoSimulador.listaPreguntasTodas.length;
   let correctas = 0;
-
-  // Desglose por sección
   const desgloseSecciones = {};
 
-  estadoSimulador.listaPreguntas.forEach((p, idx) => {
-    const respUser = estadoSimulador.respuestasUsuario[idx];
+  estadoSimulador.listaPreguntasTodas.forEach(p => {
+    const respUser = estadoSimulador.respuestasUsuario[p.globalIndex];
     const esCorrecta = (respUser === p.respuestaCorrecta);
 
     if (esCorrecta) correctas++;
 
     if (!desgloseSecciones[p.seccionNombre]) {
-      desgloseSecciones[p.seccionNombre] = { total: 0, correctas: 0 };
+      desgloseSecciones[p.seccionNombre] = { total: 0, correctas: 0, icono: p.seccionIcono };
     }
     desgloseSecciones[p.seccionNombre].total++;
     if (esCorrecta) desgloseSecciones[p.seccionNombre].correctas++;
   });
 
-  const porcentaje = Math.round((correctas / total) * 100);
+  const porcentaje = total > 0 ? Math.round((correctas / total) * 100) : 0;
   const aprobado = porcentaje >= 60;
 
-  // Umbral de XP requerido por nivel JLPT
   const XP_REQUERIDA_POR_NIVEL = {
     "KANA": 250,
     "N5": 0,
@@ -422,7 +630,7 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
   document.getElementById("jlpt-exam-screen").style.display = "none";
   document.getElementById("jlpt-results-screen").style.display = "block";
 
-  // Restaurar barra HUD, Hero Banner y Misiones
+  // Restaurar HUD, Hero Banner y Misiones
   const hudBar = document.getElementById("rpg-hud-bar");
   if (hudBar) hudBar.style.display = "flex";
 
@@ -439,22 +647,22 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
     banner.innerHTML = `
       <div class="banner-icon">${aprobado ? '🏆' : '⚠️'}</div>
       <h2>${aprobado ? `¡FELICITACIONES! APROBASTE EL EXAMEN JLPT ${lvlKey}` : 'NO HAS ALCANZADO EL PUNTAJE DE APROBACIÓN'}</h2>
-      <p>${aprobado ? `¡Has ganado los XP de este nivel y desbloqueado todas las lecciones del nivel ${lvlKey}! 🔓` : 'Sigue practicando las lecciones y vuelve a intentarlo pronto.'}</p>
+      <p>${aprobado ? `¡Has completado las 3 secciones con éxito, ganando los XP de este nivel! 🔓` : 'Sigue practicando las 3 secciones del examen y vuelve a intentarlo.'}</p>
     `;
   }
 
   document.getElementById("result-score-number").innerText = `${correctas} / ${total}`;
   document.getElementById("result-percentage").innerText = `${porcentaje}%`;
 
-  // Renderizar desglose por sección
+  // Desglose por sección
   const containerDesglose = document.getElementById("results-sections-breakdown");
   if (containerDesglose) {
     containerDesglose.innerHTML = Object.keys(desgloseSecciones).map(secNombre => {
       const item = desgloseSecciones[secNombre];
-      const pSec = Math.round((item.correctas / item.total) * 100);
+      const pSec = item.total > 0 ? Math.round((item.correctas / item.total) * 100) : 0;
       return `
         <div class="section-score-card">
-          <h4>${secNombre}</h4>
+          <h4>${item.icono || '📝'} ${secNombre}</h4>
           <div class="score-bar-bg">
             <div class="score-bar-fill" style="width: ${pSec}%"></div>
           </div>
@@ -464,11 +672,11 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
     }).join("");
   }
 
-  // Renderizar revisión pregunta por pregunta
+  // Revisión detallada de preguntas de todas las secciones
   const containerRevision = document.getElementById("results-questions-review");
   if (containerRevision) {
-    containerRevision.innerHTML = estadoSimulador.listaPreguntas.map((p, idx) => {
-      const respUser = estadoSimulador.respuestasUsuario[idx];
+    containerRevision.innerHTML = estadoSimulador.listaPreguntasTodas.map((p, idx) => {
+      const respUser = estadoSimulador.respuestasUsuario[p.globalIndex];
       const esCorrecta = (respUser === p.respuestaCorrecta);
       const respUserStr = (respUser !== undefined) ? p.opciones[respUser] : "Sin responder";
       const respCorrectaStr = p.opciones[p.respuestaCorrecta];
@@ -521,11 +729,18 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
 
 function volverAlSelectorJLPT() {
   if (estadoSimulador.timerInterval) clearInterval(estadoSimulador.timerInterval);
+  if (estadoSimulador.descansoTimerInterval) clearInterval(estadoSimulador.descansoTimerInterval);
+
+  const startModal = document.getElementById("jlpt-start-modal");
+  const breakModal = document.getElementById("jlpt-break-modal");
+  if (startModal) startModal.style.display = "none";
+  if (breakModal) breakModal.style.display = "none";
+
   document.getElementById("jlpt-exam-screen").style.display = "none";
   document.getElementById("jlpt-results-screen").style.display = "none";
   document.getElementById("jlpt-selector-screen").style.display = "block";
 
-  // Restaurar barra HUD, Hero Banner y Misiones
+  // Restaurar HUD, Hero Banner y Misiones
   const hudBar = document.getElementById("rpg-hud-bar");
   if (hudBar) hudBar.style.display = "flex";
 
@@ -537,7 +752,7 @@ function volverAlSelectorJLPT() {
 }
 
 // --------------------------------------------------------------------------
-// 5. FUNCIONES PARA EL MODAL LIGHTBOX DE IMÁGENES
+// 7. MODAL LIGHTBOX DE IMÁGENES
 // --------------------------------------------------------------------------
 function abrirModalImagen(src) {
   const modal = document.getElementById("jlpt-image-modal");

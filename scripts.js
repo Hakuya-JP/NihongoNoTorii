@@ -1530,16 +1530,16 @@ let userProfile = {
 let avatarSeleccionadoTemporal = null;
 
 const BGM_PLAYLIST = [
-  { title: "Un Pensamiento", src: "audio/Light Ambience 1.mp3" },
-  { title: "Curiosa Obsesión", src: "audio/Light Ambience 2.mp3" },
-  { title: "Anochecer", src: "audio/Light Ambience 3.mp3" },
-  { title: "Epilogo", src: "audio/Light Ambience 4.mp3" },
-  { title: "Una Oportunidad", src: "audio/Light Ambience 5.mp3" },
-  { title: "Ecos de soledad", src: "audio/Ambient 6.mp3" },
-  { title: "Suave anochecer", src: "audio/Ambient 10.mp3" },
-  { title: "Camino luminoso", src: "audio/Ambient 5.mp3" },
-  { title: "Nube roja", src: "audio/Ambient 1.mp3" },
-  { title: "Cielo", src: "audio/Ambient 2.mp3" }
+  { title: "Un Pensamiento", src: "audio/musicafondo/Light Ambience 1.mp3" },
+  { title: "Curiosa Obsesión", src: "audio/musicafondo/Light Ambience 2.mp3" },
+  { title: "Anochecer", src: "audio/musicafondo/Light Ambience 3.mp3" },
+  { title: "Epilogo", src: "audio/musicafondo/Light Ambience 4.mp3" },
+  { title: "Una Oportunidad", src: "audio/musicafondo/Light Ambience 5.mp3" },
+  { title: "Ecos de soledad", src: "audio/musicafondo/Ambient 6.mp3" },
+  { title: "Suave anochecer", src: "audio/musicafondo/Ambient 10.mp3" },
+  { title: "Camino luminoso", src: "audio/musicafondo/Ambient 5.mp3" },
+  { title: "Nube roja", src: "audio/musicafondo/Ambient 1.mp3" },
+  { title: "Cielo", src: "audio/musicafondo/Ambient 2.mp3" }
 ];
 
 // ==========================================================================

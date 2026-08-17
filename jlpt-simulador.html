@@ -89,6 +89,7 @@
     <div class="exam-top-bar">
       <div class="exam-title-badge">
         <h3 id="exam-runner-title">JLPT Examen</h3>
+        <span id="exam-section-badge" class="exam-section-badge">Sección 1 de 3: Vocabulario</span>
       </div>
       
       <div class="exam-progress-box">
@@ -176,6 +177,71 @@
     <div class="jlpt-image-modal-content">
       <button class="jlpt-image-modal-close" onclick="cerrarModalImagen(event)">&times;</button>
       <img id="jlpt-modal-img" src="" alt="Vista ampliada de la imagen de la pregunta">
+    </div>
+  </div>
+
+  <!-- MODAL DE INICIO DE EXAMEN -->
+  <div id="jlpt-start-modal" class="jlpt-modal-overlay" style="display: none;">
+    <div class="jlpt-modal-card jlpt-start-card">
+      <div class="start-card-header">
+        <h2 id="start-modal-title">⛩️ Inicio del Examen JLPT</h2>
+        <span id="start-modal-subtitle" class="start-modal-subtitle">Evaluación Oficial por Secciones</span>
+      </div>
+      <div class="start-modal-body">
+        <div class="start-image-wrapper">
+          <img src="image/JLPT/JLPTinicio.png" alt="JLPT Inicio Examen" class="jlpt-start-img" />
+        </div>
+        <div class="start-info-box">
+          <h3>📋 Estructura y Reglas del Examen:</h3>
+          <p>El examen está dividido en <strong>3 secciones oficiales</strong>:</p>
+          <ul class="sections-list-preview">
+            <li><span class="sec-num">1</span> 🔤 <strong>Vocabulario (文字・語彙)</strong></li>
+            <li><span class="sec-num">2</span> 📖 <strong>Gramática y Lectura (文法・読解)</strong></li>
+            <li><span class="sec-num">3</span> 🎧 <strong>Comprensión Auditiva (聴解)</strong></li>
+          </ul>
+          <div class="break-rules-notice">
+            <span>☕ <strong>Descanso entre Secciones:</strong> Al terminar cada sección habrá <strong>15 minutos de descanso</strong>. Los primeros <strong>2 minutos son obligatorios</strong>, tras los cuales podrás omitir el descanso restante y pasar a la siguiente sección.</span>
+          </div>
+        </div>
+      </div>
+      <div class="start-modal-actions">
+        <button id="btn-iniciar-seccion-1" class="btn-start-section" onclick="iniciarSeccionActual()">
+          🔔 Comenzar Sección 1: Vocabulario (文字・語彙)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DESCANSO ENTRE SECCIONES -->
+  <div id="jlpt-break-modal" class="jlpt-modal-overlay" style="display: none;">
+    <div class="jlpt-modal-card jlpt-break-card">
+      <div class="break-card-header">
+        <span class="break-icon-badge">☕</span>
+        <h2>Tiempo de Descanso Oficial</h2>
+        <p id="break-completed-sec-title">¡Has completado la Sección 1!</p>
+      </div>
+      
+      <div class="break-card-body">
+        <div class="break-timer-display">
+          <span class="break-timer-label">⏱️ Tiempo Restante de Descanso:</span>
+          <span id="break-timer-clock" class="break-timer-clock">15:00</span>
+        </div>
+
+        <div id="break-mandatory-status" class="break-mandatory-status mandatory-active">
+          ⏳ Tiempo obligatorio de descanso: <strong id="break-mandatory-clock">02:00</strong> restantes.
+        </div>
+
+        <div class="next-section-preview-box">
+          <span>🎯 Siguiente Sección:</span>
+          <h4 id="break-next-section-title">Sección 2: Gramática y Lectura (文法・読解)</h4>
+        </div>
+      </div>
+
+      <div class="break-card-actions">
+        <button id="btn-skip-break" class="btn-skip-break" disabled onclick="omitirDescanso()">
+          🔒 Omitir descanso (Disponible en 02:00)
+        </button>
+      </div>
     </div>
   </div>
 
