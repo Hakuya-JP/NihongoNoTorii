@@ -125,7 +125,6 @@ function reproducirAudioEvento(nombreEvento) {
     audio.volume = (typeof cfg.volumen === "number") ? Math.max(0, Math.min(1, cfg.volumen)) : 0.8;
     
     audio.play().then(() => {
-      // Si se configuró una duración límite en segundos, pausar automáticamente al cumplirse el tiempo
       if (typeof cfg.duracionSegundos === "number" && cfg.duracionSegundos > 0) {
         setTimeout(() => {
           if (!audio.paused) {
@@ -141,7 +140,6 @@ function reproducirAudioEvento(nombreEvento) {
   }
 }
 
-// Función de compatibilidad
 function reproducirCampanaJLPT() {
   reproducirAudioEvento("inicioExamen");
 }
@@ -154,16 +152,17 @@ function renderNivelSelector() {
   if (!container) return;
 
   const niveles = [
-    { id: "KANA", nombre: "KANA", badge: "Silabarios", desc: "Examen de dominio de Hiragana, Katakana, sonidos impuros y diptongales." },
-    { id: "N5", nombre: "JLPT N5", badge: "Principiante", desc: "Vocabulario básico, Hiragana, Katakana y Kanjis elementales." },
-    { id: "N4", nombre: "JLPT N4", badge: "Elemental", desc: "Japonés básico cotidiano y estructuras gramaticales fundamentales." },
-    { id: "N3", nombre: "JLPT N3", badge: "Intermedio", desc: "Puente hacia el nivel avanzado con lectura de textos cotidianos." },
-    { id: "N2", nombre: "JLPT N2", badge: "Avanzado", desc: "Comprensión fluida en situaciones de la vida diaria y negocios." },
-    { id: "N1", nombre: "JLPT N1", badge: "Maestría", desc: "Dominio fluido y comprensión en una amplia variedad de circunstancias." }
+    { id: "KANA", nombre: "KANA", imagen: "image/kana.png", badge: "Silabarios", desc: "Examen de dominio de Hiragana, Katakana, sonidos impuros y diptongales." },
+    { id: "N5", nombre: "JLPT N5", imagen: "image/n5.png", badge: "Principiante", desc: "Vocabulario básico, Hiragana, Katakana y Kanjis elementales." },
+    { id: "N4", nombre: "JLPT N4", imagen: "image/n4.png", badge: "Elemental", desc: "Japonés básico cotidiano y estructuras gramaticales fundamentales." },
+    { id: "N3", nombre: "JLPT N3", imagen: "image/n3.png", badge: "Intermedio", desc: "Puente hacia el nivel avanzado con lectura de textos cotidianos." },
+    { id: "N2", nombre: "JLPT N2", imagen: "image/n2.png", badge: "Avanzado", desc: "Comprensión fluida en situaciones de la vida diaria y negocios." },
+    { id: "N1", nombre: "JLPT N1", imagen: "image/n1.png", badge: "Maestría", desc: "Dominio fluido y comprensión en una amplia variedad de circunstancias." }
   ];
 
   container.innerHTML = niveles.map(n => `
-    <div class="jlpt-level-card ${n.id === estadoSimulador.nivelActual ? 'active' : ''}" onclick="seleccionarNivel('${n.id}')">
+    <div class="card jlpt-level-card ${n.id === estadoSimulador.nivelActual ? 'active' : ''}" onclick="seleccionarNivel('${n.id}')">
+      <img src="${n.imagen}" alt="${n.nombre}" class="jlpt-card-img" />
       <div class="level-card-header">
         <h3>${n.nombre}</h3>
         <span class="level-badge">${n.badge}</span>
@@ -217,7 +216,13 @@ function actualizarExamenPreview() {
   if (!examData || !infoContainer) return;
 
   let totalPreguntas = 0;
-  examData.secciones.forEach(sec => totalPreguntas += sec.preguntas.length);
+  examData.secciones.forEach(sec => {
+    if (sec.mondais && Array.isArray(sec.mondais)) {
+      sec.mondais.forEach(m => totalPreguntas += (m.preguntas ? m.preguntas.length : 0));
+    } else if (sec.preguntas) {
+      totalPreguntas += sec.preguntas.length;
+    }
+  });
 
   infoContainer.innerHTML = `
     <div class="preview-info-grid">
@@ -259,20 +264,40 @@ function comenzarSimulacro() {
   estadoSimulador.preguntasMarcadas = {};
   estadoSimulador.examenCompletado = false;
 
-  // Aplanar todas las preguntas asignándoles un ID global plano
+  // Aplanar todas las preguntas asignándoles un ID global plano y heredando metadatos de 'mondais' si existen
   estadoSimulador.listaPreguntasTodas = [];
   let globalIndex = 0;
 
   examData.secciones.forEach((sec, sIdx) => {
-    sec.preguntas.forEach(p => {
-      estadoSimulador.listaPreguntasTodas.push({
-        ...p,
-        globalIndex: globalIndex++,
-        seccionIndex: sIdx,
-        seccionNombre: sec.nombre,
-        seccionIcono: sec.icono || "📝"
+    if (sec.mondais && Array.isArray(sec.mondais)) {
+      sec.mondais.forEach(m => {
+        if (m.preguntas && Array.isArray(m.preguntas)) {
+          m.preguntas.forEach(p => {
+            estadoSimulador.listaPreguntasTodas.push({
+              ...p,
+              mondai: p.mondai || m.titulo || m.mondai,
+              mondaiInstruccion: p.mondaiInstruccion || m.instruccion || m.mondaiInstruccion,
+              mondaiImagen: p.mondaiImagen || m.imagen || m.mondaiImagen,
+              mondaiEjemplo: p.mondaiEjemplo || m.ejemplo || m.mondaiEjemplo,
+              globalIndex: globalIndex++,
+              seccionIndex: sIdx,
+              seccionNombre: sec.nombre,
+              seccionIcono: sec.icono || "📝"
+            });
+          });
+        }
       });
-    });
+    } else if (sec.preguntas && Array.isArray(sec.preguntas)) {
+      sec.preguntas.forEach(p => {
+        estadoSimulador.listaPreguntasTodas.push({
+          ...p,
+          globalIndex: globalIndex++,
+          seccionIndex: sIdx,
+          seccionNombre: sec.nombre,
+          seccionIcono: sec.icono || "📝"
+        });
+      });
+    }
   });
 
   abrirModalInicio();
@@ -291,12 +316,24 @@ function abrirModalInicio() {
 
   const listContainer = document.querySelector(".sections-list-preview");
   if (listContainer) {
-    listContainer.innerHTML = estadoSimulador.examenActual.secciones.map((sec, idx) => `
-      <li>
-        <span class="sec-num">${idx + 1}</span> 
-        <strong>${sec.nombre}</strong> (${sec.preguntas.length} reactivos)
-      </li>
-    `).join("");
+    const totalMinGeneral = estadoSimulador.examenActual.tiempoMinutos || 90;
+    const totalPregGlobal = estadoSimulador.listaPreguntasTodas.length || 1;
+
+    listContainer.innerHTML = estadoSimulador.examenActual.secciones.map((sec, idx) => {
+      let count = 0;
+      if (sec.mondais) {
+        sec.mondais.forEach(m => count += (m.preguntas ? m.preguntas.length : 0));
+      } else if (sec.preguntas) {
+        count = sec.preguntas.length;
+      }
+      const secMin = sec.tiempoMinutos || Math.max(10, Math.round(totalMinGeneral * (count / totalPregGlobal)));
+      return `
+        <li>
+          <span class="sec-num">${idx + 1}</span> 
+          <strong>${sec.nombre}</strong> (${count} reactivos • ⏱️ ${secMin} min)
+        </li>
+      `;
+    }).join("");
   }
 
   const primeraSeccionNombre = estadoSimulador.examenActual.secciones[0]?.nombre || "Vocabulario (文字・語彙)";
@@ -399,7 +436,7 @@ function actualizarDisplayTimer() {
 }
 
 // --------------------------------------------------------------------------
-// 4. RENDERIZADO DE PREGUNTA Y PALETA
+// 4. RENDERIZADO DE PREGUNTA, MONDAI Y PALETA
 // --------------------------------------------------------------------------
 function renderPreguntaActual() {
   const container = document.getElementById("pregunta-card-container");
@@ -421,6 +458,13 @@ function renderPreguntaActual() {
   const audioUrl = pregunta.audioUrl || pregunta.audio;
   const instruccionTexto = pregunta.instruccion || pregunta.contexto;
 
+  // Detección de bloque de もんだい (Mondai)
+  const hasMondai = pregunta.mondai || pregunta.mondaiInstruccion || pregunta.mondaiImagen || pregunta.mondaiEjemplo;
+  const mondaiTitulo = pregunta.mondai || "もんだい";
+  const mondaiInstruccionText = pregunta.mondaiInstruccion;
+  const mondaiImg = pregunta.mondaiImagen;
+  const mondaiEjemploText = pregunta.mondaiEjemplo;
+
   container.innerHTML = `
     <div class="question-header-tag">
       <span>${pregunta.seccionIcono} ${pregunta.seccionNombre}</span>
@@ -428,6 +472,29 @@ function renderPreguntaActual() {
         ${estaMarcada ? '📌 Marcada para revisión' : '📍 Marcar pregunta'}
       </button>
     </div>
+
+    ${hasMondai ? `
+      <div class="mondai-instruction-card">
+        <div class="mondai-card-header">
+          <span class="mondai-header-badge">📌 ${mondaiTitulo}</span>
+        </div>
+        ${mondaiInstruccionText ? `<div class="mondai-instruction-text">${mondaiInstruccionText}</div>` : ''}
+        ${mondaiImg ? `
+          <div class="mondai-image-box">
+            <div class="mondai-image-wrapper" onclick="abrirModalImagen('${mondaiImg}')" title="Haz clic para ampliar la instrucción/ejemplo del もんだい">
+              <img src="${mondaiImg}" alt="Instrucción de ${mondaiTitulo}">
+              <span class="image-zoom-hint">🔍 Haz clic para ampliar instrucción/ejemplo</span>
+            </div>
+          </div>
+        ` : ''}
+        ${mondaiEjemploText ? `
+          <div class="mondai-example-box">
+            <span class="example-badge">💡 (もんだいれい / Ejemplo):</span>
+            <div class="example-body">${mondaiEjemploText}</div>
+          </div>
+        ` : ''}
+      </div>
+    ` : ''}
 
     ${instruccionTexto ? `
       <div class="question-instruction-box">
@@ -775,12 +842,34 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
       const audioUrl = p.audioUrl || p.audio;
       const instruccionTexto = p.instruccion || p.contexto;
 
+      const hasMondai = p.mondai || p.mondaiInstruccion || p.mondaiImagen || p.mondaiEjemplo;
+      const mondaiTitulo = p.mondai || "もんだい";
+      const mondaiInstruccionText = p.mondaiInstruccion;
+      const mondaiImg = p.mondaiImagen;
+
       return `
         <div class="review-question-card ${esCorrecta ? 'correct' : 'incorrect'}">
           <div class="review-card-header">
             <span class="review-q-num">Pregunta ${idx + 1} (${p.seccionNombre})</span>
             <span class="review-q-status">${esCorrecta ? '✅ Correcta' : '❌ Incorrecta'}</span>
           </div>
+
+          ${hasMondai ? `
+            <div class="mondai-instruction-card" style="margin-bottom: 14px;">
+              <div class="mondai-card-header">
+                <span class="mondai-header-badge">📌 ${mondaiTitulo}</span>
+              </div>
+              ${mondaiInstruccionText ? `<div class="mondai-instruction-text" style="font-size: 1.05rem;">${mondaiInstruccionText}</div>` : ''}
+              ${mondaiImg ? `
+                <div class="mondai-image-box" style="margin-top: 8px;">
+                  <div class="mondai-image-wrapper" onclick="abrirModalImagen('${mondaiImg}')" title="Haz clic para ampliar">
+                    <img src="${mondaiImg}" alt="Instrucción de ${mondaiTitulo}">
+                    <span class="image-zoom-hint">🔍 Ampliar instrucción</span>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
 
           ${instruccionTexto ? `
             <div class="question-instruction-box" style="margin-bottom: 12px; padding: 10px 14px; font-size: 1.05rem;">

@@ -3406,8 +3406,8 @@ body.dark-mode .btn-sort-mined {
    SECCIÓN: SIMULADOR DE EXÁMENES JLPT
    ========================================================================== */
 .jlpt-simulador-main {
-  width: 95%;
-  max-width: 1250px;
+  width: 98%;
+  max-width: 1420px;
   margin: 25px auto 60px;
 }
 
@@ -3448,13 +3448,24 @@ body.dark-mode .jlpt-hero-banner {
   margin: auto;
 }
 
+@keyframes fadeInScreen {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .jlpt-screen-container {
   background: var(--blanco2, #ffffff);
   border-radius: 18px;
-  padding: 25px;
+  padding: 30px 35px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.06);
   border: 1px solid rgba(0,0,0,0.08);
-  
+  animation: fadeInScreen 0.3s ease-out;
 }
 
 body.dark-mode .jlpt-screen-container {
@@ -3469,48 +3480,71 @@ body.dark-mode .jlpt-screen-container {
 
 .jlpt-levels-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
   margin-bottom: 25px;
 }
 
 .jlpt-level-card {
-  background: var(--blanco, #ffffff);
+  background: var(--blanco3, #ffffff);
   border: 2px solid rgba(0,0,0,0.08);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.jlpt-level-card img.jlpt-card-img {
+  width: 100%;
+  height: 185px;
+  object-fit: fill;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
 }
 
 .jlpt-level-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
   border-color: var(--azul);
-  box-shadow: 0 4px 12px rgba(20, 100, 130, 0.15);
+  box-shadow: 0 8px 18px rgba(20, 100, 130, 0.18);
+}
+
+.jlpt-level-card:hover img.jlpt-card-img {
+  transform: scale(1.03);
 }
 
 .jlpt-level-card.active {
-  border-color: var(--azul);
-  background: rgba(20, 100, 130, 0.06);
-  box-shadow: 0 4px 14px rgba(20, 100, 130, 0.2);
+  border: 2px solid var(--naranja, #ff9447);
+  background: rgb(255 208 138 / 88%);
+  box-shadow: 0 6px 16px rgba(255, 148, 71, 0.3);
+  transform: translateY(-4px);
 }
 
 body.dark-mode .jlpt-level-card.active {
-  border-color: var(--naranja);
-  background: rgba(255, 123, 29, 0.15);
+  border-color: var(--naranja, #ff9447);
+  background: rgba(255, 148, 71, 0.16);
+  box-shadow: 0 6px 16px rgba(255, 148, 71, 0.35);
 }
 
 .level-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  justify-content: center;
+  gap: 8px;
+  margin: 6px 0 8px;
+  flex-wrap: wrap;
 }
 
 .level-card-header h3 {
-  font-size: 1.2rem;
-  color: var(--color-h2);
   margin: 0;
+  color: var(--color-h3);
+  font-size: 1.1rem;
+  font-weight: 800;
 }
 
 .level-badge {
@@ -3523,10 +3557,12 @@ body.dark-mode .jlpt-level-card.active {
 }
 
 .jlpt-level-card p {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: var(--texto-principal);
   opacity: 0.85;
   margin: 0;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .exam-config-card {
@@ -3697,7 +3733,7 @@ body.dark-mode .progress-bar-fill {
 .exam-body-layout {
   display: grid;
   grid-template-columns: 1fr 280px;
-  gap: 20px;
+  gap: 24px;
 }
 
 @media (max-width: 850px) {
@@ -3709,7 +3745,7 @@ body.dark-mode .progress-bar-fill {
 .pregunta-card {
   background: var(--blanco, #ffffff);
   border-radius: 16px;
-  padding: 28px 32px;
+  padding: 30px 36px;
   border: 1px solid rgba(0,0,0,0.08);
   box-shadow: 0 6px 20px rgba(0,0,0,0.04);
 }
@@ -5048,5 +5084,108 @@ body.dark-mode .btn-skip-break:disabled {
   transform: translateY(-2px);
   box-shadow: 0 8px 22px rgba(16, 185, 129, 0.5);
 }
+
+/* ==========================================================================
+   ESTILOS PARA INSTRUCCIONES Y EJEMPLOS POR もんだい (MONDAI)
+   ========================================================================== */
+
+.mondai-instruction-card {
+  background: var(--blanco3, #fff6eb);
+  border: 2px solid var(--crema, #FFDEBD);
+  border-left: 6px solid var(--naranja, #ff9447);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .mondai-instruction-card {
+  background: rgba(8, 67, 106, 0.45);
+  border-color: rgba(255, 148, 71, 0.3);
+  border-left-color: #ff9447;
+}
+
+.mondai-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mondai-header-badge {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--naranja, #ff9447);
+  letter-spacing: 0.5px;
+}
+
+.mondai-instruction-text {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--texto-principal);
+  font-family: 'Noto Sans JP', 'M PLUS Rounded 1c', sans-serif;
+  margin-bottom: 10px;
+}
+
+.mondai-image-box {
+  margin: 12px 0;
+  text-align: center;
+}
+
+.mondai-image-wrapper {
+  display: inline-block;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  background: #ffffff;
+  padding: 8px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.mondai-image-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.mondai-image-wrapper img {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+
+.mondai-example-box {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed var(--azul, #146482);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+}
+
+body.dark-mode .mondai-example-box {
+  background: rgba(10, 34, 50, 0.6);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.example-badge {
+  font-weight: 700;
+  color: var(--azul, #146482);
+  display: block;
+  margin-bottom: 4px;
+}
+
+body.dark-mode .example-badge {
+  color: #ffeedb;
+}
+
+.example-body {
+  line-height: 1.5;
+}
+
 
 

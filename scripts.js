@@ -1747,7 +1747,7 @@ function cambiarCancionPorIndice(idx) {
 }
 
 const RPG_NIVELES = [
-  { level: 1, minXp: 0, maxXp: 249, titulo: "Novato Aprendiz ⛩️", desc: "Introducción al idioma japonés" },
+  { level: 1, minXp: 0, maxXp: 249, titulo: "Aprendiz Novato ⛩️", desc: "Introducción al idioma japonés" },
   { level: 2, minXp: 250, maxXp: 699, titulo: "Iniciado en Hiragana 🌸", desc: "La Familia de los 46 Hiraganas" },
   { level: 3, minXp: 700, maxXp: 1499, titulo: "Estudiante de Hiragana 🎏", desc: "Desbloquea los sonidos impuros ゛゜y Combinaciones" },
   { level: 4, minXp: 1500, maxXp: 2499, titulo: "Dominio de Kana ⛩️", desc: "Aprende Katakana" },
