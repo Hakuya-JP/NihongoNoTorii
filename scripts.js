@@ -1,17 +1,4 @@
 // ==========================================================================
-// ARQUITECTURA DE MÓDULOS JAVASCRIPT - NIHONGO NO TORII
-// ==========================================================================
-// 1. CONFIGURACIÓN GLOBAL Y PERSISTENCIA (Anki, Perfil, LocalStorage)
-// 2. INICIALIZACIÓN PRINCIPAL (DOMContentLoaded, Modo Oscuro, Navegación)
-// 3. TRANSICIONES DE PÁGINA Y EFECTOS VISUALES (Fade, Spinners)
-// 4. MÓDULO DE REPRODUCTOR DE VIDEO & ANKI INTEGRATION (ToriiTV)
-// 5. MÓDULO DE GESTIÓN DE PERFIL DE USUARIO (Edición, Avatares, País)
-// 6. SISTEMA DE GAMIFICACIÓN RPG (XP, HUD, Niveles, Misiones Diarias)
-// 7. GENERADOR DE CERTIFICADOS JLPT & GALERÍA DE DIPLOMAS (PDF, Impresión)
-// 8. UTILIDADES DE INTERFAZ DE USUARIO (Toasts, Modales y Exports Globales)
-// ==========================================================================
-
-// ==========================================================================
 // SECCIÓN 1: CONFIGURACIÓN GLOBAL Y PERSISTENCIA (ANKI)
 // ==========================================================================
 let ankiConfig = {
