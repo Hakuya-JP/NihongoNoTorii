@@ -2687,7 +2687,7 @@ body.dark-mode .mined-card-item {
 }
 
 body.dark-mode .edit-profile-modal-content {
-  background: var(--gris-oscuro, #1e293b);
+  background: var(--blanco2);
   color: #f8fafc;
 }
 
@@ -2725,8 +2725,40 @@ body.dark-mode .edit-profile-modal-content {
 }
 
 body.dark-mode .form-control {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+}
+
+/* VISIBILIDAD DE OPCIONES DESPLEGABLES (SELECT & OPTION) EN MODO CLARO Y OSCURO */
+select.form-control,
+select {
+  color: #10304a;
+  background-color: #ffffff;
+}
+
+select.form-control option,
+select option {
+  background-color: #ffffff;
+  color: #10304a;
+  padding: 8px 12px;
+}
+
+body.dark-mode select.form-control,
+body.dark-mode select {
+  background-color: #10304a !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+body.dark-mode select.form-control option,
+body.dark-mode select option {
+  background-color: #10304a !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
 
 .avatar-picker-grid {
