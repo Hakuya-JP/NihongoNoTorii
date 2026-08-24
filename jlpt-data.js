@@ -1259,6 +1259,58 @@ const JLPT_DATA = {
           ]
         }
       ]
+    },
+
+"examen-2": {
+      id: "kana-examen-2",
+      titulo: "Examen de Silabarios KANA (prueba)",
+      tiempoMinutos: 30,
+      secciones: [
+        {
+          nombre: "Hiragana - Lectura y Sonidos Impuros (ひらがな・濁音)",
+          icono: "🎌",
+          preguntas: [
+            {
+              id: "kana-1-1",
+              pregunta: "¿Cómo se lee el carácter en Hiragana <b>さくら</b>?",
+              opciones: ["1. sakura", "2. zakura", "3. samura", "4. takura"],
+              respuestaCorrecta: 0,
+              explicacion: "さ(sa) + く(ku) + ら(ra) = sakura (cerezo)."
+            },
+            {
+              id: "kana-1-2",
+              pregunta: "¿Cuál es el carácter Hiragana correcto para el sonido <b>'NE'</b> (en palabras como <i>neko</i>)?",
+              opciones: ["1. ぬ", "2. ね", "3. れ", "4. わ"],
+              respuestaCorrecta: 1,
+              explicacion: "ね es 'ne'. ぬ es 'nu', れ es 're', わ es 'wa'."
+            },
+            {
+              id: "kana-1-3",
+              pregunta: "¿Cómo se lee la palabra con dakuon (゛) <b>がっこう</b>?",
+              opciones: ["1. kakkou", "2. gakkou", "3. dankou", "4. hango"],
+              respuestaCorrecta: 1,
+              explicacion: "が (ga) + っ (sokuen / pausa) + こ (ko) + う (u) = gakkou (escuela)."
+            },
+            {
+              id: "kana-1-4",
+              pregunta: "¿Cuál es la lectura correcta de <b>てんき</b>?",
+              opciones: ["1. denki", "2. tenki", "3. senki", "4. kenki"],
+              respuestaCorrecta: 1,
+              explicacion: "て(te) + ん(n) + き(ki) = tenki (tiempo/clima)."
+            },
+            {
+              id: "kana-1-5",
+              pregunta: "¿Cómo se escribe en Hiragana la palabra <b>'pan'</b> (pan) usando handakuon (゜)?",
+              opciones: ["1. ばん", "2. ぱん", "3. はん", "4. まん"],
+              respuestaCorrecta: 1,
+              explicacion: "ぱ (pa) lleva el círculo handakuon (゜) + ん (n) = ぱん (pan)."
+            }
+          ]
+        },
+        
+        
+      ]
     }
+
   }
 };

@@ -770,20 +770,27 @@ function finalizarYEntregarExamen() {
   const lvlKey = estadoSimulador.nivelActual;
   const xpRequerida = XP_REQUERIDA_POR_NIVEL[lvlKey] || 0;
 
-  if (aprobado && typeof concederXP === "function") {
-    const currentXp = (window.userProfile && window.userProfile.xp) ? window.userProfile.xp : 0;
-    if (currentXp < xpRequerida) {
-      const xpBonus = xpRequerida - currentXp;
-      concederXP(xpBonus, `🏆 Examen JLPT ${lvlKey} Aprobado - Nivel Desbloqueado`);
-    } else {
-      concederXP(100, `🏆 Examen JLPT ${lvlKey} Aprobado`);
+  let certGenerado = null;
+  if (aprobado) {
+    if (typeof concederXP === "function") {
+      const currentXp = (window.userProfile && window.userProfile.xp) ? window.userProfile.xp : 0;
+      if (currentXp < xpRequerida) {
+        const xpBonus = xpRequerida - currentXp;
+        concederXP(xpBonus, `🏆 Examen JLPT ${lvlKey} Aprobado - Nivel Desbloqueado`);
+      } else {
+        concederXP(100, `🏆 Examen JLPT ${lvlKey} Aprobado`);
+      }
+    }
+
+    if (typeof generarYGuardarCertificadoJLPT === "function") {
+      certGenerado = generarYGuardarCertificadoJLPT(correctas, total, porcentaje, desgloseSecciones);
     }
   }
 
-  mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgloseSecciones);
+  mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgloseSecciones, certGenerado);
 }
 
-function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgloseSecciones) {
+function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgloseSecciones, certGenerado = null) {
   document.getElementById("jlpt-exam-screen").style.display = "none";
   document.getElementById("jlpt-results-screen").style.display = "block";
 
@@ -801,10 +808,24 @@ function mostrarPantallaResultados(correctas, total, porcentaje, aprobado, desgl
   if (banner) {
     const lvlKey = estadoSimulador.nivelActual;
     banner.className = `results-banner ${aprobado ? 'pass' : 'fail'}`;
+
+    let certBtnHtml = "";
+    if (aprobado) {
+      const certIdToOpen = (certGenerado && certGenerado.id) ? certGenerado.id : "";
+      certBtnHtml = `
+        <div style="margin-top: 18px;">
+          <button class="btn btn-primary" onclick="abrirModalCertificadoPorId('${certIdToOpen}')" style="font-size: 1.05rem; padding: 12px 24px; background: linear-gradient(135deg, #b8860b 0%, #8b6508 100%); border: none; box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4); cursor: pointer;">
+            📜 Ver y Descargar mi Certificado Oficial JLPT ${lvlKey}
+          </button>
+        </div>
+      `;
+    }
+
     banner.innerHTML = `
       <div class="banner-icon">${aprobado ? '🏆' : '⚠️'}</div>
       <h2>${aprobado ? `¡FELICITACIONES! APROBASTE EL EXAMEN JLPT ${lvlKey}` : 'NO HAS ALCANZADO EL PUNTAJE DE APROBACIÓN'}</h2>
-      <p>${aprobado ? `¡Has completado las 3 secciones con éxito, ganando los XP de este nivel! 🔓` : 'Sigue practicando las 3 secciones del examen y vuelve a intentarlo.'}</p>
+      <p>${aprobado ? `¡Has completado las 3 secciones con éxito, obteniendo tu certificado oficial y los XP de este nivel! 🔓` : 'Sigue practicando las 3 secciones del examen y vuelve a intentarlo.'}</p>
+      ${certBtnHtml}
     `;
   }
 

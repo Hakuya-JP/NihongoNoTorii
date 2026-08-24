@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css" />
+  <!-- Librería html2pdf para descargas directas de certificados en PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="page-perfil">
 
@@ -195,7 +197,118 @@
     </div>
   </section>
 
+  <!-- MIS CERTIFICADOS OFICIALES JLPT -->
+  <section class="perfil-certificates-section">
+    <div class="section-header-row">
+      <h2 class="section-title">📜 Mis Certificados Oficiales JLPT</h2>
+      <span id="certificates-count-badge" class="badges-count-badge">0 certificados</span>
+    </div>
+    
+    <div id="certificates-grid" class="certificates-grid">
+      <!-- Generado dinámicamente desde localStorage -->
+    </div>
+  </section>
+
 </main>
+
+<!-- MODAL DE CERTIFICADO OFICIAL JLPT -->
+<div id="jlpt-certificate-modal" class="jlpt-modal-overlay" style="display: none;">
+  <div class="jlpt-certificate-modal-card">
+    <button class="jlpt-cert-close-btn" onclick="cerrarModalCertificado()" aria-label="Cerrar">&times;</button>
+    
+    <!-- HOJA DEL CERTIFICADO CON LA IMAGEN DE FONDO OFICIAL plantillafondo.png -->
+    <div id="jlpt-certificate-printable" class="cert-pdf-canvas">
+      <!-- IMAGEN DE FONDO FISICA PARA GARANTIZAR LA IMPRESIÓN Y EXPORTACIÓN A PDF -->
+      <img src="image/plantillafondo.png" alt="Fondo Certificado Official JLPT" class="cert-pdf-bg-img" />
+
+      <div class="cert-pdf-overlay-content">
+        
+        <!-- 1. NIVEL DESTACADO (EJ: N4) -->
+        <div class="cert-pdf-badge-level" id="cert-pdf-level">N4</div>
+
+        <!-- 2. ENCABEZADO Y TÍTULOS -->
+        <div class="cert-pdf-header-titles">
+          <h1 class="cert-pdf-jp-title">日本語能力認定書</h1>
+          <h2 class="cert-pdf-es-title">CERTIFICADO</h2>
+          <h3 class="cert-pdf-en-title">JAPANESE-LANGUAGE PROFICIENCY TEST</h3>
+        </div>
+
+        <!-- 3. TABLA DE PARÁMETROS DEL ALUMNO -->
+        <div class="cert-pdf-fields-container">
+          <div class="cert-pdf-field-line">
+            <div class="cert-pdf-field-lbl">
+              <span class="jp">氏名</span>
+              <span class="es">Nombre</span>
+            </div>
+            <div class="cert-pdf-field-val" id="cert-pdf-name">SATOU UTSUJI</div>
+          </div>
+
+          <div class="cert-pdf-field-line">
+            <div class="cert-pdf-field-lbl">
+              <span class="jp">生年月日 <small>(y/m/d)</small></span>
+              <span class="es">Fecha de nacimiento</span>
+            </div>
+            <div class="cert-pdf-field-val" id="cert-pdf-dob">1993/09/26</div>
+          </div>
+
+          <div class="cert-pdf-field-line">
+            <div class="cert-pdf-field-lbl">
+              <span class="jp">受験地</span>
+              <span class="es">Lugar del examen</span>
+            </div>
+            <div class="cert-pdf-field-val" id="cert-pdf-country">イギリス &nbsp;&nbsp;&nbsp;&nbsp; U.K.</div>
+          </div>
+        </div>
+
+        <!-- 4. DECLARACIONES Y TEXTOS BILINGÜES -->
+        <div class="cert-pdf-body-statements">
+          <p class="cert-pdf-jp-statement-p" id="cert-pdf-jp-statement">
+            上記の方が、2019年12月に実施された日本語能力試験（JLPT）のN4レベルに合格したことを証明するものです。この試験は、日本語への入り口である「日本語のとりい財団」によって実施されました。
+          </p>
+
+          <div class="cert-pdf-jp-date-r" id="cert-pdf-jp-date">2020年 1月19日</div>
+
+          <p class="cert-pdf-es-statement-p" id="cert-pdf-es-statement">
+            Por la presente se certifica que la persona arriba mencionada ha aprobado el Nivel N4 del Examen de Aptitud del Idioma Japonés (JLPT) realizado en diciembre de 2019, administrado por la Fundación Nihongo No Torii, Tu portal de acceso al idioma japonés .
+          </p>
+        </div>
+
+        <!-- 5. FIRMAS Y FECHA EN INGLÉS -->
+        <div class="cert-pdf-signatures">
+          <div class="cert-pdf-org-info">
+            <div class="cert-pdf-org-jp">日本語のとりい財団</div>
+            <div class="cert-pdf-org-es">Fundacion Nihongo No Torii</div>
+          </div>
+          <div class="cert-pdf-en-date-r" id="cert-pdf-en-date">
+            January 19, 2020
+          </div>
+        </div>
+
+        <!-- 6. SELLO CUADRADO ROJO HANKO -->
+        <div class="cert-pdf-square-hanko">
+          <div class="hanko-box">
+            <span>日本語の</span>
+            <span>とりい財</span>
+            <span>団</span>
+          </div>
+        </div>
+
+        <!-- 7. CÓDIGOS DEL PIE DE PÁGINA -->
+        <div class="cert-pdf-codes-bar">
+          <span class="code-l" id="cert-pdf-code-left">N4A210633A</span>
+          <span class="code-r" id="cert-pdf-code-right">19B6050101-40093</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTONES DE ACCIÓN DEL MODAL -->
+    <div class="jlpt-cert-actions">
+      <button class="btn btn-secondary" onclick="cerrarModalCertificado()">❌ Cerrar</button>
+      <button class="btn btn-primary btn-print-cert" onclick="imprimirCertificado()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL PARA PERSONALIZAR EL PERFIL -->
 <div id="edit-profile-modal" class="modal-overlay">
@@ -239,8 +352,39 @@
 
       <!-- NOMBRE DEL ESTUDIANTE -->
       <div class="form-group">
-        <label for="input-profile-name" class="form-label">Nombre o Apodo</label>
-        <input type="text" id="input-profile-name" class="form-control" required placeholder="Ej: Kenji, María..." maxlength="30" />
+        <label for="input-profile-name" class="form-label">Nombre o Apodo (氏名 / Name)</label>
+        <input type="text" id="input-profile-name" class="form-control" required placeholder="Ej: SATOU UTSUJI, Juan Pérez..." maxlength="40" />
+      </div>
+
+      <!-- FECHA DE NACIMIENTO -->
+      <div class="form-group">
+        <label for="input-profile-dob" class="form-label">Fecha de Nacimiento (生年月日 y/m/d)</label>
+        <input type="date" id="input-profile-dob" class="form-control" />
+      </div>
+
+      <!-- PAÍS DEL EXAMEN -->
+      <div class="form-group">
+        <label for="select-profile-country" class="form-label">País donde rinde el Examen (受験地 / Lugar del examen)</label>
+        <select id="select-profile-country" class="form-control">
+          <option value="Mexico">メキシコ  MEXICO</option>
+          <option value="Spain">スペイン  SPAIN</option>
+          <option value="Argentina">アルゼンチン  ARGENTINA</option>
+          <option value="Colombia">コロンビア  COLOMBIA</option>
+          <option value="Peru">ペルー  PERU</option>
+          <option value="Chile">チリ  CHILE</option>
+          <option value="Venezuela">ベネズエラ  VENEZUELA</option>
+          <option value="Ecuador">エクアドル  ECUADOR</option>
+          <option value="Guatemala">グアテマラ  GUATEMALA</option>
+          <option value="Costa Rica">コスタリカ  COSTA RICA</option>
+          <option value="Dominican Republic">ドミニカ共和国  DOMINICAN REP.</option>
+          <option value="Bolivia">ボリビア  BOLIVIA</option>
+          <option value="Uruguay">ウルグアイ  URUGUAY</option>
+          <option value="Paraguay">パラグアイ  PARAGUAY</option>
+          <option value="Panama">パナマ  PANAMA</option>
+          <option value="USA">アメリカ  U.S.A.</option>
+          <option value="UK">イギリス  U.K.</option>
+          <option value="Japan">日本  JAPAN</option>
+        </select>
       </div>
 
       <!-- NIVEL OBJETIVO JLPT -->
