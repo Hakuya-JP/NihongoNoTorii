@@ -1,5 +1,18 @@
 // ==========================================================================
-// SECCIÓN: LÓGICA Y MOTOR DEL SIMULADOR JLPT POR SECCIONES
+// ARQUITECTURA DE MÓDULOS - MOTOR DEL SIMULADOR JLPT (jlpt-simulador.js)
+// ==========================================================================
+// 1. PANEL DE CONTROL DE AUDIOS Y SONIDOS DE EVENTOS (CONFIGURACION_AUDIO_JLPT)
+// 2. ESTADO DEL SIMULADOR Y NAVEGACIÓN DE EXÁMENES (estadoSimulador)
+// 3. SELECCIÓN DE NIVEL Y TARJETAS OFICIALES (Kana, N5 - N1)
+// 4. MÓDULO DE MODAL DE INICIO DE EXAMEN (JLPTinicio & Campanajaponesa)
+// 5. TEMPORIZADOR POR SECCIONES Y SISTEMA DE DESCANSO OFICIAL (15 min / 2 min min)
+// 6. INSTRUCCIONES MONDAI (もんだい), EJEMPLOS Y PREGUNTAS
+// 7. RESPUESTAS Y NAVEGACIÓN INTERACTIVA
+// 8. FINALIZACIÓN DE EXAMEN, DIPLOMA OFICIAL & RESULTADOS
+// ==========================================================================
+
+// ==========================================================================
+// SECCIÓN 1: PANEL DE CONTROL Y CONFIGURACIÓN DE AUDIOS DEL SIMULADOR JLPT
 // ==========================================================================
 
 /* ==========================================================================

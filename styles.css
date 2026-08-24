@@ -1,11 +1,16 @@
 /* ==========================================================================
-   0.1 fuentes de letras
-   Rampart One
-   Montserrat Alternates
-   Zen Kaku Gothic New
-   Noto Sans JP
-   Merienda
-   Aladin
+   PROJECT ARCHITECTURE & MODULE INDEX - NIHONGO NO TORII CSS
+   ==========================================================================
+   1. REGISTRO DE FUENTES (@import y @font-face)
+   2. GESTIÓN DE TEMAS (Variables CSS :root y body.dark-mode)
+   3. ESTILOS GENERALES Y LAYOUT BASE (Reset, Body, Header y Nav)
+   4. NAVEGACIÓN Y COMPONENTES REUTILIZABLES (Botones, Tarjetas, Modales)
+   5. SECCIÓN DE SIMULADOR JLPT Y MODAL DE EXAMEN
+   6. SECCIÓN DE INSTRUCCIONES MONDAI (もんだい) Y EJEMPLOS
+   7. SECCIÓN DE PERFIL DE USUARIO Y GALERÍA DE CERTIFICADOS
+   8. SISTEMA DE GAMIFICACIÓN RPG (HUD, XP, Niveles y Misiones)
+   9. CERTIFICADO OFICIAL JLPT (Canvas, Overlay, Hanko y plantillafondo.png)
+   10. REGLAS DE IMPRESIÓN Y EXPORTACIÓN A PDF (@media print & @page)
    ========================================================================== */
 
 /* ==========================================================================
