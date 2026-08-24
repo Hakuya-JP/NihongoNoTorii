@@ -275,9 +275,10 @@ body.dark-mode #page-transition-overlay {
    ========================================================================== */
 .novedades {
   width: 100%;
-  background: var(--crema);
+  background: var(--blanco2);
   padding: 20px 0;
   text-align: center;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 35%);
 }
 
 .novedades h2 {
@@ -354,7 +355,7 @@ body.dark-mode #page-transition-overlay {
   padding: 17px;
   border-radius: 17px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -2806,7 +2807,7 @@ body.dark-mode .avatar-option-btn {
 
 /* BARRA SUPERIOR RPG (HUD) */
 .rpg-hud-bar {
-  background: linear-gradient(135deg, #407ead 0%, #407ead 100%);
+  background: linear-gradient(135deg, #114a60 0%, #114a60 100%);
   color: #ffffff;
   padding: 8px 24px;
   display: flex;
