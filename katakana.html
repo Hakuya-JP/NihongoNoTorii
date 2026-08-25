@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprender Katakana (カタカナ) | Nihongo no Torii</title>
+  <meta name="description" content="Aprende el silabario Katakana completo con explicaciones por escrito, videos explicativos y ejercicios interactivos.">
+  <link rel="icon" type="image/png" href="image/logonnt.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="page-katakana">
+
+  <!-- CABECERA DE NAVEGACIÓN PRINCIPAL -->
+  <header class="main-header">
+    <div class="header-brand">
+      <a href="index.html" class="nav-logo">
+        <img src="image/logonnt.png" alt="Logo">
+      </a>
+      <h1 class="logo-text">Nihongo no Torii</h1>
+    </div>
+
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+    <nav id="menu" class="top-nav">
+      <a href="index.html">Inicio</a>
+      <a href="lecciones.html" class="active">Lecciones</a>
+      <a href="videos.html">Videos</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="ToriiTV.html">ToriiTV</a>
+      <a href="jlpt-simulador.html">Simulador JLPT</a>
+      <a href="perfil.html" class="nav-profile-item">
+        <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+      </a>
+      <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL KATAKANA -->
+  <main class="kana-page-container">
+
+    <!-- HERO BANNER Y PESTAÑAS DE NAVEGACIÓN -->
+    <div class="kana-hero-banner" style="background: linear-gradient(135deg, #2b6cb0 0%, #1a365d 100%);">
+      <span class="kana-hero-badge">🌐 Palabras Extranjeras y Onomatopeyas</span>
+      <h1>Katakana (カタカナ)</h1>
+      <p>
+        El Katakana es el segundo silabario fundamental del japonés. Se utiliza principalmente para escribir palabras prestadas de otros idiomas (*Gairaigo*), nombres extranjeros, países, conceptos técnicos y onomatopeyas.
+      </p>
+
+      <div class="kana-nav-tabs">
+        <button class="tab-btn active" data-tab="tab-explicacion">📖 Explicación y Tabla</button>
+        <button class="tab-btn" data-tab="tab-video">🎥 Video Explicativo</button>
+        <button class="tab-btn" data-tab="tab-practica">🎮 Práctica Interactiva</button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 1: EXPLICACIÓN POR ESCRITO Y TABLA INTERACTIVA DE KATAKANA -->
+    <div id="tab-explicacion" class="kana-section-block active">
+      <div class="written-explanation-card">
+        <div class="written-guide-box">
+          <h3>📌 ¿Cómo funciona el Katakana?</h3>
+          <p>
+            El Katakana comparte los mismos <strong>46 sonidos fonéticos del Hiragana</strong>, pero sus trazos son más angulares y rectos. Es indispensable para leer menús con préstamos del inglés (como *koohii* ☕ o *baagaa* 🍔), nombres internacionales y carteles en Japón.
+          </p>
+          <p>
+            💡 <strong>Instrucciones:</strong> Toca cualquier personaje para escuchar su pronunciación nativa y descubrir ejemplos de palabras en Katakana.
+          </p>
+        </div>
+
+        <!-- INDICADOR DE AUDIO LOCAL DE RUTA DE ARCHIVOS .M4A / .MP3 -->
+        <div style="background: rgba(20, 100, 130, 0.06); border: 1.5px dashed var(--azul, #146482); padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 1.5rem;">🎵</span>
+          <div style="font-size: 0.88rem; line-height: 1.5;">
+            <strong>Audio Nativo Detectado:</strong><br>
+            Archivos soportados en la carpeta <code>KANA/</code> o <code>audio/kana/</code> (ejemplo: <code>KANA/あ.m4a</code> o <code>audio/kana/a.m4a</code> / <code>.mp3</code>).
+          </div>
+        </div>
+
+        <!-- FILTROS POR FAMILIA KATAKANA -->
+        <div class="family-filter-bar">
+          <button class="family-chip-btn active" data-family="todos">Todos los Katakana</button>
+          <button class="family-chip-btn" data-family="vocales">Vocales (ア・イ...)</button>
+          <button class="family-chip-btn" data-family="ka">Familia カ (ka)</button>
+          <button class="family-chip-btn" data-family="sa">Familia サ (sa)</button>
+          <button class="family-chip-btn" data-family="ta">Familia タ (ta)</button>
+          <button class="family-chip-btn" data-family="na">Familia ナ (na)</button>
+          <button class="family-chip-btn" data-family="ha">Familia ハ (ha)</button>
+          <button class="family-chip-btn" data-family="ma">Familia マ (ma)</button>
+          <button class="family-chip-btn" data-family="ya">Familia ヤ (ya)</button>
+          <button class="family-chip-btn" data-family="ra">Familia ラ (ra)</button>
+          <button class="family-chip-btn" data-family="wa">Familia ワ (wa)</button>
+          <button class="family-chip-btn" data-family="dakuon">Dakuon (ガ・ザ...)</button>
+          <button class="family-chip-btn" data-family="yoon">Diptongos (キャ・シャ...)</button>
+        </div>
+
+        <!-- GRID INTERACTIVO DE CARACTERES -->
+        <div id="kana-interactive-grid" class="kana-interactive-grid">
+          <!-- Renderizado dinámico desde js/kana-interactivo.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 2: VIDEO EXPLICATIVO -->
+    <div id="tab-video" class="kana-section-block">
+      <div class="video-card-box">
+        <h2 class="seccion-titulo" style="margin-top: 0;">🎥 Video Explicativo: Dominando el Katakana</h2>
+        <p style="text-align: center; margin-bottom: 20px; opacity: 0.85;">
+          Aprende a diferenciar trazos similares (como シ/ツ y ソ/ン) en este tutorial especializado.
+        </p>
+
+        <div class="video-responsive-container">
+          <iframe 
+            src="https://www.youtube.com/embed/2Vv-BfVoq4g" 
+            title="Video Introductorio de Katakana" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: MÓDULO DE PRÁCTICA INTERACTIVA -->
+    <div id="tab-practica" class="kana-section-block">
+      <div class="interactive-quiz-container">
+        
+        <!-- VISTA 1: SELECTOR DE MODO DE JUEGO -->
+        <div id="quiz-selector-view">
+          <h2 class="seccion-titulo" style="margin-top: 0; text-align: center;">🎮 Centro de Práctica Interactiva Katakana</h2>
+          <p style="text-align: center; opacity: 0.85; margin-bottom: 25px;">
+            Pon a prueba tu agilidad de lectura de Katakana y gana XP para tu perfil RPG.
+          </p>
+
+          <div class="quiz-mode-selector-grid">
+            
+            <div class="quiz-mode-card" onclick="iniciarPracticaKana('quiz')">
+              <div class="quiz-mode-icon">🎯</div>
+              <div class="quiz-mode-title">Opción Múltiple</div>
+              <div class="quiz-mode-desc">Identifica la pronunciación Romaji correcta para cada Katakana.</div>
+              <button class="btn btn-primary" style="width: 100%;">¡Comenzar Quiz! 🚀</button>
+            </div>
+
+            <div class="quiz-mode-card" onclick="iniciarPracticaKana('matching')">
+              <div class="quiz-mode-icon">🧩</div>
+              <div class="quiz-mode-title">Emparejamiento de Fichas</div>
+              <div class="quiz-mode-desc">Encuentra las parejas correctas entre Katakana y Romaji.</div>
+              <button class="btn btn-primary" style="width: 100%;">Emparejar Fichas 🔗</button>
+            </div>
+
+            <div class="quiz-mode-card" onclick="iniciarPracticaKana('listening')">
+              <div class="quiz-mode-icon">🎧</div>
+              <div class="quiz-mode-title">Escucha y Pronunciación</div>
+              <div class="quiz-mode-desc">Escucha la pronunciación en audio y selecciona el Katakana correspondiente.</div>
+              <button class="btn btn-primary" style="width: 100%;">Iniciar Auditivo 🔊</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- VISTA 2: EJECUCIÓN DEL QUIZ -->
+        <div id="quiz-runner-view" style="display: none;">
+          <div class="torii-quiz-header-bar">
+            <button class="btn-quit-quiz" onclick="salirPracticaKana()" title="Abandonar sesión">&times;</button>
+            <div class="torii-quiz-progress-track">
+              <div id="torii-progress-fill" class="torii-quiz-progress-fill"></div>
+            </div>
+            <div id="torii-hearts-display" class="torii-quiz-hearts-box">❤️ 3</div>
+          </div>
+
+          <div id="torii-runner-body">
+            <!-- Inyectado dinámicamente desde js/kana-interactivo.js -->
+          </div>
+
+          <div id="torii-feedback-container"></div>
+        </div>
+
+        <!-- VISTA 3: RESULTADOS -->
+        <div id="quiz-results-view" style="display: none;">
+          <div class="quiz-results-card">
+            <div class="quiz-results-icon">🎉🌐</div>
+            <h2 class="seccion-titulo" style="margin: 0 0 10px 0;">¡Sesión Completada!</h2>
+            <div id="results-score-text" class="quiz-results-score">Puntaje: 100 Puntos</div>
+            <div>
+              <span id="results-xp-granted" class="quiz-xp-badge">+25 XP Ganados ✨</span>
+            </div>
+            <p style="opacity: 0.85; margin-bottom: 25px;">¡Has reforzado tu lectura de Katakana con éxito!</p>
+
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="iniciarPracticaKana(quizState.mode)">Repetir Práctica 🔄</button>
+              <button class="btn btn-secondary" onclick="salirPracticaKana()">Volver al Menú 🏠</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE DETALLE DEL CARÁCTER KATAKANA -->
+  <div id="kana-detail-modal" class="kana-detail-modal-overlay">
+    <div class="kana-detail-card">
+      <button id="kana-detail-modal-close" class="modal-close-btn" style="position: absolute; top: 16px; right: 20px; font-size: 1.8rem; background: none; border: none; cursor: pointer;">&times;</button>
+      
+      <div id="kana-detail-big-char" class="kana-detail-big-char">ア</div>
+      <div id="kana-detail-romaji" class="kana-detail-romaji">a</div>
+
+      <button id="btn-kana-detail-sound" class="btn-sound-play-big">
+        <span>🔊 Escuchar Pronunciación</span>
+      </button>
+
+      <!-- SECCIÓN: ORDEN DE TRAZOS CON NÚMEROS Y FLECHAS -->
+      <div id="kana-detail-stroke-box" class="kana-stroke-order-box">
+        <!-- Renderizado dinámico desde js/kana-interactivo.js -->
+      </div>
+
+      <div style="text-align: left; margin-bottom: 8px; font-weight: bold; color: var(--color-h2);">
+        📝 Palabras de Ejemplo (Gairaigo):
+      </div>
+      <div id="kana-detail-words-list" class="kana-detail-words-list">
+        <!-- Renderizado dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initKanaPageModule === "function") {
+        initKanaPageModule("katakana");
+      }
+    });
+  </script>
+</body>
+</html>

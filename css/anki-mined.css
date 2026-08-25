@@ -1,0 +1,363 @@
+/* --------------------------------------------------------------------------
+   PANEL DE CONFIGURACIÓN DE ANKI
+   -------------------------------------------------------------------------- */
+.anki-config-panel {
+  position: absolute;
+  bottom: 60px;
+  left: 15px;
+  z-index: 40;
+  width: 280px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bg-card, rgba(254, 235, 198, 0.95));
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(10px);
+  color: var(--text-color, #1a1a1a);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+body.dark-mode .anki-config-panel {
+  background: rgba(20, 28, 40, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.anki-config-panel.oculto {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
+.anki-config-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.anki-divider {
+  border: none;
+  border-top: 1px solid rgba(150, 150, 150, 0.3);
+  margin: 4px 0;
+}
+
+.anki-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.anki-input-group label {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.anki-input-group input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(150, 150, 150, 0.4);
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+}
+
+.anki-input-group input:focus {
+  outline: none;
+  border-color: var(--naranja, #ff9800);
+}
+
+.anki-input-group select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(150, 150, 150, 0.4);
+  background: var(--blanco, #fff);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+body.dark-mode .anki-input-group select {
+  background: rgba(12, 33, 58, 0.913);
+  color: #e2e8f0;
+}
+
+.btn-save-anki {
+  margin-top: 6px;
+  padding: 8px;
+  background: var(--naranja, #ff9800);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-save-anki:hover {
+  filter: brightness(1.1);
+}
+
+.anki-switch-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.anki-status {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.anki-status.online {
+  color: #4caf50;
+}
+
+.anki-status.offline {
+  color: #f44336;
+}
+
+.anki-status.warning {
+  color: #ff9800;
+}
+
+/* ==========================================================================
+   18. SECCIÓN DE TARJETAS MINADAS Y EXPORTADOR ANKI
+   ========================================================================== */
+.mined-cards-section {
+  margin-top: 30px;
+  background: var(--blanco2, #ffffff);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.dark-mode .mined-cards-section {
+  background: var(--bg-card, #131c2a);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mined-cards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(150, 150, 150, 0.2);
+}
+
+.mined-cards-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--azul, #1a365d);
+}
+
+body.dark-mode .mined-cards-title {
+  color: #ffffff;
+}
+
+.mined-count-badge {
+  background: var(--naranja, #ff9800);
+  color: #ffffff;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.mined-cards-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-export-anki {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-export-anki:hover {
+  background: #1b5e20;
+  transform: translateY(-2px);
+}
+
+.btn-clear-mined {
+  background: transparent;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-clear-mined:hover {
+  background: rgba(211, 47, 47, 0.1);
+}
+
+.mined-cards-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.mined-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  max-height: 2500px;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-bottom: 4px;
+}
+
+.mined-cards-grid.collapsed {
+  max-height: 185px;
+  overflow: hidden;
+}
+
+/* Efecto de degradado / sombra difuminada al colapsar */
+.mined-cards-wrapper .mined-cards-gradient-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 75px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, var(--blanco2, #ffffff) 90%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+body.dark-mode .mined-cards-wrapper .mined-cards-gradient-overlay {
+  background: linear-gradient(to bottom, rgba(19, 28, 42, 0) 0%, var(--blanco2, #0a425d) 90%);
+}
+
+/* El gradiente de sombra se activa únicamente cuando está colapsado */
+.mined-cards-wrapper:has(.mined-cards-grid.collapsed) .mined-cards-gradient-overlay,
+.mined-cards-wrapper:not(.expanded) .mined-cards-gradient-overlay {
+  opacity: 1;
+}
+
+.mined-cards-wrapper.expanded .mined-cards-gradient-overlay {
+  opacity: 0 !important;
+}
+
+.mined-expand-bar {
+  text-align: center;
+  margin-top: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.btn-expand-mined {
+  background: var(--azul, #146482);
+  color: #ffffff;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(20, 100, 130, 0.25);
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.btn-expand-mined:hover {
+  background: var(--naranja, #ff9447);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 148, 71, 0.35);
+}
+
+body.dark-mode .btn-expand-mined {
+  background: var(--naranja, #ff9447);
+}
+
+body.dark-mode .btn-expand-mined:hover {
+  background: #ff7b1d;
+}
+
+.mined-card-item {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+body.dark-mode .mined-card-item {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mined-card-item:hover {
+  transform: translateY(-2px);
+}
+
+.mined-card-time {
+  font-size: 0.75rem;
+  color: var(--naranja, #ff9800);
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.mined-card-text {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.mined-card-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.mined-card-del:hover {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.empty-mined-msg {
+  text-align: center;
+  padding: 30px 15px;
+  color: #777;
+  font-size: 0.95rem;
+}

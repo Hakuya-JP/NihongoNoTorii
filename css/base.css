@@ -1,0 +1,352 @@
+/* ==========================================================================
+   0.1 fuentes de letras
+   Rampart One
+   Montserrat Alternates
+   Zen Kaku Gothic New
+   Noto Sans JP
+   Merienda
+   Aladin
+   ========================================================================== */
+
+/* ==========================================================================
+   1. REGISTRO DE FUENTES
+   ========================================================================== */
+/* Limpiado: Solo conservamos las fuentes que declaras usar al final del archivo */
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@800;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New&display=swap');
+
+@font-face {
+  font-family: 'IntroRust';
+  src: url('../fonts/IntroRust.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+/* ==========================================================================
+   2. GESTIÓN DE TEMAS (Variables Globales)
+   ========================================================================== */
+
+/* --- MODO CLARO (Por defecto) --- */
+:root {
+  --gris-suave: #f3f3f3;  
+  --blanco: #ffffff;      
+  --azul: #146482;    
+  --azulNa: #146482;     
+  --crema: #FFDEBD;       
+  --blanco2: #ffeedb;
+  --blanco3: #fbf5ee;
+  --crema2: #ffeedb;      
+  --naranja: #ff9447; 
+  --naranja2: #146482;    
+  --texto-principal: #333333; 
+  --color-h3: #146482;        
+  --color-h2: #146482;  
+  --color-h1: #146482;  
+}
+
+/* --- MODO OSCURO --- */
+body.dark-mode {
+  --gris-suave: #0a2232;  
+  --blanco: #08436a;      
+  --azul: #152e3f;
+  --azulNa: #f2af7f;           
+  --crema: #1c4e6f;       
+  --crema2: #93c0de;      
+  --blanco2: #0a425d; 
+  --blanco3: #12374f;    /* CORREGIDO: Tono ligeramente diferente para dar relieve a las tarjetas */
+  --naranja: #ff9447;
+  --naranja2: #ff9447;  
+  --texto-principal: #ffffff; 
+  --color-h3: #fff5ec;
+  --color-h2: #fff5ec;
+  --color-h1: #fff5ec;
+}
+
+
+/* ==========================================================================
+   3. CONFIGURACIÓN BASE Y RESETEO
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+html {
+  background-color: var(--gris-suave, #f3f3f3);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+html.dark-mode {
+  background-color: #0a2232 !important;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 0 40px 0;
+  background-color: var(--gris-suave, #f3f3f3);
+  background-image: 
+    linear-gradient(180deg, rgba(243, 243, 243, 0.78) 0%, rgba(243, 243, 243, 0.85) 100%),
+    url('../image/olafondo.png');
+  background-repeat: repeat;
+  background-position: center top;
+  background-attachment: fixed;
+  background-size: 700px auto;
+  color: var(--texto-principal);
+  transition: background 0.3s ease, color 0.3s ease; 
+  overflow-x: hidden;
+}
+
+body.dark-mode {
+  background-color: var(--gris-suave, #0a2232);
+  background-image: 
+    linear-gradient(180deg, rgba(10, 34, 50, 0.82) 0%, rgba(10, 34, 50, 0.88) 100%),
+    url('../image/olafondo2.png');
+}
+
+/* OVERLAY SUTIL DE TRANSICIÓN ADAPTADO AL TEMA (CLARO/OSCURO) */
+#page-transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--gris-suave, #f3f3f3);
+  z-index: 999999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.14s ease-in-out;
+}
+
+body.dark-mode #page-transition-overlay {
+  background-color: var(--gris-suave, #0a2232);
+}
+
+#page-transition-overlay.active {
+  opacity: 0.45;
+}
+
+
+/* ==========================================================================
+   5. COMPONENTES COMUNES (Botones, Tarjetas Estándar)
+   ========================================================================== */
+.card {
+  background: var(--blanco);
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.card h3 {
+  margin: 10px 0;
+  color: var(--color-h3); 
+}
+
+.btn {
+  display: inline-block;
+  background: var(--naranja2);
+  padding: 8px 15px;
+  border-radius: 8px;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #ff7b1d;
+}
+
+.btn-secundario {
+  background: #555;
+}
+
+.btn-secundario:hover {
+  background: #333;
+}
+
+
+/* ==========================================================================
+   13. CLASES DE SOPORTE PARA UNIFICACIÓN DE PÁGINAS
+   ========================================================================== */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.seccion-centro {
+  padding: 10px 0;
+}
+
+.seccion-titulo {
+  font-size: 2rem;
+  color: var(--color-h2);
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.video-responsive-container {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  background: var(--blanco2);
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.banner-bienvenida {
+  position: relative; 
+  overflow: hidden;   
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--azul); 
+  border-radius: 16px;
+  width: 90%;
+  margin: 30px auto;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.banner-badge {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--naranja); 
+  font-weight: bold;
+}
+
+.banner-title {
+  font-size: 3rem;
+  margin: 10px 0;
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+@media (prefers-color-scheme: light) {
+  .banner-title {
+    background: linear-gradient(45deg, #ffffff, var(--crema));
+    -webkit-background-clip: text;
+    background-clip: text; 
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.banner-subtitle {
+  font-size: 1.3rem;
+  color: #ffffff;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto 25px;
+  font-weight: 300; 
+}
+
+.btn-banner {
+  display: inline-block;
+  padding: 12px 30px;
+  background: var(--naranja);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-banner:hover {
+  transform: translateY(-2px);
+  background: #e08b3a; 
+}
+
+.banner-fondo-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  z-index: 1;        
+}
+
+.banner-content {
+  position: relative;
+  z-index: 2;        
+  background: rgba(0, 0, 0, 0.4); 
+  padding: 40px;
+}
+
+
+/* ==========================================================================
+   14. TIPOGRAFÍAS DE ELEMENTOS (Asignación Definitiva)
+   ========================================================================== */
+h1, .banner-title {
+  font-family: 'IntroRust', sans-serif;
+  font-weight: 800; 
+  letter-spacing: 0.5px;
+}
+
+p, span, a, li, input, button, select, h2, h3, h4, .banner-subtitle {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+}
+
+.banner-title {
+  font-weight: 900; 
+  text-shadow: 0 0 15px rgba(58, 185, 224, 0.6); 
+}
+
+/* Clase para resaltar la página actual */
+.top-nav a.active {
+  color: var(--naranja); /* Cambia el texto al naranja de tu tema */
+  border-bottom: 3px solid var(--naranja); /* Opcional: una línea abajo muy elegante */
+  padding-bottom: 5px;
+}
+
+/* Ajuste sutil para el modo oscuro si lo necesitas */
+body.dark-mode .top-nav a.active {
+  color: var(--naranja);
+  border-bottom-color: var(--naranja);
+}
+
+
+/* Toast Notification */
+.torii-toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: #1a365d;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.torii-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}

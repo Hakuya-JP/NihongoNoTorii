@@ -1,0 +1,608 @@
+/* ==========================================================================
+   19. MODAL DE PERFIL Y ESTADÍSTICAS DEL ESTUDIANTE
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.profile-modal-content {
+  background: var(--blanco2, #ffffff);
+  color: var(--text-color, #1a1a1a);
+  width: 90%;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+body.dark-mode .profile-modal-content {
+  background: #131c2a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.modal-overlay.active .profile-modal-content {
+  transform: translateY(0);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.modal-close-btn:hover {
+  color: var(--naranja, #ff9800);
+}
+
+.profile-header-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(150, 150, 150, 0.2);
+}
+
+.profile-avatar {
+  font-size: 3rem;
+  background: rgba(255, 152, 0, 0.15);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--naranja, #ff9800);
+}
+
+.profile-info h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.4rem;
+}
+
+.profile-level-badge {
+  background: var(--azul, #1a365d);
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+body.dark-mode .profile-level-badge {
+  background: var(--naranja, #ff9800);
+}
+
+/* Grid de Estadísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--naranja, #ff9800);
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+/* Logros / Medallas */
+.badges-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.badge-card {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  opacity: 0.4;
+  filter: grayscale(1);
+  transition: all 0.3s ease;
+  border: 1px dashed rgba(150, 150, 150, 0.4);
+}
+
+.badge-card.unlocked {
+  opacity: 1;
+  filter: grayscale(0);
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.badge-icon {
+  font-size: 1.8rem;
+}
+
+.badge-title {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+
+/* ==========================================================================
+   ESTILOS DEDICADOS PARA LA PÁGINA DE PERFIL (perfil.html)
+   ========================================================================== */
+.perfil-main-container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Hero Card de Perfil */
+.profile-hero-card {
+  background: var(--blanco2, #ffffff);
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  flex-wrap: wrap;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+body.dark-mode .profile-hero-card {
+  background: var(--blanco2, #0a425d);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.profile-avatar-container {
+  position: relative;
+}
+
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #feada6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  box-shadow: 0 8px 20px rgba(255, 152, 0, 0.2);
+  border: 4px solid var(--blanco, #ffffff);
+  overflow: hidden;
+}
+
+body.dark-mode .profile-avatar-large {
+  border-color: #073242;
+  background: linear-gradient(135deg, #4338ca 0%, #312e81 100%);
+}
+
+.btn-edit-avatar-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--azul, #2b6cb0);
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-edit-avatar-badge:hover {
+  transform: scale(1.15);
+  background: var(--naranja, #ff9800);
+}
+
+.profile-details {
+  flex: 1;
+  min-width: 260px;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.profile-user-name {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--texto-principal, #2d3748);
+}
+
+body.dark-mode .profile-user-name {
+  color: #f8fafc;
+}
+
+.profile-badge-level {
+  background: rgba(255, 152, 0, 0.15);
+  color: #e65100;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+body.dark-mode .profile-badge-level {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ffb74d;
+}
+
+.profile-motto {
+  font-style: italic;
+  opacity: 0.85;
+  margin: 8px 0 14px 0;
+  font-size: 0.95rem;
+}
+
+.profile-quick-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-stat-pill {
+  background: rgba(0, 0, 0, 0.04);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+body.dark-mode .quick-stat-pill {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-edit-profile {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Secciones de Perfil */
+.perfil-stats-section,
+.perfil-badges-section,
+.perfil-mined-cards-section,
+.perfil-anki-section {
+  background: var(--blanco2, #ffffff);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: background 0.3s ease;
+}
+
+body.dark-mode .perfil-stats-section,
+body.dark-mode .perfil-badges-section,
+body.dark-mode .perfil-mined-cards-section,
+body.dark-mode .perfil-anki-section {
+  background: var(--blanco2, #0a425d);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badges-count-badge {
+  background: rgba(43, 108, 176, 0.1);
+  color: var(--azul, #2b6cb0);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+body.dark-mode .badges-count-badge {
+  background: rgba(96, 165, 250, 0.15);
+  color: #93c5fd;
+}
+
+/* Barra de progreso de meta diaria */
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+body.dark-mode .progress-bar-bg {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff9800, #4caf50);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* Medallas ampliadas */
+.badge-desc {
+  font-size: 0.68rem;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
+/* Acciones de Tarjetas Minadas */
+.mined-actions-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-danger-outline {
+  background: transparent;
+  border: 1px solid #e53e3e;
+  color: #e53e3e;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-danger-outline:hover {
+  background: #e53e3e;
+  color: white;
+}
+
+.mined-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.mined-card-item {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 14px;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+body.dark-mode .mined-card-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.mined-card-item:hover {
+  transform: translateY(-2px);
+}
+
+.mined-card-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #e53e3e;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.mined-card-time {
+  font-size: 0.72rem;
+  opacity: 0.6;
+}
+
+.mined-card-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* Modal de Personalización de Perfil */
+.edit-profile-modal-content {
+  background: var(--blanco2, #ffffff);
+  border-radius: 20px;
+  max-width: 540px;
+  width: 90%;
+  padding: 30px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+body.dark-mode .edit-profile-modal-content {
+  background: var(--blanco2);
+  color: #f8fafc;
+}
+
+.modal-header h2 {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+}
+
+.modal-header p {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.02);
+  font-size: 0.95rem;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+body.dark-mode .form-control {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+}
+
+/* VISIBILIDAD DE OPCIONES DESPLEGABLES (SELECT & OPTION) EN MODO CLARO Y OSCURO */
+select.form-control,
+select {
+  color: #10304a;
+  background-color: #ffffff;
+}
+
+select.form-control option,
+select option {
+  background-color: #ffffff;
+  color: #10304a;
+  padding: 8px 12px;
+}
+
+body.dark-mode select.form-control,
+body.dark-mode select {
+  background-color: #10304a !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+body.dark-mode select.form-control option,
+body.dark-mode select option {
+  background-color: #10304a !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.avatar-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.avatar-option-btn {
+  font-size: 1.6rem;
+  background: rgba(0, 0, 0, 0.04);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.dark-mode .avatar-option-btn {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.avatar-option-btn:hover {
+  transform: scale(1.1);
+}
+
+.avatar-option-btn.selected {
+  border-color: var(--naranja, #ff9800);
+  background: rgba(255, 152, 0, 0.15);
+}
+
+.modal-footer-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}

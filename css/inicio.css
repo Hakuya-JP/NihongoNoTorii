@@ -1,0 +1,122 @@
+/* ==========================================================================
+   6. SECCIÓN INICIO: SLIDER & CONTENIDO
+   ========================================================================== */
+.novedades {
+  width: 100%;
+  background: var(--blanco2);
+  padding: 20px 0;
+  text-align: center;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 35%);
+}
+
+.novedades h2 {
+  margin-bottom: 15px;
+  color: var(--color-h2);
+}
+
+.slider-container {
+  width: 90%;
+  margin: auto;
+  overflow: hidden;
+  /* Máscara opcional para que los bordes del carrusel se desvanezcan elegantemente */
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+
+.slider-track {
+  display: flex;
+  gap: 20px;
+  width: max-content; 
+  animation: carruselInfinito 15s linear infinite; 
+}
+
+.slider-track:hover {
+  animation-play-state: paused;
+}
+
+/* LA MAGIA DEL BUCLE: 
+   Al llegar a -50%, se han mostrado todas las originales. 
+   El salto a 0% es instantáneo e imperceptible, creando el bucle infinito. */
+@keyframes carruselInfinito {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.slide {
+  /* Usamos flex-shrink para asegurarnos de que el navegador no aplaste las tarjetas si son pocas */
+  flex-shrink: 0; 
+  width: 265px;
+  height: 165px;
+  background: var(--blanco);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Asegura que el enlace ocupe toda la tarjeta */
+.slide a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.grid-contenido {
+  width: 90%;
+  margin: 40px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.grid-contenido .card {
+  background: var(--blanco2);
+  padding: 17px;
+  border-radius: 17px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  height: 100%;
+}
+
+.grid-contenido .card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.14);
+}
+
+.grid-contenido .card img {
+  width: 100%;
+  height: 360px;
+  object-fit: fill;
+  object-position: center top;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.grid-contenido .card:hover img {
+  transform: scale(1.02);
+}
+
+.grid-contenido .card h3 {
+  font-size: 1.15rem;
+  color: var(--color-h3);
+  margin: 4px 0 12px 0;
+  font-family: 'Zen kaku Gothic New', sans-serif;
+  font-weight: 700;
+}
