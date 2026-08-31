@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<!--
+╔══════════════════════════════════════════════════════════════════════╗
+║  PLANTILLA DE LECCIÓN — NIHONGO NO TORII                           ║
+║  Cómo usar:                                                          ║
+║  1. Copia este archivo con el nombre: XX-nombre-leccion.html        ║
+║     (XX = número con cero adelante: 01, 02, 03...)                  ║
+║  2. Busca y reemplaza las variables marcadas con [TODO: ...]         ║
+║  3. Agrega el archivo al index.html de este nivel                   ║
+║  4. Agrega el ID al array LECCIONES_IDS en index.html               ║
+╚══════════════════════════════════════════════════════════════════════╝
+-->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- TODO: Cambia el título -->
+  <title>Bienvenido a tu primera leccion de japones — KANA | Nihongo no Torii</title>
+  <link rel="icon" type="image/png" href="../../image/logonnt.png" />
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand">
+    <a href="../../index.html" class="nav-logo"><img src="../../image/logonnt.png" alt="Logo"></a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <nav id="menu" class="top-nav">
+    <a href="../../index.html">Inicio</a>
+    <a href="../../lecciones.html" class="active">Lecciones</a>
+    <a href="../../videos.html">Videos</a>
+    <a href="../../biblioteca.html">Biblioteca</a>
+    <a href="../../jlpt-simulador.html">Simulador JLPT</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<!-- BREADCRUMB -->
+<nav class="leccion-breadcrumb">
+  <a href="../../lecciones.html">Lecciones</a>
+  <span class="sep">›</span>
+  <a href="index.html">KANA — Silabarios</a>
+  <span class="sep">›</span>
+  <!-- TODO: Cambia el nombre de la lección -->
+  <span>Introduccion al Japonés</span>
+</nav>
+
+<!-- HERO DE LA LECCIÓN -->
+<section class="leccion-hero">
+  <!-- TODO: data-cat puede ser: intro | escritura | gramatica | vocabulario | practica -->
+  <div class="leccion-hero-inner" data-cat="intro">
+    <!-- TODO: Kanji o carácter decorativo -->
+    <div class="leccion-hero-kanji">始まる</div>
+    <!-- TODO: Número de la lección (ej: 11) -->
+    <div class="leccion-hero-num">1</div>
+    <div class="leccion-hero-info">
+      <div class="leccion-hero-badges">
+        <span class="blog-meta-tag nivel">KANA</span>
+        <!-- TODO: cat-intro | cat-escritura | cat-gramatica | cat-vocabulario | cat-practica -->
+        <span class="blog-meta-tag cat-intro">Introduccion al Japonés</span>
+        <!-- TODO: Tiempo estimado de lectura -->
+        <span class="blog-meta-tag tiempo">⏱ 10 min</span>
+      </div>
+      <!-- TODO: Título completo de la lección -->
+      <h2 class="leccion-hero-title">Introduccion al Japonés</h2>
+      <div class="leccion-progress-row">
+        <div class="leccion-progress-track">
+          <!-- TODO: width = (número_leccion / total_lecciones) * 100 % -->
+          <div class="leccion-progress-fill" style="width: 10%"></div>
+        </div>
+        <!-- TODO: Actualiza el número -->
+        <span class="leccion-progress-label">Lección 1 de 5</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CONTENIDO DE LA LECCIÓN
+     Usa los bloques de bloques-estudio.css:
+
+     CALLOUTS:      <div class="nnt-callout tip|golden|warning|culture">
+     FÓRMULA:       <div class="nnt-formula-box">
+     FRASES:        <div class="nnt-sentence-card">
+     COMPARACIÓN:   <div class="nnt-vs-grid"> + <div class="nnt-vs-card">
+     TABLA:         <div class="nnt-table-wrapper"> + <table class="nnt-table">
+     KANJI:         <div class="nnt-kanji-box">
+     ÁRBOL:         <div class="nnt-decision-tree">
+     STEPPER:       <div class="nnt-stepper">
+     ACORDEÓN:      <div class="nnt-accordion" onclick="toggleAccordion(this)">
+     QUIZ:          <div class="nnt-quiz-card">
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<article class="leccion-content">
+
+  <h3 class="leccion-section-title">🌸 [TODO: Título de la primera sección]</h3>
+
+  <p style="font-size:1.05rem; line-height:1.75; color:var(--texto-principal); margin:0 0 18px;">
+    [TODO: Párrafo introductorio de la lección.]
+  </p>
+
+  <!-- BLOQUE 1: INTRODUCCIÓN AL HIRAGANA -->
+            <div id="tema-introduccion" class="explanation-card-item">
+              <h3>📌 ¿Que es el KANA?</h3>
+              <p>
+                El silabario Hiragana consta de <strong>46 caracteres fonéticos principales</strong>. Cada uno representa un sonido compuesto por una consonante y una vocal (o una vocal sola). Además, existen los <strong>Sonidos Impuros (Dakuon)</strong> creados con comillas (゛) o círculos (゜), y los <strong>Diptongos (Yoon)</strong> combinados con <em>ya, yu, yo</em> pequeños.
+              </p>
+            </div>
+
+  <!-- EJEMPLO DE CALLOUT TIP -->
+  <div class="nnt-callout tip">
+    <div class="nnt-callout-icon">💡</div>
+    <div class="nnt-callout-content">
+      <div class="nnt-callout-title">[TODO: Título del callout]</div>
+      <div class="nnt-callout-body">[TODO: Contenido del callout]</div>
+    </div>
+  </div>
+
+  <!-- EJEMPLO DE FRASE CON AUDIO -->
+  <div class="nnt-sentence-card">
+    <div class="nnt-sentence-top">
+      <!-- TODO: Escribe la frase en japonés (con ruby/furigana si quieres) -->
+      <div class="nnt-japanese-text">[TODO: フレーズ]</div>
+      <!-- TODO: Cambia el texto del TTS -->
+      <button class="nnt-audio-btn" onclick="playJapaneseTTS('[TODO: フレーズ]')">🔊</button>
+    </div>
+    <div class="nnt-romaji-text">[TODO: Romanización]</div>
+    <div class="nnt-spanish-text">[TODO: Traducción al español]</div>
+  </div>
+
+  <!-- EJEMPLO DE QUIZ -->
+  <h3 class="leccion-section-title">🎯 Checkpoint</h3>
+  <div class="nnt-quiz-card">
+    <div class="nnt-quiz-header">
+      <span class="nnt-quiz-badge">Checkpoint N5</span>
+      <span>[TODO: Tema del quiz]</span>
+    </div>
+    <div class="nnt-quiz-question">[TODO: Pregunta del quiz]</div>
+    <div class="nnt-quiz-options">
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'[TODO: Explicación respuesta A]')">A) [TODO: Opción A]</button>
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,true,'[TODO: Explicación respuesta B correcta]')">B) [TODO: Opción B ✓]</button>
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'[TODO: Explicación respuesta C]')">C) [TODO: Opción C]</button>
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'[TODO: Explicación respuesta D]')">D) [TODO: Opción D]</button>
+    </div>
+    <div class="nnt-quiz-feedback"></div>
+  </div>
+
+</article>
+
+<!-- NAVEGACIÓN -->
+<nav class="leccion-nav">
+  <div class="leccion-nav-inner">
+    <!-- TODO: Si hay lección anterior, pon el enlace. Si no, deja el span invisible. -->
+    <a class="leccion-nav-no-prev" href="[TODO: XX-leccion-anterior.html]">
+      <span>←</span> [TODO: Número]. [TODO: Nombre anterior]
+    </a>
+    <!-- También puedes usar: <span class="leccion-nav-no-prev"></span> si es la primera -->
+
+    <div class="leccion-nav-center">
+      <button class="btn-completar" id="btn-completar" onclick="marcarCompletado()">
+        ☐ Marcar como completado
+      </button>
+    </div>
+
+    <!-- TODO: Si hay lección siguiente, pon el enlace. Si es la última usa leccion-nav-no-next -->
+    <a class="leccion-nav-next" href="[TODO: XX-leccion-siguiente.html]">
+      [TODO: Número]. [TODO: Nombre siguiente] <span>→</span>
+    </a>
+  </div>
+</nav>
+
+<script src="../../scripts.js"></script>
+<script>
+  // TODO: Cambia el ID de la lección (debe coincidir con el del index.html)
+  const LECCION_ID = '[TODO: 11]';
+  const NIVEL_KEY  = 'n5'; // ← Cambia si es otro nivel: kana, n4, n3, n2, n1
+
+  // ── Funciones estándar (no modificar) ──────────────────────────────
+  function playJapaneseTTS(t){
+    if('speechSynthesis'in window){
+      window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(t);
+      u.lang='ja-JP'; u.rate=0.9;
+      window.speechSynthesis.speak(u);
+    }
+  }
+  function checkQuizAnswer(btn,ok,msg){
+    const c=btn.closest('.nnt-quiz-card');
+    c.querySelectorAll('.nnt-quiz-option').forEach(o=>o.disabled=true);
+    btn.classList.add(ok?'correct':'wrong');
+    const f=c.querySelector('.nnt-quiz-feedback');
+    f.style.background=ok?'#e8f5e9':'#ffebee';
+    f.style.color=ok?'#1b5e20':'#b71c1c';
+    f.innerHTML=(ok?'🎉 <strong>¡Correcto!</strong> ':'❌ <strong>Inténtalo de nuevo.</strong> ')+msg;
+    f.classList.add('show');
+    if(!ok)setTimeout(()=>c.querySelectorAll('.nnt-quiz-option').forEach(o=>o.disabled=false),1500);
+  }
+  function toggleAccordion(el){el.classList.toggle('open');}
+  function marcarCompletado(){
+    const btn=document.getElementById('btn-completar');
+    const done=localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado';
+    localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,done?'completado':'pendiente');
+    btn.innerHTML=done?'✓ ¡Completado!':'☐ Marcar como completado';
+    btn.classList.toggle('done',done);
+  }
+  function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
+  function toggleDarkMode(){
+    document.body.classList.toggle('dark-mode');
+    document.documentElement.classList.toggle('dark-mode');
+    const d=document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme',d?'dark':'light');
+    const b=document.getElementById('dark-mode-toggle');
+    if(b)b.innerText=d?'☀️':'🌙';
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado')
+      localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,'en-progreso');
+    const btn=document.getElementById('btn-completar');
+    if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)=='completado'){
+      btn.innerHTML='✓ ¡Completado!';
+      btn.classList.add('done');
+    }
+  });
+</script>
+</body>
+</html>

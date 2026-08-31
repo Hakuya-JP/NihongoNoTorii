@@ -36,7 +36,7 @@
     <a href="ToriiTV.html">ToriiTV</a>
     <a href="jlpt-simulador.html">Simulador JLPT</a>
     <a href="perfil.html" class="nav-profile-item active">
-      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+     <!-- <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>-->
     </a>
     <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Cambiar tema">🌙</button>
   </nav>
@@ -353,7 +353,27 @@
       <!-- NOMBRE DEL ESTUDIANTE -->
       <div class="form-group">
         <label for="input-profile-name" class="form-label">Nombre o Apodo (氏名 / Name)</label>
-        <input type="text" id="input-profile-name" class="form-control" required placeholder="Ej: SATOU UTSUJI, Juan Pérez..." maxlength="40" />
+        <input type="text" id="input-profile-name" class="form-control" required placeholder="Ej: はくや（白夜）, SATOU UTSUJI..." maxlength="40" />
+      </div>
+
+      <!-- TAG O HANDLE DE USUARIO -->
+      <div class="form-group">
+        <label for="input-profile-tag" class="form-label">Usuario / Tag (@handle)</label>
+        <input type="text" id="input-profile-tag" class="form-control" placeholder="Ej: hakuya_mitsumine" maxlength="30" />
+      </div>
+
+      <!-- TEMA DE LA BARRA RPG HUD -->
+      <div class="form-group">
+        <label for="select-profile-hud-theme" class="form-label">🎨 Tema y Fondo Translúcido (Barra y Popout)</label>
+        <select id="select-profile-hud-theme" class="form-control">
+          <option value="floral-navy">🌸 Follaje Nocturno (Floral Navy - Recomendado)</option>
+          <option value="torii-sunset">⛩️ Noche Torii (Torii Sunset)</option>
+          <option value="sakura-night">🌸 Sakura Blossom (Cerezos en Flor)</option>
+          <option value="emerald-bamboo">🍃 Bosque Esmeralda (Bambú Teal)</option>
+          <option value="cyber-tokyo">🌌 Cyber Tokio (Neon Glow)</option>
+          <option value="torii-classic">🖤 Torii Oscuro (Dark Slate)</option>
+          <option value="custom">📁 Imagen Personalizada</option>
+        </select>
       </div>
 
       <!-- FECHA DE NACIMIENTO -->

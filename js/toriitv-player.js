@@ -26,6 +26,96 @@ function initVideoPlayerModule() {
   let timeOffset = 0;
   let fontSizeOverlay = 1.4;
 
+  // ------------------------------------------------------------------
+  // FURIGANA: tokenizador Kuromoji (carga asíncrona del diccionario)
+  // ------------------------------------------------------------------
+  let kuromojiTokenizer = null;
+
+  if (typeof kuromoji !== "undefined") {
+    kuromoji
+      .builder({ dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/" })
+      .build((err, tokenizer) => {
+        if (!err) kuromojiTokenizer = tokenizer;
+      });
+  }
+
+  /** Convierte katakana a hiragana (Kuromoji devuelve lecturas en katakana) */
+  function katakanaToHiragana(str) {
+    return str.replace(/[\u30A1-\u30F6]/g, ch =>
+      String.fromCharCode(ch.charCodeAt(0) - 0x60)
+    );
+  }
+
+  /** Devuelve true si el carácter es un kanji CJK */
+  function esKanji(ch) {
+    const c = ch.charCodeAt(0);
+    return (c >= 0x4E00 && c <= 0x9FAF) || (c >= 0x3400 && c <= 0x4DBF);
+  }
+
+  /**
+   * Dado un token de Kuromoji, devuelve HTML con <ruby> SOLO sobre la parte kanji.
+   * Para tokens mixtos (kanji + okurigana, ej: 住んで → すんで) recorta el sufijo
+   * kana compartido entre surface_form y reading, y solo wrappea la parte kanji.
+   */
+  function tokenToRuby(surface, reading) {
+    if (!reading || reading === "*") return surface;
+
+    const hReading = katakanaToHiragana(reading);
+    const chars = [...surface];
+
+    // Sin kanji → texto plano
+    if (!chars.some(esKanji)) return surface;
+
+    // Todo kanji → wrap completo
+    if (chars.every(esKanji)) {
+      return `<ruby>${surface}<rt>${hReading}</rt></ruby>`;
+    }
+
+    // Mixto: recortar okurigana sufijo coincidente
+    const readingChars = [...hReading];
+    let sufijo = 0;
+    while (
+      sufijo < chars.length &&
+      sufijo < readingChars.length &&
+      !esKanji(chars[chars.length - 1 - sufijo]) &&
+      chars[chars.length - 1 - sufijo] === readingChars[readingChars.length - 1 - sufijo]
+    ) {
+      sufijo++;
+    }
+
+    const parteKanji  = chars.slice(0, chars.length - sufijo).join("");
+    const parteOkuri  = chars.slice(chars.length - sufijo).join("");
+    const lecturaKanji = readingChars.slice(0, readingChars.length - sufijo).join("");
+
+    if (!parteKanji || ![...parteKanji].some(esKanji)) return surface;
+
+    return `<ruby>${parteKanji}<rt>${lecturaKanji}</rt></ruby>${parteOkuri}`;
+  }
+
+  /**
+   * Procesa el texto de un subtítulo y devuelve HTML con <ruby> sobre cada kanji.
+   * Preserva los saltos de línea (<br>) y el resto del HTML intacto.
+   */
+  function agregarFurigana(texto) {
+    if (!kuromojiTokenizer) return texto;
+
+    const partes = texto.split(/<br\s*\/?>/gi);
+
+    const resultado = partes.map(parte => {
+      const textoPlano = parte.replace(/<[^>]*>/g, "");
+      if (!textoPlano.trim()) return parte;
+
+      const tokens = kuromojiTokenizer.tokenize(textoPlano);
+      return tokens.map(t => tokenToRuby(t.surface_form, t.reading)).join("");
+    });
+
+    return resultado.join("<br>");
+  }
+
+
+  // Furigana desactivado por defecto
+  document.body.classList.add("sin-furigana");
+
   if (!video.getAttribute("src") && overlaySub) {
     overlaySub.innerText = "🎬 Da clic aquí para cargar el video";
     overlaySub.classList.add("centrado");
@@ -78,6 +168,10 @@ function initVideoPlayerModule() {
         reader.onload = function(evt) {
           const textoCrudo = evt.target.result;
           subtitulos = (extension === "ass" || extension === "ssa") ? parseASS(textoCrudo) : parseSRT(textoCrudo);
+          
+          // Enriquecer cada subtítulo con furigana sobre los kanji
+          subtitulos.forEach(s => { s.textoFurigana = agregarFurigana(s.texto); });
+          
           window.subtitlesData = subtitulos;
           asociarTraduccionesES();
           renderSidebarSubtitles();
@@ -216,7 +310,7 @@ function initVideoPlayerModule() {
 
       lineDiv.innerHTML = `
         <span class="sub-time">${formatTime(sub.inicio + timeOffset)}</span>
-        <div class="sub-text">${sub.texto}</div>
+        <div class="sub-text">${sub.textoFurigana || sub.texto}</div>
         <button class="btn-anki-star" title="Enviar minado a Anki">☆</button>
       `;
 
@@ -286,7 +380,7 @@ function initVideoPlayerModule() {
 
     if (overlaySub) {
       if (subActual) {
-        overlaySub.innerHTML = subActual.texto;
+        overlaySub.innerHTML = subActual.textoFurigana || subActual.texto;
       } else if (video.getAttribute("src") && video.currentTime > 0) {
         overlaySub.innerHTML = "";
       }
@@ -337,6 +431,45 @@ function initVideoPlayerModule() {
 
   if (btnTextPlus) btnTextPlus.addEventListener("click", () => { fontSizeOverlay += 0.2; if(overlaySub) overlaySub.style.fontSize = `${fontSizeOverlay}rem`; });
   if (btnTextMinus) btnTextMinus.addEventListener("click", () => { if (fontSizeOverlay > 0.8) fontSizeOverlay -= 0.2; if(overlaySub) overlaySub.style.fontSize = `${fontSizeOverlay}rem`; });
+
+  // Toggle Furigana: activa/desactiva la visibilidad de los <rt> vía CSS
+  const btnFurigana = document.getElementById("btn-toggle-furigana");
+  if (btnFurigana) {
+    btnFurigana.addEventListener("click", () => {
+      document.body.classList.toggle("sin-furigana");
+      btnFurigana.classList.toggle("active-tool");
+    });
+  }
+
+  // Color del furigana
+  let furiganaColor = "#ff8c00";
+  const furiganaColorPicker = document.getElementById("furigana-color-picker");
+  if (furiganaColorPicker) {
+    furiganaColorPicker.addEventListener("input", (e) => {
+      furiganaColor = e.target.value;
+      document.documentElement.style.setProperty("--furigana-color", furiganaColor);
+    });
+  }
+
+  // Tamaño del furigana (en em, relativo al texto base)
+  let furiganaSizeEm = 0.52;
+  const btnFuriganaMinus = document.getElementById("btn-furigana-minus");
+  const btnFuriganaPlus  = document.getElementById("btn-furigana-plus");
+
+  function actualizarTamanioFurigana() {
+    document.documentElement.style.setProperty("--furigana-size", `${furiganaSizeEm.toFixed(2)}em`);
+  }
+
+  if (btnFuriganaMinus) {
+    btnFuriganaMinus.addEventListener("click", () => {
+      if (furiganaSizeEm > 0.3) { furiganaSizeEm = Math.round((furiganaSizeEm - 0.06) * 100) / 100; actualizarTamanioFurigana(); }
+    });
+  }
+  if (btnFuriganaPlus) {
+    btnFuriganaPlus.addEventListener("click", () => {
+      if (furiganaSizeEm < 1.0) { furiganaSizeEm = Math.round((furiganaSizeEm + 0.06) * 100) / 100; actualizarTamanioFurigana(); }
+    });
+  }
 
   if (colorPicker && overlaySub) colorPicker.addEventListener("input", (e) => overlaySub.style.color = e.target.value);
   

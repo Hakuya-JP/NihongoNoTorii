@@ -2,6 +2,19 @@
 // NIHONGO NO TORII - CARGADOR Y ARQUITECTURA MODULAR JS
 // ==========================================================================
 (function() {
+  // Detectar la ruta base relativa según la ubicación del script actual
+  let basePath = "";
+  if (document.currentScript) {
+    const srcAttr = document.currentScript.getAttribute("src") || "";
+    const lastSlash = srcAttr.lastIndexOf("/");
+    if (lastSlash !== -1) {
+      basePath = srcAttr.substring(0, lastSlash + 1);
+    }
+  }
+
+  // Exponer basePath globalmente para recursos (audios BGM, imágenes, etc.)
+  window.TORII_BASE_PATH = basePath;
+
   const modules = [
     "js/config-global.js",
     "js/interfaz-biblioteca.js",
@@ -15,6 +28,6 @@
   ];
 
   modules.forEach(src => {
-    document.write(`<script src="${src}"></script>`);
+    document.write(`<script src="${basePath}${src}"></script>`);
   });
 })();

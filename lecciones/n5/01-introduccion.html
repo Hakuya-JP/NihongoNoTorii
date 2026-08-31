@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01. Introducción al Japonés — N5 | Nihongo no Torii</title>
+  <link rel="icon" type="image/png" href="../../image/logonnt.png" />
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand"><a href="../../index.html" class="nav-logo"><img src="../../image/logonnt.png" alt="Logo"></a><h1 class="logo-text">Nihongo no Torii</h1></div>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <nav id="menu" class="top-nav">
+    <a href="../../index.html">Inicio</a>
+    <a href="../../lecciones.html" class="active">Lecciones</a>
+    <a href="../../videos.html">Videos</a>
+    <a href="../../biblioteca.html">Biblioteca</a>
+    <a href="../../jlpt-simulador.html">Simulador JLPT</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<nav class="leccion-breadcrumb">
+  <a href="../../lecciones.html">Lecciones</a><span class="sep">›</span>
+  <a href="index.html">N5 — Principiante</a><span class="sep">›</span>
+  <span>01. Introducción al Japonés</span>
+</nav>
+
+<section class="leccion-hero">
+  <div class="leccion-hero-inner" data-cat="intro">
+    <div class="leccion-hero-kanji">語</div>
+    <div class="leccion-hero-num">01</div>
+    <div class="leccion-hero-info">
+      <div class="leccion-hero-badges">
+        <span class="blog-meta-tag nivel">N5</span>
+        <span class="blog-meta-tag cat-intro">🌸 Introducción</span>
+        <span class="blog-meta-tag tiempo">⏱ 4 min</span>
+      </div>
+      <h2 class="leccion-hero-title">Introducción al Japonés</h2>
+      <div class="leccion-progress-row">
+        <div class="leccion-progress-track"><div class="leccion-progress-fill" style="width:10%"></div></div>
+        <span class="leccion-progress-label">Lección 1 de 10</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<article class="leccion-content">
+  <h3 class="leccion-section-title">🌸 ¿Por qué aprender japonés?</h3>
+  <div class="nnt-callout tip">
+    <div class="nnt-callout-icon">🎯</div>
+    <div class="nnt-callout-content">
+      <div class="nnt-callout-title">Bienvenido al curso</div>
+      <div class="nnt-callout-body">Este curso te guiará desde cero hasta tener las bases sólidas del japonés nivel N5 del JLPT. Cada lección construye sobre la anterior — no saltes pasos.</div>
+    </div>
+  </div>
+  <p style="font-size:1.05rem;line-height:1.75;color:var(--texto-principal);margin:18px 0;">El japonés es la lengua nativa de más de 125 millones de personas. Aunque la escritura puede parecer intimidante al principio, su gramática es muy sistemática y regular.</p>
+
+  <h3 class="leccion-section-title">📝 Los tres sistemas de escritura</h3>
+  <div class="nnt-vs-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="nnt-vs-card"><div class="nnt-vs-header"><span class="nnt-vs-badge">ひらがな</span><span class="nnt-vs-role">Hiragana</span></div><ul class="nnt-vs-list"><li>46 caracteres silábicos</li><li>Gramática y palabras nativas</li><li>Lo primero que aprenderás</li></ul></div>
+    <div class="nnt-vs-card accent"><div class="nnt-vs-header"><span class="nnt-vs-badge">カタカナ</span><span class="nnt-vs-role">Katakana</span></div><ul class="nnt-vs-list"><li>46 caracteres silábicos</li><li>Palabras extranjeras y énfasis</li><li>Sonidos iguales al hiragana</li></ul></div>
+    <div class="nnt-vs-card"><div class="nnt-vs-header"><span class="nnt-vs-badge">漢字</span><span class="nnt-vs-role">Kanji</span></div><ul class="nnt-vs-list"><li>Ideogramas de origen chino</li><li>~2,000 de uso cotidiano</li><li>Se aprenden gradualmente</li></ul></div>
+  </div>
+
+  <h3 class="leccion-section-title">📊 Niveles del JLPT</h3>
+  <div class="nnt-table-wrapper"><table class="nnt-table"><thead><tr><th>Nivel</th><th>Vocabulario</th><th>Kanji</th><th>Descripción</th></tr></thead><tbody>
+    <tr><td><strong>N5</strong></td><td>~800 palabras</td><td>~100</td><td>Básico — <span class="highlight">Empezamos aquí ✓</span></td></tr>
+    <tr><td>N4</td><td>~1,500 palabras</td><td>~300</td><td>Elemental</td></tr>
+    <tr><td>N3</td><td>~3,750 palabras</td><td>~650</td><td>Intermedio</td></tr>
+    <tr><td>N2</td><td>~6,000 palabras</td><td>~1,000</td><td>Avanzado</td></tr>
+    <tr><td>N1</td><td>~10,000 palabras</td><td>~2,000</td><td>Dominio</td></tr>
+  </tbody></table></div>
+
+  <h3 class="leccion-section-title">🗺️ Tu ruta en este curso</h3>
+  <div class="nnt-stepper">
+    <div class="nnt-step-item active"><div class="nnt-step-circle">1</div><div class="nnt-step-title">Escritura</div><div class="nnt-step-desc">KANA y Kanji básicos</div></div>
+    <div class="nnt-step-item"><div class="nnt-step-circle">2</div><div class="nnt-step-title">Estructura</div><div class="nnt-step-desc">Cópulas y partículas</div></div>
+    <div class="nnt-step-item"><div class="nnt-step-circle">3</div><div class="nnt-step-title">Vocabulario</div><div class="nnt-step-desc">Demostrativos</div></div>
+    <div class="nnt-step-item"><div class="nnt-step-circle">4</div><div class="nnt-step-title">Verbos</div><div class="nnt-step-desc">Formas y práctica</div></div>
+  </div>
+  <div class="nnt-callout golden">
+    <div class="nnt-callout-icon">⛩️</div>
+    <div class="nnt-callout-content"><div class="nnt-callout-title">Regla de Oro</div><div class="nnt-callout-body">El japonés sigue la estructura <strong>Sujeto + Objeto + Verbo</strong>. El verbo siempre va al final de la oración.</div></div>
+  </div>
+</article>
+
+<nav class="leccion-nav"><div class="leccion-nav-inner">
+  <span class="leccion-nav-no-prev" style="visibility:hidden">←</span>
+  <div class="leccion-nav-center"><button class="btn-completar" id="btn-completar" onclick="marcarCompletado()">☐ Marcar como completado</button></div>
+  <a class="leccion-nav-next" href="02-kana.html">02. Sistema KANA <span>→</span></a>
+</div></nav>
+
+<script src="../../scripts.js"></script>
+<script>
+  const LECCION_ID='01',NIVEL_KEY='n5';
+  function marcarCompletado(){const btn=document.getElementById('btn-completar');const done=localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado';localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,done?'completado':'pendiente');btn.innerHTML=done?'✓ ¡Completado!':'☐ Marcar como completado';btn.classList.toggle('done',done);}
+  function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
+  function toggleDarkMode(){document.body.classList.toggle('dark-mode');document.documentElement.classList.toggle('dark-mode');const d=document.body.classList.contains('dark-mode');localStorage.setItem('theme',d?'dark':'light');const b=document.getElementById('dark-mode-toggle');if(b)b.innerText=d?'☀️':'🌙';}
+  document.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado')localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,'en-progreso');const btn=document.getElementById('btn-completar');if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)=='completado'){btn.innerHTML='✓ ¡Completado!';btn.classList.add('done');}});
+</script>
+</body></html>

@@ -1,125 +1,889 @@
 /* ==========================================================================
-   SECCIÓN 8: SISTEMA DE GAMIFICACIÓN RPG (HUD, NIVELES, DESBLOQUEOS Y MISIONES)
+   SECCIÓN 8: SISTEMA DE GAMIFICACIÓN RPG — DOCK COMPACTO FLOTANTE TORII
    ========================================================================== */
 
-/* BARRA SUPERIOR RPG (HUD) */
+/* WIDGET FLOTANTE INFERIOR IZQUIERDO */
 .rpg-hud-bar {
-  background: linear-gradient(135deg, #114a60 0%, #114a60 100%);
-  color: #ffffff;
-  padding: 8px 24px;
+  position: fixed;
+  bottom: 18px;
+  left: 18px;
+  z-index: 9999;
+  width: 400px;
+  max-width: calc(100vw - 36px);
+  min-height: 52px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid var(--naranja, #ff9800);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  z-index: 998;
-  position: relative;
-  flex-wrap: wrap;
   gap: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+  overflow: visible !important;
 }
 
-  body.dark-mode .rpg-hud-bar{
-    background: linear-gradient(135deg, #081e2e 0%, #081e2e 100%);
+.rpg-hud-bar:hover {
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-.rpg-hud-left {
+.torii-hud-bg-decor {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* TEMAS Y FONDOS PERSONALIZABLES DE LA BARRA HUD */
+.rpg-hud-bar.theme-floral-navy {
+  background: linear-gradient(90deg, rgba(9, 19, 34, 0.92) 0%, rgba(13, 27, 50, 0.88) 45%, rgba(21, 44, 80, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(9, 19, 34, 0.92) 0%, rgba(13, 27, 50, 0.85) 50%, rgba(21, 44, 80, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C365,10 335,35 320,80 C355,60 380,25 400,0 Z' fill='%2338bdf8' opacity='0.35'/><path d='M380,0 C345,20 315,45 295,80 C325,65 355,35 380,0 Z' fill='%23ec4899' opacity='0.3'/><path d='M400,25 C360,40 335,65 330,80 C360,70 385,50 400,25 Z' fill='%23fbbf24' opacity='0.35'/><circle cx='370' cy='20' r='3' fill='%23ffffff' opacity='0.5'/><circle cx='340' cy='50' r='2' fill='%23ffffff' opacity='0.4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-torii-sunset {
+  background: linear-gradient(90deg, rgba(24, 13, 36, 0.92) 0%, rgba(46, 16, 48, 0.88) 50%, rgba(74, 21, 40, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(24, 13, 36, 0.92) 0%, rgba(46, 16, 48, 0.85) 50%, rgba(74, 21, 40, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C350,15 320,40 300,80 C340,65 370,30 400,0 Z' fill='%23f97316' opacity='0.45'/><path d='M385,0 C340,25 310,50 290,80 C330,68 360,35 385,0 Z' fill='%23ef4444' opacity='0.4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-sakura-night {
+  background: linear-gradient(90deg, rgba(26, 15, 30, 0.92) 0%, rgba(40, 20, 47, 0.88) 50%, rgba(61, 27, 70, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(26, 15, 30, 0.92) 0%, rgba(40, 20, 47, 0.85) 50%, rgba(61, 27, 70, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,10 C360,25 330,55 320,80 C350,65 380,35 400,10 Z' fill='%23f472b6' opacity='0.4'/><circle cx='360' cy='30' r='5' fill='%23fbcfe8' opacity='0.5'/><circle cx='330' cy='55' r='4' fill='%23f472b6' opacity='0.4'/><circle cx='380' cy='60' r='3' fill='%23fbcfe8' opacity='0.6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-emerald-bamboo {
+  background: linear-gradient(90deg, rgba(6, 25, 23, 0.92) 0%, rgba(13, 40, 36, 0.88) 50%, rgba(19, 60, 53, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(6, 25, 23, 0.92) 0%, rgba(13, 40, 36, 0.85) 50%, rgba(19, 60, 53, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C360,15 330,45 310,80 C345,65 375,30 400,0 Z' fill='%2310b981' opacity='0.4'/><path d='M380,0 C340,25 310,55 290,80 C325,68 355,35 380,0 Z' fill='%2334d399' opacity='0.3'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-cyber-tokyo {
+  background: linear-gradient(90deg, rgba(9, 9, 21, 0.92) 0%, rgba(18, 14, 36, 0.88) 50%, rgba(30, 19, 56, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(9, 9, 21, 0.92) 0%, rgba(18, 14, 36, 0.85) 50%, rgba(30, 19, 56, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 L320,80 L350,80 L400,30 Z' fill='%2306b6d4' opacity='0.4'/><path d='M380,0 L300,80 L320,80 L380,20 Z' fill='%23d946ef' opacity='0.35'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-torii-classic,
+.rpg-hud-bar.theme-discord-classic {
+  background: rgba(30, 31, 34, 0.92);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* ÁREA DE PERFIL DEL USUARIO (TORII PILL) */
+.torii-user-pill {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 2;
 }
 
-.hud-level-badge {
-  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-  color: #fff;
-  font-weight: 900;
+.torii-user-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* AVATAR */
+.torii-avatar-container {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.torii-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.torii-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* DETALLES DE NOMBRE Y NIVEL/XP */
+.torii-user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.torii-username {
   font-size: 0.9rem;
-  padding: 4px 12px;
-  border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
-  display: inline-flex;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+}
+
+.torii-user-status {
+  display: flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  line-height: 1;
 }
 
-.hud-level-title {
-  font-size: 0.9rem;
+.torii-lvl-tag {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 1px 4px rgba(245, 124, 0, 0.4);
+}
+
+.torii-xp-text {
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #f1f5f9;
-  letter-spacing: 0.5px;
-}
-
-.rpg-hud-center {
-  flex: 1;
-  max-width: 450px;
-  margin: 0 15px;
-}
-
-.hud-xp-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.78rem;
-  font-weight: 700;
-  margin-bottom: 3px;
   color: #cbd5e1;
 }
 
-.hud-xp-track {
+.torii-mini-xp-track {
   width: 100%;
-  height: 12px;
+  height: 3px;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  border-radius: 3px;
   overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 2px;
 }
 
-.hud-xp-fill {
+.torii-mini-xp-fill {
   height: 100%;
   background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
-  width: 0%;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
 }
 
-.rpg-hud-right {
+/* BOTONES DE ACCIÓN (LADO DERECHO) */
+.torii-actions-group {
   display: flex;
   align-items: center;
-  gap: 15px;
-  font-size: 0.88rem;
-  font-weight: 700;
+  gap: 4px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  padding-left: 8px;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
-.hud-stat-pill {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.hud-sound-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  border-radius: 50%;
+.torii-icon-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
   width: 32px;
   height: 32px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, background 0.2s ease;
+  font-size: 1rem;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  position: relative;
+}
+
+.torii-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.torii-icon-btn.muted {
+  color: #ef4444;
+}
+
+.torii-icon-btn.active {
+  color: #22c55e;
+}
+
+.torii-quest-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+/* BGM WRAPPER Y POPOUT COMPLETO */
+.torii-audio-btn-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.torii-arrow-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0 4px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.torii-arrow-btn:hover {
+  color: #cbd5e1;
+}
+
+.torii-bgm-popout {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 14px);
+  right: 0;
+  width: 300px;
+  background: rgba(17, 24, 39, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10002;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.torii-bgm-popout.open {
+  display: flex;
+  animation: toriiPopoutIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.torii-popout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.torii-popout-close-btn-small {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.torii-popout-close-btn-small:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.torii-bgm-now-playing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.torii-bgm-playing-icon {
+  font-size: 1.2rem;
+}
+
+.torii-bgm-song-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.torii-bgm-current-title {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #38bdf8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.torii-bgm-current-status {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.torii-bgm-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 4px 0;
+}
+
+.torii-ctrl-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+}
+
+.torii-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.torii-ctrl-btn.play-btn {
+  background: var(--naranja, #ff9800);
+  border-color: var(--naranja, #ff9800);
+  color: #0f172a;
+  font-weight: 900;
+  padding: 6px 18px;
+}
+
+.torii-ctrl-btn.play-btn:hover {
+  background: #fbbf24;
+}
+
+.torii-volume-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.torii-volume-slider {
+  flex: 1;
+  accent-color: var(--naranja, #ff9800);
+  cursor: pointer;
+}
+
+.torii-playlist-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.torii-playlist-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.torii-add-song-btn {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.torii-add-song-btn:hover {
+  background: rgba(56, 189, 248, 0.3);
+  color: #ffffff;
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.torii-del-song-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  opacity: 0.55;
+  margin-left: auto;
+}
+
+.torii-del-song-btn:hover {
+  opacity: 1;
+  color: #ef4444;
+  transform: scale(1.15);
+}
+
+.torii-bgm-playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.torii-playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  transition: all 0.15s;
+}
+
+.torii-playlist-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.torii-playlist-item.active {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  font-weight: 800;
+  border-left: 2px solid #38bdf8;
+}
+
+.torii-track-num {
+  opacity: 0.6;
+  font-size: 0.72rem;
+  width: 16px;
+}
+
+.torii-track-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.torii-track-eq {
+  font-size: 0.85rem;
+  animation: pulse 1s infinite;
+}
+
+/* ==========================================================================
+   POPOUT COMPLETO DE PERFIL TRANSLÚCIDO (CARD FLOTANTE SIN BANNER SÓLIDO)
+   ========================================================================== */
+.torii-profile-popout {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 0;
+  width: 350px;
+  max-width: calc(100vw - 36px);
+  background: rgba(17, 24, 39, 0.86);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+  z-index: 10001;
+  overflow: hidden;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  position: absolute;
+}
+
+.torii-profile-popout.open {
+  display: block;
+  animation: toriiPopoutIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toriiPopoutIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* TEMAS TRANSLÚCIDOS DEL POPOUT DE PERFIL */
+.torii-profile-popout.theme-floral-navy {
+  background: linear-gradient(145deg, rgba(9, 19, 34, 0.88) 0%, rgba(13, 27, 50, 0.82) 50%, rgba(21, 44, 80, 0.78) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.15);
+}
+
+.torii-profile-popout.theme-torii-sunset {
+  background: linear-gradient(145deg, rgba(24, 13, 36, 0.88) 0%, rgba(46, 16, 48, 0.82) 50%, rgba(74, 21, 40, 0.78) 100%);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(249, 115, 22, 0.15);
+}
+
+.torii-profile-popout.theme-sakura-night {
+  background: linear-gradient(145deg, rgba(26, 15, 30, 0.88) 0%, rgba(40, 20, 47, 0.82) 50%, rgba(61, 27, 70, 0.78) 100%);
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(244, 114, 182, 0.15);
+}
+
+.torii-profile-popout.theme-emerald-bamboo {
+  background: linear-gradient(145deg, rgba(6, 25, 23, 0.88) 0%, rgba(13, 40, 36, 0.82) 50%, rgba(19, 60, 53, 0.78) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(16, 185, 129, 0.15);
+}
+
+.torii-profile-popout.theme-cyber-tokyo {
+  background: linear-gradient(145deg, rgba(9, 9, 21, 0.88) 0%, rgba(18, 14, 36, 0.82) 50%, rgba(30, 19, 56, 0.78) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+.torii-profile-popout.theme-torii-classic,
+.torii-profile-popout.theme-discord-classic {
+  background: rgba(24, 26, 30, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.torii-popout-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.15s;
+  z-index: 5;
+}
+
+.torii-popout-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+}
+
+.torii-popout-avatar-row {
+  position: relative;
+  padding: 18px 16px 6px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.torii-popout-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.torii-popout-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.torii-popout-body {
+  padding: 6px 16px 16px;
+}
+
+.torii-popout-name {
+  font-size: 1.18rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.torii-popout-tag {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.torii-popout-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.torii-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.torii-badge.lvl {
+  background: rgba(245, 124, 0, 0.2);
+  color: #fbbf24;
+  border-color: rgba(245, 124, 0, 0.4);
+}
+
+.torii-badge.xp {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.torii-badge.streak {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.torii-popout-bio {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.torii-popout-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 10px 0;
+}
+
+/* MENÚ DE ACCIONES DEL POPOUT */
+.torii-popout-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.torii-menu-item {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #e2e8f0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: background 0.15s;
+  text-align: left;
+}
+
+.torii-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.torii-menu-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.torii-menu-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.torii-menu-title {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.torii-menu-subtitle {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.torii-menu-arrow {
+  color: #64748b;
   font-size: 1rem;
 }
 
-.hud-sound-btn:hover {
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.25);
+.torii-menu-item-theme {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 4px 0;
+}
+
+.torii-theme-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.torii-theme-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.theme-pill-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.theme-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.theme-pill-btn.active {
+  background: var(--naranja, #ff9800);
+  color: #ffffff;
+  border-color: var(--naranja, #ff9800);
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+}
+
+.theme-pill-btn.custom-img-btn {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+.theme-pill-btn.custom-img-btn:hover {
+  background: rgba(56, 189, 248, 0.28);
+  color: #ffffff;
+}
+
+/* POPOUT FLOTANTE DE MISIONES DIARIAS */
+.collapsible-quests-panel.torii-floating-quests {
+  position: fixed;
+  bottom: 78px;
+  left: 18px;
+  max-width: 380px;
+  width: calc(100vw - 36px);
+  z-index: 10001;
+  background: rgba(17, 24, 39, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+  padding: 0;
+  overflow: hidden;
+}
+
+.collapsible-quests-panel.torii-floating-quests .daily-quests-section {
+  margin: 0 !important;
+  padding: 16px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  color: var(--azulNa) !important;
+}
+
+/* RESPONSIVE EN MÓVILES */
+@media (max-width: 600px) {
+  .rpg-hud-bar {
+    bottom: 12px;
+    left: 12px;
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+  }
+  .collapsible-quests-panel.torii-floating-quests,
+  .torii-profile-popout {
+    bottom: 70px;
+    left: 12px;
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+  }
 }
 
 /* SISTEMA DE TARJETAS BLOQUEADAS (LEVEL UNLOCKING) */
@@ -356,13 +1120,14 @@ body.dark-mode .lock-progress-track {
   background: var(--blanco2, #ffffff);
   border-radius: 20px;
   padding: 25px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-  border: 2px solid var(--crema, #ffe0b2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 body.dark-mode .daily-quests-section {
   background: var(--blanco2, #0a425d);
   border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .quests-grid {
@@ -373,7 +1138,7 @@ body.dark-mode .daily-quests-section {
 }
 
 .quest-card {
-  background: var(--gris-suave, #f8fafc);
+  background: var(--blanco2, #f8fafc);
   border-radius: 14px;
   padding: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);

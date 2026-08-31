@@ -1,0 +1,1601 @@
+/* ==========================================================================
+   NIHONGO NO TORII - BLOQUES DIDÁCTICOS Y HERRAMIENTAS DE APRENDIZAJE
+   ========================================================================== */
+
+/* --- CONTENEDOR GENERAL DE LECCIONES / HERRAMIENTAS --- */
+.nnt-toolkit-wrapper {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+/* Encabezado del visor de herramientas */
+.toolkit-hero {
+  background: var(--blanco);
+  border-radius: 18px;
+  padding: 30px;
+  margin-bottom: 35px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  border-left: 6px solid var(--naranja);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toolkit-hero h2 {
+  color: var(--color-h2);
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolkit-hero p {
+  color: var(--texto-principal);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.toolkit-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.toolkit-chip {
+  padding: 8px 16px;
+  background: var(--blanco2);
+  color: var(--color-h3);
+  border: 1px solid rgba(20, 100, 130, 0.2);
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolkit-chip:hover, .toolkit-chip.active {
+  background: var(--naranja);
+  color: #ffffff;
+  border-color: var(--naranja);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 148, 71, 0.3);
+}
+
+/* CONTENEDOR DE CADA BLOQUE / HERRAMIENTA */
+.block-showcase {
+  background: var(--blanco);
+  border-radius: 16px;
+  margin-bottom: 40px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+body.dark-mode .block-showcase {
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+.block-showcase:hover {
+  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+}
+
+.block-header {
+  background: var(--blanco2);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.block-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.block-tag {
+  background: var(--azul);
+  color: #ffffff;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.block-title {
+  font-size: 1.25rem;
+  color: var(--color-h2);
+  font-weight: 700;
+  margin: 0;
+}
+
+.block-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-copy-code {
+  background: var(--naranja);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-copy-code:hover {
+  background: #ff7b1d;
+  transform: scale(1.03);
+}
+
+.btn-copy-code.copied {
+  background: #27ae60 !important;
+}
+
+.btn-toggle-code {
+  background: transparent;
+  color: var(--color-h3);
+  border: 1px solid var(--azul);
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-code:hover {
+  background: var(--azul);
+  color: #ffffff;
+}
+
+.block-preview {
+  padding: 28px 24px;
+}
+
+.block-code-wrapper {
+  display: none;
+  background: #1e1e1e;
+  border-top: 1px solid #333;
+  padding: 18px 24px;
+  position: relative;
+}
+
+.block-code-wrapper.show {
+  display: block;
+}
+
+.block-code-wrapper pre {
+  margin: 0;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.88rem;
+  color: #e0e0e0;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   1. BLOQUE: RUTA / STEPPER DE APRENDIZAJE (ROADMAP)
+   ========================================================================== */
+.nnt-stepper {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin: 20px 0 25px;
+  gap: 10px;
+}
+
+.nnt-stepper::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 30px;
+  right: 30px;
+  height: 4px;
+  background: var(--crema2);
+  z-index: 1;
+}
+
+body.dark-mode .nnt-stepper::before {
+  background: #1c4e6f;
+}
+
+.nnt-step-item {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.nnt-step-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--blanco);
+  border: 3px solid var(--crema2);
+  color: var(--texto-principal);
+  font-weight: 900;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.nnt-step-item.completed .nnt-step-circle {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: #ffffff;
+}
+
+.nnt-step-item.active .nnt-step-circle {
+  background: var(--naranja);
+  border-color: var(--naranja);
+  color: #ffffff;
+  transform: scale(1.12);
+  box-shadow: 0 0 15px rgba(255, 148, 71, 0.5);
+}
+
+.nnt-step-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-h3);
+  margin-bottom: 4px;
+}
+
+.nnt-step-desc {
+  font-size: 0.8rem;
+  color: var(--texto-principal);
+  opacity: 0.8;
+}
+
+@media (max-width: 650px) {
+  .nnt-stepper {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .nnt-stepper::before {
+    top: 0;
+    bottom: 0;
+    left: 24px;
+    right: auto;
+    width: 4px;
+    height: 100%;
+  }
+  .nnt-step-item {
+    flex-direction: row;
+    text-align: left;
+    gap: 15px;
+  }
+  .nnt-step-circle {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+}
+
+/* ==========================================================================
+   2. BLOQUE: FÓRMULA GRAMATICAL (BLUEPRINT BOX)
+   ========================================================================== */
+.nnt-formula-box {
+  background: var(--blanco3);
+  border-radius: 14px;
+  padding: 22px;
+  border: 2px dashed var(--azul);
+  position: relative;
+  margin: 15px 0;
+}
+
+.nnt-formula-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--azul);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.nnt-formula-layout {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 1.15rem;
+}
+
+.nnt-token {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.nnt-token-main {
+  font-size: 1.15rem;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.nnt-token-sub {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.nnt-token.noun {
+  background: #e3f2fd;
+  color: #0d47a1;
+  border: 1px solid #90caf9;
+}
+
+.nnt-token.particle {
+  background: #ffe0b2;
+  color: #e65100;
+  border: 1px solid #ffb74d;
+}
+
+.nnt-token.verb {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #a5d6a7;
+}
+
+.nnt-token.adjective {
+  background: #f3e5f5;
+  color: #4a148c;
+  border: 1px solid #ce93d8;
+}
+
+.nnt-token.formula-plus {
+  background: transparent;
+  box-shadow: none;
+  font-size: 1.3rem;
+  color: var(--naranja);
+  font-weight: 900;
+  padding: 0 4px;
+}
+
+.nnt-formula-meaning {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-size: 1rem;
+  color: var(--texto-principal);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   3. BLOQUE: ORACIÓN DE EJEMPLO INTERACTIVA (CON FURIGANA & AUDIO)
+   ========================================================================== */
+.nnt-sentence-card {
+  background: var(--blanco3);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  border-left: 5px solid var(--azul);
+  transition: transform 0.2s ease;
+}
+
+.nnt-sentence-card:hover {
+  transform: translateX(4px);
+}
+
+.nnt-sentence-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.nnt-japanese-text {
+  font-size: 1.45rem;
+  line-height: 2;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--texto-principal);
+}
+
+.nnt-japanese-text ruby {
+  ruby-align: center;
+}
+
+.nnt-japanese-text rt {
+  font-size: 0.65em;
+  color: var(--naranja);
+  font-weight: bold;
+}
+
+.nnt-audio-btn {
+  background: var(--naranja);
+  color: #ffffff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 2px 8px rgba(255, 148, 71, 0.4);
+}
+
+.nnt-audio-btn:hover {
+  transform: scale(1.1);
+  background: #ff7b1d;
+}
+
+.nnt-romaji-text {
+  font-size: 0.95rem;
+  color: var(--color-h3);
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.nnt-spanish-text {
+  font-size: 1.05rem;
+  color: var(--texto-principal);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   4. BLOQUE: CAJAS DE ALERTA DIDÁCTICAS (CALLOUTS)
+   ========================================================================== */
+.nnt-callout {
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+}
+
+.nnt-callout-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.nnt-callout-content {
+  flex: 1;
+}
+
+.nnt-callout-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.nnt-callout-body {
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+/* Tip / Consejo */
+.nnt-callout.tip {
+  background: #e1f5fe;
+  border-left: 5px solid #03a9f4;
+  color: #01579b;
+}
+body.dark-mode .nnt-callout.tip {
+  background: #092c42;
+  color: #b3e5fc;
+}
+
+/* Regla de Oro / Torii Rule */
+.nnt-callout.golden {
+  background: #fff8e1;
+  border-left: 5px solid #ffb300;
+  color: #ff6f00;
+}
+body.dark-mode .nnt-callout.golden {
+  background: #3e2e0e;
+  color: #ffe082;
+}
+
+/* Alerta / Error común */
+.nnt-callout.warning {
+  background: #ffebee;
+  border-left: 5px solid #e53935;
+  color: #b71c1c;
+}
+body.dark-mode .nnt-callout.warning {
+  background: #3c1214;
+  color: #ffcdd2;
+}
+
+/* Nota Cultural */
+.nnt-callout.culture {
+  background: #f3e5f5;
+  border-left: 5px solid #ab47bc;
+  color: #4a148c;
+}
+body.dark-mode .nnt-callout.culture {
+  background: #2e1038;
+  color: #e1bee7;
+}
+
+/* ==========================================================================
+   5. BLOQUE: TABLA COMPARATIVA DE CONCEPTOS (VS / SHOWDOWN)
+   ========================================================================== */
+.nnt-vs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 18px 0;
+}
+
+@media (max-width: 700px) {
+  .nnt-vs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nnt-vs-card {
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  border-top: 4px solid var(--azul);
+}
+
+.nnt-vs-card.accent {
+  border-top-color: var(--naranja);
+}
+
+.nnt-vs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.nnt-vs-badge {
+  font-size: 1.5rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+  color: var(--color-h2);
+}
+
+.nnt-vs-role {
+  font-size: 0.85rem;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--blanco2);
+  color: var(--color-h3);
+}
+
+.nnt-vs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nnt-vs-list li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--texto-principal);
+}
+
+.nnt-vs-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--naranja);
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   6. BLOQUE: DESGLOSE DE KANJI Y RADICALES
+   ========================================================================== */
+.nnt-kanji-box {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin: 18px 0;
+}
+
+@media (max-width: 650px) {
+  .nnt-kanji-box {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.nnt-kanji-big {
+  width: 110px;
+  height: 110px;
+  background: var(--blanco2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  font-family: 'Noto Sans JP', serif;
+  color: var(--color-h1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  border: 2px solid var(--azul);
+}
+
+.nnt-kanji-details {
+  flex: 1;
+}
+
+.nnt-kanji-meaning {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-h2);
+  margin-bottom: 6px;
+}
+
+.nnt-kanji-readings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 10px 0 14px;
+}
+
+.nnt-reading-tag {
+  background: var(--blanco3);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.nnt-reading-tag strong {
+  color: var(--naranja);
+}
+
+.nnt-kanji-mnemo {
+  font-size: 0.95rem;
+  background: var(--blanco2);
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--texto-principal);
+  font-style: italic;
+  border-left: 3px solid var(--naranja);
+}
+
+/* ==========================================================================
+   7. BLOQUE: DIÁLOGO / CONVERSACIÓN TIPO CHAT
+   ========================================================================== */
+.nnt-dialogue-container {
+  background: var(--blanco3);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 18px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nnt-dialogue-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.nnt-dialogue-row.right {
+  flex-direction: row-reverse;
+}
+
+.nnt-dialogue-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--azul);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.nnt-dialogue-row.right .nnt-dialogue-avatar {
+  background: var(--naranja);
+}
+
+.nnt-dialogue-bubble {
+  background: var(--blanco);
+  padding: 14px 18px;
+  border-radius: 14px;
+  max-width: 80%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  position: relative;
+}
+
+.nnt-dialogue-speaker {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-h3);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.nnt-dialogue-jp {
+  font-size: 1.15rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--texto-principal);
+  margin-bottom: 4px;
+}
+
+.nnt-dialogue-es {
+  font-size: 0.9rem;
+  color: var(--texto-principal);
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   8. BLOQUE: MATRIZ / TABLA DE CONJUGACIÓN ELEGANTE
+   ========================================================================== */
+.nnt-table-wrapper {
+  overflow-x: auto;
+  margin: 18px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.nnt-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--blanco);
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.nnt-table th {
+  background: var(--azul);
+  color: #ffffff;
+  padding: 14px 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.nnt-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: var(--texto-principal);
+}
+
+.nnt-table tr:last-child td {
+  border-bottom: none;
+}
+
+.nnt-table tr:hover td {
+  background: var(--blanco2);
+}
+
+.nnt-table .highlight {
+  color: var(--naranja);
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   9. BLOQUE: ACORDEÓN DESPLEGABLE (DETALLES EXPANDIBLES)
+   ========================================================================== */
+.nnt-accordion {
+  border-radius: 12px;
+  margin: 12px 0;
+  overflow: hidden;
+  background: var(--blanco);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.nnt-accordion-header {
+  padding: 16px 20px;
+  background: var(--blanco2);
+  color: var(--color-h3);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.nnt-accordion-header:hover {
+  background: var(--crema);
+}
+
+.nnt-accordion-icon {
+  transition: transform 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.nnt-accordion.open .nnt-accordion-icon {
+  transform: rotate(180deg);
+}
+
+.nnt-accordion-body {
+  display: none;
+  padding: 20px;
+  line-height: 1.6;
+  color: var(--texto-principal);
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.nnt-accordion.open .nnt-accordion-body {
+  display: block;
+}
+
+/* ==========================================================================
+   10. BLOQUE: CHECKPOINT INTERACTIVO (MINI-QUIZ DE AUTOEVALUACIÓN)
+   ========================================================================== */
+.nnt-quiz-card {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+  border: 2px solid var(--azul);
+}
+
+.nnt-quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.nnt-quiz-badge {
+  background: var(--azul);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.nnt-quiz-question {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--texto-principal);
+  margin-bottom: 18px;
+}
+
+.nnt-quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nnt-quiz-option {
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--blanco2);
+  color: var(--texto-principal);
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.nnt-quiz-option:hover {
+  border-color: var(--naranja);
+  background: var(--blanco);
+}
+
+.nnt-quiz-option.correct {
+  background: #e8f5e9 !important;
+  border-color: #2e7d32 !important;
+  color: #1b5e20 !important;
+  font-weight: bold;
+}
+
+.nnt-quiz-option.wrong {
+  background: #ffebee !important;
+  border-color: #c62828 !important;
+  color: #b71c1c !important;
+}
+
+.nnt-quiz-feedback {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: none;
+  font-weight: 500;
+}
+
+.nnt-quiz-feedback.show {
+  display: block;
+}
+
+/* ==========================================================================
+   11. BLOQUE: TARJETA DE VOCABULARIO 3D (FLASHCARD INTERACTIVA)
+   ========================================================================== */
+.nnt-flashcard-container {
+  perspective: 1000px;
+  max-width: 380px;
+  margin: 20px auto;
+  height: 240px;
+}
+
+.nnt-flashcard {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  cursor: pointer;
+}
+
+.nnt-flashcard.flipped {
+  transform: rotateY(180deg);
+}
+
+.nnt-flashcard-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 2px solid var(--azul);
+  background: var(--blanco);
+}
+
+.nnt-flashcard-back {
+  transform: rotateY(180deg);
+  background: var(--blanco2);
+  border-color: var(--naranja);
+}
+
+.nnt-fc-badge {
+  align-self: flex-start;
+  background: var(--azul);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.nnt-flashcard-back .nnt-fc-badge {
+  background: var(--naranja);
+}
+
+.nnt-fc-center {
+  text-align: center;
+}
+
+.nnt-fc-kanji {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--color-h1);
+  font-family: 'Noto Sans JP', sans-serif;
+  margin-bottom: 6px;
+}
+
+.nnt-fc-kana {
+  font-size: 1.3rem;
+  color: var(--naranja);
+  font-weight: 700;
+}
+
+.nnt-fc-meaning {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-h2);
+  margin-bottom: 6px;
+}
+
+.nnt-fc-romaji {
+  font-size: 1rem;
+  color: var(--texto-principal);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.nnt-fc-footer {
+  font-size: 0.8rem;
+  color: var(--texto-principal);
+  opacity: 0.7;
+  text-align: center;
+}
+
+/* ==========================================================================
+   12. BLOQUE: GUÍA DE TRAZOS PASO A PASO (STROKE ORDER GRID)
+   ========================================================================== */
+.nnt-stroke-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.nnt-stroke-box {
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.08);
+  width: 100px;
+}
+
+.nnt-genkou-square {
+  width: 75px;
+  height: 75px;
+  margin: 0 auto 8px;
+  background: #fffdf9;
+  border: 1px dashed #d1c4b2;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-family: 'Noto Sans JP', serif;
+  color: var(--texto-principal);
+  border-radius: 6px;
+}
+
+body.dark-mode .nnt-genkou-square {
+  background: #153347;
+  border-color: #2c6080;
+  color: #ffffff;
+}
+
+.nnt-genkou-square::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: 1px dotted rgba(200, 180, 160, 0.4);
+}
+
+.nnt-genkou-square::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dotted rgba(200, 180, 160, 0.4);
+}
+
+.nnt-stroke-box.current .nnt-genkou-square {
+  border-color: var(--naranja);
+  color: var(--naranja);
+  font-weight: bold;
+}
+
+.nnt-stroke-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-h3);
+}
+
+/* ==========================================================================
+   13. BLOQUE: ESPECTRO DE CORTESÍA / KEIGO SPECTRUM
+   ========================================================================== */
+.nnt-keigo-spectrum {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.nnt-keigo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  border-left: 6px solid var(--azul);
+}
+
+.nnt-keigo-row.informal { border-left-color: #78909c; }
+.nnt-keigo-row.polite { border-left-color: #29b6f6; }
+.nnt-keigo-row.sonkeigo { border-left-color: #ab47bc; }
+.nnt-keigo-row.kenjougo { border-left-color: #ff9800; }
+
+.nnt-keigo-tag {
+  min-width: 140px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-h2);
+}
+
+.nnt-keigo-phrase {
+  flex: 1;
+  font-size: 1.25rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--texto-principal);
+}
+
+.nnt-keigo-context {
+  font-size: 0.85rem;
+  color: var(--texto-principal);
+  opacity: 0.8;
+}
+
+@media (max-width: 700px) {
+  .nnt-keigo-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+/* ==========================================================================
+   14. BLOQUE: DESGLOSE MORFOLÓGICO DE PALABRAS (TOKEN INSPECTOR)
+   ========================================================================== */
+.nnt-morphology-box {
+  background: var(--blanco);
+  border-radius: 14px;
+  padding: 22px;
+  margin: 20px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.nnt-morph-full {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-h1);
+  font-family: 'Noto Sans JP', sans-serif;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.nnt-morph-chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.nnt-morph-item {
+  background: var(--blanco2);
+  border-radius: 10px;
+  padding: 10px 16px;
+  text-align: center;
+  border-top: 3px solid var(--azul);
+  flex: 1;
+  min-width: 110px;
+}
+
+.nnt-morph-item:nth-child(2) { border-top-color: var(--naranja); }
+.nnt-morph-item:nth-child(3) { border-top-color: #ab47bc; }
+.nnt-morph-item:nth-child(4) { border-top-color: #2e7d32; }
+
+.nnt-morph-kanji {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--texto-principal);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.nnt-morph-func {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-h3);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.nnt-morph-desc {
+  font-size: 0.78rem;
+  color: var(--texto-principal);
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   15. BLOQUE: LÍNEA DE TIEMPO / CAUSA Y EFECTO DE CONDICIONALES
+   ========================================================================== */
+.nnt-timeline {
+  position: relative;
+  margin: 25px 0;
+  padding: 10px 0;
+}
+
+.nnt-timeline-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  gap: 15px;
+}
+
+.nnt-timeline-track::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30px;
+  right: 30px;
+  height: 4px;
+  background: var(--azul);
+  z-index: 1;
+}
+
+.nnt-timeline-node {
+  position: relative;
+  z-index: 2;
+  background: var(--blanco);
+  border: 3px solid var(--naranja);
+  border-radius: 12px;
+  padding: 14px 18px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  flex: 1;
+}
+
+.nnt-node-badge {
+  background: var(--naranja);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.nnt-node-main {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-h2);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.nnt-node-sub {
+  font-size: 0.85rem;
+  color: var(--texto-principal);
+  margin-top: 4px;
+}
+
+@media (max-width: 650px) {
+  .nnt-timeline-track {
+    flex-direction: column;
+  }
+  .nnt-timeline-track::before {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    height: 100%;
+  }
+}
+
+/* ==========================================================================
+   16. BLOQUE: CONSTRUCTOR DE ORACIONES (SENTENCE SCRAMBLE BUILDER)
+   ========================================================================== */
+.nnt-builder-box {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+  border: 2px dashed var(--azul);
+}
+
+.nnt-builder-target {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--texto-principal);
+  margin-bottom: 16px;
+}
+
+.nnt-builder-dropzone {
+  min-height: 54px;
+  background: var(--blanco3);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+
+.nnt-builder-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nnt-word-tile {
+  background: var(--blanco2);
+  border: 1px solid var(--azul);
+  color: var(--color-h2);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.nnt-word-tile:hover {
+  background: var(--naranja);
+  color: #ffffff;
+  border-color: var(--naranja);
+  transform: translateY(-2px);
+}
+
+.nnt-word-tile.placed {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.nnt-builder-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ==========================================================================
+   17. BLOQUE: MATRIZ VISUAL DE CONTADORES JAPONESES
+   ========================================================================== */
+.nnt-counters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.nnt-counter-card {
+  background: var(--blanco);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  border-top: 4px solid var(--azul);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.nnt-counter-card:hover {
+  transform: translateY(-4px);
+}
+
+.nnt-counter-icon {
+  font-size: 2rem;
+  margin-bottom: 6px;
+}
+
+.nnt-counter-kanji {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--color-h1);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.nnt-counter-reading {
+  font-size: 0.95rem;
+  color: var(--naranja);
+  font-weight: bold;
+}
+
+.nnt-counter-use {
+  font-size: 0.85rem;
+  color: var(--texto-principal);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   18. BLOQUE: VISOR DE LECTURA INMERSIVA (CONMUTADOR DE AYUDAS)
+   ========================================================================== */
+.nnt-reader-box {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+}
+
+.nnt-reader-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.nnt-toggle-pill {
+  background: var(--blanco2);
+  color: var(--color-h3);
+  border: 1px solid rgba(20,100,130,0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nnt-toggle-pill.active {
+  background: var(--azul);
+  color: #ffffff;
+  border-color: var(--azul);
+}
+
+.nnt-reader-content {
+  font-size: 1.3rem;
+  line-height: 2.2;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--texto-principal);
+}
+
+.nnt-reader-box.hide-furigana rt {
+  display: none;
+}
+
+.nnt-reader-romaji {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0,0,0,0.1);
+  font-size: 1rem;
+  color: var(--color-h3);
+  font-style: italic;
+}
+
+.nnt-reader-translation {
+  margin-top: 10px;
+  font-size: 1.05rem;
+  color: var(--texto-principal);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   19. BLOQUE: ÁRBOL DE DECISIÓN DE PARTÍCULAS (FLOWCHART)
+   ========================================================================== */
+.nnt-decision-tree {
+  background: var(--blanco3);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nnt-tree-branch {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--blanco);
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.nnt-tree-condition {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--texto-principal);
+}
+
+.nnt-tree-arrow {
+  color: var(--naranja);
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.nnt-tree-result {
+  background: var(--naranja);
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 900;
+  font-family: 'Noto Sans JP', sans-serif;
+  padding: 6px 14px;
+  border-radius: 8px;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* ==========================================================================
+   20. BLOQUE: TARJETA LISTA PARA MINADO EN ANKI
+   ========================================================================== */
+.nnt-anki-preview-card {
+  background: var(--blanco);
+  border-radius: 14px;
+  padding: 22px;
+  margin: 20px 0;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  border: 2px solid #2e7d32;
+}
+
+.nnt-anki-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.nnt-anki-badge {
+  background: #2e7d32;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nnt-btn-anki {
+  background: #2e7d32;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nnt-btn-anki:hover {
+  background: #1b5e20;
+  transform: scale(1.03);
+}

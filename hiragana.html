@@ -31,7 +31,7 @@
       <a href="ToriiTV.html">ToriiTV</a>
       <a href="jlpt-simulador.html">Simulador JLPT</a>
       <a href="perfil.html" class="nav-profile-item">
-        <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+     <!-- <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>-->
       </a>
       <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
     </nav>
@@ -49,78 +49,122 @@
       </p>
 
       <div class="kana-nav-tabs">
-        <button class="tab-btn active" data-tab="tab-explicacion">📖 Explicación y Tabla</button>
-        <button class="tab-btn" data-tab="tab-video">🎥 Video Explicativo</button>
-        <button class="tab-btn" data-tab="tab-practica">🎮 Práctica Interactiva</button>
+        <button class="tab-btn active" data-tab="tab-leccion" onclick="activarPestanaKana('tab-leccion')">📖 Lección y Explicación</button>
+        <button class="tab-btn" data-tab="tab-practica" onclick="activarPestanaKana('tab-practica')">🎮 Práctica Interactiva</button>
       </div>
     </div>
 
-    <!-- PESTAÑA 1: EXPLICACIÓN POR ESCRITO Y TABLA INTERACTIVA DE HIRAGANA -->
-    <div id="tab-explicacion" class="kana-section-block active">
-      <div class="written-explanation-card">
-        <div class="written-guide-box">
-          <h3>📌 ¿Cómo funciona el Hiragana?</h3>
-          <p>
-            El silabario Hiragana consta de <strong>46 caracteres fonéticos principales</strong>. Cada uno representa un sonido compuesto por una consonante y una vocal (o una vocal sola). Además, existen los <strong>Sonidos Impuros (Dakuon)</strong> creados con comillas (゛) o círculos (゜), y los <strong>Diptongos (Yoon)</strong> combinados con <em>ya, yu, yo</em> pequeños.
-          </p>
-          <p>
-            💡 <strong>Instrucciones:</strong> Filtra por familias o haz clic en cualquier carácter para escuchar su pronunciación real, ver su escritura y repasar palabras de ejemplo.
-          </p>
-        </div>
+    <!-- PESTAÑA PRINCIPAL: LECCIÓN (VIDEO Y EXPLICACIÓN POR ESCRITO) -->
+    <div id="tab-leccion" class="kana-section-block active">
+      
+      <!-- GRID LAYOUT: CONTENIDO PRINCIPAL A LA IZQUIERDA Y SIDEBAR CON TEMAS E IMAGEN BOTÓN A LA DERECHA -->
+      <div class="kana-layout-grid">
+        
+        <!-- COLUMNA IZQUIERDA: VIDEO PRIMERO E INFORMACIÓN POR ESCRITO DEBAJO -->
+        <div class="kana-main-content">
+          
+          <!-- 1. VIDEO EXPLICATIVO (PRIMERO) -->
+          <div id="seccion-video" class="video-card-box">
+            <h2 class="seccion-titulo" style="margin-top: 0; text-align: left;">🎥 Video Explicativo: Dominando el Hiragana</h2>
+            <p style="text-align: left; margin-bottom: 20px; opacity: 0.85;">
+              Aprende el orden correcto de los trazos y trucos mnemotécnicos en este tutorial guiado en video.
+            </p>
 
-        <!-- INDICADOR DE AUDIO LOCAL DE RUTA DE ARCHIVOS .M4A / .MP3 -->
-        <div style="background: rgba(20, 100, 130, 0.06); border: 1.5px dashed var(--azul, #146482); padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 1.5rem;">🎵</span>
-          <div style="font-size: 0.88rem; line-height: 1.5;">
-            <strong>Audio Nativo Detectado:</strong><br>
-            Archivos soportados en la carpeta <code>KANA/</code> o <code>audio/kana/</code> (ejemplo: <code>KANA/あ.m4a</code> o <code>audio/kana/a.m4a</code> / <code>.mp3</code>).
+            <div class="video-responsive-container">
+              <iframe 
+                src="https://www.youtube-nocookie.com/embed/uYdEIyaYV40" 
+                title="Video Introductorio de Hiragana" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+              </iframe>
+            </div>
           </div>
-        </div>
 
-        <!-- FILTROS POR FAMILIA KANA -->
-        <div class="family-filter-bar">
-          <button class="family-chip-btn active" data-family="todos">Todos los Hiragana</button>
-          <button class="family-chip-btn" data-family="vocales">Vocales (あ・い...)</button>
-          <button class="family-chip-btn" data-family="ka">Familia か (ka)</button>
-          <button class="family-chip-btn" data-family="sa">Familia さ (sa)</button>
-          <button class="family-chip-btn" data-family="ta">Familia た (ta)</button>
-          <button class="family-chip-btn" data-family="na">Familia な (na)</button>
-          <button class="family-chip-btn" data-family="ha">Familia は (ha)</button>
-          <button class="family-chip-btn" data-family="ma">Familia ま (ma)</button>
-          <button class="family-chip-btn" data-family="ya">Familia や (ya)</button>
-          <button class="family-chip-btn" data-family="ra">Familia ら (ra)</button>
-          <button class="family-chip-btn" data-family="wa">Familia わ (wa)</button>
-          <button class="family-chip-btn" data-family="dakuon">Dakuon (が・ざ...)</button>
-          <button class="family-chip-btn" data-family="yoon">Diptongos (きゃ・しゃ...)</button>
-        </div>
+          <!-- 2. EXPLICACIÓN POR ESCRITO (DEBAJO DEL VIDEO) -->
+          <div class="written-explanation-card">
+            
+            <!-- ====================================================================== -->
+            <!-- 📝 SECCIÓN DE EXPLICACIONES MODULARES                                  -->
+            <!-- PARA AGREGAR O QUITAR MÁS INFORMACIÓN, SIMPLEMENTE COPIA O ELIMINA    -->
+            <!-- UN BLOQUE COMPLETO <div class="explanation-card-item"> ... </div>    -->
+            <!-- ====================================================================== -->
 
-        <!-- GRID INTERACTIVO DE CARACTERES -->
-        <div id="kana-interactive-grid" class="kana-interactive-grid">
-          <!-- Renderizado dinámico desde js/kana-interactivo.js -->
+            <!-- BLOQUE 1: INTRODUCCIÓN AL HIRAGANA -->
+            <div id="tema-introduccion" class="explanation-card-item">
+              <h3>📌 ¿Cómo funciona el Hiragana?</h3>
+              <p>
+                El silabario Hiragana consta de <strong>46 caracteres fonéticos principales</strong>. Cada uno representa un sonido compuesto por una consonante y una vocal (o una vocal sola). Además, existen los <strong>Sonidos Impuros (Dakuon)</strong> creados con comillas (゛) o círculos (゜), y los <strong>Diptongos (Yoon)</strong> combinados con <em>ya, yu, yo</em> pequeños.
+              </p>
+            </div>
+
+            <!-- BLOQUE 2: CONSEJOS DE ESTUDIO Y PRÁCTICA -->
+            <div id="tema-instrucciones" class="explanation-card-item">
+              <h3>💡 Instrucciones de Estudio</h3>
+              <p>
+                Para ir a la tabla interactiva independiente de Hiragana con audios nativos, animación de trazos con pincel japonés (*Shodō*) y palabras de ejemplo, haz clic en la imagen botón del panel lateral.
+              </p>
+            </div>
+
+            <!-- BLOQUE: FÓRMULA GRAMATICAL -->
+<div class="nnt-formula-box">
+  <div class="nnt-formula-title">📐 Patrón Gramatical N5</div>
+  <div class="nnt-formula-layout">
+    <div class="nnt-token noun">
+      <span class="nnt-token-main">Sujeto (Tema)</span>
+      <span class="nnt-token-sub">Sustantivo A</span>
+    </div>
+    <span class="nnt-token formula-plus">+</span>
+    <div class="nnt-token particle">
+      <span class="nnt-token-main">は</span>
+      <span class="nnt-token-sub">Partícula (wa)</span>
+    </div>
+    <span class="nnt-token formula-plus">+</span>
+    <div class="nnt-token noun">
+      <span class="nnt-token-main">Atributo</span>
+      <span class="nnt-token-sub">Sustantivo B</span>
+    </div>
+    <span class="nnt-token formula-plus">+</span>
+    <div class="nnt-token verb">
+      <span class="nnt-token-main">です</span>
+      <span class="nnt-token-sub">Cópula (Ser/Estar)</span>
+    </div>
+  </div>
+  <div class="nnt-formula-meaning">
+    💡 <strong>Significado:</strong> "En cuanto a [A], es [B]" o "[A] es [B]".
+  </div>
+</div>
+
+            <!-- PUEDES AGREGAR O MODIFICAR MÁS BLOQUES DE EXPLICACIÓN AQUÍ ABAJO -->
+
+          </div>
+
         </div>
+        
+
+        <!-- COLUMNA DERECHA: BARRA LATERAL CON TEMAS Y BOTÓN ÚNICO DE IMAGEN -->
+        <aside class="kana-sidebar">
+          <div class="kana-topic-nav-box">
+            <h4 class="topic-nav-title">📚 Temas de la Lección</h4>
+            <ul class="topic-nav-list">
+              <li><a href="#seccion-video">🎥 Video Explicativo</a></li>
+              <li><a href="#tema-introduccion">📌 Introducción</a></li>
+              <li><a href="#tema-instrucciones">💡 Instrucciones</a></li>
+            </ul>
+
+            <!-- BOTÓN EXCLUSIVO CON LA IMAGEN "tablahiragana.png" APUNTANDO A LA PÁGINA INDEPENDIENTE -->
+            <a href="tabla-hiragana.html" class="table-image-button-box" title="Ir a la Tabla Completa de Hiragana">
+              <img src="image/tablahiragana.png" alt="Tabla Hiragana" class="table-image-btn">
+            </a>
+          </div>
+        </aside>
+
       </div>
+
     </div>
 
-    <!-- PESTAÑA 2: VIDEO EXPLICATIVO -->
-    <div id="tab-video" class="kana-section-block">
-      <div class="video-card-box">
-        <h2 class="seccion-titulo" style="margin-top: 0;">🎥 Video Explicativo: Dominando el Hiragana</h2>
-        <p style="text-align: center; margin-bottom: 20px; opacity: 0.85;">
-          Aprende el orden correcto de los trazos y trucos mnemotécnicos en este tutorial guiado en video.
-        </p>
+    
 
-        <div class="video-responsive-container">
-          <iframe 
-            src="https://www.youtube.com/embed/uYdEIyaYV40" 
-            title="Video Introductorio de Hiragana" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-          </iframe>
-        </div>
-      </div>
-    </div>
-
-    <!-- PESTAÑA 3: MÓDULO DE PRÁCTICA INTERACTIVA -->
+    <!-- PESTAÑA 2: MÓDULO DE PRÁCTICA INTERACTIVA -->
     <div id="tab-practica" class="kana-section-block">
       <div class="interactive-quiz-container">
         
@@ -154,13 +198,22 @@
               <button class="btn btn-primary" style="width: 100%;">Iniciar Auditivo 🔊</button>
             </div>
 
+            <div class="quiz-mode-card" onclick="iniciarPracticaKana('custom')">
+              <div class="quiz-mode-icon">📝</div>
+              <div class="quiz-mode-title">Vocabulario y Desafíos</div>
+              <div class="quiz-mode-desc">Responde preguntas de opción múltiple con palabras, significados y gramática de Hiragana.</div>
+              <button class="btn btn-primary" style="width: 100%;">Iniciar Desafío 🌟</button>
+            </div>
+
           </div>
         </div>
 
         <!-- VISTA 2: EJECUCIÓN DEL QUIZ -->
         <div id="quiz-runner-view" style="display: none;">
           <div class="torii-quiz-header-bar">
-            <button class="btn-quit-quiz" onclick="salirPracticaKana()" title="Abandonar sesión">&times;</button>
+            <button class="btn-return-quiz-selector" onclick="salirPracticaKana()" title="Volver a la selección de juegos">
+              ← Volver
+            </button>
             <div class="torii-quiz-progress-track">
               <div id="torii-progress-fill" class="torii-quiz-progress-fill"></div>
             </div>
@@ -197,39 +250,6 @@
 
   </main>
 
-  <!-- MODAL DE DETALLE DEL CARÁCTER HIRAGANA -->
-  <div id="kana-detail-modal" class="kana-detail-modal-overlay">
-    <div class="kana-detail-card">
-      <button id="kana-detail-modal-close" class="modal-close-btn" style="position: absolute; top: 16px; right: 20px; font-size: 1.8rem; background: none; border: none; cursor: pointer;">&times;</button>
-      
-      <div id="kana-detail-big-char" class="kana-detail-big-char">あ</div>
-      <div id="kana-detail-romaji" class="kana-detail-romaji">a</div>
-
-      <button id="btn-kana-detail-sound" class="btn-sound-play-big">
-        <span>🔊 Escuchar Pronunciación</span>
-      </button>
-
-      <!-- SECCIÓN: ORDEN DE TRAZOS CON NÚMEROS Y FLECHAS -->
-      <div id="kana-detail-stroke-box" class="kana-stroke-order-box">
-        <!-- Renderizado dinámico desde js/kana-interactivo.js -->
-      </div>
-
-      <div style="text-align: left; margin-bottom: 8px; font-weight: bold; color: var(--color-h2);">
-        📝 Palabras de Ejemplo:
-      </div>
-      <div id="kana-detail-words-list" class="kana-detail-words-list">
-        <!-- Renderizado dinámico -->
-      </div>
-    </div>
-  </div>
-
   <script src="scripts.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      if (typeof initKanaPageModule === "function") {
-        initKanaPageModule("hiragana");
-      }
-    });
-  </script>
 </body>
 </html>

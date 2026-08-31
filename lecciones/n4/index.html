@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>N4 — Nivel Básico | Nihongo no Torii</title>
+  <link rel="icon" type="image/png" href="../../image/logonnt.png" />
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand"><a href="../../index.html" class="nav-logo"><img src="../../image/logonnt.png" alt="Logo"></a><h1 class="logo-text">Nihongo no Torii</h1></div>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <nav id="menu" class="top-nav">
+    <a href="../../index.html">Inicio</a><a href="../../lecciones.html" class="active">Lecciones</a><a href="../../videos.html">Videos</a><a href="../../biblioteca.html">Biblioteca</a><a href="../../jlpt-simulador.html">Simulador JLPT</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<section class="blog-hero">
+  <div class="blog-hero-inner" style="border-left-color:#1565c0;">
+    <h1>🔵 N4 — Nivel Básico</h1>
+    <p>Expresiones comunes de la vida cotidiana, gramática elemental y estructuras simples. Este nivel construye sobre las bases del N5 para alcanzar la comunicación funcional.</p>
+    <div class="blog-progress-bar-wrapper">
+      <span class="blog-progress-label">Tu progreso:</span>
+      <div class="blog-progress-track"><div class="blog-progress-fill" id="global-progress-fill" style="width:0%"></div></div>
+      <span class="blog-progress-pct" id="global-progress-pct">0 / 0 lecciones</span>
+    </div>
+    <div style="margin-top:8px;"><a href="../../lecciones.html" style="font-size:0.88rem;color:var(--color-h3);text-decoration:none;font-weight:600;">← Volver a todos los niveles</a></div>
+  </div>
+</section>
+
+<div class="blog-layout">
+  <aside class="blog-sidebar">
+    <div>
+      <div class="blog-sidebar-section-title">Categorías</div>
+      <ul class="blog-filter-list" id="cat-filter-list">
+        <li class="blog-filter-item active" onclick="filtrarBlog('todos',this)"><span class="blog-filter-dot todos"></span>Todos <span class="blog-filter-count" id="count-todos">0</span></li>
+        <li class="blog-filter-item" onclick="filtrarBlog('gramatica',this)"><span class="blog-filter-dot gramatica"></span>Gramática</li>
+        <li class="blog-filter-item" onclick="filtrarBlog('vocabulario',this)"><span class="blog-filter-dot vocabulario"></span>Vocabulario</li>
+        <li class="blog-filter-item" onclick="filtrarBlog('practica',this)"><span class="blog-filter-dot practica"></span>Práctica</li>
+        <li class="blog-filter-item" onclick="filtrarBlog('escritura',this)"><span class="blog-filter-dot escritura"></span>Escritura</li>
+      </ul>
+    </div>
+    <hr class="blog-sidebar-divider">
+    <div>
+      <div class="blog-sidebar-section-title">Estado</div>
+      <ul class="blog-filter-list" id="status-filter-list">
+        <li class="blog-filter-item active" onclick="filtrarPorEstado('todos',this)"><span class="blog-filter-dot todos"></span>Todos</li>
+        <li class="blog-filter-item" onclick="filtrarPorEstado('pendiente',this)"><span class="blog-filter-dot" style="background:#aaa"></span>Pendientes</li>
+        <li class="blog-filter-item" onclick="filtrarPorEstado('en-progreso',this)"><span class="blog-filter-dot" style="background:var(--naranja)"></span>En progreso</li>
+        <li class="blog-filter-item" onclick="filtrarPorEstado('completado',this)"><span class="blog-filter-dot" style="background:#2e7d32"></span>Completados</li>
+      </ul>
+    </div>
+    <hr class="blog-sidebar-divider">
+    <div>
+      <div class="blog-sidebar-section-title">Otros niveles</div>
+      <ul class="blog-filter-list">
+        <li class="blog-filter-item" onclick="location.href='../kana/index.html'"><span class="blog-filter-dot" style="background:#7b1fa2"></span>KANA</li>
+        <li class="blog-filter-item" onclick="location.href='../n5/index.html'"><span class="blog-filter-dot" style="background:var(--azul)"></span>N5</li>
+        <li class="blog-filter-item active" style="pointer-events:none"><span class="blog-filter-dot" style="background:#1565c0"></span>N4 ← Estás aquí</li>
+        <li class="blog-filter-item" onclick="location.href='../n3/index.html'"><span class="blog-filter-dot" style="background:#2e7d32"></span>N3</li>
+        <li class="blog-filter-item" onclick="location.href='../n2/index.html'"><span class="blog-filter-dot" style="background:#c05a00"></span>N2</li>
+        <li class="blog-filter-item" onclick="location.href='../n1/index.html'"><span class="blog-filter-dot" style="background:#b71c1c"></span>N1</li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <div class="blog-card-list" id="blog-card-list">
+      <!-- AGREGA LECCIONES AQUÍ (ver _nueva-leccion.html como plantilla) -->
+    </div>
+    <div id="proximamente" style="text-align:center;padding:60px 24px;">
+      <div style="font-size:4rem;margin-bottom:16px;">📘</div>
+      <h2 style="color:var(--color-h2);margin:0 0 10px;">Lecciones N4 en preparación</h2>
+      <p style="color:var(--texto-principal);opacity:0.7;max-width:480px;margin:0 auto 24px;line-height:1.6;">
+        Las lecciones del Nivel Básico N4 estarán disponibles próximamente. ¡Mientras tanto, puedes repasar el N5!
+      </p>
+      <a href="../n5/index.html" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--azul);color:#fff;border-radius:12px;font-weight:700;text-decoration:none;">Ver lecciones N5 →</a>
+    </div>
+    <div class="blog-empty-msg" id="blog-empty-msg">😔 No hay lecciones que coincidan con el filtro.</div>
+  </main>
+</div>
+
+<script src="../../scripts.js"></script>
+<script>
+  const LECCIONES_IDS = []; // Agrega IDs aquí: ['01','02',...]
+  const NIVEL_KEY = 'n4';
+  function cargarProgreso(){if(LECCIONES_IDS.length===0)return;document.getElementById('proximamente').style.display='none';let c=0;LECCIONES_IDS.forEach(id=>{const s=localStorage.getItem(`blog_${NIVEL_KEY}_${id}`)||'pendiente';const b=document.getElementById(`status-${id}`);const card=b?.closest('.blog-card');if(!b)return;if(s==='completado'){b.textContent='✓ Completado';b.className='blog-status-badge completado';card?.setAttribute('data-status','completado');c++;}else if(s==='en-progreso'){b.textContent='◑ En progreso';b.className='blog-status-badge en-progreso';card?.setAttribute('data-status','en-progreso');}else{b.textContent='⭘ Pendiente';b.className='blog-status-badge pendiente';card?.setAttribute('data-status','pendiente');}});const pct=Math.round((c/LECCIONES_IDS.length)*100);document.getElementById('global-progress-fill').style.width=pct+'%';document.getElementById('global-progress-pct').textContent=`${c} / ${LECCIONES_IDS.length} lecciones`;const ct=document.getElementById('count-todos');if(ct)ct.textContent=LECCIONES_IDS.length;}
+  let activeCat='todos',activeStatus='todos';
+  function filtrarBlog(cat,el){activeCat=cat;document.querySelectorAll('#cat-filter-list .blog-filter-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');aplicarFiltros();}
+  function filtrarPorEstado(s,el){activeStatus=s;document.querySelectorAll('#status-filter-list .blog-filter-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');aplicarFiltros();}
+  function aplicarFiltros(){let v=0;document.querySelectorAll('.blog-card').forEach(c=>{const pass=(activeCat==='todos'||c.dataset.categoria===activeCat)&&(activeStatus==='todos'||c.dataset.status===activeStatus);c.classList.toggle('hidden',!pass);if(!c.classList.contains('hidden'))v++;});document.getElementById('blog-empty-msg').style.display=(v===0&&LECCIONES_IDS.length>0)?'block':'none';}
+  document.addEventListener('DOMContentLoaded',cargarProgreso);
+  function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
+  function toggleDarkMode(){document.body.classList.toggle('dark-mode');document.documentElement.classList.toggle('dark-mode');const d=document.body.classList.contains('dark-mode');localStorage.setItem('theme',d?'dark':'light');const b=document.getElementById('dark-mode-toggle');if(b)b.innerText=d?'☀️':'🌙';}
+</script>
+</body>
+</html>

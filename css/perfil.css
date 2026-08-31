@@ -7,9 +7,10 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
-  z-index: 1000;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100005;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,7 +201,7 @@ body.dark-mode .stat-card {
   align-items: center;
   gap: 25px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 2px solid var(--crema, #ffe0b2);
   position: relative;
   flex-wrap: wrap;
   transition: background 0.3s ease, border-color 0.3s ease;
@@ -339,7 +340,7 @@ body.dark-mode .quick-stat-pill {
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 2px solid var(--crema, #ffe0b2);
   transition: background 0.3s ease;
 }
 

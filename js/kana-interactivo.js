@@ -1,5 +1,5 @@
 // ==========================================================================
-// MÓDULO KANA INTERACTIVO (PRÁCTICA, GOJŪON, ANIMACIÓN DE ESCRITURA Y AUDIOS)
+// MÓDULO KANA INTERACTIVO (PRÁCTICA, GOJŪON, GUÍA DE TRAZOS Y AUDIOS LOCALES)
 // ==========================================================================
 
 const DATASETS_KANA = {
@@ -169,7 +169,7 @@ const DATASETS_KANA = {
 
     // RA
     { char: "ラ", romaji: "ra", grupo: "ra", palabras: [{ jp: "ラジオ", romaji: "rajio", es: "Radio" }, { jp: "ラーメン", romaji: "raamen", es: "Ramen" }] },
-    { char: "リ", romaji: "ri", grupo: "ra", palabras: [{ jp: "りんご", romaji: "ringo", es: "Manzana" }, { jp: "リボン", romaji: "ribon", es: "Lazo / Cinta" }] },
+    { char: "リ", romaji: "ri", grupo: "ra", palabras: [{ jp: "リンゴ", romaji: "ringo", es: "Manzana" }, { jp: "リボン", romaji: "ribon", es: "Lazo / Cinta" }] },
     { char: "ル", romaji: "ru", grupo: "ra", palabras: [{ jp: "ルール", romaji: "ruuru", es: "Regla" }, { jp: "ルビー", romaji: "rubii", es: "Rubí" }] },
     { char: "レ", romaji: "re", grupo: "ra", palabras: [{ jp: "レストラン", romaji: "resutoran", es: "Restaurante" }, { jp: "レモン", romaji: "remon", es: "Limón" }] },
     { char: "ロ", romaji: "ro", grupo: "ra", palabras: [{ jp: "ロボット", romaji: "robotto", es: "Robot" }, { jp: "ロケット", romaji: "roketto", es: "Cohete" }] },
@@ -198,7 +198,7 @@ const DATASETS_KANA = {
     { char: "バ", romaji: "ba", grupo: "dakuon", palabras: [{ jp: "バス", romaji: "basu", es: "Autobús" }] },
     { char: "ビ", romaji: "bi", grupo: "dakuon", palabras: [{ jp: "ビル", romaji: "biru", es: "Edificio" }] },
     { char: "ブ", romaji: "bu", grupo: "dakuon", palabras: [{ jp: "ブログ", romaji: "burogu", es: "Blog" }] },
-    { char: "ベ", romaji: "be", grupo: "dakuon", palabras: [{ jp: "ベッド", romaji: "beddo", es: "Cama" }] },
+    { char: "べ", romaji: "be", grupo: "dakuon", palabras: [{ jp: "ベッド", romaji: "beddo", es: "Cama" }] },
     { char: "ボ", romaji: "bo", grupo: "dakuon", palabras: [{ jp: "ボタン", romaji: "botan", es: "Botón" }] },
     { char: "パ", romaji: "pa", grupo: "dakuon", palabras: [{ jp: "パーティー", romaji: "paatii", es: "Fiesta" }] },
     { char: "ピ", romaji: "pi", grupo: "dakuon", palabras: [{ jp: "ピンク", romaji: "pinku", es: "Color rosa" }] },
@@ -217,6 +217,174 @@ const DATASETS_KANA = {
     { char: "チュ", romaji: "chu", grupo: "yoon", palabras: [{ jp: "チューリップ", romaji: "chuurippu", es: "Tulipán" }] },
     { char: "チョ", romaji: "cho", grupo: "yoon", palabras: [{ jp: "チョコレート", romaji: "chokoreeto", es: "Chocolate" }] }
   ]
+};
+
+// ==========================================================================
+// 💡 BANCO DE PREGUNTAS PERSONALIZADAS Y TIPOS DIVERSOS DE QUIZ
+// ==========================================================================
+// AQUÍ PUEDES AGREGAR, MODIFICAR O ELIMINAR PREGUNTAS DE CUALQUIER TIPO.
+// CADA PREGUNTA CONTIENE:
+// - tipo: "vocabulario" | "opcion_multiple" | "gramatica"
+// - pregunta: El texto principal de la pregunta
+// - opciones: Un arreglo de 4 opciones de respuesta
+// - correcta: El índice de la opción correcta (0 para la 1ª, 1 para la 2ª, 2 para la 3ª, 3 para la 4ª)
+//
+const PREGUNTAS_PERSONALIZADAS_KANA = {
+  hiragana: [
+    {
+      tipo: "vocabulario",
+      pregunta: "¿Qué significa la palabra 'ねこ (neko)'?",
+      opciones: ["Gato 🐱", "Perro 🐶", "Pájaro 🐦", "Pez 🐟"],
+      correcta: 0
+    },
+    {
+      tipo: "vocabulario",
+      pregunta: "¿Cómo se escribe 'Japón' en Hiragana?",
+      opciones: ["にほん (Nihon)", "さくら (Sakura)", "わたし (Watashi)", "ねこ (Neko)"],
+      correcta: 0
+    },
+    {
+      tipo: "gramatica",
+      pregunta: "¿Cuál de los siguientes caracteres es una vocal en Hiragana?",
+      opciones: ["あ (a)", "か (ka)", "さ (sa)", "た (ta)"],
+      correcta: 0
+    }
+  ],
+
+  katakana: [
+    {
+      tipo: "vocabulario",
+      pregunta: "¿Qué significa la palabra prestada 'カメラ (kamera)'?",
+      opciones: ["Cámara 📷", "Café ☕", "Casa 🏠", "Coche 🚗"],
+      correcta: 0
+    },
+    {
+      tipo: "vocabulario",
+      pregunta: "¿Cómo se escribe 'América' en Katakana?",
+      opciones: ["アメリカ (Amerika)", "イギリス (Igirisu)", "フランス (Furansu)", "スペイン (Supein)"],
+      correcta: 0
+    }
+  ]
+};
+
+// ==========================================================================
+// DICCIONARIO DETALLADO DE TRAZOS Y PASOS DE ESCRITURA
+// ==========================================================================
+
+const GUIA_TRAZOS_KANA = {
+  // HIRAGANA VOCALES
+  "あ": { trazos: 3, pasos: ["① Horizontal de izquierda a derecha", "② Vertical descendente que cruza el trazo 1", "③ Bucle amplio en sentido horario"] },
+  "い": { trazos: 2, pasos: ["① Curva descendente izquierda con gancho final", "② Trazo corto descendente derecho"] },
+  "う": { trazos: 2, pasos: ["① Trazo corto diagonal arriba", "② Arco amplio descendente en curva"] },
+  "え": { trazos: 2, pasos: ["① Trazo diagonal corto arriba", "② Zig-zag horizontal, diagonal abajo y curva fina"] },
+  "お": { trazos: 3, pasos: ["① Horizontal corto", "② Vertical descendente con bucle a la izquierda y gancho arriba", "③ Punto diagonal arriba a la derecha"] },
+
+  // HIRAGANA KA
+  "か": { trazos: 3, pasos: ["① Horizontal con curva hacia abajo y gancho", "② Trazo vertical inclinado atravesando la curva", "③ Trazo corto diagonal a la derecha"] },
+  "き": { trazos: 4, pasos: ["① Horizontal superior", "② Horizontal inferior paralelo", "③ Diagonal descendente atravesando", "④ Curva inferior independiente"] },
+  "く": { trazos: 1, pasos: ["① Trazo en ángulo agudo continuo"] },
+  "け": { trazos: 3, pasos: ["① Vertical izquierdo con gancho", "② Horizontal superior", "③ Vertical descendente atravesando"] },
+  "こ": { trazos: 2, pasos: ["① Horizontal superior con gancho", "② Horizontal inferior curvado"] },
+
+  // HIRAGANA SA
+  "さ": { trazos: 3, pasos: ["① Horizontal", "② Diagonal descendente cruzando", "③ Curva inferior amplia"] },
+  "し": { trazos: 1, pasos: ["① Trazo vertical descendente que curva hacia arriba a la derecha"] },
+  "す": { trazos: 2, pasos: ["① Horizontal", "② Vertical atravesando con un bucle completo en el medio"] },
+  "せ": { trazos: 3, pasos: ["① Horizontal", "② Vertical derecho corto con gancho", "③ Vertical izquierdo cruzando"] },
+  "そ": { trazos: 1, pasos: ["① Trazo en Z continuo con curva inferior"] },
+
+  // HIRAGANA TA
+  "た": { trazos: 4, pasos: ["① Horizontal arriba", "② Inclinado hacia abajo", "③ Horizontal dentro", "④ Curva inferior estilo こ"] },
+  "ち": { trazos: 2, pasos: ["① Horizontal arriba", "② Vertical cruzando que forma una gran C curvada"] },
+  "つ": { trazos: 1, pasos: ["① Gran arco suave hacia la derecha"] },
+  "て": { trazos: 1, pasos: ["① Horizontal y curva hacia abajo a la izquierda"] },
+  "と": { trazos: 2, pasos: ["① Trazo corto inclinado", "② Curva amplia en C"] },
+
+  // HIRAGANA NA
+  "な": { trazos: 4, pasos: ["① Horizontal", "② Inclinado cruzando", "③ Punto corto diagonal", "④ Vertical con bucle final"] },
+  "に": { trazos: 3, pasos: ["① Vertical izquierdo con gancho", "② Horizontal superior", "③ Horizontal inferior"] },
+  "ぬ": { trazos: 2, pasos: ["① Inclinado hacia abajo a la izquierda", "② Trazo amplio envolvente con bucle final"] },
+  "ね": { trazos: 2, pasos: ["① Vertical recto", "② Trazo en Z que envuelve y termina en bucle"] },
+  "の": { trazos: 1, pasos: ["① Trazo en espiral fluida de arriba hacia abajo"] },
+
+  // HIRAGANA HA
+  "は": { trazos: 3, pasos: ["① Vertical izquierdo con gancho", "② Horizontal", "③ Vertical con bucle final a la derecha"] },
+  "ひ": { trazos: 1, pasos: ["① Trazo continuo en forma de U amplia con aleros"] },
+  "ふ": { trazos: 4, pasos: ["① Punto superior", "② Nariz curvada central", "③ Punto izquierdo", "④ Punto derecho"] },
+  "へ": { trazos: 1, pasos: ["① Trazo en montaña"] },
+  "ほ": { trazos: 4, pasos: ["① Vertical izquierdo", "② Horizontal superior", "③ Horizontal inferior", "④ Vertical con bucle final"] },
+
+  // HIRAGANA MA
+  "ま": { trazos: 3, pasos: ["① Horizontal superior", "② Horizontal inferior", "③ Vertical descendente con bucle"] },
+  "み": { trazos: 2, pasos: ["① Trazo en bucle diagonal", "② Inclinado a la derecha"] },
+  "む": { trazos: 3, pasos: ["① Horizontal", "② Vertical con bucle y curva ascendente", "③ Punto arriba a la derecha"] },
+  "め": { trazos: 2, pasos: ["① Diagonal inclinada", "② Curva envolvente en arco"] },
+  "も": { trazos: 3, pasos: ["① Gancho vertical en anzuelo", "② Horizontal superior", "③ Horizontal inferior"] },
+
+  // HIRAGANA YA / RA / WA / N
+  "や": { trazos: 3, pasos: ["① Curva principal con gancho", "② Punto inclinado", "③ Vertical cruzando"] },
+  "ゆ": { trazos: 2, pasos: ["① Curva en bucle vertical", "② Vertical largo cruzando"] },
+  "よ": { trazos: 2, pasos: ["① Horizontal corto", "② Vertical con bucle a la izquierda"] },
+  "ら": { trazos: 2, pasos: ["① Trazo corto arriba", "② Arcada curvada"] },
+  "り": { trazos: 2, pasos: ["① Trazo izquierdo corto con gancho", "② Trazo derecho largo curvado"] },
+  "る": { trazos: 1, pasos: ["① Trazo continuo en Z que termina en bucle"] },
+  "れ": { trazos: 2, pasos: ["① Vertical izquierdo", "② Z continuo que curva hacia afuera"] },
+  "ろ": { trazos: 1, pasos: ["① Trazo continuo en Z similar a る sin bucle"] },
+  "わ": { trazos: 2, pasos: ["① Vertical izquierdo", "② Z continuo en forma de arco amplio"] },
+  "を": { trazos: 3, pasos: ["① Horizontal", "② Inclinado con curva C", "③ Arco inferior"] },
+  "ん": { trazos: 1, pasos: ["① Trazo en S suave hacia arriba"] },
+
+  // KATAKANA VOCALES
+  "ア": { trazos: 2, pasos: ["① Horizontal con gancho", "② Trazo curvo descendente a la izquierda"] },
+  "イ": { trazos: 2, pasos: ["① Diagonal descendente a la izquierda", "② Vertical recto a la derecha"] },
+  "ウ": { trazos: 3, pasos: ["① Punto corto arriba", "② Vertical corto izquierdo", "③ Horizontal con doblez en L"] },
+  "エ": { trazos: 3, pasos: ["① Horizontal superior", "② Vertical central", "③ Horizontal base largo"] },
+  "オ": { trazos: 3, pasos: ["① Horizontal", "② Vertical con gancho arriba a la izquierda", "③ Diagonal descendente a la derecha"] },
+
+  // KATAKANA KA
+  "カ": { trazos: 2, pasos: ["① Horizontal con gancho", "② Diagonal a la izquierda atravesando"] },
+  "キ": { trazos: 3, pasos: ["① Horizontal superior", "② Horizontal inferior", "③ Diagonal cruzando"] },
+  "ク": { trazos: 2, pasos: ["① Diagonal izquierda corta", "② Horizontal con doblez en arco"] },
+  "ケ": { trazos: 3, pasos: ["① Diagonal corta", "② Horizontal con doblez", "③ Diagonal suelta"] },
+  "コ": { trazos: 2, pasos: ["① Horizontal con doblez en ángulo recto", "② Horizontal base"] },
+
+  // KATAKANA SA / TA / NA / HA / MA / YA / RA / WA / N
+  "サ": { trazos: 3, pasos: ["① Horizontal", "② Vertical corto izquierdo", "③ Vertical derecho en curva"] },
+  "シ": { trazos: 3, pasos: ["① Punto superior", "② Punto inferior", "③ Trazo barrido de abajo hacia arriba"] },
+  "ス": { trazos: 2, pasos: ["① Horizontal con esquina y diagonal", "② Trazo diagonal libre"] },
+  "セ": { trazos: 2, pasos: ["① Horizontal con esquina", "② Trazo vertical en L"] },
+  "ソ": { trazos: 2, pasos: ["① Punto izquierdo", "② Trazo diagonal de arriba a abajo"] },
+  "タ": { trazos: 3, pasos: ["① Diagonal corta", "② Horizontal con doblez", "③ Trazo diagonal interno"] },
+  "チ": { trazos: 3, pasos: ["① Diagonal superior", "② Horizontal", "③ Curva descendente"] },
+  "ツ": { trazos: 3, pasos: ["① Punto izquierdo", "② Punto central", "③ Trazo barrido de arriba hacia abajo"] },
+  "テ": { trazos: 3, pasos: ["① Horizontal superior", "② Horizontal inferior largo", "③ Curva descendente a la izquierda"] },
+  "ト": { trazos: 2, pasos: ["① Vertical", "② Diagonal corta a la derecha"] },
+  "ナ": { trazos: 2, pasos: ["① Horizontal", "② Trazo suave diagonal cruzando"] },
+  "ニ": { trazos: 2, pasos: ["① Horizontal superior corto", "② Horizontal base largo"] },
+  "ヌ": { trazos: 2, pasos: ["① Horizontal con esquina", "② Trazo en gota diagonal"] },
+  "ネ": { trazos: 4, pasos: ["① Punto arriba", "② Vertical en L", "③ Vertical largo", "④ Diagonal corta"] },
+  "ノ": { trazos: 1, pasos: ["① Trazo diagonal suave de arriba a la izquierda"] },
+  "ハ": { trazos: 2, pasos: ["① Diagonal descendente izquierda", "② Diagonal descendente derecha"] },
+  "ヒ": { trazos: 2, pasos: ["① Horizontal con esquina vertical", "② Horizontal largo que cruza"] },
+  "フ": { trazos: 1, pasos: ["① Horizontal con esquina curva"] },
+  "ヘ": { trazos: 1, pasos: ["① Trazo en pico de montaña"] },
+  "ホ": { trazos: 4, pasos: ["① Horizontal", "② Vertical en cruz", "③ Diagonal izquierda", "④ Diagonal derecha"] },
+  "マ": { trazos: 2, pasos: ["① Horizontal con esquina", "② Horizontal corto en cruz"] },
+  "ミ": { trazos: 3, pasos: ["① Trazo diagonal 1", "② Trazo diagonal 2", "③ Trazo diagonal 3"] },
+  "ム": { trazos: 2, pasos: ["① Trazo en triangulo", "② Trazo en gota a la derecha"] },
+  "メ": { trazos: 2, pasos: ["① Diagonal suave", "② Diagonal cruzando en X"] },
+  "モ": { trazos: 3, pasos: ["① Horizontal superior", "② Horizontal inferior", "③ Vertical en L"] },
+  "ヤ": { trazos: 2, pasos: ["① Horizontal con esquina", "② Vertical largo"] },
+  "ユ": { trazos: 2, pasos: ["① Horizontal con esquina", "② Horizontal base que sobresale"] },
+  "ヨ": { trazos: 3, pasos: ["① Trazo en E invertida superior", "② Horizontal medio", "③ Horizontal base"] },
+  "ラ": { trazos: 2, pasos: ["① Horizontal corto", "② Trazo en L curvada"] },
+  "リ": { trazos: 2, pasos: ["① Vertical corto", "② Vertical largo"] },
+  "ル": { trazos: 2, pasos: ["① Vertical curvo izquierdo", "② Trazo en L con gancho hacia arriba"] },
+  "レ": { trazos: 1, pasos: ["① Trazo vertical que dobla a la derecha en L"] },
+  "ロ": { trazos: 3, pasos: ["① Vertical izquierdo", "② Horizontal con esquina", "③ Horizontal base para cerrar"] },
+  "ワ": { trazos: 2, pasos: ["① Vertical corto", "② Horizontal con esquinado hacia abajo"] },
+  "ヲ": { trazos: 3, pasos: ["① Horizontal", "② Horizontal inferior", "③ Diagonal descendente"] },
+  "ン": { trazos: 2, pasos: ["① Punto superior", "② Barrido diagonal de abajo hacia arriba"] }
 };
 
 // ==========================================================================
@@ -265,90 +433,101 @@ function reproducirPronunciacionKana(textoJapones, romajiHint) {
   intentarSiguiente(0);
 }
 
-// OBTENER URL DEL DIAGRAMA SVG DE KANJIVG PARA ANIMACIÓN DE TRAZOS
-function obtenerKanjiVGSvgUrl(char) {
-  if (!char) return null;
+// ==========================================================================
+// CARGA Y ANIMACIÓN DE TRAZOS KANA SVG (PINCEL JAPONÉS CON SECUENCIA DE ESCRITURA)
+// ==========================================================================
+
+async function cargarYAnimarKanaSVG(char, container) {
+  if (!char || !container) return;
+
   const code = char.charCodeAt(0).toString(16).padStart(5, '0');
-  return `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg/kanji/${code}.svg`;
-}
+  const svgUrl = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg/kanji/${code}.svg`;
 
-// MOTOR DE ANIMACIÓN DE ESCRITURA TRAZO POR TRAZO (60FPS FLUIDO)
-function animarTrazosSVG(stageContainer) {
-  if (!stageContainer) return;
-  const svg = stageContainer.querySelector("svg");
-  if (!svg) return;
-
-  svg.removeAttribute("width");
-  svg.removeAttribute("height");
-  svg.style.width = "100%";
-  svg.style.height = "100%";
-
-  // Ocultar números de trazo estáticos para que la animación de escritura sea limpia
-  const textElems = svg.querySelectorAll("text");
-  textElems.forEach(t => t.style.display = "none");
-
-  const paths = Array.from(svg.querySelectorAll("path"));
-  if (paths.length === 0) return;
-
-  let delay = 100;
-  paths.forEach((path) => {
-    path.classList.add("kana-stroke-path");
-    const len = (typeof path.getTotalLength === "function") ? path.getTotalLength() : 300;
-    path.style.strokeDasharray = len;
-    path.style.strokeDashoffset = len;
-    path.style.transition = "none";
-
-    setTimeout(() => {
-      path.style.transition = `stroke-dashoffset 0.65s cubic-bezier(0.4, 0, 0.2, 1)`;
-      path.style.strokeDashoffset = "0";
-    }, delay);
-
-    delay += 700;
-  });
-}
-
-function cargarYAnimarEscrituraKana(char, containerBox) {
-  if (!char || !containerBox) return;
-
-  const hexCode = char.charCodeAt(0).toString(16).padStart(5, '0');
-  const svgUrl = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg/kanji/${hexCode}.svg`;
-
-  containerBox.innerHTML = `
-    <div class="stroke-title">
-      <span>✍️ Animación de Escritura</span>
-      <button class="btn-replay-stroke" onclick="reproducirAnimacionEscrituraKana()">▶️ Repetir Animación</button>
-    </div>
-
-    <div id="svg-writing-stage" class="stroke-svg-container">
-      <div style="font-size: 0.9rem; opacity: 0.7; align-self: center;">Cargando trazado...</div>
+  container.innerHTML = `
+    <div style="font-size: 0.85rem; opacity: 0.7; padding: 20px 0;">
+      <span>🖌️ Cargando trazo de pincel...</span>
     </div>
   `;
 
-  fetch(svgUrl)
-    .then(res => {
-      if (!res.ok) throw new Error("SVG de trazado no encontrado");
-      return res.text();
-    })
-    .then(svgText => {
-      const stage = document.getElementById("svg-writing-stage");
-      if (stage) {
-        stage.innerHTML = svgText;
-        animarTrazosSVG(stage);
-      }
-    })
-    .catch(() => {
-      const stage = document.getElementById("svg-writing-stage");
-      if (stage) {
-        stage.innerHTML = `<div class="kana-detail-big-char" style="font-size: 3.8rem; margin: 0;">${char}</div>`;
-      }
-    });
+  try {
+    const res = await fetch(svgUrl);
+    if (!res.ok) throw new Error("SVG no disponible");
+    let svgText = await res.text();
+
+    // Extraer únicamente el elemento <svg ...>...</svg> eliminando cabeceras, DOCTYPE multilínea y comentarios
+    const svgMatch = svgText.match(/<svg[\s\S]*?<\/svg>/i);
+    if (svgMatch) {
+      svgText = svgMatch[0];
+    } else {
+      svgText = svgText
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/<\?xml[\s\S]*?\?>/gi, "")
+        .replace(/<!DOCTYPE[\s\S]*?>/gi, "")
+        .trim();
+    }
+
+    container.innerHTML = svgText;
+    const svgEl = container.querySelector("svg");
+    if (!svgEl) return;
+
+    svgEl.classList.add("kana-brush-svg");
+    svgEl.removeAttribute("width");
+    svgEl.removeAttribute("height");
+
+    // Botón de Repetir Animación de Trazo
+    const btnReplay = document.createElement("button");
+    btnReplay.className = "btn-replay-stroke";
+    btnReplay.innerHTML = "<span>🔄 Repetir Trazo</span>";
+    btnReplay.onclick = (e) => {
+      e.stopPropagation();
+      animarTrazosSVG(svgEl);
+    };
+
+    container.appendChild(btnReplay);
+
+    animarTrazosSVG(svgEl);
+  } catch (err) {
+    console.warn("No se pudo cargar la animación SVG:", err);
+    container.innerHTML = `<div class="kana-detail-big-char" style="font-size: 4rem;">${char}</div>`;
+  }
 }
 
-function reproducirAnimacionEscrituraKana() {
-  const stage = document.getElementById("svg-writing-stage");
-  if (stage) animarTrazosSVG(stage);
-}
+function animarTrazosSVG(svgEl) {
+  if (!svgEl) return;
 
+  const paths = svgEl.querySelectorAll("path");
+  const numberTexts = svgEl.querySelectorAll("text");
+
+  // Estilizar o atenuar suavemente los números de trazo
+  numberTexts.forEach(txt => {
+    txt.style.fill = "var(--naranja, #ff9447)";
+    txt.style.fontWeight = "bold";
+    txt.style.opacity = "0.75";
+  });
+
+  let cumulativeDelay = 0.05;
+
+  paths.forEach((path) => {
+    const length = path.getTotalLength ? path.getTotalLength() : 200;
+
+    path.style.fill = "none";
+    path.style.strokeDasharray = `${length}`;
+    path.style.strokeDashoffset = `${length}`;
+    path.style.transition = "none";
+
+    // Forzar reflow para reiniciar la animación correctamente
+    path.getBoundingClientRect();
+
+    const strokeDuration = Math.max(0.35, Math.min(0.85, length / 140));
+
+    setTimeout(() => {
+      path.style.transition = `stroke-dashoffset ${strokeDuration}s cubic-bezier(0.4, 0, 0.2, 1)`;
+      path.style.strokeDashoffset = "0";
+    }, cumulativeDelay * 1000);
+
+    cumulativeDelay += strokeDuration + 0.15;
+  });
+}
 
 // ESTADO GLOBAL DEL MOTOR DE PRÁCTICA DE TORII KANA
 let quizState = {
@@ -363,6 +542,38 @@ let quizState = {
   selectedMatchingTile: null
 };
 
+function activarPestanaKana(targetId) {
+  if (!targetId) return;
+
+  const heroBanner = document.querySelector(".kana-hero-banner");
+  if (heroBanner) heroBanner.style.display = "block";
+
+  const quizContainer = document.querySelector(".interactive-quiz-container");
+  if (quizContainer) quizContainer.classList.remove("quiz-focus-mode");
+
+  const tabBtns = document.querySelectorAll(".tab-btn");
+  tabBtns.forEach(b => {
+    if (b.getAttribute("data-tab") === targetId) {
+      b.classList.add("active");
+    } else {
+      b.classList.remove("active");
+    }
+  });
+
+  const blocks = document.querySelectorAll(".kana-section-block");
+  blocks.forEach(b => {
+    if (b.id === targetId) {
+      b.classList.add("active");
+    } else {
+      b.classList.remove("active");
+    }
+  });
+
+  if (targetId === "tab-practica") {
+    salirPracticaKana();
+  }
+}
+
 // 1. GESTIÓN DE PESTAÑAS Y NAVEGACIÓN DENTRO DE LA PÁGINA
 function initKanaPageModule(datasetKey = "hiragana") {
   quizState.activeDatasetKey = datasetKey;
@@ -372,14 +583,7 @@ function initKanaPageModule(datasetKey = "hiragana") {
   tabBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-tab");
-      tabBtns.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      const blocks = document.querySelectorAll(".kana-section-block");
-      blocks.forEach(b => b.classList.remove("active"));
-
-      const targetBlock = document.getElementById(targetId);
-      if (targetBlock) targetBlock.classList.add("active");
+      activarPestanaKana(targetId);
     });
   });
 
@@ -407,6 +611,13 @@ function initKanaPageModule(datasetKey = "hiragana") {
   if (modalOverlay) {
     modalOverlay.addEventListener("click", (e) => {
       if (e.target === modalOverlay) cerrarModalDetalleKana();
+    });
+  }
+
+  const tablaModalOverlay = document.getElementById("modal-tabla-gojuon");
+  if (tablaModalOverlay) {
+    tablaModalOverlay.addEventListener("click", (e) => {
+      if (e.target === tablaModalOverlay) cerrarTablaGojuonModal();
     });
   }
 }
@@ -596,7 +807,7 @@ function renderKanaInteractiveGrid(filtroGrupo = "todos") {
   container.appendChild(wrapper);
 }
 
-// ABRIR MODAL CON ANIMACIÓN FLUIDA 60FPS Y ANIMACIÓN DE ESCRITURA EN VIVO (AZUL / BLANCO)
+// ABRIR MODAL CON ANIMACIÓN FLUIDA 60FPS Y ANIMACIÓN DE TRAZO (ESTILO PINCEL JAPONÉS)
 function abrirModalDetalleKana(item) {
   const modal = document.getElementById("kana-detail-modal");
   if (!modal) return;
@@ -614,9 +825,24 @@ function abrirModalDetalleKana(item) {
     soundBtn.onclick = () => reproducirPronunciacionKana(item.char, item.romaji);
   }
 
-  // CARGAR Y REPRODUCIR LA ANIMACIÓN DE ESCRITURA DE TRAZOS EN VIVO (AZUL EN MODO CLARO, BLANCO EN MODO OSCURO)
+  // RENDERIZADO DE ANIMACIÓN DE ESCRITURA (ESTILO PINCEL JAPONÉS)
   if (strokeBox) {
-    cargarYAnimarEscrituraKana(item.char, strokeBox);
+    const infoTrazos = GUIA_TRAZOS_KANA[item.char];
+    const numTrazos = infoTrazos ? infoTrazos.trazos : 1;
+
+    strokeBox.innerHTML = `
+      <div class="stroke-title">
+        <span>✍️ Orden de Trazos (${numTrazos} trazo${numTrazos > 1 ? 's' : ''})</span>
+        <span style="font-size: 0.8rem; opacity: 0.85; font-weight: normal;">Animación Pincel</span>
+      </div>
+
+      <div class="stroke-svg-container" id="svg-brush-anim-container">
+        <!-- Renderizado dinámico del SVG animado -->
+      </div>
+    `;
+
+    const svgContainer = document.getElementById("svg-brush-anim-container");
+    cargarYAnimarKanaSVG(item.char, svgContainer);
   }
 
   // RENDERIZADO DE PALABRAS DE EJEMPLO
@@ -642,7 +868,7 @@ function abrirModalDetalleKana(item) {
     }
   }
 
-  // Activar modal usando requestAnimationFrame para máxima fluidez 60fps
+  // Activar modal usando requestAnimationFrame para animación ultra-fluida 60fps
   requestAnimationFrame(() => {
     modal.classList.add("active");
   });
@@ -665,30 +891,57 @@ function iniciarPracticaKana(modo = "quiz") {
   quizState.hearts = 3;
   quizState.combo = 0;
 
-  const dataset = DATASETS_KANA[quizState.activeDatasetKey] || DATASETS_KANA.hiragana;
+  // Ocultar Hero Banner para enfocar la pantalla completa (Estilo Simulador JLPT)
+  const heroBanner = document.querySelector(".kana-hero-banner");
+  if (heroBanner) heroBanner.style.display = "none";
 
-  // Mezclar dataset para generar preguntas aleatorias
+  const quizContainer = document.querySelector(".interactive-quiz-container");
+  if (quizContainer) quizContainer.classList.add("quiz-focus-mode");
+
+  const dataset = DATASETS_KANA[quizState.activeDatasetKey] || DATASETS_KANA.hiragana;
+  const customQuestions = PREGUNTAS_PERSONALIZADAS_KANA[quizState.activeDatasetKey] || [];
+
   const datasetShuffled = [...dataset].sort(() => Math.random() - 0.5);
 
   if (modo === "matching") {
-    quizState.totalQuestions = 5; // 5 pares por ronda
+    quizState.totalQuestions = 5;
     quizState.questionsList = datasetShuffled.slice(0, 5);
+  } else if (modo === "custom") {
+    quizState.questionsList = [...customQuestions].sort(() => Math.random() - 0.5);
+    quizState.totalQuestions = quizState.questionsList.length || 5;
   } else {
-    quizState.totalQuestions = 8; // 8 preguntas por sesión
-    quizState.questionsList = datasetShuffled.slice(0, 8);
+    const baseQuestions = datasetShuffled.slice(0, 6);
+    const combined = [...baseQuestions, ...customQuestions.slice(0, 2)].sort(() => Math.random() - 0.5);
+    quizState.questionsList = combined;
+    quizState.totalQuestions = combined.length;
   }
 
-  document.getElementById("quiz-selector-view").style.display = "none";
-  document.getElementById("quiz-runner-view").style.display = "block";
-  document.getElementById("quiz-results-view").style.display = "none";
+  const selectorView = document.getElementById("quiz-selector-view");
+  const runnerView = document.getElementById("quiz-runner-view");
+  const resultsView = document.getElementById("quiz-results-view");
+
+  if (selectorView) selectorView.style.display = "none";
+  if (runnerView) runnerView.style.display = "block";
+  if (resultsView) resultsView.style.display = "none";
 
   renderizarSiguientePregunta();
 }
 
 function salirPracticaKana() {
-  document.getElementById("quiz-selector-view").style.display = "block";
-  document.getElementById("quiz-runner-view").style.display = "none";
-  document.getElementById("quiz-results-view").style.display = "none";
+  // Mostrar nuevamente el Hero Banner y quitar modo enfoque
+  const heroBanner = document.querySelector(".kana-hero-banner");
+  if (heroBanner) heroBanner.style.display = "block";
+
+  const quizContainer = document.querySelector(".interactive-quiz-container");
+  if (quizContainer) quizContainer.classList.remove("quiz-focus-mode");
+
+  const selectorView = document.getElementById("quiz-selector-view");
+  const runnerView = document.getElementById("quiz-runner-view");
+  const resultsView = document.getElementById("quiz-results-view");
+
+  if (selectorView) selectorView.style.display = "block";
+  if (runnerView) runnerView.style.display = "none";
+  if (resultsView) resultsView.style.display = "none";
 }
 
 function renderizarSiguientePregunta() {
@@ -699,7 +952,6 @@ function renderizarSiguientePregunta() {
 
   if (feedbackContainer) feedbackContainer.innerHTML = "";
 
-  // Actualizar Barra de Progreso y Vidas
   const pct = Math.min(100, Math.round((quizState.currentQuestionIndex / quizState.totalQuestions) * 100));
   if (progressFill) progressFill.style.width = `${pct}%`;
   if (heartsDisplay) heartsDisplay.innerHTML = `❤️ ${quizState.hearts}`;
@@ -713,15 +965,30 @@ function renderizarSiguientePregunta() {
   const dataset = DATASETS_KANA[quizState.activeDatasetKey];
 
   if (quizState.mode === "matching") {
-    // MODO EMPAREJAMIENTO
     renderizarModoEmparejamiento(runnerBody, dataset);
+  } else if (questionItem && questionItem.tipo) {
+    renderizarModoPersonalizado(runnerBody, questionItem);
   } else if (quizState.mode === "listening") {
-    // MODO ESCUCHA / AUDIO
     renderizarModoAudio(runnerBody, questionItem, dataset);
   } else {
-    // MODO QUIZ / OPCIÓN MÚLTIPLE
     renderizarModoQuiz(runnerBody, questionItem, dataset);
   }
+}
+
+function renderizarModoPersonalizado(container, customItem) {
+  container.innerHTML = `
+    <div class="torii-quiz-question-card">
+      <div class="torii-quiz-prompt-title" style="font-size: 1.3rem; margin-bottom: 25px;">${customItem.pregunta}</div>
+
+      <div class="torii-quiz-options-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+        ${customItem.opciones.map((optText, idx) => `
+          <button class="torii-quiz-option-btn" style="font-size: 1.1rem; padding: 16px 20px;" onclick="verificarRespuestaQuiz(this, '${idx}', '${customItem.correcta}')">
+            ${optText}
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function renderizarModoQuiz(container, currentItem, dataset) {
@@ -918,6 +1185,26 @@ function finalizarPracticaKana() {
   }
 }
 
+function abrirTablaGojuonModal() {
+  const modal = document.getElementById("modal-tabla-gojuon");
+  if (!modal) return;
+
+  renderKanaInteractiveGrid("todos");
+
+  requestAnimationFrame(() => {
+    modal.classList.add("active");
+  });
+}
+
+function cerrarTablaGojuonModal() {
+  const modal = document.getElementById("modal-tabla-gojuon");
+  if (modal) modal.classList.remove("active");
+}
+
+function irATablaGojuon() {
+  abrirTablaGojuonModal();
+}
+
 // Expuestos globalmente
 window.initKanaPageModule = initKanaPageModule;
 window.iniciarPracticaKana = iniciarPracticaKana;
@@ -926,4 +1213,7 @@ window.verificarRespuestaQuiz = verificarRespuestaQuiz;
 window.seleccionarFichaEmparejamiento = seleccionarFichaEmparejamiento;
 window.avanzarSiguientePregunta = avanzarSiguientePregunta;
 window.reproducirPronunciacionKana = reproducirPronunciacionKana;
-window.reproducirAnimacionEscrituraKana = reproducirAnimacionEscrituraKana;
+window.irATablaGojuon = irATablaGojuon;
+window.abrirTablaGojuonModal = abrirTablaGojuonModal;
+window.cerrarTablaGojuonModal = cerrarTablaGojuonModal;
+window.activarPestanaKana = activarPestanaKana;

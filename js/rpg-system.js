@@ -2,7 +2,7 @@
 // SECCIÓN 6 (RPG): MÓDULO SISTEMA RPG Y REPRODUCTOR BGM
 // ==========================================================================
 
-const BGM_PLAYLIST = [
+const BGM_DEFAULT_PLAYLIST = [
   { title: "Un Pensamiento", src: "audio/musicafondo/Light Ambience 1.mp3" },
   { title: "Curiosa Obsesión", src: "audio/musicafondo/Light Ambience 2.mp3" },
   { title: "Anochecer", src: "audio/musicafondo/Light Ambience 3.mp3" },
@@ -14,6 +14,96 @@ const BGM_PLAYLIST = [
   { title: "Nube roja", src: "audio/musicafondo/Ambient 1.mp3" },
   { title: "Cielo", src: "audio/musicafondo/Ambient 2.mp3" }
 ];
+
+let BGM_CUSTOM_PLAYLIST = [];
+
+function getBgmPlaylist() {
+  return [...BGM_CUSTOM_PLAYLIST, ...BGM_DEFAULT_PLAYLIST];
+}
+
+// ==========================================================================
+// ALMACENAMIENTO INDEXEDDB PARA PISTAS DE AUDIO LOCALES
+// ==========================================================================
+const TORII_DB_NAME = "ToriiAudioStore";
+const TORII_DB_VERSION = 1;
+const TORII_STORE_NAME = "custom_tracks";
+
+function abrirDBMusica() {
+  return new Promise((resolve) => {
+    if (!window.indexedDB) {
+      resolve(null);
+      return;
+    }
+    const request = indexedDB.open(TORII_DB_NAME, TORII_DB_VERSION);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(TORII_STORE_NAME)) {
+        db.createObjectStore(TORII_STORE_NAME, { keyPath: "id" });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => resolve(null);
+  });
+}
+
+async function cargarCancionesPersonalizadasDB() {
+  try {
+    const db = await abrirDBMusica();
+    if (!db) {
+      const guardadas = localStorage.getItem("torii_custom_tracks");
+      if (guardadas) BGM_CUSTOM_PLAYLIST = JSON.parse(guardadas);
+      return;
+    }
+    const tx = db.transaction(TORII_STORE_NAME, "readonly");
+    const store = tx.objectStore(TORII_STORE_NAME);
+    const req = store.getAll();
+    req.onsuccess = () => {
+      if (req.result && req.result.length > 0) {
+        // Ordenar con las más recientes primero
+        BGM_CUSTOM_PLAYLIST = req.result.sort((a, b) => (b.dateAdded || 0) - (a.dateAdded || 0));
+      }
+      const hud = document.getElementById("rpg-hud-bar");
+      if (hud) renderHeaderRPG_HUD();
+    };
+  } catch (e) {
+    console.warn("Error al cargar canciones personalizadas de DB:", e);
+  }
+}
+
+async function guardarCancionEnDB(cancion) {
+  try {
+    const db = await abrirDBMusica();
+    if (db) {
+      const tx = db.transaction(TORII_STORE_NAME, "readwrite");
+      const store = tx.objectStore(TORII_STORE_NAME);
+      store.put(cancion);
+    }
+    try {
+      localStorage.setItem("torii_custom_tracks", JSON.stringify(BGM_CUSTOM_PLAYLIST));
+    } catch(err) {}
+  } catch (e) {
+    console.warn("Error al guardar canción en DB:", e);
+  }
+}
+
+async function borrarCancionDeDB(id) {
+  try {
+    const db = await abrirDBMusica();
+    if (db) {
+      const tx = db.transaction(TORII_STORE_NAME, "readwrite");
+      const store = tx.objectStore(TORII_STORE_NAME);
+      store.delete(id);
+    }
+    try {
+      localStorage.setItem("torii_custom_tracks", JSON.stringify(BGM_CUSTOM_PLAYLIST));
+    } catch(err) {}
+  } catch (e) {
+    console.warn("Error al borrar canción de DB:", e);
+  }
+}
+
+// Cargar canciones personalizadas al iniciar
+cargarCancionesPersonalizadasDB();
 
 // ==========================================================================
 // SECCIÓN BGM AUDIO SYSTEM: REPRODUCTOR DE MÚSICA DE FONDO CON PERSISTENCIA
@@ -37,7 +127,7 @@ function initBgmPlayer() {
     bgmAudioObject = new Audio();
     bgmAudioObject.volume = (typeof userProfile !== "undefined" && userProfile.musicVolume !== undefined) ? userProfile.musicVolume : 0.35;
 
-    // Listeners de actualización de estado para sincronizar la UI del HUD inmediatamente
+    // Listeners de actualización de estado para sincronizar la UI del HUD de forma fluida
     bgmAudioObject.addEventListener("play", () => {
       if (typeof userProfile !== "undefined") {
         userProfile.musicEnabled = true;
@@ -45,15 +135,15 @@ function initBgmPlayer() {
         if (typeof guardarPerfil === "function") guardarPerfil();
       }
       sessionStorage.setItem("user_has_interacted", "true");
-      renderHeaderRPG_HUD();
+      actualizarEstadoVisualBGM();
     });
 
     bgmAudioObject.addEventListener("pause", () => {
-      renderHeaderRPG_HUD();
+      actualizarEstadoVisualBGM();
     });
 
     bgmAudioObject.addEventListener("volumechange", () => {
-      renderHeaderRPG_HUD();
+      actualizarEstadoVisualBGM();
     });
 
     bgmAudioObject.addEventListener("timeupdate", () => {
@@ -110,7 +200,7 @@ function initBgmPlayer() {
     if (userHasInteracted) {
       bgmAudioObject.play().then(() => {
         applySeekTime();
-        renderHeaderRPG_HUD();
+        actualizarEstadoVisualBGM();
       }).catch(e => {
         console.log("Esperando interacción inicial para BGM");
       });
@@ -124,7 +214,7 @@ function initBgmPlayer() {
     if (typeof userProfile !== "undefined" && userProfile.musicEnabled !== false && bgmAudioObject && bgmAudioObject.paused && (userProfile.musicVolume === undefined || userProfile.musicVolume > 0)) {
       bgmAudioObject.play().then(() => {
         applySeekTime();
-        renderHeaderRPG_HUD();
+        actualizarEstadoVisualBGM();
       }).catch(e => console.log("Error al reproducir BGM en interacción"));
     }
   };
@@ -132,20 +222,93 @@ function initBgmPlayer() {
   document.addEventListener("click", registrarInteraccionGlobal, { once: true });
 }
 
+function actualizarEstadoVisualBGM() {
+  const isPlaying = bgmAudioObject && !bgmAudioObject.paused;
+  const currentVolume = (typeof userProfile !== "undefined" && userProfile.musicVolume !== undefined) ? userProfile.musicVolume : 0.35;
+  const soundActive = (typeof userProfile !== "undefined" && userProfile.musicEnabled !== false && userProfile.soundEnabled !== false);
+  const isMuted = !soundActive || !isPlaying || currentVolume === 0;
+  const playlist = getBgmPlaylist();
+  const currentSongIdx = (typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0;
+  const currentSong = playlist[currentSongIdx] || { title: "Música" };
+
+  // 1. Botón de sonido en el dock
+  const soundBtn = document.getElementById("btn-toggle-rpg-sound");
+  if (soundBtn) {
+    soundBtn.className = `torii-icon-btn ${isMuted ? 'muted' : 'active'}`;
+    soundBtn.textContent = isMuted ? '🔇' : '🎧';
+    soundBtn.title = isMuted ? 'Reproducir música de fondo' : 'Pausar música de fondo';
+  }
+
+  // 2. Información en el popout de música
+  const playIcon = document.querySelector(".torii-bgm-playing-icon");
+  if (playIcon) {
+    playIcon.textContent = isPlaying ? '▶️' : '⏸️';
+  }
+
+  const titleEl = document.querySelector(".torii-bgm-current-title");
+  if (titleEl) {
+    titleEl.textContent = currentSong.title;
+  }
+
+  const statusEl = document.querySelector(".torii-bgm-current-status");
+  if (statusEl) {
+    statusEl.textContent = isPlaying ? 'Reproduciendo en bucle' : 'En pausa';
+  }
+
+  // 3. Botón Play/Pause en los controles
+  const playBtn = document.querySelector(".torii-ctrl-btn.play-btn");
+  if (playBtn) {
+    playBtn.textContent = isPlaying ? '⏸️' : '▶️';
+    playBtn.title = isPlaying ? 'Pausar' : 'Reproducir';
+  }
+
+  // 4. Porcentaje y slider de volumen
+  const volPercent = document.getElementById("torii-volume-percent");
+  if (volPercent) {
+    volPercent.textContent = `${Math.round(currentVolume * 100)}%`;
+  }
+  const slider = document.getElementById("rpg-volume-slider");
+  if (slider && document.activeElement !== slider) {
+    slider.value = currentVolume;
+  }
+
+  // 5. Playlist items activos
+  const playlistItems = document.querySelectorAll(".torii-playlist-item");
+  playlistItems.forEach((item, i) => {
+    if (i === currentSongIdx) {
+      item.classList.add("active");
+      const eq = item.querySelector(".torii-track-eq") || item.querySelector("span:last-child");
+      if (eq && eq !== item.querySelector(".torii-track-num") && eq !== item.querySelector(".torii-track-name")) {
+        eq.textContent = isPlaying ? '🎵' : '⏸️';
+      }
+    } else {
+      item.classList.remove("active");
+      const eq = item.querySelector(".torii-track-eq") || item.querySelector("span:last-child");
+      if (eq && eq !== item.querySelector(".torii-track-num") && eq !== item.querySelector(".torii-track-name")) {
+        eq.textContent = '';
+      }
+    }
+  });
+}
+
 function cargarCancionActualBGM() {
   if (!bgmAudioObject) return;
+  const playlist = getBgmPlaylist();
   let idx = (typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0;
-  if (idx < 0 || idx >= BGM_PLAYLIST.length) idx = 0;
+  if (idx < 0 || idx >= playlist.length) idx = 0;
   
-  const song = BGM_PLAYLIST[idx];
-  const relativeSrc = song.src;
+  const song = playlist[idx];
+  if (!song) return;
 
-  if (!bgmAudioObject.src.endsWith(encodeURI(relativeSrc)) && !bgmAudioObject.src.endsWith(relativeSrc)) {
-    bgmAudioObject.src = relativeSrc;
+  const finalSrc = song.isCustom ? song.src : ((window.TORII_BASE_PATH || "") + song.src);
+
+  if (bgmAudioObject.src !== finalSrc && !bgmAudioObject.src.endsWith(encodeURI(song.src)) && !bgmAudioObject.src.endsWith(song.src)) {
+    bgmAudioObject.src = finalSrc;
   }
 }
 
-function reproducirOPausarBGM() {
+function reproducirOPausarBGM(event) {
+  if (event) event.stopPropagation();
   if (!bgmAudioObject) initBgmPlayer();
   cargarCancionActualBGM();
 
@@ -156,7 +319,9 @@ function reproducirOPausarBGM() {
       if (typeof guardarPerfil === "function") guardarPerfil();
     }
     sessionStorage.setItem("user_has_interacted", "true");
-    bgmAudioObject.play().catch(e => console.log("BGM autoplay prevenido"));
+    bgmAudioObject.play().then(() => {
+      actualizarEstadoVisualBGM();
+    }).catch(e => console.log("BGM autoplay prevenido"));
   } else {
     if (typeof userProfile !== "undefined") {
       userProfile.musicEnabled = false;
@@ -164,8 +329,8 @@ function reproducirOPausarBGM() {
       if (typeof guardarPerfil === "function") guardarPerfil();
     }
     bgmAudioObject.pause();
+    actualizarEstadoVisualBGM();
   }
-  renderHeaderRPG_HUD();
 }
 
 function cambiarVolumenBGM(nuevoVolumen) {
@@ -190,18 +355,22 @@ function cambiarVolumenBGM(nuevoVolumen) {
     bgmAudioObject.volume = vol;
     if (vol > 0 && bgmAudioObject.paused && (typeof userProfile === "undefined" || userProfile.musicEnabled !== false)) {
       sessionStorage.setItem("user_has_interacted", "true");
-      bgmAudioObject.play().catch(e => console.log("BGM play error"));
+      bgmAudioObject.play().then(() => {
+        actualizarEstadoVisualBGM();
+      }).catch(e => console.log("BGM play error"));
     } else if (vol === 0 && !bgmAudioObject.paused) {
       bgmAudioObject.pause();
     }
   }
-  renderHeaderRPG_HUD();
+
+  actualizarEstadoVisualBGM();
 }
 
 function siguienteCancionBGM(autoPlay = true) {
   sessionStorage.setItem("bgm_time", 0);
+  const playlist = getBgmPlaylist();
   let idx = ((typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0) + 1;
-  if (idx >= BGM_PLAYLIST.length) idx = 0;
+  if (idx >= playlist.length) idx = 0;
   
   if (typeof userProfile !== "undefined") {
     userProfile.currentMusicIndex = idx;
@@ -210,14 +379,18 @@ function siguienteCancionBGM(autoPlay = true) {
   cargarCancionActualBGM();
 
   if (autoPlay && (typeof userProfile === "undefined" || userProfile.musicEnabled !== false) && bgmAudioObject) {
-    bgmAudioObject.play().catch(e => console.log("Error BGM play"));
+    bgmAudioObject.play().then(() => {
+      actualizarEstadoVisualBGM();
+    }).catch(e => console.log("Error BGM play"));
+  } else {
+    actualizarEstadoVisualBGM();
   }
-  renderHeaderRPG_HUD();
-  if (typeof mostrarToast === "function") mostrarToast(`🎵 Sonando: ${BGM_PLAYLIST[idx].title}`);
+  if (typeof mostrarToast === "function") mostrarToast(`🎵 Sonando: ${playlist[idx].title}`);
 }
 
 function cambiarCancionPorIndice(idx) {
-  if (idx < 0 || idx >= BGM_PLAYLIST.length) return;
+  const playlist = getBgmPlaylist();
+  if (idx < 0 || idx >= playlist.length) return;
   sessionStorage.setItem("bgm_time", 0);
   if (typeof userProfile !== "undefined") {
     userProfile.currentMusicIndex = idx;
@@ -225,10 +398,90 @@ function cambiarCancionPorIndice(idx) {
   }
   cargarCancionActualBGM();
   if ((typeof userProfile === "undefined" || userProfile.musicEnabled !== false) && bgmAudioObject) {
-    bgmAudioObject.play().catch(e => console.log("Error BGM play"));
+    bgmAudioObject.play().then(() => {
+      actualizarEstadoVisualBGM();
+    }).catch(e => console.log("Error BGM play"));
+  } else {
+    actualizarEstadoVisualBGM();
+  }
+  if (typeof mostrarToast === "function") mostrarToast(`🎵 Selección: ${playlist[idx].title}`);
+}
+
+function agregarCancionPersonalizada(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const fileName = file.name.replace(/\.[^/.]+$/, "");
+  const reader = new FileReader();
+
+  reader.onload = async function(e) {
+    const dataUrl = e.target.result;
+    const nuevaPista = {
+      id: "custom_" + Date.now(),
+      title: fileName,
+      src: dataUrl,
+      isCustom: true,
+      dateAdded: Date.now()
+    };
+
+    // Agregar al inicio de la lista
+    BGM_CUSTOM_PLAYLIST.unshift(nuevaPista);
+    await guardarCancionEnDB(nuevaPista);
+
+    // Seleccionar y reproducir inmediatamente al inicio
+    if (typeof userProfile !== "undefined") {
+      userProfile.currentMusicIndex = 0;
+      userProfile.musicEnabled = true;
+      userProfile.soundEnabled = true;
+      if (typeof guardarPerfil === "function") guardarPerfil();
+    }
+
+    sessionStorage.setItem("user_has_interacted", "true");
+    sessionStorage.setItem("bgm_time", 0);
+
+    if (!bgmAudioObject) initBgmPlayer();
+    if (bgmAudioObject) {
+      bgmAudioObject.src = dataUrl;
+      bgmAudioObject.play().then(() => {
+        actualizarEstadoVisualBGM();
+      }).catch(err => console.log("BGM play err:", err));
+    }
+
+    renderHeaderRPG_HUD();
+    if (typeof mostrarToast === "function") {
+      mostrarToast(`🎶 ¡"${fileName}" agregada al inicio de tu lista!`);
+    }
+  };
+
+  reader.readAsDataURL(file);
+  event.target.value = "";
+}
+
+function eliminarCancionPersonalizada(event, id) {
+  if (event) event.stopPropagation();
+  const idx = BGM_CUSTOM_PLAYLIST.findIndex(p => p.id === id);
+  if (idx === -1) return;
+
+  const cancion = BGM_CUSTOM_PLAYLIST[idx];
+  BGM_CUSTOM_PLAYLIST.splice(idx, 1);
+  borrarCancionDeDB(id);
+
+  if (typeof userProfile !== "undefined") {
+    const playlist = getBgmPlaylist();
+    if (userProfile.currentMusicIndex >= playlist.length) {
+      userProfile.currentMusicIndex = 0;
+    }
+    if (typeof guardarPerfil === "function") guardarPerfil();
+  }
+
+  cargarCancionActualBGM();
+  if (bgmAudioObject && !bgmAudioObject.paused) {
+    bgmAudioObject.play().catch(e => {});
   }
   renderHeaderRPG_HUD();
-  if (typeof mostrarToast === "function") mostrarToast(`🎵 Selección: ${BGM_PLAYLIST[idx].title}`);
+  if (typeof mostrarToast === "function") {
+    mostrarToast(`🗑️ "${cancion.title}" eliminada de tu lista`);
+  }
 }
 
 const RPG_NIVELES = [
@@ -421,16 +674,21 @@ function mostrarModalLevelUp(newInfo) {
 
 function renderHeaderRPG_HUD() {
   let hud = document.getElementById("rpg-hud-bar");
-  const header = document.querySelector(".main-header");
   
-  if (!hud && header) {
+  if (!hud) {
     hud = document.createElement("div");
     hud.id = "rpg-hud-bar";
-    hud.className = "rpg-hud-bar";
-    header.parentNode.insertBefore(hud, header.nextSibling);
+    document.body.appendChild(hud);
   }
 
   if (!hud) return;
+
+  // Recordar el estado abierto de los popouts antes de re-renderizar el innerHTML
+  const prevBgmPopout = document.getElementById("torii-bgm-popout");
+  const wasBgmOpen = prevBgmPopout ? prevBgmPopout.classList.contains("open") : false;
+
+  const prevProfilePopout = document.getElementById("torii-profile-popout");
+  const wasProfileOpen = prevProfilePopout ? prevProfilePopout.classList.contains("open") : false;
 
   const currentXp = typeof userProfile !== "undefined" ? (userProfile.xp || 0) : 0;
   const info = calcularInfoNivel(currentXp);
@@ -440,122 +698,360 @@ function renderHeaderRPG_HUD() {
   const soundActive = typeof userProfile !== "undefined" && userProfile.musicEnabled !== false && userProfile.soundEnabled !== false;
   const isMuted = !soundActive || !isPlaying || currentVolume === 0;
 
-  let volIcon = "🔊";
-  if (isMuted) volIcon = "🔇";
-  else if (currentVolume < 0.35) volIcon = "🔈";
-  else if (currentVolume < 0.7) volIcon = "🔉";
+  const userName = (typeof userProfile !== "undefined" && userProfile.nombre) ? userProfile.nombre : "はくや（白夜）";
+  const userTag = (typeof userProfile !== "undefined" && userProfile.tag) ? userProfile.tag : "hakuya_mitsumine";
+  const userAvatar = (typeof userProfile !== "undefined" && userProfile.avatar) ? userProfile.avatar : "⛩️";
+  const userLema = (typeof userProfile !== "undefined" && userProfile.lema) ? userProfile.lema : "明日のことは、明日にならないとわからない。わからないからこそ、生きている意味があるのかもしれない 🍥";
+  const userRacha = (typeof userProfile !== "undefined" ? (userProfile.rachaDias || 1) : 1);
+  const userTarget = (typeof userProfile !== "undefined" ? (userProfile.nivelObjetivo || "JLPT N5") : "JLPT N5");
+  const hudTheme = (typeof userProfile !== "undefined" && userProfile.hudTheme) ? userProfile.hudTheme : "floral-navy";
+  const hudCustomBg = (typeof userProfile !== "undefined" && userProfile.hudCustomBg) ? userProfile.hudCustomBg : "";
 
-  const questsContainer = document.getElementById("daily-quests-container");
-  const isExpanded = questsContainer && questsContainer.classList.contains("expanded");
+  const isAvatarUrl = userAvatar.startsWith("http://") || userAvatar.startsWith("https://") || userAvatar.startsWith("data:image/");
+  const perfilUrl = (window.TORII_BASE_PATH || "") + "perfil.html";
+
+  // Clase de tema para la barra
+  hud.className = `rpg-hud-bar torii-hud-dock theme-${hudTheme}`;
+  if (hudTheme === 'custom' && hudCustomBg) {
+    hud.style.backgroundImage = `linear-gradient(rgba(10, 16, 28, 0.78), rgba(10, 16, 28, 0.85)), url('${hudCustomBg}')`;
+    hud.style.backgroundSize = 'cover';
+    hud.style.backgroundPosition = 'center';
+  } else {
+    hud.style.backgroundImage = '';
+  }
+
+  // Verificar si hay misiones listas para reclamar
+  let hasClaimableQuest = false;
+  if (typeof userProfile !== "undefined" && userProfile.misionesDiarias) {
+    hasClaimableQuest = userProfile.misionesDiarias.some(m => m.completada && !m.reclamada);
+  }
 
   hud.innerHTML = `
-    <div class="rpg-hud-left">
-      <span class="hud-level-badge">Lv. ${info.level}</span>
-      <span class="hud-level-title">${info.titulo}</span>
-    </div>
+    <!-- DECORACIÓN DE FONDO SEGÚN EL TEMA -->
+    <div class="torii-hud-bg-decor"></div>
 
-    <div class="rpg-hud-center interactive-hud-progress" id="hud-level-progress-btn" title="Haz clic para desplegar / ocultar las Misiones Diarias del Aprendiz 📜">
-      <div class="hud-xp-info">
-        <span>Progreso de Nivel <span class="hud-quest-toggle-arrow">${isExpanded ? "📜 Misiones ▲" : "📜 Misiones ▼"}</span></span>
-        <span>${info.siguienteNivel ? `${info.xpEnEsteNivel} / ${info.xpRequeridaNivel} XP (${info.porcentaje}%)` : `MAX XP (${currentXp})`}</span>
-      </div>
-      <div class="hud-xp-track">
-        <div class="hud-xp-fill" style="width: ${info.porcentaje}%;"></div>
-      </div>
-    </div>
-
-    <div class="rpg-hud-right">
-      <!-- REPRODUCTOR, SELECTOR Y CONTROL UNIFICADO DE VOLUMEN/MUTEO BGM EN EL HUD -->
-      <div class="hud-bgm-container" title="Canciones de fondo en bucle">
-        <span class="bgm-icon">🎵</span>
-        <select id="rpg-music-select" class="hud-music-select" title="Escoge la canción de fondo">
-          ${BGM_PLAYLIST.map((song, i) => `
-            <option value="${i}" ${i === currentSongIdx ? 'selected' : ''}>${song.title}</option>
-          `).join("")}
-        </select>
-        <button id="btn-next-music" class="hud-bgm-btn" title="Siguiente canción de la lista">⏭️</button>
-
-        <div class="hud-volume-box" title="Ajustar volumen / Silenciar (${Math.round(currentVolume * 100)}%)">
-          <button id="btn-toggle-rpg-sound" class="hud-sound-btn" title="Reproducir / Silenciar Música">${volIcon}</button>
-          <input type="range" id="rpg-volume-slider" class="hud-volume-slider" min="0" max="1" step="0.05" value="${currentVolume}">
+    <!-- SECCIÓN IZQUIERDA: PERFIL (AVATAR + NOMBRE + NIVEL/XP) - CLIC ABRE POPOUT -->
+    <div class="torii-user-pill" id="torii-user-pill-btn" onclick="toggleToriiProfilePopout(event)" title="Ver opciones de perfil (${userName})">
+      <div class="torii-avatar-container">
+        <div class="torii-avatar">
+          ${isAvatarUrl ? `<img src="${userAvatar}" alt="Avatar">` : `<span>${userAvatar}</span>`}
         </div>
       </div>
 
-      <span class="hud-stat-pill" title="Puntos de Experiencia Totales">⚡ ${currentXp} XP</span>
-      <span class="hud-stat-pill" title="Racha Diaria">🔥 ${typeof userProfile !== "undefined" ? (userProfile.rachaDias || 1) : 1}d</span>
+      <div class="torii-user-details">
+        <div class="torii-username">${userName}</div>
+        <div class="torii-user-status">
+          <span class="torii-lvl-tag">Lv.${info.level}</span>
+          <span class="torii-xp-text">${info.siguienteNivel ? `${info.xpEnEsteNivel}/${info.xpRequeridaNivel} XP` : 'MAX XP'}</span>
+        </div>
+        <div class="torii-mini-xp-track" title="Progreso hacia el siguiente nivel: ${info.porcentaje}%">
+          <div class="torii-mini-xp-fill" style="width: ${info.porcentaje}%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DERECHA: BOTONES DE ACCIÓN (AUDIO / MISIONES / PERFIL) -->
+    <div class="torii-actions-group">
+      <!-- BOTÓN BGM / AUDIO (Estilo Music Pill) -->
+      <div class="torii-audio-btn-wrapper">
+        <button id="btn-toggle-rpg-sound" class="torii-icon-btn ${isMuted ? 'muted' : 'active'}" onclick="reproducirOPausarBGM(event)" title="${isMuted ? 'Reproducir música de fondo' : 'Pausar música de fondo'}">
+          ${isMuted ? '🔇' : '🎧'}
+        </button>
+        <button id="btn-open-bgm-popout" class="torii-arrow-btn" onclick="toggleToriiBgmPopout(event)" title="Abrir lista de canciones">▾</button>
+
+        <!-- POPOUT DE AUDIO FLOTANTE COMPLETO -->
+        <div id="torii-bgm-popout" class="torii-bgm-popout theme-${hudTheme} ${wasBgmOpen ? 'open' : ''}" ${hudTheme === 'custom' && hudCustomBg ? `style="background-image: linear-gradient(rgba(10, 16, 28, 0.85), rgba(10, 16, 28, 0.9)), url('${hudCustomBg}'); background-size: cover; background-position: center;"` : ''} onclick="event.stopPropagation()">
+          <div class="torii-popout-header">
+            <span>🎵 Música de Fondo</span>
+            <button type="button" class="torii-popout-close-btn-small" onclick="toggleToriiBgmPopout(event)">&times;</button>
+          </div>
+
+          <div class="torii-bgm-now-playing">
+            <span class="torii-bgm-playing-icon">${isPlaying ? '▶️' : '⏸️'}</span>
+            <div class="torii-bgm-song-info">
+              <span class="torii-bgm-current-title">${(getBgmPlaylist()[currentSongIdx] || {}).title || 'Música'}</span>
+              <span class="torii-bgm-current-status">${isPlaying ? 'Reproduciendo en bucle' : 'En pausa'}</span>
+            </div>
+          </div>
+
+          <!-- CONTROLES DE REPRODUCCIÓN -->
+          <div class="torii-bgm-controls-row">
+            <button type="button" class="torii-ctrl-btn" onclick="anteriorCancionBGM()" title="Canción anterior">⏮️</button>
+            <button type="button" class="torii-ctrl-btn play-btn" onclick="reproducirOPausarBGM(event)" title="${isPlaying ? 'Pausar' : 'Reproducir'}">
+              ${isPlaying ? '⏸️' : '▶️'}
+            </button>
+            <button type="button" class="torii-ctrl-btn" onclick="siguienteCancionBGM(true)" title="Siguiente canción">⏭️</button>
+          </div>
+
+          <!-- CONTROL DE VOLUMEN -->
+          <div class="torii-volume-row" onclick="event.stopPropagation()">
+            <span>🔊</span>
+            <input type="range" id="rpg-volume-slider" class="torii-volume-slider" min="0" max="1" step="0.01" value="${currentVolume}" oninput="cambiarVolumenBGM(this.value)" onclick="event.stopPropagation()">
+            <span id="torii-volume-percent" style="font-size:0.75rem; color:#94a3b8; min-width:32px; text-align:right;">${Math.round(currentVolume * 100)}%</span>
+          </div>
+
+          <div class="torii-popout-divider"></div>
+
+          <!-- LISTA DE CANCIONES (PLAYLIST) -->
+          <div class="torii-playlist-header-row">
+            <div class="torii-playlist-label">📜 Escoge una canción (${getBgmPlaylist().length}):</div>
+            <button type="button" class="torii-add-song-btn" onclick="document.getElementById('torii-bgm-file-input').click()" title="Agregar canción desde tu ordenador">
+              ➕ Agregar
+            </button>
+          </div>
+          <!-- INPUT OCULTO PARA AGREGAR CANCIONES LOCALES -->
+          <input type="file" id="torii-bgm-file-input" accept="audio/*" style="display:none;" onchange="agregarCancionPersonalizada(event)">
+
+          <div class="torii-bgm-playlist-list">
+            ${getBgmPlaylist().map((song, i) => `
+              <div class="torii-playlist-item ${i === currentSongIdx ? 'active' : ''}" onclick="cambiarCancionPorIndice(${i})">
+                <span class="torii-track-num">${i + 1}.</span>
+                <span class="torii-track-name" title="${song.title}">
+                  ${song.title}
+                  ${song.isCustom ? '<span style="font-size:0.62rem; background:rgba(56,189,248,0.2); color:#38bdf8; padding:1px 5px; border-radius:4px; margin-left:4px; font-weight:800;">MÍA</span>' : ''}
+                </span>
+                ${song.isCustom ? `<button type="button" class="torii-del-song-btn" onclick="eliminarCancionPersonalizada(event, '${song.id}')" title="Eliminar de mi lista">🗑️</button>` : ''}
+                ${i === currentSongIdx ? (isPlaying ? '<span class="torii-track-eq">🎵</span>' : '<span>⏸️</span>') : ''}
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTÓN DE MISIONES DIARIAS -->
+      <button id="btn-hud-quests-toggle" class="torii-icon-btn ${hasClaimableQuest ? 'quest-notify' : ''}" onclick="toggleDailyQuestsPanel(event)" title="Misiones Diarias del Aprendiz 📜">
+        📜
+        ${hasClaimableQuest ? '<span class="torii-quest-dot"></span>' : ''}
+      </button>
+
+      <!-- BOTÓN DE AJUSTES / PERFIL -->
+      <a href="${perfilUrl}" class="torii-icon-btn" title="Configurar Perfil">
+        ⚙️
+      </a>
+    </div>
+
+    <!-- POPOUT COMPLETO DE PERFIL TRANSLÚCIDO -->
+    <div id="torii-profile-popout" class="torii-profile-popout theme-${hudTheme} ${wasProfileOpen ? 'open' : ''}" ${hudTheme === 'custom' && hudCustomBg ? `style="background-image: linear-gradient(rgba(10, 16, 28, 0.88), rgba(10, 16, 28, 0.94)), url('${hudCustomBg}'); background-size: cover; background-position: center;"` : ''} onclick="event.stopPropagation()">
+      <button type="button" class="torii-popout-close-btn" onclick="toggleToriiProfilePopout(event)" aria-label="Cerrar">&times;</button>
+
+      <div class="torii-popout-avatar-row">
+        <div class="torii-popout-avatar">
+          ${isAvatarUrl ? `<img src="${userAvatar}" alt="Avatar">` : `<span>${userAvatar}</span>`}
+        </div>
+      </div>
+
+      <div class="torii-popout-body">
+        <div class="torii-popout-name">${userName}</div>
+        <div class="torii-popout-tag">@${userTag}</div>
+
+        <div class="torii-popout-badges">
+          <span class="torii-badge lvl" title="Nivel del estudiante">⛩️ Lv. ${info.level}</span>
+          <span class="torii-badge xp" title="Puntos de experiencia">⚡ ${currentXp} XP</span>
+          <span class="torii-badge streak" title="Racha de estudio diario">🔥 ${userRacha}d</span>
+          <span class="torii-badge target" title="Objetivo JLPT">🎯 ${userTarget}</span>
+        </div>
+
+        <div class="torii-popout-bio" title="Lema de aprendizaje">
+          ${userLema}
+        </div>
+
+        <div class="torii-popout-divider"></div>
+
+        <div class="torii-popout-menu">
+          <!-- BOTÓN EDITAR PERFIL -->
+          <button type="button" class="torii-menu-item" onclick="abrirModalEditarDesdePopout()">
+            <span class="torii-menu-icon">✏️</span>
+            <div class="torii-menu-text">
+              <span class="torii-menu-title">Editar perfil</span>
+              <span class="torii-menu-subtitle">Nombre, avatar, lema y metas</span>
+            </div>
+            <span class="torii-menu-arrow">›</span>
+          </button>
+
+          <!-- SELECTOR RÁPIDO DE TEMAS HUD -->
+          <div class="torii-menu-item-theme">
+            <div class="torii-theme-header">
+              <span class="torii-menu-icon">🎨</span>
+              <span class="torii-menu-title">Personalizar Barra y Popout</span>
+            </div>
+            <div class="torii-theme-pills">
+              <button type="button" class="theme-pill-btn ${hudTheme === 'floral-navy' ? 'active' : ''}" onclick="cambiarTemaHUD('floral-navy')">🌸 Follaje</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-sunset' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-sunset')">⛩️ Torii</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'sakura-night' ? 'active' : ''}" onclick="cambiarTemaHUD('sakura-night')">🌸 Sakura</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'emerald-bamboo' ? 'active' : ''}" onclick="cambiarTemaHUD('emerald-bamboo')">🍃 Bambú</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'cyber-tokyo' ? 'active' : ''}" onclick="cambiarTemaHUD('cyber-tokyo')">🌌 Cyber</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-classic' || hudTheme === 'discord-classic' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-classic')">🖤 Oscuro</button>
+              <button type="button" class="theme-pill-btn custom-img-btn ${hudTheme === 'custom' ? 'active' : ''}" onclick="document.getElementById('torii-hud-bg-file').click()" title="Subir imagen desde tu PC">📁 Subir fondo</button>
+            </div>
+            <!-- INPUT OCULTO PARA SUBIR IMAGEN DESDE EL PC -->
+            <input type="file" id="torii-hud-bg-file" accept="image/*" style="display:none;" onchange="cargarImagenFondoHUD(event)">
+          </div>
+
+          <!-- ENLACE A PERFIL COMPLETO -->
+          <a href="${perfilUrl}" class="torii-menu-item">
+            <span class="torii-menu-icon">⛩️</span>
+            <div class="torii-menu-text">
+              <span class="torii-menu-title">Ver perfil completo</span>
+              <span class="torii-menu-subtitle">Estadísticas, certificados y tarjetas</span>
+            </div>
+            <span class="torii-menu-arrow">›</span>
+          </a>
+
+          <!-- COPIAR ID / DATOS -->
+          <button type="button" class="torii-menu-item" onclick="copiarInfoUsuario()">
+            <span class="torii-menu-icon">📋</span>
+            <div class="torii-menu-text">
+              <span class="torii-menu-title">Copiar ID de estudiante</span>
+              <span class="torii-menu-subtitle">${userName} (${info.titulo})</span>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
   `;
+}
 
-  const btnProgress = hud.querySelector("#hud-level-progress-btn");
-  if (btnProgress) {
-    btnProgress.addEventListener("click", () => {
-      const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil.html");
-      if (isPerfil) {
-        const qContainer = document.getElementById("daily-quests-container");
-        if (qContainer) {
-          qContainer.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      } else {
-        toggleDailyQuestsPanel();
-      }
-    });
-  }
+// Controladores globales de Popouts Torii
+function toggleToriiProfilePopout(event) {
+  if (event) event.stopPropagation();
+  const profilePopout = document.getElementById("torii-profile-popout");
+  const bgmPopout = document.getElementById("torii-bgm-popout");
+  const qContainer = document.getElementById("daily-quests-container");
 
-  const btnSound = hud.querySelector("#btn-toggle-rpg-sound");
-  if (btnSound) {
-    btnSound.addEventListener("click", () => {
-      reproducirOPausarBGM();
-    });
-  }
+  if (bgmPopout) bgmPopout.classList.remove("open");
+  if (qContainer) qContainer.classList.remove("expanded");
 
-  const selectMusic = hud.querySelector("#rpg-music-select");
-  if (selectMusic) {
-    selectMusic.addEventListener("change", (e) => {
-      const idx = parseInt(e.target.value, 10);
-      cambiarCancionPorIndice(idx);
-    });
-  }
-
-  const btnNext = hud.querySelector("#btn-next-music");
-  if (btnNext) {
-    btnNext.addEventListener("click", () => {
-      siguienteCancionBGM(true);
-    });
-  }
-
-  const sliderVol = hud.querySelector("#rpg-volume-slider");
-  if (sliderVol) {
-    sliderVol.addEventListener("input", (e) => {
-      cambiarVolumenBGM(e.target.value);
-    });
+  if (profilePopout) {
+    profilePopout.classList.toggle("open");
   }
 }
 
-function toggleDailyQuestsPanel() {
+function toggleToriiBgmPopout(event) {
+  if (event) event.stopPropagation();
+  const profilePopout = document.getElementById("torii-profile-popout");
+  const bgmPopout = document.getElementById("torii-bgm-popout");
+  const qContainer = document.getElementById("daily-quests-container");
+
+  if (profilePopout) profilePopout.classList.remove("open");
+  if (qContainer) qContainer.classList.remove("expanded");
+
+  if (bgmPopout) {
+    bgmPopout.classList.toggle("open");
+  }
+}
+
+function abrirModalEditarDesdePopout() {
+  const profilePopout = document.getElementById("torii-profile-popout");
+  if (profilePopout) profilePopout.classList.remove("open");
+  
+  if (typeof abrirModalEditarPerfil === "function") {
+    abrirModalEditarPerfil();
+  } else {
+    window.location.href = (window.TORII_BASE_PATH || "") + "perfil.html";
+  }
+}
+
+function anteriorCancionBGM() {
+  sessionStorage.setItem("bgm_time", 0);
+  let idx = ((typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0) - 1;
+  if (idx < 0) idx = BGM_PLAYLIST.length - 1;
+  
+  if (typeof userProfile !== "undefined") {
+    userProfile.currentMusicIndex = idx;
+    if (typeof guardarPerfil === "function") guardarPerfil();
+  }
+  cargarCancionActualBGM();
+
+  if (bgmAudioObject) {
+    bgmAudioObject.play().then(() => {
+      actualizarEstadoVisualBGM();
+    }).catch(e => console.log("Error BGM play"));
+  } else {
+    actualizarEstadoVisualBGM();
+  }
+  if (typeof mostrarToast === "function") mostrarToast(`🎵 Sonando: ${BGM_PLAYLIST[idx].title}`);
+}
+
+function cambiarTemaHUD(nuevoTema) {
+  if (typeof userProfile !== "undefined") {
+    userProfile.hudTheme = nuevoTema;
+    if (typeof guardarPerfil === "function") guardarPerfil();
+  }
+  renderHeaderRPG_HUD();
+  if (typeof mostrarToast === "function") mostrarToast(`🎨 Tema aplicado: ${nuevoTema}`);
+}
+
+function cargarImagenFondoHUD(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    if (typeof userProfile !== "undefined") {
+      userProfile.hudCustomBg = dataUrl;
+      userProfile.hudTheme = "custom";
+      if (typeof guardarPerfil === "function") guardarPerfil();
+    }
+    renderHeaderRPG_HUD();
+    if (typeof mostrarToast === "function") mostrarToast("🖼️ ¡Imagen de fondo personalizada cargada!");
+  };
+  reader.readAsDataURL(file);
+}
+
+function copiarInfoUsuario() {
+  const currentXp = typeof userProfile !== "undefined" ? (userProfile.xp || 0) : 0;
+  const info = calcularInfoNivel(currentXp);
+  const nombre = (typeof userProfile !== "undefined" && userProfile.nombre) ? userProfile.nombre : "はくや（白夜）";
+  const texto = `⛩️ ${nombre} | ${info.titulo} (Lv. ${info.level} · ${currentXp} XP) - Nihongo no Torii`;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(() => {
+      if (typeof mostrarToast === "function") mostrarToast("📋 ¡ID de estudiante copiado al portapapeles!");
+    });
+  } else {
+    if (typeof mostrarToast === "function") mostrarToast(`📋 Estudiante: ${nombre} (Lv. ${info.level})`);
+  }
+}
+
+function toggleDailyQuestsPanel(event) {
+  if (event) event.stopPropagation();
   let container = document.getElementById("daily-quests-container");
   const hud = document.getElementById("rpg-hud-bar");
+
+  const profilePopout = document.getElementById("torii-profile-popout");
+  const bgmPopout = document.getElementById("torii-bgm-popout");
+  if (profilePopout) profilePopout.classList.remove("open");
+  if (bgmPopout) bgmPopout.classList.remove("open");
 
   if (!container && hud) {
     container = document.createElement("div");
     container.id = "daily-quests-container";
-    hud.parentNode.insertBefore(container, hud.nextSibling);
+    container.className = "collapsible-quests-panel torii-floating-quests";
+    document.body.appendChild(container);
   }
 
   if (!container) return;
 
   const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil.html");
   if (!isPerfil) {
-    container.classList.add("collapsible-quests-panel");
+    container.classList.add("collapsible-quests-panel", "torii-floating-quests");
   }
 
   container.classList.toggle("expanded");
   renderDailyQuestsUI();
-  
-  const arrow = document.querySelector(".hud-quest-toggle-arrow");
-  if (arrow) {
-    arrow.textContent = container.classList.contains("expanded") ? "📜 Misiones ▲" : "📜 Misiones ▼";
-  }
 }
+
+// Listener global para cerrar popouts al hacer clic fuera
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#torii-profile-popout") && !e.target.closest("#torii-user-pill-btn")) {
+    const p = document.getElementById("torii-profile-popout");
+    if (p) p.classList.remove("open");
+  }
+  if (!e.target.closest("#torii-bgm-popout") && !e.target.closest(".torii-audio-btn-wrapper")) {
+    const b = document.getElementById("torii-bgm-popout");
+    if (b) b.classList.remove("open");
+  }
+});
 
 function actualizarBloqueoContenidoUI() {
   const currentXp = typeof userProfile !== "undefined" ? (userProfile.xp || 0) : 0;

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>02. Sistema KANA — N5 | Nihongo no Torii</title>
+  <link rel="icon" type="image/png" href="../../image/logonnt.png" />
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+<header class="main-header">
+  <div class="header-brand"><a href="../../index.html" class="nav-logo"><img src="../../image/logonnt.png" alt="Logo"></a><h1 class="logo-text">Nihongo no Torii</h1></div>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <nav id="menu" class="top-nav">
+    <a href="../../index.html">Inicio</a>
+    <a href="../../lecciones.html" class="active">Lecciones</a>
+    <a href="../../videos.html">Videos</a>
+    <a href="../../biblioteca.html">Biblioteca</a>
+    <a href="../../jlpt-simulador.html">Simulador JLPT</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+<nav class="leccion-breadcrumb">
+  <a href="../../lecciones.html">Lecciones</a><span class="sep">›</span>
+  <a href="index.html">N5 — Principiante</a><span class="sep">›</span>
+  <span>02. Sistema de Escritura KANA</span>
+</nav>
+<section class="leccion-hero">
+  <div class="leccion-hero-inner" data-cat="escritura">
+    <div class="leccion-hero-kanji">あ</div><div class="leccion-hero-num">02</div>
+    <div class="leccion-hero-info">
+      <div class="leccion-hero-badges"><span class="blog-meta-tag nivel">N5</span><span class="blog-meta-tag cat-escritura">✍️ Escritura</span><span class="blog-meta-tag tiempo">⏱ 10 min</span></div>
+      <h2 class="leccion-hero-title">Sistema de Escritura KANA (ひらがな・カタカナ)</h2>
+      <div class="leccion-progress-row"><div class="leccion-progress-track"><div class="leccion-progress-fill" style="width:20%"></div></div><span class="leccion-progress-label">Lección 2 de 10</span></div>
+    </div>
+  </div>
+</section>
+<article class="leccion-content">
+  <h3 class="leccion-section-title">✍️ ¿Qué es el KANA?</h3>
+  <p style="font-size:1.05rem;line-height:1.75;color:var(--texto-principal);margin:0 0 18px;">El KANA se refiere a los dos silabarios del japonés: <strong>Hiragana (ひらがな)</strong> y <strong>Katakana (カタカナ)</strong>. Ambos representan exactamente los mismos 46 sonidos del japonés, pero tienen formas diferentes y se usan en contextos distintos.</p>
+  <div class="nnt-callout tip"><div class="nnt-callout-icon">💡</div><div class="nnt-callout-content"><div class="nnt-callout-title">El punto de partida</div><div class="nnt-callout-body">El hiragana es lo primero que debes aprender. Antes de avanzar a gramática o kanji, asegúrate de reconocer las 46 letras con fluidez.</div></div></div>
+  <h3 class="leccion-section-title">ひ Hiragana — Las 5 vocales básicas</h3>
+  <div class="nnt-table-wrapper"><table class="nnt-table"><thead><tr><th>Hiragana</th><th>Romaji</th><th>Ejemplo de palabra</th><th>Significado</th></tr></thead><tbody>
+    <tr><td style="font-size:1.6rem;font-family:'Noto Sans JP'">あ</td><td><strong>a</strong></td><td><ruby>雨<rt>あめ</rt></ruby></td><td>Lluvia</td></tr>
+    <tr><td style="font-size:1.6rem;font-family:'Noto Sans JP'">い</td><td><strong>i</strong></td><td><ruby>犬<rt>いぬ</rt></ruby></td><td>Perro</td></tr>
+    <tr><td style="font-size:1.6rem;font-family:'Noto Sans JP'">う</td><td><strong>u</strong></td><td><ruby>海<rt>うみ</rt></ruby></td><td>Mar</td></tr>
+    <tr><td style="font-size:1.6rem;font-family:'Noto Sans JP'">え</td><td><strong>e</strong></td><td><ruby>駅<rt>えき</rt></ruby></td><td>Estación</td></tr>
+    <tr><td style="font-size:1.6rem;font-family:'Noto Sans JP'">お</td><td><strong>o</strong></td><td><ruby>男<rt>おとこ</rt></ruby></td><td>Hombre</td></tr>
+  </tbody></table></div>
+  <h3 class="leccion-section-title">ア Katakana — ¿Cuándo se usa?</h3>
+  <div class="nnt-callout culture"><div class="nnt-callout-icon">🌍</div><div class="nnt-callout-content"><div class="nnt-callout-title">Palabras de origen extranjero</div><div class="nnt-callout-body"><strong>テレビ</strong> (terebi = televisión), <strong>コーヒー</strong> (kōhī = café), <strong>コンピューター</strong> (konpyūtā = computadora). ¡La mayoría de palabras del inglés que entran al japonés van en katakana!</div></div></div>
+  <div class="nnt-callout tip"><div class="nnt-callout-icon">📢</div><div class="nnt-callout-content"><div class="nnt-callout-title">Énfasis y onomatopeyas</div><div class="nnt-callout-body">El katakana también se usa para dar énfasis en texto, para onomatopeyas en manga (<strong>ドキドキ</strong> = latido acelerado del corazón), y nombres científicos de animales y plantas.</div></div></div>
+  <h3 class="leccion-section-title">⚖️ Comparación: Mismo sonido, diferente forma</h3>
+  <div class="nnt-table-wrapper"><table class="nnt-table"><thead><tr><th>Sonido</th><th>Hiragana</th><th>Katakana</th><th>Ejemplo en katakana</th></tr></thead><tbody>
+    <tr><td>a</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">あ</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">ア</td><td>アメリカ (América)</td></tr>
+    <tr><td>i</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">い</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">イ</td><td>イタリア (Italia)</td></tr>
+    <tr><td>u</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">う</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">ウ</td><td>ウイルス (virus)</td></tr>
+    <tr><td>ko</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">こ</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">コ</td><td>コーヒー (café)</td></tr>
+    <tr><td>sa</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">さ</td><td style="font-size:1.4rem;font-family:'Noto Sans JP'">サ</td><td>サッカー (fútbol)</td></tr>
+  </tbody></table></div>
+  <div class="nnt-callout golden"><div class="nnt-callout-icon">⛩️</div><div class="nnt-callout-content"><div class="nnt-callout-title">Regla de Oro</div><div class="nnt-callout-body">Si ves un bloque de katakana en un texto japonés, casi siempre es una <strong>palabra de origen extranjero o un nombre propio</strong>. Intenta "leerla" con pronunciación japonesa y reconocerás la palabra original.</div></div></div>
+  <h3 class="leccion-section-title">🔊 Ejemplos en vivo</h3>
+  <div class="nnt-sentence-card"><div class="nnt-sentence-top"><div class="nnt-japanese-text"><ruby>私<rt>わたし</rt></ruby>は<ruby>学生<rt>がくせい</rt></ruby>です。</div><button class="nnt-audio-btn" onclick="playJapaneseTTS('私は学生です。')">🔊</button></div><div class="nnt-romaji-text">Watashi wa gakusei desu.</div><div class="nnt-spanish-text">Yo soy estudiante. <em>(Solo hiragana + kanji)</em></div></div>
+  <div class="nnt-sentence-card"><div class="nnt-sentence-top"><div class="nnt-japanese-text">コーヒーをください。</div><button class="nnt-audio-btn" onclick="playJapaneseTTS('コーヒーをください。')">🔊</button></div><div class="nnt-romaji-text">Koohii o kudasai.</div><div class="nnt-spanish-text">(Un) café, por favor. <em>(Katakana: コーヒー = coffee)</em></div></div>
+  <div class="nnt-accordion" onclick="toggleAccordion(this)"><div class="nnt-accordion-header"><span>🔍 ¿Por qué hiragana y katakana tienen la misma cantidad de caracteres?</span><span class="nnt-accordion-icon">▼</span></div><div class="nnt-accordion-body"><p>Ambos sistemas representan exactamente el mismo inventario fonético del japonés. Se desarrollaron históricamente de formas diferentes, pero cubren el mismo espacio sonoro.</p></div></div>
+  <h3 class="leccion-section-title">🎯 Checkpoint</h3>
+  <div class="nnt-quiz-card"><div class="nnt-quiz-header"><span class="nnt-quiz-badge">Checkpoint N5</span><span>Escritura KANA</span></div>
+  <div class="nnt-quiz-question">¿En qué escritura se escribe「ウイルス」(virus)?</div>
+  <div class="nnt-quiz-options">
+    <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'El hiragana se usa para gramática y palabras nativas japonesas.')">A) Hiragana</button>
+    <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,true,'¡Correcto! Las palabras de origen extranjero van en katakana.')">B) Katakana ✓</button>
+    <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'Los kanji son ideogramas, no se usan para transcribir palabras extranjeras.')">C) Kanji</button>
+    <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'El romaji es la transcripción al alfabeto latino, no un sistema japonés.')">D) Romaji</button>
+  </div><div class="nnt-quiz-feedback"></div></div>
+</article>
+<nav class="leccion-nav"><div class="leccion-nav-inner">
+  <a class="leccion-nav-prev" href="01-introduccion.html"><span>←</span> 01. Introducción</a>
+  <div class="leccion-nav-center"><button class="btn-completar" id="btn-completar" onclick="marcarCompletado()">☐ Marcar como completado</button></div>
+  <a class="leccion-nav-next" href="03-kanji.html">03. Kanji <span>→</span></a>
+</div></nav>
+<script src="../../scripts.js"></script>
+<script>
+  const LECCION_ID='02',NIVEL_KEY='n5';
+  function playJapaneseTTS(t){if('speechSynthesis'in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=0.9;window.speechSynthesis.speak(u);}}
+  function checkQuizAnswer(btn,ok,msg){const c=btn.closest('.nnt-quiz-card');c.querySelectorAll('.nnt-quiz-option').forEach(o=>{o.disabled=true;});btn.classList.add(ok?'correct':'wrong');const f=c.querySelector('.nnt-quiz-feedback');f.style.background=ok?'#e8f5e9':'#ffebee';f.style.color=ok?'#1b5e20':'#b71c1c';f.innerHTML=(ok?'🎉 <strong>¡Correcto!</strong> ':'❌ <strong>Inténtalo de nuevo.</strong> ')+msg;f.classList.add('show');if(!ok)setTimeout(()=>c.querySelectorAll('.nnt-quiz-option').forEach(o=>o.disabled=false),1500);}
+  function toggleAccordion(el){el.classList.toggle('open');}
+  function marcarCompletado(){const btn=document.getElementById('btn-completar');const done=localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado';localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,done?'completado':'pendiente');btn.innerHTML=done?'✓ ¡Completado!':'☐ Marcar como completado';btn.classList.toggle('done',done);}
+  function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
+  function toggleDarkMode(){document.body.classList.toggle('dark-mode');document.documentElement.classList.toggle('dark-mode');const d=document.body.classList.contains('dark-mode');localStorage.setItem('theme',d?'dark':'light');const b=document.getElementById('dark-mode-toggle');if(b)b.innerText=d?'☀️':'🌙';}
+  document.addEventListener('DOMContentLoaded',()=>{if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado')localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,'en-progreso');const btn=document.getElementById('btn-completar');if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)=='completado'){btn.innerHTML='✓ ¡Completado!';btn.classList.add('done');}});
+</script>
+</body></html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabla de Katakana (カタカナ) | Nihongo no Torii</title>
+  <meta name="description" content="Tabla de caracteres Katakana en formato tradicional Gojūon con pronunciación en audio nativo, animación de trazos y vocabulario de ejemplo.">
+  <link rel="icon" type="image/png" href="image/logonnt.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="page-tabla-katakana">
+
+  <!-- CABECERA DE NAVEGACIÓN PRINCIPAL -->
+  <header class="main-header">
+    <div class="header-brand">
+      <a href="index.html" class="nav-logo">
+        <img src="image/logonnt.png" alt="Logo">
+      </a>
+      <h1 class="logo-text">Nihongo no Torii</h1>
+    </div>
+
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+    <nav id="menu" class="top-nav">
+      <a href="index.html">Inicio</a>
+      <a href="lecciones.html" class="active">Lecciones</a>
+      <a href="videos.html">Videos</a>
+      <a href="biblioteca.html">Biblioteca</a>
+      <a href="ToriiTV.html">ToriiTV</a>
+      <a href="jlpt-simulador.html">Simulador JLPT</a>
+      <a href="perfil.html" class="nav-profile-item">
+     <!-- <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>-->
+      </a>
+      <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL: TABLA DE KATAKANA -->
+  <main class="kana-page-container">
+
+    <!-- HERO BANNER Y BOTÓN DE REGRESO -->
+    <div class="kana-hero-banner">
+      <div style="margin-bottom: 12px;">
+        <a href="katakana.html" class="btn btn-secondary" style="font-size: 0.9rem; padding: 6px 16px; border-radius: 20px;">
+          ← Volver a la Lección de Katakana
+        </a>
+      </div>
+      <span class="kana-hero-badge">🌐 Silabario Japonés Gojūon (五十音)</span>
+      <h1>Tabla Completa Katakana (カタカナ)</h1>
+      <p>
+        Haz clic en cualquier carácter para escuchar su pronunciación real en audio nativo, ver la animación de trazo con pincel japonés (*Shodō*) y aprender palabras de ejemplo (*Gairaigo*).
+      </p>
+    </div>
+
+    <!-- SECCIÓN DE LA TABLA INTERACTIVA -->
+    <div class="written-explanation-card" style="padding: 28px;">
+      
+      <!-- INDICADOR DE AUDIO LOCAL -->
+      <div style="background: rgba(20, 100, 130, 0.06); border: 1.5px dashed var(--azul, #146482); padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 1.5rem;">🎵</span>
+        <div style="font-size: 0.88rem; line-height: 1.5;">
+          <strong>Audio Nativo Detectado:</strong><br>
+          Archivos soportados en la carpeta <code>KANA/</code> o <code>audio/kana/</code> (ejemplo: <code>KANA/a.m4a</code> o <code>audio/kana/a.mp3</code>).
+        </div>
+      </div>
+
+      <!-- FILTROS POR FAMILIA KANA -->
+      <div class="family-filter-bar">
+        <button class="family-chip-btn active" data-family="todos">Todos los Katakana</button>
+        <button class="family-chip-btn" data-family="vocales">Vocales (ア・イ...)</button>
+        <button class="family-chip-btn" data-family="ka">Familia カ (ka)</button>
+        <button class="family-chip-btn" data-family="sa">Familia サ (sa)</button>
+        <button class="family-chip-btn" data-family="ta">Familia タ (ta)</button>
+        <button class="family-chip-btn" data-family="na">Familia ナ (na)</button>
+        <button class="family-chip-btn" data-family="ha">Familia ハ (ha)</button>
+        <button class="family-chip-btn" data-family="ma">Familia マ (ma)</button>
+        <button class="family-chip-btn" data-family="ya">Familia ヤ (ya)</button>
+        <button class="family-chip-btn" data-family="ra">Familia ラ (ra)</button>
+        <button class="family-chip-btn" data-family="wa">Familia ワ (wa)</button>
+        <button class="family-chip-btn" data-family="dakuon">Dakuon (ガ・ザ...)</button>
+        <button class="family-chip-btn" data-family="yoon">Diptongos (キャ・シャ...)</button>
+      </div>
+
+      <!-- GRID INTERACTIVO DE CARACTERES (GOJŪON) -->
+      <div id="kana-interactive-grid" class="kana-interactive-grid">
+        <!-- Renderizado dinámico desde js/kana-interactivo.js -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE DETALLE DEL CARÁCTER KATAKANA -->
+  <div id="kana-detail-modal" class="kana-detail-modal-overlay">
+    <div class="kana-detail-card">
+      <button id="kana-detail-modal-close" class="modal-close-btn" style="position: absolute; top: 16px; right: 20px; font-size: 1.8rem; background: none; border: none; cursor: pointer;">&times;</button>
+      
+      <div id="kana-detail-big-char" class="kana-detail-big-char">ア</div>
+      <div id="kana-detail-romaji" class="kana-detail-romaji">a</div>
+
+      <button id="btn-kana-detail-sound" class="btn-sound-play-big">
+        <span>🔊 Escuchar Pronunciación</span>
+      </button>
+
+      <!-- SECCIÓN: ORDEN DE TRAZOS CON ANIMACIÓN PINCEL -->
+      <div id="kana-detail-stroke-box" class="kana-stroke-order-box">
+        <!-- Renderizado dinámico desde js/kana-interactivo.js -->
+      </div>
+
+      <div style="text-align: left; margin-bottom: 8px; font-weight: bold; color: var(--color-h2);">
+        📝 Palabras de Ejemplo (Gairaigo):
+      </div>
+      <div id="kana-detail-words-list" class="kana-detail-words-list">
+        <!-- Renderizado dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initKanaPageModule === "function") {
+        initKanaPageModule("katakana");
+      }
+    });
+  </script>
+</body>
+</html>

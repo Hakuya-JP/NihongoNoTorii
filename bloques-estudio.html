@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kit de Herramientas & Bloques Didácticos - Nihongo no Torii</title>
+  <link rel="icon" type="image/png" href="image/logonnt.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Estilos específicos para la UI de desarrollo / copia de bloques */
+    .toast-copy {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #27ae60;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 10000;
+      animation: fadeInToast 0.3s ease;
+    }
+
+    @keyframes fadeInToast {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge-interactive {
+      background: #8e44ad;
+      color: white;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    .section-category-title {
+      font-size: 1.6rem;
+      color: var(--color-h2);
+      margin: 40px 0 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--naranja);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- CABECERA PRINCIPAL -->
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
+    <a href="bloques-estudio.html" class="active">Kit Didáctico 🧩</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<main class="nnt-toolkit-wrapper">
+
+  <!-- BANNER EXPLICATIVO -->
+  <section class="toolkit-hero">
+    <h2>🧩 Kit de Herramientas & Bloques Didácticos (20 Componentes)</h2>
+    <p>
+      Colección integral de componentes UI diseñados para explicar, estructurar y enseñar temas de japonés (gramática, kanji, vocabulario, diálogos, conjugaciones, condicionales, contadores y keigo).
+      <strong>Todos los bloques son interactivos y modulares:</strong> pruébalos en vivo y presiona <strong>"📋 Copiar Bloque"</strong> para insertarlo en cualquier página o lección.
+    </p>
+    
+    <div class="toolkit-filter-bar">
+      <!-- Parte 1 -->
+      <a href="#bloque-stepper" class="toolkit-chip">📍 1. Ruta / Pasos</a>
+      <a href="#bloque-formula" class="toolkit-chip">🧮 2. Fórmula Gramatical</a>
+      <a href="#bloque-sentence" class="toolkit-chip">🔊 3. Oración & Furigana</a>
+      <a href="#bloque-callouts" class="toolkit-chip">💡 4. Cajas de Alerta</a>
+      <a href="#bloque-vs" class="toolkit-chip">⚖️ 5. Comparativa (VS)</a>
+      <a href="#bloque-kanji" class="toolkit-chip">🉐 6. Desglose Kanji</a>
+      <a href="#bloque-dialogue" class="toolkit-chip">💬 7. Diálogo Roleplay</a>
+      <a href="#bloque-table" class="toolkit-chip">📊 8. Matriz Conjugación</a>
+      <a href="#bloque-accordion" class="toolkit-chip">📂 9. Acordeón</a>
+      <a href="#bloque-quiz" class="toolkit-chip">🎯 10. Mini-Quiz</a>
+      <!-- Parte 2 -->
+      <a href="#bloque-flashcard" class="toolkit-chip">🃏 11. Flashcard 3D</a>
+      <a href="#bloque-strokes" class="toolkit-chip">✍️ 12. Trazos Paso a Paso</a>
+      <a href="#bloque-keigo" class="toolkit-chip">👔 13. Espectro de Keigo</a>
+      <a href="#bloque-morphology" class="toolkit-chip">🔍 14. Desglose Morfológico</a>
+      <a href="#bloque-timeline" class="toolkit-chip">⏳ 15. Línea Temporal / Condicionales</a>
+      <a href="#bloque-builder" class="toolkit-chip">🧩 16. Constructor de Frases</a>
+      <a href="#bloque-counters" class="toolkit-chip">🔢 17. Contadores Visuales</a>
+      <a href="#bloque-reader" class="toolkit-chip">📖 18. Visor de Lectura</a>
+      <a href="#bloque-tree" class="toolkit-chip">🌳 19. Árbol de Partículas</a>
+      <a href="#bloque-anki" class="toolkit-chip">📥 20. Ficha Minado Anki</a>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       GRUPO 1: FUNDAMENTOS Y ESTRUCTURA
+       ========================================== -->
+  <h3 class="section-category-title">📚 1. Estructura de Lecciones y Fórmulas</h3>
+
+  <!-- 1. RUTA / STEPPER -->
+  <article class="block-showcase" id="bloque-stepper">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Estructura</span>
+        <h3 class="block-title">1. Ruta de Aprendizaje (Stepper / Roadmap)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-stepper')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-stepper', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-stepper">
+        <div class="nnt-step-item completed">
+          <div class="nnt-step-circle">✓</div>
+          <div class="nnt-step-title">Paso 1: Concepto</div>
+          <div class="nnt-step-desc">Qué es la partícula は</div>
+        </div>
+        <div class="nnt-step-item active">
+          <div class="nnt-step-circle">2</div>
+          <div class="nnt-step-title">Paso 2: Estructura</div>
+          <div class="nnt-step-desc">Fórmula básica A は B です</div>
+        </div>
+        <div class="nnt-step-item">
+          <div class="nnt-step-circle">3</div>
+          <div class="nnt-step-title">Paso 3: Ejemplos</div>
+          <div class="nnt-step-desc">Casos prácticos de uso</div>
+        </div>
+        <div class="nnt-step-item">
+          <div class="nnt-step-circle">4</div>
+          <div class="nnt-step-title">Paso 4: Práctica</div>
+          <div class="nnt-step-desc">Comprueba lo aprendido</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-stepper">
+      <pre><code>&lt;!-- BLOQUE: RUTA DE APRENDIZAJE (STEPPER) --&gt;
+&lt;div class="nnt-stepper"&gt;
+  &lt;div class="nnt-step-item completed"&gt;
+    &lt;div class="nnt-step-circle"&gt;✓&lt;/div&gt;
+    &lt;div class="nnt-step-title"&gt;Paso 1: Concepto&lt;/div&gt;
+    &lt;div class="nnt-step-desc"&gt;Qué es la partícula は&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-step-item active"&gt;
+    &lt;div class="nnt-step-circle"&gt;2&lt;/div&gt;
+    &lt;div class="nnt-step-title"&gt;Paso 2: Estructura&lt;/div&gt;
+    &lt;div class="nnt-step-desc"&gt;Fórmula básica A は B です&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-step-item"&gt;
+    &lt;div class="nnt-step-circle"&gt;3&lt;/div&gt;
+    &lt;div class="nnt-step-title"&gt;Paso 3: Ejemplos&lt;/div&gt;
+    &lt;div class="nnt-step-desc"&gt;Casos prácticos&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-step-item"&gt;
+    &lt;div class="nnt-step-circle"&gt;4&lt;/div&gt;
+    &lt;div class="nnt-step-title"&gt;Paso 4: Práctica&lt;/div&gt;
+    &lt;div class="nnt-step-desc"&gt;Comprueba lo aprendido&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 2. FÓRMULA GRAMATICAL -->
+  <article class="block-showcase" id="bloque-formula">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Gramática</span>
+        <h3 class="block-title">2. Fórmula Gramatical Desglosada (Blueprint)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-formula')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-formula', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-formula-box">
+        <div class="nnt-formula-title">📐 Patrón Gramatical N5</div>
+        <div class="nnt-formula-layout">
+          <div class="nnt-token noun">
+            <span class="nnt-token-main">Sujeto (Tema)</span>
+            <span class="nnt-token-sub">Sustantivo A</span>
+          </div>
+          <span class="nnt-token formula-plus">+</span>
+          <div class="nnt-token particle">
+            <span class="nnt-token-main">は</span>
+            <span class="nnt-token-sub">Partícula (wa)</span>
+          </div>
+          <span class="nnt-token formula-plus">+</span>
+          <div class="nnt-token noun">
+            <span class="nnt-token-main">Atributo</span>
+            <span class="nnt-token-sub">Sustantivo B</span>
+          </div>
+          <span class="nnt-token formula-plus">+</span>
+          <div class="nnt-token verb">
+            <span class="nnt-token-main">です</span>
+            <span class="nnt-token-sub">Cópula (Ser/Estar)</span>
+          </div>
+        </div>
+        <div class="nnt-formula-meaning">
+          💡 <strong>Significado:</strong> "En cuanto a [A], es [B]" o sencillamente "[A] es [B]".
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-formula">
+      <pre><code>&lt;!-- BLOQUE: FÓRMULA GRAMATICAL --&gt;
+&lt;div class="nnt-formula-box"&gt;
+  &lt;div class="nnt-formula-title"&gt;📐 Patrón Gramatical N5&lt;/div&gt;
+  &lt;div class="nnt-formula-layout"&gt;
+    &lt;div class="nnt-token noun"&gt;
+      &lt;span class="nnt-token-main"&gt;Sujeto (Tema)&lt;/span&gt;
+      &lt;span class="nnt-token-sub"&gt;Sustantivo A&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;span class="nnt-token formula-plus"&gt;+&lt;/span&gt;
+    &lt;div class="nnt-token particle"&gt;
+      &lt;span class="nnt-token-main"&gt;は&lt;/span&gt;
+      &lt;span class="nnt-token-sub"&gt;Partícula (wa)&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;span class="nnt-token formula-plus"&gt;+&lt;/span&gt;
+    &lt;div class="nnt-token noun"&gt;
+      &lt;span class="nnt-token-main"&gt;Atributo&lt;/span&gt;
+      &lt;span class="nnt-token-sub"&gt;Sustantivo B&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;span class="nnt-token formula-plus"&gt;+&lt;/span&gt;
+    &lt;div class="nnt-token verb"&gt;
+      &lt;span class="nnt-token-main"&gt;です&lt;/span&gt;
+      &lt;span class="nnt-token-sub"&gt;Cópula (Ser/Estar)&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-formula-meaning"&gt;
+    💡 &lt;strong&gt;Significado:&lt;/strong&gt; "En cuanto a [A], es [B]" o "[A] es [B]".
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 3. ORACIÓN CON FURIGANA & AUDIO -->
+  <article class="block-showcase" id="bloque-sentence">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Lectura & Audio</span>
+        <span class="badge-interactive">Interactivo</span>
+        <h3 class="block-title">3. Oración de Ejemplo con Furigana y Pronunciación</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-sentence')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-sentence', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-sentence-card">
+        <div class="nnt-sentence-top">
+          <div class="nnt-japanese-text">
+            <ruby>私<rt>わたし</rt></ruby>は<ruby>日本語<rt>にほんご</rt></ruby>を<ruby>勉強<rt>べんきょう</rt></ruby>しています。
+          </div>
+          <button class="nnt-audio-btn" onclick="playJapaneseTTS('私は日本語を勉強しています。')" title="Escuchar pronunciación">
+            🔊
+          </button>
+        </div>
+        <div class="nnt-romaji-text">Watashi wa nihongo o benkyou shite imasu.</div>
+        <div class="nnt-spanish-text">Estoy estudiando japonés.</div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-sentence">
+      <pre><code>&lt;!-- BLOQUE: ORACIÓN DE EJEMPLO (FURIGANA + AUDIO) --&gt;
+&lt;div class="nnt-sentence-card"&gt;
+  &lt;div class="nnt-sentence-top"&gt;
+    &lt;div class="nnt-japanese-text"&gt;
+      &lt;ruby&gt;私&lt;rt&gt;わたし&lt;/rt&gt;&lt;/ruby&gt;は&lt;ruby&gt;日本語&lt;rt&gt;にほんご&lt;/rt&gt;&lt;/ruby&gt;を&lt;ruby&gt;勉強&lt;rt&gt;べんきょう&lt;/rt&gt;&lt;/ruby&gt;しています。
+    &lt;/div&gt;
+    &lt;button class="nnt-audio-btn" onclick="playJapaneseTTS('私は日本語を勉強しています。')" title="Escuchar"&gt;
+      🔊
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-romaji-text"&gt;Watashi wa nihongo o benkyou shite imasu.&lt;/div&gt;
+  &lt;div class="nnt-spanish-text"&gt;Estoy estudiando japonés.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 4. CAJAS DE ALERTA -->
+  <article class="block-showcase" id="bloque-callouts">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Pedagogía</span>
+        <h3 class="block-title">4. Cajas de Alerta (Tips, Regla de Oro, Errores y Cultura)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-callouts')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-callouts', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-callout tip">
+        <div class="nnt-callout-icon">💡</div>
+        <div class="nnt-callout-content">
+          <div class="nnt-callout-title">Consejo Práctico</div>
+          <div class="nnt-callout-body">Cuando la partícula は funciona como marcador de tema, se pronuncia como "wa" en lugar de "ha".</div>
+        </div>
+      </div>
+
+      <div class="nnt-callout golden">
+        <div class="nnt-callout-icon">⛩️</div>
+        <div class="nnt-callout-content">
+          <div class="nnt-callout-title">Regla de Oro de Torii</div>
+          <div class="nnt-callout-body">En japonés, el verbo principal <strong>siempre se ubica al final de la oración</strong> (Estructura SOV: Sujeto + Objeto + Verbo).</div>
+        </div>
+      </div>
+
+      <div class="nnt-callout warning">
+        <div class="nnt-callout-icon">⚠️</div>
+        <div class="nnt-callout-content">
+          <div class="nnt-callout-title">Error Frecuente</div>
+          <div class="nnt-callout-body">No confundas 行きます (ir) con 来ます (venir) al usar la partícula に para indicar destinos.</div>
+        </div>
+      </div>
+
+      <div class="nnt-callout culture">
+        <div class="nnt-callout-icon">🗾</div>
+        <div class="nnt-callout-content">
+          <div class="nnt-callout-title">Curiosidad Cultural</div>
+          <div class="nnt-callout-body">Los japoneses suelen omitir el pronombre "Watashi" (yo) cuando por contexto es evidente de quién se habla.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-callouts">
+      <pre><code>&lt;!-- TIP / CONSEJO --&gt;
+&lt;div class="nnt-callout tip"&gt;
+  &lt;div class="nnt-callout-icon"&gt;💡&lt;/div&gt;
+  &lt;div class="nnt-callout-content"&gt;
+    &lt;div class="nnt-callout-title"&gt;Consejo Práctico&lt;/div&gt;
+    &lt;div class="nnt-callout-body"&gt;Escribe aquí tu consejo didáctico...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- REGLA DE ORO --&gt;
+&lt;div class="nnt-callout golden"&gt;
+  &lt;div class="nnt-callout-icon"&gt;⛩️&lt;/div&gt;
+  &lt;div class="nnt-callout-content"&gt;
+    &lt;div class="nnt-callout-title"&gt;Regla de Oro de Torii&lt;/div&gt;
+    &lt;div class="nnt-callout-body"&gt;Escribe aquí la regla clave...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- ALERTA / ERROR FRECUENTE --&gt;
+&lt;div class="nnt-callout warning"&gt;
+  &lt;div class="nnt-callout-icon"&gt;⚠️&lt;/div&gt;
+  &lt;div class="nnt-callout-content"&gt;
+    &lt;div class="nnt-callout-title"&gt;Error Frecuente&lt;/div&gt;
+    &lt;div class="nnt-callout-body"&gt;Escribe aquí qué error evitar...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- NOTA CULTURAL --&gt;
+&lt;div class="nnt-callout culture"&gt;
+  &lt;div class="nnt-callout-icon"&gt;🗾&lt;/div&gt;
+  &lt;div class="nnt-callout-content"&gt;
+    &lt;div class="nnt-callout-title"&gt;Curiosidad Cultural&lt;/div&gt;
+    &lt;div class="nnt-callout-body"&gt;Escribe aquí el contexto cultural...&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 5. COMPARADOR (VS) -->
+  <article class="block-showcase" id="bloque-vs">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Comparativas</span>
+        <h3 class="block-title">5. Comparador Visual de Conceptos ( は vs が )</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-vs')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-vs', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-vs-grid">
+        <div class="nnt-vs-card">
+          <div class="nnt-vs-header">
+            <span class="nnt-vs-badge">は (wa)</span>
+            <span class="nnt-vs-role">Marcador de Tema</span>
+          </div>
+          <ul class="nnt-vs-list">
+            <li>Define el contexto general ("En cuanto a...")</li>
+            <li>El énfasis recae en lo que viene <strong>después</strong>.</li>
+            <li>Se usa con información conocida o ya mencionada.</li>
+            <li>Sirve para contrastar dos elementos conocidos.</li>
+          </ul>
+        </div>
+
+        <div class="nnt-vs-card accent">
+          <div class="nnt-vs-header">
+            <span class="nnt-vs-badge">が (ga)</span>
+            <span class="nnt-vs-role">Sujeto Gramatical</span>
+          </div>
+          <ul class="nnt-vs-list">
+            <li>Identifica específicamente <strong>quién</strong> realiza la acción.</li>
+            <li>El énfasis recae en lo que está <strong>antes</strong> de が.</li>
+            <li>Se usa para presentar información nueva o responder preguntas "¿Quién?".</li>
+            <li>Obligatorio con adjetivos de deseo y capacidad (好き, 欲しい, 分かる).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-vs">
+      <pre><code>&lt;!-- BLOQUE: COMPARADOR DE CONCEPTOS (VS) --&gt;
+&lt;div class="nnt-vs-grid"&gt;
+  &lt;div class="nnt-vs-card"&gt;
+    &lt;div class="nnt-vs-header"&gt;
+      &lt;span class="nnt-vs-badge"&gt;は (wa)&lt;/span&gt;
+      &lt;span class="nnt-vs-role"&gt;Marcador de Tema&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;ul class="nnt-vs-list"&gt;
+      &lt;li&gt;Define el contexto ("En cuanto a...")&lt;/li&gt;
+      &lt;li&gt;Énfasis en lo que viene &lt;strong&gt;después&lt;/strong&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+
+  &lt;div class="nnt-vs-card accent"&gt;
+    &lt;div class="nnt-vs-header"&gt;
+      &lt;span class="nnt-vs-badge"&gt;が (ga)&lt;/span&gt;
+      &lt;span class="nnt-vs-role"&gt;Sujeto Específico&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;ul class="nnt-vs-list"&gt;
+      &lt;li&gt;Identifica quién realiza la acción.&lt;/li&gt;
+      &lt;li&gt;Énfasis en lo que está &lt;strong&gt;antes&lt;/strong&gt;.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- ==========================================
+       GRUPO 2: KANJI, VOCABULARIO Y CONVERSACIÓN
+       ========================================== -->
+  <h3 class="section-category-title">🉐 2. Kanji, Vocabulario y Conversación</h3>
+
+  <!-- 6. DESGLOSE DE KANJI -->
+  <article class="block-showcase" id="bloque-kanji">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Kanji</span>
+        <h3 class="block-title">6. Desglose de Kanji, Lecturas y Mnemotecnia</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-kanji')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-kanji', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-kanji-box">
+        <div class="nnt-kanji-big">日</div>
+        <div class="nnt-kanji-details">
+          <div class="nnt-kanji-meaning">Sol, Día (N5) • 4 Trazos</div>
+          <div class="nnt-kanji-readings">
+            <div class="nnt-reading-tag"><strong>On'yomi:</strong> ニチ (nichi), ジツ (jitsu)</div>
+            <div class="nnt-reading-tag"><strong>Kun'yomi:</strong> ひ (hi), -び (-bi), -か (-ka)</div>
+            <div class="nnt-reading-tag"><strong>Radical:</strong> 日 (Sol)</div>
+          </div>
+          <div class="nnt-kanji-mnemo">
+            🧠 <strong>Mnemotecnia:</strong> Representa una ventana por la cual se ve el sol brillando en el horizonte.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-kanji">
+      <pre><code>&lt;!-- BLOQUE: DESGLOSE DE KANJI --&gt;
+&lt;div class="nnt-kanji-box"&gt;
+  &lt;div class="nnt-kanji-big"&gt;日&lt;/div&gt;
+  &lt;div class="nnt-kanji-details"&gt;
+    &lt;div class="nnt-kanji-meaning"&gt;Sol, Día (N5) • 4 Trazos&lt;/div&gt;
+    &lt;div class="nnt-kanji-readings"&gt;
+      &lt;div class="nnt-reading-tag"&gt;&lt;strong&gt;On'yomi:&lt;/strong&gt; ニチ (nichi), ジツ (jitsu)&lt;/div&gt;
+      &lt;div class="nnt-reading-tag"&gt;&lt;strong&gt;Kun'yomi:&lt;/strong&gt; ひ (hi), -び (-bi)&lt;/div&gt;
+      &lt;div class="nnt-reading-tag"&gt;&lt;strong&gt;Radical:&lt;/strong&gt; 日 (Sol)&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="nnt-kanji-mnemo"&gt;
+      🧠 &lt;strong&gt;Mnemotecnia:&lt;/strong&gt; Visualiza una ventana mirando hacia el sol.
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 7. DIÁLOGO ROLEPLAY -->
+  <article class="block-showcase" id="bloque-dialogue">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Conversación</span>
+        <span class="badge-interactive">Interactivo</span>
+        <h3 class="block-title">7. Diálogo / Roleplay Conversacional con Audio</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-dialogue')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-dialogue', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-dialogue-container">
+        <div class="nnt-dialogue-row">
+          <div class="nnt-dialogue-avatar">👨‍🎓</div>
+          <div class="nnt-dialogue-bubble">
+            <div class="nnt-dialogue-speaker">Ren (Estudiante)</div>
+            <div class="nnt-dialogue-jp">
+              すみません、これは<ruby>何<rt>なん</rt></ruby>ですか？
+              <button class="nnt-audio-btn" style="width:28px; height:28px; font-size:0.8rem; display:inline-flex; vertical-align:middle; margin-left:6px;" onclick="playJapaneseTTS('すみません、これは何ですか？')">🔊</button>
+            </div>
+            <div class="nnt-dialogue-es">Disculpe, ¿qué es esto?</div>
+          </div>
+        </div>
+
+        <div class="nnt-dialogue-row right">
+          <div class="nnt-dialogue-avatar">👩‍🏫</div>
+          <div class="nnt-dialogue-bubble">
+            <div class="nnt-dialogue-speaker">Sensei Sakura</div>
+            <div class="nnt-dialogue-jp">
+              それは<ruby>日本語<rt>にほんご</rt></ruby>の<ruby>辞書<rt>じしょ</rt></ruby>ですよ。
+              <button class="nnt-audio-btn" style="width:28px; height:28px; font-size:0.8rem; display:inline-flex; vertical-align:middle; margin-left:6px;" onclick="playJapaneseTTS('それは日本語の辞書ですよ。')">🔊</button>
+            </div>
+            <div class="nnt-dialogue-es">Eso es un diccionario de japonés.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-dialogue">
+      <pre><code>&lt;!-- BLOQUE: DIÁLOGO CONVERSACIONAL --&gt;
+&lt;div class="nnt-dialogue-container"&gt;
+  &lt;div class="nnt-dialogue-row"&gt;
+    &lt;div class="nnt-dialogue-avatar"&gt;👨‍🎓&lt;/div&gt;
+    &lt;div class="nnt-dialogue-bubble"&gt;
+      &lt;div class="nnt-dialogue-speaker"&gt;Ren&lt;/div&gt;
+      &lt;div class="nnt-dialogue-jp"&gt;すみません、これは何ですか？&lt;/div&gt;
+      &lt;div class="nnt-dialogue-es"&gt;Disculpe, ¿qué es esto?&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class="nnt-dialogue-row right"&gt;
+    &lt;div class="nnt-dialogue-avatar"&gt;👩‍🏫&lt;/div&gt;
+    &lt;div class="nnt-dialogue-bubble"&gt;
+      &lt;div class="nnt-dialogue-speaker"&gt;Sensei Sakura&lt;/div&gt;
+      &lt;div class="nnt-dialogue-jp"&gt;それは日本語の辞書ですよ。&lt;/div&gt;
+      &lt;div class="nnt-dialogue-es"&gt;Eso es un diccionario de japonés.&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 8. MATRIZ DE CONJUGACIÓN -->
+  <article class="block-showcase" id="bloque-table">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Tablas</span>
+        <h3 class="block-title">8. Matriz de Conjugación Verbal</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-table')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-table', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-table-wrapper">
+        <table class="nnt-table">
+          <thead>
+            <tr>
+              <th>Verbo (Diccionario)</th>
+              <th>Tipo</th>
+              <th>Forma Masu (Cortés)</th>
+              <th>Forma Te (Conexión)</th>
+              <th>Forma Nai (Negativa)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong><ruby>食<rt>た</rt></ruby>べる</strong> (Comer)</td>
+              <td>Ichidan (Grupo 2)</td>
+              <td>食べ<span class="highlight">ます</span></td>
+              <td>食べ<span class="highlight">て</span></td>
+              <td>食べ<span class="highlight">ない</span></td>
+            </tr>
+            <tr>
+              <td><strong><ruby>行<rt>い</rt></ruby>く</strong> (Ir)</td>
+              <td>Godan (Grupo 1)</td>
+              <td>行き<span class="highlight">ます</span></td>
+              <td>行っ<span class="highlight">て</span></td>
+              <td>行か<span class="highlight">ない</span></td>
+            </tr>
+            <tr>
+              <td><strong>する</strong> (Hacer)</td>
+              <td>Irregular (Grupo 3)</td>
+              <td>し<span class="highlight">ます</span></td>
+              <td>し<span class="highlight">て</span></td>
+              <td>し<span class="highlight">ない</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-table">
+      <pre><code>&lt;!-- BLOQUE: TABLA DE CONJUGACIÓN --&gt;
+&lt;div class="nnt-table-wrapper"&gt;
+  &lt;table class="nnt-table"&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Verbo (Diccionario)&lt;/th&gt;
+        &lt;th&gt;Tipo&lt;/th&gt;
+        &lt;th&gt;Forma Masu&lt;/th&gt;
+        &lt;th&gt;Forma Te&lt;/th&gt;
+        &lt;th&gt;Forma Nai&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;strong&gt;食べる&lt;/strong&gt; (Comer)&lt;/td&gt;
+        &lt;td&gt;Ichidan&lt;/td&gt;
+        &lt;td&gt;食べ&lt;span class="highlight"&gt;ます&lt;/span&gt;&lt;/td&gt;
+        &lt;td&gt;食べ&lt;span class="highlight"&gt;て&lt;/span&gt;&lt;/td&gt;
+        &lt;td&gt;食べ&lt;span class="highlight"&gt;ない&lt;/span&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 9. ACORDEÓN DESPLEGABLE -->
+  <article class="block-showcase" id="bloque-accordion">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Desplegable</span>
+        <span class="badge-interactive">Interactivo</span>
+        <h3 class="block-title">9. Acordeón Desplegable (Detalles y Excepciones)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-accordion')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-accordion', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-accordion" onclick="toggleAccordion(this)">
+        <div class="nnt-accordion-header">
+          <span>🔍 ¿Por qué 行く (Iku) se conjuga como 行って (Itte) en vez de いいて?</span>
+          <span class="nnt-accordion-icon">▼</span>
+        </div>
+        <div class="nnt-accordion-body">
+          <p>
+            Aunque los verbos Godan que terminan en <strong>く (ku)</strong> normalmente cambian a <strong>いて (ite)</strong> (como 書く &rarr; 書いて), el verbo <strong>行く (ir)</strong> es la <strong>única excepción histórica</strong> y se transforma en forma con sokuon: <strong>行って (itte)</strong> para facilitar la rapidez de articulación.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-accordion">
+      <pre><code>&lt;!-- BLOQUE: ACORDEÓN DESPLEGABLE --&gt;
+&lt;div class="nnt-accordion" onclick="this.classList.toggle('open')"&gt;
+  &lt;div class="nnt-accordion-header"&gt;
+    &lt;span&gt;🔍 Título de la pregunta o detalle extra...&lt;/span&gt;
+    &lt;span class="nnt-accordion-icon"&gt;▼&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-accordion-body"&gt;
+    &lt;p&gt;Explicación detallada que no satura la pantalla inicial...&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 10. MINI-QUIZ CHECKPOINT -->
+  <article class="block-showcase" id="bloque-quiz">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Evaluación</span>
+        <span class="badge-interactive">Interactivo</span>
+        <h3 class="block-title">10. Mini-Quiz Checkpoint (Comprobación Rápida)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-quiz')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-quiz', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-quiz-card">
+        <div class="nnt-quiz-header">
+          <span class="nnt-quiz-badge">Checkpoint N5</span>
+          <span>¿Has comprendido el uso de la partícula?</span>
+        </div>
+        <div class="nnt-quiz-question">
+          Completa la frase: 「これ _____ 私の本です。」 (Esto es mi libro)
+        </div>
+        <div class="nnt-quiz-options">
+          <button class="nnt-quiz-option" onclick="checkQuizAnswer(this, false, 'La partícula を marca el objeto directo de un verbo de acción.')">A) を (o)</button>
+          <button class="nnt-quiz-option" onclick="checkQuizAnswer(this, true, '¡Correcto! は (wa) marca a これ (esto) como el tema.')">B) は (wa)</button>
+          <button class="nnt-quiz-option" onclick="checkQuizAnswer(this, false, 'La partícula に indica tiempo, destino o dirección.')">C) に (ni)</button>
+          <button class="nnt-quiz-option" onclick="checkQuizAnswer(this, false, 'La partícula で indica lugar de acción o medio.')">D) で (de)</button>
+        </div>
+        <div class="nnt-quiz-feedback"></div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-quiz">
+      <pre><code>&lt;!-- BLOQUE: MINI-QUIZ CHECKPOINT --&gt;
+&lt;div class="nnt-quiz-card"&gt;
+  &lt;div class="nnt-quiz-header"&gt;
+    &lt;span class="nnt-quiz-badge"&gt;Checkpoint N5&lt;/span&gt;
+    &lt;span&gt;Comprueba lo aprendido&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-quiz-question"&gt;
+    Completa la frase: 「これ _____ 私の本です。」
+  &lt;/div&gt;
+  &lt;div class="nnt-quiz-options"&gt;
+    &lt;button class="nnt-quiz-option" onclick="checkQuizAnswer(this, false, 'Explicación...')">A) を (o)&lt;/button&gt;
+    &lt;button class="nnt-quiz-option" onclick="checkQuizAnswer(this, true, '¡Correcto! は marca el tema.')">B) は (wa)&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-quiz-feedback"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- ==========================================
+       GRUPO 3: HERRAMIENTAS AVANZADAS & PRÁCTICA
+       ========================================== -->
+  <h3 class="section-category-title">✨ 3. Herramientas Avanzadas, Keigo e Interactividad</h3>
+
+  <!-- 11. FLASHCARD 3D -->
+  <article class="block-showcase" id="bloque-flashcard">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Vocabulario</span>
+        <span class="badge-interactive">Interactivo 3D</span>
+        <h3 class="block-title">11. Tarjeta de Vocabulario Flashcard 3D (Efecto Flip)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-flashcard')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-flashcard', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <p style="text-align:center; margin-bottom:12px; color:var(--color-h3); font-weight:bold;">👆 Haz clic en la tarjeta para voltearla y ver el reverso</p>
+      <div class="nnt-flashcard-container" onclick="this.querySelector('.nnt-flashcard').classList.toggle('flipped')">
+        <div class="nnt-flashcard">
+          <!-- Frente -->
+          <div class="nnt-flashcard-face nnt-flashcard-front">
+            <span class="nnt-fc-badge">N5 • Sustantivo</span>
+            <div class="nnt-fc-center">
+              <div class="nnt-fc-kanji">友達</div>
+              <div class="nnt-fc-kana">ともだち</div>
+            </div>
+            <div class="nnt-fc-footer">🔄 Clic para revelar significado</div>
+          </div>
+          <!-- Reverso -->
+          <div class="nnt-flashcard-face nnt-flashcard-back">
+            <span class="nnt-fc-badge">Traducción</span>
+            <div class="nnt-fc-center">
+              <div class="nnt-fc-meaning">Amigo / Compañero</div>
+              <div class="nnt-fc-romaji">Romaji: tomodachi</div>
+            </div>
+            <div class="nnt-fc-footer">Ejemplo: 友達と遊ぶ (Jugar con un amigo)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-flashcard">
+      <pre><code>&lt;!-- BLOQUE: FLASHCARD 3D INTERACTIVA --&gt;
+&lt;div class="nnt-flashcard-container" onclick="this.querySelector('.nnt-flashcard').classList.toggle('flipped')"&gt;
+  &lt;div class="nnt-flashcard"&gt;
+    &lt;!-- Frente --&gt;
+    &lt;div class="nnt-flashcard-face nnt-flashcard-front"&gt;
+      &lt;span class="nnt-fc-badge"&gt;N5 • Sustantivo&lt;/span&gt;
+      &lt;div class="nnt-fc-center"&gt;
+        &lt;div class="nnt-fc-kanji"&gt;友達&lt;/div&gt;
+        &lt;div class="nnt-fc-kana"&gt;ともだち&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="nnt-fc-footer"&gt;🔄 Clic para revelar&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- Reverso --&gt;
+    &lt;div class="nnt-flashcard-face nnt-flashcard-back"&gt;
+      &lt;span class="nnt-fc-badge"&gt;Traducción&lt;/span&gt;
+      &lt;div class="nnt-fc-center"&gt;
+        &lt;div class="nnt-fc-meaning"&gt;Amigo / Compañero&lt;/div&gt;
+        &lt;div class="nnt-fc-romaji"&gt;tomodachi&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="nnt-fc-footer"&gt;Ejemplo: 友達と遊ぶ&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 12. GUÍA DE TRAZOS PASO A PASO -->
+  <article class="block-showcase" id="bloque-strokes">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Escritura</span>
+        <h3 class="block-title">12. Guía de Trazos Paso a Paso (Stroke Order Grid)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-strokes')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-strokes', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <p style="margin-bottom:14px; font-weight:bold; color:var(--color-h2);">Orden de trazos del Kanji 「木」 (Árbol / Madera - 4 Trazos):</p>
+      <div class="nnt-stroke-grid">
+        <div class="nnt-stroke-box">
+          <div class="nnt-genkou-square">一</div>
+          <div class="nnt-stroke-label">Trazo 1 (Horizontal)</div>
+        </div>
+        <div class="nnt-stroke-box">
+          <div class="nnt-genkou-square">十</div>
+          <div class="nnt-stroke-label">Trazo 2 (Vertical)</div>
+        </div>
+        <div class="nnt-stroke-box">
+          <div class="nnt-genkou-square">才</div>
+          <div class="nnt-stroke-label">Trazo 3 (Diagonal izq.)</div>
+        </div>
+        <div class="nnt-stroke-box current">
+          <div class="nnt-genkou-square">木</div>
+          <div class="nnt-stroke-label">Trazo 4 (Final)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-strokes">
+      <pre><code>&lt;!-- BLOQUE: ORDEN DE TRAZOS EN CUADRÍCULA --&gt;
+&lt;div class="nnt-stroke-grid"&gt;
+  &lt;div class="nnt-stroke-box"&gt;
+    &lt;div class="nnt-genkou-square"&gt;一&lt;/div&gt;
+    &lt;div class="nnt-stroke-label"&gt;Trazo 1&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-stroke-box"&gt;
+    &lt;div class="nnt-genkou-square"&gt;十&lt;/div&gt;
+    &lt;div class="nnt-stroke-label"&gt;Trazo 2&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-stroke-box"&gt;
+    &lt;div class="nnt-genkou-square"&gt;才&lt;/div&gt;
+    &lt;div class="nnt-stroke-label"&gt;Trazo 3&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-stroke-box current"&gt;
+    &lt;div class="nnt-genkou-square"&gt;木&lt;/div&gt;
+    &lt;div class="nnt-stroke-label"&gt;Trazo 4 (Final)&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 13. ESPECTRO DE KEIGO -->
+  <article class="block-showcase" id="bloque-keigo">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Sociolingüística</span>
+        <h3 class="block-title">13. Espectro de Cortesía y Keigo (Niveles de Formalidad)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-keigo')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-keigo', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-keigo-spectrum">
+        <div class="nnt-keigo-row informal">
+          <div class="nnt-keigo-tag">1. Informal (ため口)</div>
+          <div class="nnt-keigo-phrase">食べる (Taberu)</div>
+          <div class="nnt-keigo-context">Amigos cercanos, familia, niños.</div>
+        </div>
+        <div class="nnt-keigo-row polite">
+          <div class="nnt-keigo-tag">2. Cortés (丁寧語 - Teineigo)</div>
+          <div class="nnt-keigo-phrase">食べます (Tabemasu)</div>
+          <div class="nnt-keigo-context">Uso general estándar con desconocidos o compañeros.</div>
+        </div>
+        <div class="nnt-keigo-row sonkeigo">
+          <div class="nnt-keigo-tag">3. Honorífico (尊敬語 - Sonkeigo)</div>
+          <div class="nnt-keigo-phrase">召し上がる (Meshiaagaru)</div>
+          <div class="nnt-keigo-context">Eleva las acciones de clientes o superiores.</div>
+        </div>
+        <div class="nnt-keigo-row kenjougo">
+          <div class="nnt-keigo-tag">4. Humilde (謙譲語 - Kenjougo)</div>
+          <div class="nnt-keigo-phrase">いただく (Itadaku)</div>
+          <div class="nnt-keigo-context">Rebaja tus propias acciones con respeto hacia el receptor.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-keigo">
+      <pre><code>&lt;!-- BLOQUE: ESPECTRO DE CORTESÍA / KEIGO --&gt;
+&lt;div class="nnt-keigo-spectrum"&gt;
+  &lt;div class="nnt-keigo-row informal"&gt;
+    &lt;div class="nnt-keigo-tag"&gt;1. Informal (ため口)&lt;/div&gt;
+    &lt;div class="nnt-keigo-phrase"&gt;食べる (Taberu)&lt;/div&gt;
+    &lt;div class="nnt-keigo-context"&gt;Amigos, familia&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-keigo-row polite"&gt;
+    &lt;div class="nnt-keigo-tag"&gt;2. Cortés (丁寧語)&lt;/div&gt;
+    &lt;div class="nnt-keigo-phrase"&gt;食べます (Tabemasu)&lt;/div&gt;
+    &lt;div class="nnt-keigo-context"&gt;Uso general diario&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-keigo-row sonkeigo"&gt;
+    &lt;div class="nnt-keigo-tag"&gt;3. Honorífico (尊敬語)&lt;/div&gt;
+    &lt;div class="nnt-keigo-phrase"&gt;召し上がる (Meshiagaru)&lt;/div&gt;
+    &lt;div class="nnt-keigo-context"&gt;Para hablar del superior/cliente&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-keigo-row kenjougo"&gt;
+    &lt;div class="nnt-keigo-tag"&gt;4. Humilde (謙譲語)&lt;/div&gt;
+    &lt;div class="nnt-keigo-phrase"&gt;いただく (Itadaku)&lt;/div&gt;
+    &lt;div class="nnt-keigo-context"&gt;Para hablar de tus propias acciones&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 14. DESGLOSE MORFOLÓGICO -->
+  <article class="block-showcase" id="bloque-morphology">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Morfología</span>
+        <h3 class="block-title">14. Desglose Morfológico de Palabras y Sufijos</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-morphology')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-morphology', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-morphology-box">
+        <div class="nnt-morph-full">「食べさせられた」 <span style="font-size:1rem; color:var(--color-h3); font-weight:normal;">(Fui obligado a comer)</span></div>
+        <div class="nnt-morph-chain">
+          <div class="nnt-morph-item">
+            <div class="nnt-morph-kanji">食べ</div>
+            <div class="nnt-morph-func">Raíz Verbal</div>
+            <div class="nnt-morph-desc">Comer (Verbo base)</div>
+          </div>
+          <div class="nnt-morph-item">
+            <div class="nnt-morph-kanji">させ</div>
+            <div class="nnt-morph-func">Causativo</div>
+            <div class="nnt-morph-desc">Hacer / Obligar a hacer</div>
+          </div>
+          <div class="nnt-morph-item">
+            <div class="nnt-morph-kanji">られ</div>
+            <div class="nnt-morph-func">Pasivo</div>
+            <div class="nnt-morph-desc">Recibir la acción</div>
+          </div>
+          <div class="nnt-morph-item">
+            <div class="nnt-morph-kanji">た</div>
+            <div class="nnt-morph-func">Pasado</div>
+            <div class="nnt-morph-desc">Acción completada</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-morphology">
+      <pre><code>&lt;!-- BLOQUE: DESGLOSE MORFOLÓGICO --&gt;
+&lt;div class="nnt-morphology-box"&gt;
+  &lt;div class="nnt-morph-full"&gt;「食べさせられた」&lt;/div&gt;
+  &lt;div class="nnt-morph-chain"&gt;
+    &lt;div class="nnt-morph-item"&gt;
+      &lt;div class="nnt-morph-kanji"&gt;食べ&lt;/div&gt;
+      &lt;div class="nnt-morph-func"&gt;Raíz Verbal&lt;/div&gt;
+      &lt;div class="nnt-morph-desc"&gt;Comer&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="nnt-morph-item"&gt;
+      &lt;div class="nnt-morph-kanji"&gt;させ&lt;/div&gt;
+      &lt;div class="nnt-morph-func"&gt;Causativo&lt;/div&gt;
+      &lt;div class="nnt-morph-desc"&gt;Obligar&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="nnt-morph-item"&gt;
+      &lt;div class="nnt-morph-kanji"&gt;られ&lt;/div&gt;
+      &lt;div class="nnt-morph-func"&gt;Pasivo&lt;/div&gt;
+      &lt;div class="nnt-morph-desc"&gt;Recibir acción&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="nnt-morph-item"&gt;
+      &lt;div class="nnt-morph-kanji"&gt;た&lt;/div&gt;
+      &lt;div class="nnt-morph-func"&gt;Pasado&lt;/div&gt;
+      &lt;div class="nnt-morph-desc"&gt;Completado&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 15. LÍNEA TEMPORAL / CONDICIONALES -->
+  <article class="block-showcase" id="bloque-timeline">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Causa y Efecto</span>
+        <h3 class="block-title">15. Línea Temporal de Condicionales (~たら / ~ば / ~と)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-timeline')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-timeline', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-timeline">
+        <div class="nnt-timeline-track">
+          <div class="nnt-timeline-node">
+            <span class="nnt-node-badge">Condición Previa (A)</span>
+            <div class="nnt-node-main">春になると</div>
+            <div class="nnt-node-sub">Cuando llega la primavera...</div>
+          </div>
+          <div class="nnt-timeline-node">
+            <span class="nnt-node-badge">Consecuencia Automática (B)</span>
+            <div class="nnt-node-main">桜が咲きます</div>
+            <div class="nnt-node-sub">Florecen los cerezos.</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:0.9rem; color:var(--texto-principal); opacity:0.85; text-align:center;">
+        💡 El condicional <strong>と (to)</strong> representa una relación inevitable o natural (A siempre causa B).
+      </p>
+    </div>
+
+    <div class="block-code-wrapper" id="code-timeline">
+      <pre><code>&lt;!-- BLOQUE: LÍNEA TEMPORAL / CONDICIONALES --&gt;
+&lt;div class="nnt-timeline"&gt;
+  &lt;div class="nnt-timeline-track"&gt;
+    &lt;div class="nnt-timeline-node"&gt;
+      &lt;span class="nnt-node-badge"&gt;Condición (A)&lt;/span&gt;
+      &lt;div class="nnt-node-main"&gt;春になると&lt;/div&gt;
+      &lt;div class="nnt-node-sub"&gt;Al llegar la primavera...&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="nnt-timeline-node"&gt;
+      &lt;span class="nnt-node-badge"&gt;Resultado Inevitable (B)&lt;/span&gt;
+      &lt;div class="nnt-node-main"&gt;桜が咲きます&lt;/div&gt;
+      &lt;div class="nnt-node-sub"&gt;Florecen los cerezos.&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 16. CONSTRUCTOR DE ORACIONES (SCRAMBLE) -->
+  <article class="block-showcase" id="bloque-builder">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Práctica Activa</span>
+        <span class="badge-interactive">Interactivo</span>
+        <h3 class="block-title">16. Constructor Interactivo de Frases (Sentence Builder)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-builder')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-builder', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-builder-box" id="demo-builder">
+        <div class="nnt-builder-target">🎯 Ordena las palabras para formar: <em>"Ayer comí una manzana."</em></div>
+        
+        <!-- Zona de construcción -->
+        <div class="nnt-builder-dropzone" id="builder-dropzone"></div>
+        
+        <!-- Fichas disponibles -->
+        <div class="nnt-builder-pool" id="builder-pool">
+          <span class="nnt-word-tile" onclick="pickWord(this, '昨日')">昨日</span>
+          <span class="nnt-word-tile" onclick="pickWord(this, 'りんごを')">りんごを</span>
+          <span class="nnt-word-tile" onclick="pickWord(this, '食べました')">食べました</span>
+        </div>
+
+        <div class="nnt-builder-actions">
+          <button class="btn-show" onclick="checkBuiltSentence()">Comprobar Frase</button>
+          <button class="btn-toggle-code" onclick="resetSentenceBuilder()">Reiniciar</button>
+        </div>
+        <div id="builder-feedback" class="nnt-quiz-feedback" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-builder">
+      <pre><code>&lt;!-- BLOQUE: CONSTRUCTOR DE FRASES --&gt;
+&lt;div class="nnt-builder-box"&gt;
+  &lt;div class="nnt-builder-target"&gt;🎯 Ordena las palabras: "Ayer comí una manzana"&lt;/div&gt;
+  &lt;div class="nnt-builder-dropzone" id="my-dropzone"&gt;&lt;/div&gt;
+  &lt;div class="nnt-builder-pool"&gt;
+    &lt;span class="nnt-word-tile" onclick="pickWord(this, '昨日')"&gt;昨日&lt;/span&gt;
+    &lt;span class="nnt-word-tile" onclick="pickWord(this, 'りんごを')"&gt;りんごを&lt;/span&gt;
+    &lt;span class="nnt-word-tile" onclick="pickWord(this, '食べました')"&gt;食べました&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 17. MATRIZ VISUAL DE CONTADORES -->
+  <article class="block-showcase" id="bloque-counters">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Vocabulario & Contadores</span>
+        <h3 class="block-title">17. Matriz Visual de Contadores Japoneses (助数詞)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-counters')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-counters', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-counters-grid">
+        <div class="nnt-counter-card">
+          <div class="nnt-counter-icon">✏️</div>
+          <div class="nnt-counter-kanji">〜本</div>
+          <div class="nnt-counter-reading">ほん (hon)</div>
+          <div class="nnt-counter-use">Objetos largos y cilíndricos (lápices, botellas, árboles, trenes).</div>
+        </div>
+
+        <div class="nnt-counter-card">
+          <div class="nnt-counter-icon">📄</div>
+          <div class="nnt-counter-kanji">〜枚</div>
+          <div class="nnt-counter-reading">まい (mai)</div>
+          <div class="nnt-counter-use">Objetos delgados y planos (hojas, camisetas, platos, fotos).</div>
+        </div>
+
+        <div class="nnt-counter-card">
+          <div class="nnt-counter-icon">🐱</div>
+          <div class="nnt-counter-kanji">〜匹</div>
+          <div class="nnt-counter-reading">ひき (hiki)</div>
+          <div class="nnt-counter-use">Animales pequeños (gatos, perros, peces, insectos).</div>
+        </div>
+
+        <div class="nnt-counter-card">
+          <div class="nnt-counter-icon">📚</div>
+          <div class="nnt-counter-kanji">〜冊</div>
+          <div class="nnt-counter-reading">さつ (satsu)</div>
+          <div class="nnt-counter-use">Libros, cuadernos, mangas y revistas encuadernadas.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-counters">
+      <pre><code>&lt;!-- BLOQUE: MATRIZ DE CONTADORES JAPONESES --&gt;
+&lt;div class="nnt-counters-grid"&gt;
+  &lt;div class="nnt-counter-card"&gt;
+    &lt;div class="nnt-counter-icon"&gt;✏️&lt;/div&gt;
+    &lt;div class="nnt-counter-kanji"&gt;〜本&lt;/div&gt;
+    &lt;div class="nnt-counter-reading"&gt;ほん (hon)&lt;/div&gt;
+    &lt;div class="nnt-counter-use"&gt;Objetos cilíndricos (lápices, botellas)&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-counter-card"&gt;
+    &lt;div class="nnt-counter-icon"&gt;📄&lt;/div&gt;
+    &lt;div class="nnt-counter-kanji"&gt;〜枚&lt;/div&gt;
+    &lt;div class="nnt-counter-reading"&gt;まい (mai)&lt;/div&gt;
+    &lt;div class="nnt-counter-use"&gt;Objetos planos (papel, fotos)&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 18. VISOR DE LECTURA INMERSIVA -->
+  <article class="block-showcase" id="bloque-reader">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Comprensión Lectora</span>
+        <span class="badge-interactive">Interactivo</span>
+        <h3 class="block-title">18. Visor de Lectura Inmersiva con Alternador de Ayudas</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-reader')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-reader', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-reader-box" id="demo-reader-box">
+        <div class="nnt-reader-controls">
+          <button class="nnt-toggle-pill active" onclick="toggleFurigana(this)">Furigana (Lectura)</button>
+          <button class="nnt-toggle-pill" onclick="toggleReaderTranslation(this)">Traducción</button>
+          <button class="nnt-toggle-pill" onclick="playJapaneseTTS('昔々、ある所におじいさんとおばあさんが住んでいました。')">🔊 Audio</button>
+        </div>
+
+        <div class="nnt-reader-content">
+          <ruby>昔々<rt>むかしむかし</rt></ruby>、ある<ruby>所<rt>ところ</rt></ruby>におじいさんとおばあさんが<ruby>住<rt>す</rt></ruby>んでいました。<ruby>毎日<rt>まいにち</rt></ruby>、おじいさんは<ruby>山<rt>やま</rt></ruby>へ<ruby>柴刈<rt>しばかり</rt></ruby>りに、おばあさんは<ruby>川<rt>かわ</rt></ruby>へ<ruby>洗濯<rt>せんたく</rt></ruby>に<ruby>行<rt>い</rt></ruby>きました。
+        </div>
+
+        <div class="nnt-reader-romaji" id="reader-romaji-text" style="display:none;">
+          Mukashimukashi, aru tokoro ni ojiisan to obaasan ga sunde imashita. Mainichi, ojiisan wa yama e shibakari ni, obaasan wa kawa e sentaku ni ikimashita.
+        </div>
+
+        <div class="nnt-reader-translation" id="reader-trans-text" style="display:none;">
+          "Érase una vez, en cierto lugar vivían un anciano y una anciana. Cada día, el anciano iba a la montaña a recoger leña y la anciana iba al río a lavar la ropa."
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-reader">
+      <pre><code>&lt;!-- BLOQUE: VISOR DE LECTURA INMERSIVA --&gt;
+&lt;div class="nnt-reader-box" id="my-reader-box"&gt;
+  &lt;div class="nnt-reader-controls"&gt;
+    &lt;button class="nnt-toggle-pill active" onclick="this.closest('.nnt-reader-box').classList.toggle('hide-furigana')"&gt;Furigana&lt;/button&gt;
+    &lt;button class="nnt-toggle-pill" onclick="playJapaneseTTS('Texto japonés...')"&gt;🔊 Audio&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-reader-content"&gt;
+    &lt;ruby&gt;昔々&lt;rt&gt;むかしむかし&lt;/rt&gt;&lt;/ruby&gt;、ある&lt;ruby&gt;所&lt;rt&gt;ところ&lt;/rt&gt;&lt;/ruby&gt;に...
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 19. ÁRBOL DE DECISIÓN DE PARTÍCULAS -->
+  <article class="block-showcase" id="bloque-tree">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Guía Rápida</span>
+        <h3 class="block-title">19. Árbol de Decisión de Partículas (Flowchart)</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-tree')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-tree', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-decision-tree">
+        <div class="nnt-tree-branch">
+          <div class="nnt-tree-condition">¿Indica el lugar donde <strong>ocurre una acción física</strong> (ej: comer en un restaurante)?</div>
+          <div class="nnt-tree-arrow">&rarr;</div>
+          <div class="nnt-tree-result">で (de)</div>
+        </div>
+
+        <div class="nnt-tree-branch">
+          <div class="nnt-tree-condition">¿Indica el <strong>destino hacia donde te desplazas</strong> o un punto fijo en el tiempo?</div>
+          <div class="nnt-tree-arrow">&rarr;</div>
+          <div class="nnt-tree-result">に (ni)</div>
+        </div>
+
+        <div class="nnt-tree-branch">
+          <div class="nnt-tree-condition">¿Es el <strong>objeto directo</strong> que recibe la acción del verbo?</div>
+          <div class="nnt-tree-arrow">&rarr;</div>
+          <div class="nnt-tree-result">を (o)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-tree">
+      <pre><code>&lt;!-- BLOQUE: ÁRBOL DE DECISIÓN DE PARTÍCULAS --&gt;
+&lt;div class="nnt-decision-tree"&gt;
+  &lt;div class="nnt-tree-branch"&gt;
+    &lt;div class="nnt-tree-condition"&gt;Lugar donde se ejecuta una acción...&lt;/div&gt;
+    &lt;div class="nnt-tree-arrow"&gt;&amp;rarr;&lt;/div&gt;
+    &lt;div class="nnt-tree-result"&gt;で (de)&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="nnt-tree-branch"&gt;
+    &lt;div class="nnt-tree-condition"&gt;Destino de desplazamiento o punto temporal...&lt;/div&gt;
+    &lt;div class="nnt-tree-arrow"&gt;&amp;rarr;&lt;/div&gt;
+    &lt;div class="nnt-tree-result"&gt;に (ni)&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+  <!-- 20. FICHA DE MINADO ANKI -->
+  <article class="block-showcase" id="bloque-anki">
+    <div class="block-header">
+      <div class="block-header-info">
+        <span class="block-tag">Integración</span>
+        <span class="badge-interactive">Anki Ready</span>
+        <h3 class="block-title">20. Ficha Formateada Lista para Minado en Anki</h3>
+      </div>
+      <div class="block-actions">
+        <button class="btn-toggle-code" onclick="toggleCode('code-anki')">💻 Ver Código</button>
+        <button class="btn-copy-code" onclick="copyBlockCode('code-anki', this)">📋 Copiar Bloque</button>
+      </div>
+    </div>
+    
+    <div class="block-preview">
+      <div class="nnt-anki-preview-card">
+        <div class="nnt-anki-header">
+          <span class="nnt-anki-badge">📦 AnkiConnect Ready</span>
+          <button class="nnt-btn-anki" onclick="alert('¡Tarjeta enviada a tu mazo Anki correctamente!')">
+            ➕ Añadir a Anki
+          </button>
+        </div>
+        <div style="font-size:1.6rem; font-family:'Noto Sans JP', sans-serif; font-weight:800; color:var(--color-h1); margin-bottom:8px;">
+          一期一会 <span style="font-size:1rem; color:var(--naranja); font-weight:normal;">(いちごいちえ)</span>
+        </div>
+        <div style="font-size:1.05rem; color:var(--texto-principal); margin-bottom:10px;">
+          <strong>Significado:</strong> "Un encuentro único en la vida" (Proverbio tradicional japonés).
+        </div>
+        <div style="font-size:0.9rem; background:var(--blanco2); padding:10px 14px; border-radius:8px; color:var(--color-h3);">
+          📝 <em>Contexto:</em> Apreciar cada momento y persona como un suceso irrepetible.
+        </div>
+      </div>
+    </div>
+
+    <div class="block-code-wrapper" id="code-anki">
+      <pre><code>&lt;!-- BLOQUE: FICHA EXPORTABLE A ANKI --&gt;
+&lt;div class="nnt-anki-preview-card"&gt;
+  &lt;div class="nnt-anki-header"&gt;
+    &lt;span class="nnt-anki-badge"&gt;📦 AnkiConnect Ready&lt;/span&gt;
+    &lt;button class="nnt-btn-anki" onclick="/* Tu función addCardToAnki */"&gt;
+      ➕ Añadir a Anki
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div style="font-size:1.6rem; font-weight:800;"&gt;一期一会 (いちごいちえ)&lt;/div&gt;
+  &lt;div&gt;&lt;strong&gt;Significado:&lt;/strong&gt; "Un encuentro único en la vida"&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+  </article>
+
+</main>
+
+<!-- NOTIFICACIÓN TOAST AL COPIAR -->
+<div id="toast-copy" class="toast-copy">✅ ¡Código HTML copiado al portapapeles!</div>
+
+<!-- SCRIPTS MODULARES -->
+<script src="scripts.js"></script>
+<script>
+  // Alternar código
+  function toggleCode(wrapperId) {
+    const el = document.getElementById(wrapperId);
+    if (el) el.classList.toggle('show');
+  }
+
+  // Copiar bloque HTML al portapapeles
+  function copyBlockCode(wrapperId, button) {
+    const el = document.getElementById(wrapperId);
+    if (!el) return;
+    const codeText = el.querySelector('code').innerText;
+
+    navigator.clipboard.writeText(codeText).then(() => {
+      const originalText = button.innerHTML;
+      button.innerHTML = "✅ ¡Copiado!";
+      button.classList.add("copied");
+
+      showToast();
+
+      setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.remove("copied");
+      }, 2000);
+    }).catch(err => console.error("Error al copiar:", err));
+  }
+
+  // Toast flotante
+  function showToast() {
+    const toast = document.getElementById('toast-copy');
+    if (toast) {
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    }
+  }
+
+  // Síntesis de voz en japonés
+  function playJapaneseTTS(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert("Tu navegador no soporta síntesis de voz.");
+    }
+  }
+
+  // Acordeón interactivo
+  function toggleAccordion(el) {
+    el.classList.toggle('open');
+  }
+
+  // Lógica de respuesta del mini quiz
+  function checkQuizAnswer(button, isCorrect, feedbackMsg) {
+    const card = button.closest('.nnt-quiz-card');
+    const options = card.querySelectorAll('.nnt-quiz-option');
+    const feedback = card.querySelector('.nnt-quiz-feedback');
+
+    options.forEach(opt => {
+      opt.classList.remove('correct', 'wrong');
+      opt.disabled = true;
+    });
+
+    if (isCorrect) {
+      button.classList.add('correct');
+      feedback.style.background = '#e8f5e9';
+      feedback.style.color = '#1b5e20';
+      feedback.innerHTML = `🎉 <strong>¡Correcto!</strong> ${feedbackMsg}`;
+    } else {
+      button.classList.add('wrong');
+      feedback.style.background = '#ffebee';
+      feedback.style.color = '#b71c1c';
+      feedback.innerHTML = `❌ <strong>Inténtalo de nuevo.</strong> ${feedbackMsg}`;
+      setTimeout(() => {
+        options.forEach(opt => opt.disabled = false);
+      }, 1500);
+    }
+    feedback.classList.add('show');
+  }
+
+  // Constructor interactivo de oraciones (Sentence Scramble)
+  let builtWords = [];
+  function pickWord(tile, word) {
+    if (tile.classList.contains('placed')) return;
+    tile.classList.add('placed');
+    builtWords.push({ word: word, tile: tile });
+
+    const dropzone = document.getElementById('builder-dropzone');
+    const slot = document.createElement('span');
+    slot.className = 'nnt-word-tile';
+    slot.innerText = word;
+    slot.onclick = () => removeWord(slot, tile, word);
+    dropzone.appendChild(slot);
+  }
+
+  function removeWord(slot, tile, word) {
+    slot.remove();
+    tile.classList.remove('placed');
+    builtWords = builtWords.filter(item => item.tile !== tile);
+  }
+
+  function checkBuiltSentence() {
+    const target = "昨日りんごを食べました";
+    const current = builtWords.map(w => w.word).join('');
+    const feedback = document.getElementById('builder-feedback');
+
+    if (current === target) {
+      feedback.style.background = '#e8f5e9';
+      feedback.style.color = '#1b5e20';
+      feedback.innerHTML = '🎉 <strong>¡Excelente!</strong> Orden correcto: 昨日 (Tiempo) + りんごを (Objeto) + 食べました (Verbo).';
+      feedback.style.display = 'block';
+    } else {
+      feedback.style.background = '#ffebee';
+      feedback.style.color = '#b71c1c';
+      feedback.innerHTML = '❌ <strong>Orden incorrecto.</strong> Recuerda la estructura japonesa: Sujeto/Tiempo + Complemento + Verbo al final.';
+      feedback.style.display = 'block';
+    }
+  }
+
+  function resetSentenceBuilder() {
+    builtWords = [];
+    document.getElementById('builder-dropzone').innerHTML = '';
+    document.querySelectorAll('#builder-pool .nnt-word-tile').forEach(t => t.classList.remove('placed'));
+    document.getElementById('builder-feedback').style.display = 'none';
+  }
+
+  // Visor de lectura inmersiva (Toggles)
+  function toggleFurigana(btn) {
+    const box = document.getElementById('demo-reader-box');
+    box.classList.toggle('hide-furigana');
+    btn.classList.toggle('active');
+  }
+
+  function toggleReaderRomaji(btn) {
+    const text = document.getElementById('reader-romaji-text');
+    const isHidden = text.style.display === 'none';
+    text.style.display = isHidden ? 'block' : 'none';
+    btn.classList.toggle('active', isHidden);
+  }
+
+  function toggleReaderTranslation(btn) {
+    const text = document.getElementById('reader-trans-text');
+    const isHidden = text.style.display === 'none';
+    text.style.display = isHidden ? 'block' : 'none';
+    btn.classList.toggle('active', isHidden);
+  }
+
+  // Menú hamburguesa móvil
+  function toggleMenu() {
+    const menu = document.getElementById("menu");
+    if (menu) menu.classList.toggle("menu-open");
+  }
+
+  // Modo Oscuro
+  function toggleDarkMode() {
+    const body = document.body;
+    const html = document.documentElement;
+    const btn = document.getElementById("dark-mode-toggle");
+    
+    body.classList.toggle("dark-mode");
+    html.classList.toggle("dark-mode");
+
+    const isDark = body.classList.contains("dark-mode");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    if (btn) btn.innerText = isDark ? "☀️" : "🌙";
+  }
+</script>
+</body>
+</html>

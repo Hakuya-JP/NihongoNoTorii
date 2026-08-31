@@ -301,11 +301,12 @@ body.dark-mode select#sub-font-family {
 /* ESTILOS DE FURIGANA (RUBY) */
 .overlay-subtitles ruby, .sub-line ruby {
   ruby-position: over;
+  line-height: 2.4; /* espacio mínimo entre furigana y texto base */
 }
 
 .overlay-subtitles rt, .sub-line rt {
-  font-size: 0.55em;
-  color: var(--naranja);
+  font-size: var(--furigana-size, 0.52em);
+  color: var(--furigana-color, var(--naranja));
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
 }
 

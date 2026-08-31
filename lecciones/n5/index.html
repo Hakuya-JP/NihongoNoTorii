@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>N5 — Nivel Principiante | Nihongo no Torii</title>
+  <link rel="icon" type="image/png" href="../../image/logonnt.png" />
+  <link rel="shortcut icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+
+<header class="main-header">
+  <div class="header-brand">
+    <a href="../../index.html" class="nav-logo"><img src="../../image/logonnt.png" alt="Logo"></a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+  <nav id="menu" class="top-nav">
+    <a href="../../index.html">Inicio</a>
+    <a href="../../lecciones.html" class="active">Lecciones</a>
+    <a href="../../videos.html">Videos</a>
+    <a href="../../biblioteca.html">Biblioteca</a>
+    <a href="../../ToriiTV.html">ToriiTV</a>
+    <a href="../../jlpt-simulador.html">Simulador JLPT</a>
+    <a href="../../perfil.html" class="nav-profile-item">
+      <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>
+    </a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="blog-hero">
+  <div class="blog-hero-inner">
+    <h1>🟡 N5 — Nivel Principiante</h1>
+    <p>
+      Las bases del japonés: escritura, gramática esencial y vocabulario fundamental. Este nivel cubre todo lo que necesitas para comenzar a leer, escribir y hablar en japonés desde cero.
+    </p>
+    <div class="blog-progress-bar-wrapper">
+      <span class="blog-progress-label">Tu progreso:</span>
+      <div class="blog-progress-track">
+        <div class="blog-progress-fill" id="global-progress-fill" style="width:0%"></div>
+      </div>
+      <span class="blog-progress-pct" id="global-progress-pct">0 / 10 lecciones</span>
+    </div>
+    <div style="margin-top:8px;">
+      <a href="../../lecciones.html" style="font-size:0.88rem;color:var(--color-h3);text-decoration:none;font-weight:600;">← Volver a todos los niveles</a>
+    </div>
+  </div>
+</section>
+
+<!-- LAYOUT -->
+<div class="blog-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="blog-sidebar">
+
+    <div>
+      <div class="blog-sidebar-section-title">Categorías</div>
+      <ul class="blog-filter-list" id="cat-filter-list">
+        <li class="blog-filter-item active" onclick="filtrarBlog('todos',this)">
+          <span class="blog-filter-dot todos"></span>Todos <span class="blog-filter-count">10</span>
+        </li>
+        <li class="blog-filter-item" onclick="filtrarBlog('intro',this)">
+          <span class="blog-filter-dot intro"></span>Introducción <span class="blog-filter-count">1</span>
+        </li>
+        <li class="blog-filter-item" onclick="filtrarBlog('escritura',this)">
+          <span class="blog-filter-dot escritura"></span>Escritura <span class="blog-filter-count">2</span>
+        </li>
+        <li class="blog-filter-item" onclick="filtrarBlog('gramatica',this)">
+          <span class="blog-filter-dot gramatica"></span>Gramática <span class="blog-filter-count">6</span>
+        </li>
+        <li class="blog-filter-item" onclick="filtrarBlog('vocabulario',this)">
+          <span class="blog-filter-dot vocabulario"></span>Vocabulario <span class="blog-filter-count">1</span>
+        </li>
+        <li class="blog-filter-item" onclick="filtrarBlog('practica',this)">
+          <span class="blog-filter-dot practica"></span>Práctica <span class="blog-filter-count">1</span>
+        </li>
+      </ul>
+    </div>
+
+    <hr class="blog-sidebar-divider">
+
+    <div>
+      <div class="blog-sidebar-section-title">Estado</div>
+      <ul class="blog-filter-list" id="status-filter-list">
+        <li class="blog-filter-item active" onclick="filtrarPorEstado('todos',this)">
+          <span class="blog-filter-dot todos"></span>Todos
+        </li>
+        <li class="blog-filter-item" onclick="filtrarPorEstado('pendiente',this)">
+          <span class="blog-filter-dot" style="background:#aaa"></span>Pendientes
+        </li>
+        <li class="blog-filter-item" onclick="filtrarPorEstado('en-progreso',this)">
+          <span class="blog-filter-dot" style="background:var(--naranja)"></span>En progreso
+        </li>
+        <li class="blog-filter-item" onclick="filtrarPorEstado('completado',this)">
+          <span class="blog-filter-dot" style="background:#2e7d32"></span>Completados
+        </li>
+      </ul>
+    </div>
+
+    <hr class="blog-sidebar-divider">
+
+    <div>
+      <div class="blog-sidebar-section-title">Otros niveles</div>
+      <ul class="blog-filter-list">
+        <li class="blog-filter-item" onclick="location.href='../kana/index.html'">
+          <span class="blog-filter-dot" style="background:#7b1fa2"></span>KANA
+        </li>
+        <li class="blog-filter-item active" style="pointer-events:none">
+          <span class="blog-filter-dot" style="background:var(--azul)"></span>N5 ← Estás aquí
+        </li>
+        <li class="blog-filter-item" onclick="location.href='../n4/index.html'">
+          <span class="blog-filter-dot" style="background:#1565c0"></span>N4
+        </li>
+        <li class="blog-filter-item" onclick="location.href='../n3/index.html'">
+          <span class="blog-filter-dot" style="background:#2e7d32"></span>N3
+        </li>
+        <li class="blog-filter-item" onclick="location.href='../n2/index.html'">
+          <span class="blog-filter-dot" style="background:#c05a00"></span>N2
+        </li>
+        <li class="blog-filter-item" onclick="location.href='../n1/index.html'">
+          <span class="blog-filter-dot" style="background:#b71c1c"></span>N1
+        </li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- LISTA DE LECCIONES -->
+  <!-- =====================================================================
+       GUÍA PARA AGREGAR NUEVAS LECCIONES:
+       1. Copia un bloque <a class="blog-card"...> completo
+       2. Cambia: href, data-categoria, data-id, el ícono .blog-card-deco,
+          el número .blog-card-number, el título, descripción y meta-tags
+       3. El id del badge debe ser: id="status-XX" (XX = número de lección)
+       4. Agrega el nuevo ID al array LECCIONES_IDS en el <script> abajo
+       5. Crea el archivo HTML de la lección en esta misma carpeta (n5/)
+       ===================================================================== -->
+  <main>
+    <div class="blog-card-list" id="blog-card-list">
+
+      <a class="blog-card" href="01-introduccion.html" data-categoria="intro" data-nivel="n5" data-id="01">
+        <span class="blog-card-deco">語</span>
+        <div class="blog-card-number">01</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Introducción al Japonés</h2>
+          <p class="blog-card-desc">¿Qué es el japonés? Los sistemas de escritura, niveles JLPT y cómo aprovechar el curso.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 4 min</span>
+            <span class="blog-meta-tag cat-intro">🌸 Introducción</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-01">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="02-kana.html" data-categoria="escritura" data-nivel="n5" data-id="02">
+        <span class="blog-card-deco">あ</span>
+        <div class="blog-card-number">02</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Sistema de Escritura KANA (ひらがな・カタカナ)</h2>
+          <p class="blog-card-desc">Los dos silabarios japoneses: cuándo usar cada uno, cómo se estructuran y cómo aprenderlos.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 10 min</span>
+            <span class="blog-meta-tag cat-escritura">✍️ Escritura</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-02">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="03-kanji.html" data-categoria="escritura" data-nivel="n5" data-id="03">
+        <span class="blog-card-deco">漢</span>
+        <div class="blog-card-number">03</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Conceptos Básicos del KANJI (漢字)</h2>
+          <p class="blog-card-desc">Qué son los kanji, lecturas On'yomi y Kun'yomi, radicales y estrategias de memorización.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 8 min</span>
+            <span class="blog-meta-tag cat-escritura">✍️ Escritura</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-03">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="04-copulas.html" data-categoria="gramatica" data-nivel="n5" data-id="04">
+        <span class="blog-card-deco">文</span>
+        <div class="blog-card-number">04</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Cópulas: です y だ</h2>
+          <p class="blog-card-desc">La estructura A は B です. La diferencia entre el estilo cortés y el informal.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 6 min</span>
+            <span class="blog-meta-tag cat-gramatica">📐 Gramática</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-04">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="05-particulas.html" data-categoria="gramatica" data-nivel="n5" data-id="05">
+        <span class="blog-card-deco">は</span>
+        <div class="blog-card-number">05</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Partículas は, が, も, の</h2>
+          <p class="blog-card-desc">Las partículas más esenciales: marcador de tema, sujeto, también, y posesión.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 12 min</span>
+            <span class="blog-meta-tag cat-gramatica">📐 Gramática</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-05">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="06-kosoad.html" data-categoria="vocabulario" data-nivel="n5" data-id="06">
+        <span class="blog-card-deco">こ</span>
+        <div class="blog-card-number">06</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Serie KO-SO-A-DO: こ・そ・あ・ど</h2>
+          <p class="blog-card-desc">Los demostrativos japoneses: cómo referirse a objetos, lugares y personas según la distancia.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 7 min</span>
+            <span class="blog-meta-tag cat-vocabulario">💬 Vocabulario</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-06">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="07-adjetivos.html" data-categoria="gramatica" data-nivel="n5" data-id="07">
+        <span class="blog-card-deco">い</span>
+        <div class="blog-card-number">07</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Adjetivos い・な</h2>
+          <p class="blog-card-desc">Los dos tipos de adjetivos en japonés, cómo conjugarlos en presente, pasado y negativo.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 9 min</span>
+            <span class="blog-meta-tag cat-gramatica">📐 Gramática</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-07">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="08-verbos-diccionario.html" data-categoria="gramatica" data-nivel="n5" data-id="08">
+        <span class="blog-card-deco">動</span>
+        <div class="blog-card-number">08</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Verbos en Forma Diccionario (辞書形)</h2>
+          <p class="blog-card-desc">Introducción a los verbos japoneses: grupos Ichidan, Godan e Irregulares. La forma base.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 10 min</span>
+            <span class="blog-meta-tag cat-gramatica">📐 Gramática</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-08">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="09-practica-verbos.html" data-categoria="practica" data-nivel="n5" data-id="09">
+        <span class="blog-card-deco">練</span>
+        <div class="blog-card-number">09</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Práctica de Verbos: Conjugación Básica</h2>
+          <p class="blog-card-desc">Formas Masu, Te y Nai. Ejercicios interactivos para consolidar la conjugación verbal.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 8 min</span>
+            <span class="blog-meta-tag cat-practica">🎯 Práctica</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-09">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+      <a class="blog-card" href="10-aru-iru.html" data-categoria="gramatica" data-nivel="n5" data-id="10">
+        <span class="blog-card-deco">有</span>
+        <div class="blog-card-number">10</div>
+        <div class="blog-card-body">
+          <h2 class="blog-card-title">Verbos de Existencia: ある e いる</h2>
+          <p class="blog-card-desc">Cómo expresar "haber / existir" en japonés según si el sujeto está vivo o no.</p>
+          <div class="blog-card-meta">
+            <span class="blog-meta-tag nivel">N5</span>
+            <span class="blog-meta-tag tiempo">⏱ 6 min</span>
+            <span class="blog-meta-tag cat-gramatica">📐 Gramática</span>
+          </div>
+        </div>
+        <div class="blog-card-right">
+          <span class="blog-status-badge pendiente" id="status-10">⭘ Pendiente</span>
+          <span class="blog-card-arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+    <div class="blog-empty-msg" id="blog-empty-msg">😔 No hay lecciones que coincidan con el filtro seleccionado.</div>
+  </main>
+</div>
+
+<script src="../../scripts.js"></script>
+<script>
+  // ── LECCIONES REGISTRADAS ─ Agrega el ID aquí al crear una nueva lección ──
+  const LECCIONES_IDS = ['01','02','03','04','05','06','07','08','09','10'];
+  const NIVEL_KEY = 'n5'; // Clave única para localStorage de este nivel
+
+  function cargarProgreso(){
+    let completadas=0;
+    LECCIONES_IDS.forEach(id=>{
+      const s=localStorage.getItem(`blog_${NIVEL_KEY}_${id}`)||'pendiente';
+      const badge=document.getElementById(`status-${id}`);
+      const card=badge?.closest('.blog-card');
+      if(!badge)return;
+      if(s==='completado'){badge.textContent='✓ Completado';badge.className='blog-status-badge completado';card?.setAttribute('data-status','completado');completadas++;}
+      else if(s==='en-progreso'){badge.textContent='◑ En progreso';badge.className='blog-status-badge en-progreso';card?.setAttribute('data-status','en-progreso');}
+      else{badge.textContent='⭘ Pendiente';badge.className='blog-status-badge pendiente';card?.setAttribute('data-status','pendiente');}
+    });
+    const pct=Math.round((completadas/LECCIONES_IDS.length)*100);
+    document.getElementById('global-progress-fill').style.width=pct+'%';
+    document.getElementById('global-progress-pct').textContent=`${completadas} / ${LECCIONES_IDS.length} lecciones`;
+  }
+
+  let activeCat='todos',activeStatus='todos';
+  function filtrarBlog(cat,el){activeCat=cat;document.querySelectorAll('#cat-filter-list .blog-filter-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');aplicarFiltros();}
+  function filtrarPorEstado(s,el){activeStatus=s;document.querySelectorAll('#status-filter-list .blog-filter-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');aplicarFiltros();}
+  function aplicarFiltros(){let v=0;document.querySelectorAll('.blog-card').forEach(c=>{const pass=(activeCat==='todos'||c.dataset.categoria===activeCat)&&(activeStatus==='todos'||c.dataset.status===activeStatus);c.classList.toggle('hidden',!pass);if(!c.classList.contains('hidden'))v++;});document.getElementById('blog-empty-msg').style.display=v===0?'block':'none';}
+
+  document.addEventListener('DOMContentLoaded',cargarProgreso);
+  function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
+  function toggleDarkMode(){document.body.classList.toggle('dark-mode');document.documentElement.classList.toggle('dark-mode');const d=document.body.classList.contains('dark-mode');localStorage.setItem('theme',d?'dark':'light');const b=document.getElementById('dark-mode-toggle');if(b)b.innerText=d?'☀️':'🌙';}
+</script>
+</body>
+</html>
