@@ -28,9 +28,6 @@
   ];
 
   modules.forEach(src => {
-    const script = document.createElement("script");
-    script.src = `${basePath}${src}`;
-    script.async = false; // Descarga en paralelo y ejecuta en orden sin bloquear el DOM
-    document.head.appendChild(script);
+    document.write(`<script src="${basePath}${src}"></script>`);
   });
 })();
