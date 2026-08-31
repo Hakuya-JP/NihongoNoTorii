@@ -36,6 +36,12 @@ function initVideoPlayerModule() {
   const DB_VERSION = 1;
   const STORE_NAME = "dict_files";
 
+  const KUROMOJI_DICT_FILES = [
+    "base.dat.gz", "check.dat.gz", "tid.dat.gz", "tid_pos.dat.gz",
+    "tid_map.dat.gz", "cc.dat.gz", "unk.dat.gz", "unk_pos.dat.gz",
+    "unk_map.dat.gz", "unk_char.dat.gz", "unk_compat.dat.gz", "unk_invoke.dat.gz"
+  ];
+
   function abrirDBCache() {
     return new Promise((resolve) => {
       if (!window.indexedDB) {
@@ -101,7 +107,7 @@ function initVideoPlayerModule() {
           const store = tx.objectStore(STORE_NAME);
           const req = store.count();
           req.onsuccess = () => {
-            // El diccionario de Kuromoji tiene 10 o más archivos .dat.gz
+            // Se considera cacheado si contiene los 10+ archivos de Kuromoji
             resolve(req.result >= 10);
           };
           req.onerror = () => resolve(false);
@@ -112,30 +118,70 @@ function initVideoPlayerModule() {
     });
   }
 
-  function configurarInterceptoresKuromoji() {
-    if (typeof kuromoji === "undefined" || !kuromoji.DictionaryLoader) return;
-    if (kuromoji.DictionaryLoader.prototype._cacheConfigurado) return;
+  // Interceptar XMLHttpRequest a nivel global para servir .dat.gz desde IndexedDB
+  let xhrInterceptorConfigurado = false;
+  function configurarXHRInterceptorKuromoji() {
+    if (xhrInterceptorConfigurado) return;
+    xhrInterceptorConfigurado = true;
 
-    const originalLoad = kuromoji.DictionaryLoader.prototype.loadArrayBuffer;
-    kuromoji.DictionaryLoader.prototype.loadArrayBuffer = function(url, callback) {
-      const filename = url.split("/").pop().split("?")[0];
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
 
-      obtenerDeCache(filename).then(cachedBuffer => {
-        if (cachedBuffer) {
-          callback(null, cachedBuffer);
-        } else {
-          originalLoad.call(this, url, (err, buffer) => {
-            if (!err && buffer) {
-              guardarEnCache(filename, buffer);
-            }
-            callback(err, buffer);
-          });
-        }
-      });
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+      this._toriiUrl = url ? url.toString() : "";
+      this._toriiMethod = method;
+      return originalOpen.call(this, method, url, ...rest);
     };
 
-    kuromoji.DictionaryLoader.prototype._cacheConfigurado = true;
+    XMLHttpRequest.prototype.send = function(...args) {
+      const url = this._toriiUrl || "";
+
+      if (url.includes(".dat.gz")) {
+        const filename = url.split("/").pop().split("?")[0];
+
+        obtenerDeCache(filename).then(cachedBuffer => {
+          if (cachedBuffer) {
+            // Emular respuesta HTTP 200 con el ArrayBuffer desde IndexedDB
+            setTimeout(() => {
+              Object.defineProperty(this, "readyState", { writable: true, value: 4 });
+              Object.defineProperty(this, "status", { writable: true, value: 200 });
+              Object.defineProperty(this, "statusText", { writable: true, value: "OK (IndexedDB Cache)" });
+              Object.defineProperty(this, "response", { writable: true, value: cachedBuffer });
+              Object.defineProperty(this, "responseText", { writable: true, value: "" });
+
+              if (typeof this.onreadystatechange === "function") {
+                this.onreadystatechange(new Event("readystatechange"));
+              }
+              if (typeof this.onload === "function") {
+                this.onload(new ProgressEvent("load"));
+              }
+            }, 5);
+          } else {
+            // Descarga normal de red y guardado automático al terminar
+            const self = this;
+            const originalOnLoad = this.onload;
+
+            this.onload = function(evt) {
+              if (self.status === 200 && self.response instanceof ArrayBuffer) {
+                guardarEnCache(filename, self.response.slice(0));
+              }
+              if (typeof originalOnLoad === "function") {
+                originalOnLoad.call(self, evt);
+              }
+            };
+
+            originalSend.apply(this, args);
+          }
+        });
+        return;
+      }
+
+      return originalSend.apply(this, args);
+    };
   }
+
+  // Activar interceptor inmediatamente
+  configurarXHRInterceptorKuromoji();
 
   function abrirModalFurigana() {
     const modal = document.getElementById("furigana-confirm-modal");
@@ -177,9 +223,9 @@ function initVideoPlayerModule() {
     cerrarModalFurigana();
 
     actualizarProgresoFurigana(
-      20,
-      desdeCache ? "⚡ Recuperando diccionario local..." : "📥 Descargando diccionario...",
-      desdeCache ? "Cargando desde almacenamiento persistente (IndexedDB)..." : "Descargando archivos y guardando en tu navegador..."
+      15,
+      desdeCache ? "⚡ Recuperando diccionario..." : "📥 Descargando diccionario...",
+      desdeCache ? "Cargando desde almacenamiento local (IndexedDB)..." : "Descargando y guardando de forma permanente..."
     );
 
     // 1. Asegurar script Kuromoji disponible
@@ -202,34 +248,49 @@ function initVideoPlayerModule() {
       }
     }
 
-    configurarInterceptoresKuromoji();
-
     const basePath = window.TORII_BASE_PATH || "";
     const dictPath = `${basePath}dict/`;
 
-    // Animación de avance suave mientras se construyen las tablas
-    let progresoActual = 40;
-    const progressInterval = setInterval(() => {
-      if (progresoActual < 90) {
-        progresoActual += Math.floor(Math.random() * 12) + 6;
+    // 2. Si es la primera vez, pre-descargar y persistir los 12 archivos en IndexedDB directamente
+    if (!desdeCache) {
+      let completados = 0;
+      const totalArchivos = KUROMOJI_DICT_FILES.length;
+
+      for (const archivo of KUROMOJI_DICT_FILES) {
+        try {
+          const yaGuardado = await obtenerDeCache(archivo);
+          if (!yaGuardado) {
+            const res = await fetch(`${dictPath}${archivo}`);
+            if (res.ok) {
+              const buffer = await res.arrayBuffer();
+              await guardarEnCache(archivo, buffer);
+            }
+          }
+        } catch (errDl) {
+          console.warn(`Aviso: Error al pre-descargar ${archivo}:`, errDl);
+        }
+        completados++;
+        const pct = Math.round((completados / totalArchivos) * 70) + 15;
         actualizarProgresoFurigana(
-          progresoActual,
-          desdeCache ? "⚡ Indexando desde almacenamiento local..." : "Indexando diccionario Kuromoji...",
-          `Construyendo árbol morfológico (${Math.round(progresoActual)}%)...`
+          pct,
+          "Descargando y guardando...",
+          `Guardando ${archivo} en memoria persistente (${completados}/${totalArchivos})...`
         );
       }
-    }, desdeCache ? 150 : 280);
+    }
 
+    actualizarProgresoFurigana(88, "Indexando árbol morfológico...", "Construyendo tablas de análisis...");
+
+    // 3. Inicializar Kuromoji (los archivos se servirán 100% desde IndexedDB a través del interceptor)
     try {
       kuromoji
         .builder({ dicPath: dictPath })
         .build((err, tokenizer) => {
-          clearInterval(progressInterval);
           isDownloadingFurigana = false;
 
           if (err || !tokenizer) {
-            console.error("Error al construir Kuromoji desde dict/:", err);
-            actualizarProgresoFurigana(100, "⚠️ Error al cargar dict/", (err && err.message) || "No se encontraron los archivos en dict/");
+            console.error("Error al construir Kuromoji:", err);
+            actualizarProgresoFurigana(100, "⚠️ Error al inicializar", (err && err.message) || "Fallo en diccionarios");
             ocultarProgresoFurigana(4000);
             if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al inicializar diccionario");
             return;
@@ -239,9 +300,9 @@ function initVideoPlayerModule() {
           actualizarProgresoFurigana(
             100,
             "✅ ¡Kuromoji listo!",
-            desdeCache ? "Recuperado instantáneamente desde almacenamiento persistente." : "Guardado en almacenamiento para próximas sesiones."
+            desdeCache ? "Cargado instantáneamente desde almacenamiento persistente." : "Guardado en tu navegador para futuras sesiones."
           );
-          ocultarProgresoFurigana(2200);
+          ocultarProgresoFurigana(2000);
 
           // Enriquecer subtítulos actuales si ya hay subtítulos cargados
           if (subtitulos && subtitulos.length > 0) {
@@ -269,7 +330,6 @@ function initVideoPlayerModule() {
           }
         });
     } catch (e) {
-      clearInterval(progressInterval);
       isDownloadingFurigana = false;
       console.error("Excepción al inicializar Kuromoji:", e);
       actualizarProgresoFurigana(100, "⚠️ Error de inicialización", e.message || "Error desconocido");
