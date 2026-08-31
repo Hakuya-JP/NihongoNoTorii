@@ -27,11 +27,115 @@ function initVideoPlayerModule() {
   let fontSizeOverlay = 1.4;
 
   // ------------------------------------------------------------------
-  // FURIGANA: MOTOR NATIVO ULTRA-RÁPIDO TORII (CARGA BAJO DEMANDA Y PROGRESO)
+  // FURIGANA: ANÁLISIS MORFOLÓGICO KUROMOJI CON CACHÉ PERSISTENTE (INDEXEDDB)
   // ------------------------------------------------------------------
-  let furiganaDictMap = null;
-  let furiganaWordMap = null;
+  let kuromojiTokenizer = null;
   let isDownloadingFurigana = false;
+
+  const DB_NAME = "ToriiKuromojiCache";
+  const DB_VERSION = 1;
+  const STORE_NAME = "dict_files";
+
+  function abrirDBCache() {
+    return new Promise((resolve) => {
+      if (!window.indexedDB) {
+        resolve(null);
+        return;
+      }
+      try {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => resolve(null);
+      } catch (err) {
+        resolve(null);
+      }
+    });
+  }
+
+  function guardarEnCache(nombreArchivo, buffer) {
+    return new Promise((resolve) => {
+      abrirDBCache().then(db => {
+        if (!db) { resolve(false); return; }
+        try {
+          const tx = db.transaction(STORE_NAME, "readwrite");
+          const store = tx.objectStore(STORE_NAME);
+          store.put(buffer, nombreArchivo);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        } catch (err) {
+          resolve(false);
+        }
+      });
+    });
+  }
+
+  function obtenerDeCache(nombreArchivo) {
+    return new Promise((resolve) => {
+      abrirDBCache().then(db => {
+        if (!db) { resolve(null); return; }
+        try {
+          const tx = db.transaction(STORE_NAME, "readonly");
+          const store = tx.objectStore(STORE_NAME);
+          const req = store.get(nombreArchivo);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        } catch (err) {
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  function verificarSiDiccionarioEstaCacheado() {
+    return new Promise((resolve) => {
+      abrirDBCache().then(db => {
+        if (!db) { resolve(false); return; }
+        try {
+          const tx = db.transaction(STORE_NAME, "readonly");
+          const store = tx.objectStore(STORE_NAME);
+          const req = store.count();
+          req.onsuccess = () => {
+            // El diccionario de Kuromoji tiene 10 o más archivos .dat.gz
+            resolve(req.result >= 10);
+          };
+          req.onerror = () => resolve(false);
+        } catch (e) {
+          resolve(false);
+        }
+      });
+    });
+  }
+
+  function configurarInterceptoresKuromoji() {
+    if (typeof kuromoji === "undefined" || !kuromoji.DictionaryLoader) return;
+    if (kuromoji.DictionaryLoader.prototype._cacheConfigurado) return;
+
+    const originalLoad = kuromoji.DictionaryLoader.prototype.loadArrayBuffer;
+    kuromoji.DictionaryLoader.prototype.loadArrayBuffer = function(url, callback) {
+      const filename = url.split("/").pop().split("?")[0];
+
+      obtenerDeCache(filename).then(cachedBuffer => {
+        if (cachedBuffer) {
+          callback(null, cachedBuffer);
+        } else {
+          originalLoad.call(this, url, (err, buffer) => {
+            if (!err && buffer) {
+              guardarEnCache(filename, buffer);
+            }
+            callback(err, buffer);
+          });
+        }
+      });
+    };
+
+    kuromoji.DictionaryLoader.prototype._cacheConfigurado = true;
+  }
 
   function abrirModalFurigana() {
     const modal = document.getElementById("furigana-confirm-modal");
@@ -67,125 +171,109 @@ function initVideoPlayerModule() {
     }, delay);
   }
 
-  async function iniciarDescargaFurigana() {
-    if (isDownloadingFurigana || furiganaDictMap) return;
+  async function iniciarDescargaFurigana(desdeCache = false) {
+    if (isDownloadingFurigana || kuromojiTokenizer) return;
     isDownloadingFurigana = true;
     cerrarModalFurigana();
 
-    actualizarProgresoFurigana(10, "Conectando con repositorio...", "Descargando tablas de caracteres...");
+    actualizarProgresoFurigana(
+      20,
+      desdeCache ? "⚡ Recuperando diccionario local..." : "📥 Descargando diccionario...",
+      desdeCache ? "Cargando desde almacenamiento persistente (IndexedDB)..." : "Descargando archivos y guardando en tu navegador..."
+    );
+
+    // 1. Asegurar script Kuromoji disponible
+    if (typeof kuromoji === "undefined") {
+      try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js";
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("No se pudo cargar el script de Kuromoji"));
+          document.head.appendChild(script);
+        });
+      } catch (err) {
+        console.error("Error al cargar Kuromoji script:", err);
+        actualizarProgresoFurigana(100, "⚠️ Error de red", "No se pudo cargar el script base.");
+        isDownloadingFurigana = false;
+        ocultarProgresoFurigana(3500);
+        if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al cargar librería Kuromoji");
+        return;
+      }
+    }
+
+    configurarInterceptoresKuromoji();
+
+    const basePath = window.TORII_BASE_PATH || "";
+    const dictPath = `${basePath}dict/`;
+
+    // Animación de avance suave mientras se construyen las tablas
+    let progresoActual = 40;
+    const progressInterval = setInterval(() => {
+      if (progresoActual < 90) {
+        progresoActual += Math.floor(Math.random() * 12) + 6;
+        actualizarProgresoFurigana(
+          progresoActual,
+          desdeCache ? "⚡ Indexando desde almacenamiento local..." : "Indexando diccionario Kuromoji...",
+          `Construyendo árbol morfológico (${Math.round(progresoActual)}%)...`
+        );
+      }
+    }, desdeCache ? 150 : 280);
 
     try {
-      const basePath = window.TORII_BASE_PATH || "";
-      const kanjiUrl = `${basePath}diccionarios/kanjidic_spanish/kanji_bank_1.json`;
-      const termUrl = `${basePath}diccionarios/jmdict_spanish/term_bank_1.json`;
+      kuromoji
+        .builder({ dicPath: dictPath })
+        .build((err, tokenizer) => {
+          clearInterval(progressInterval);
+          isDownloadingFurigana = false;
 
-      // 1. Descargar Diccionario Kanji con flujo de progreso en tiempo real
-      const res = await fetch(kanjiUrl);
-      if (!res.ok) throw new Error(`HTTP ${res.status}: No se pudo cargar kanji_bank_1.json`);
+          if (err || !tokenizer) {
+            console.error("Error al construir Kuromoji desde dict/:", err);
+            actualizarProgresoFurigana(100, "⚠️ Error al cargar dict/", (err && err.message) || "No se encontraron los archivos en dict/");
+            ocultarProgresoFurigana(4000);
+            if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al inicializar diccionario");
+            return;
+          }
 
-      const contentLength = res.headers.get("content-length");
-      const totalBytes = contentLength ? parseInt(contentLength, 10) : 1480000;
-      let loadedBytes = 0;
-
-      let reader;
-      const chunks = [];
-
-      if (res.body && res.body.getReader) {
-        reader = res.body.getReader();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          chunks.push(value);
-          loadedBytes += value.length;
-          const pct = Math.min(80, Math.round((loadedBytes / totalBytes) * 75) + 10);
+          kuromojiTokenizer = tokenizer;
           actualizarProgresoFurigana(
-            pct,
-            "Descargando diccionario...",
-            `${(loadedBytes / 1024).toFixed(0)} KB descargados (${pct}%)`
+            100,
+            "✅ ¡Kuromoji listo!",
+            desdeCache ? "Recuperado instantáneamente desde almacenamiento persistente." : "Guardado en almacenamiento para próximas sesiones."
           );
-        }
-      }
+          ocultarProgresoFurigana(2200);
 
-      actualizarProgresoFurigana(85, "Indexando caracteres...", "Procesando lecturas ON/KUN...");
+          // Enriquecer subtítulos actuales si ya hay subtítulos cargados
+          if (subtitulos && subtitulos.length > 0) {
+            subtitulos.forEach(s => {
+              s.textoFurigana = agregarFurigana(s.texto);
+            });
+            window.subtitlesData = subtitulos;
+            renderSidebarSubtitles();
 
-      let textData;
-      if (chunks.length > 0) {
-        const blob = new Blob(chunks);
-        textData = await blob.text();
-      } else {
-        textData = await res.text();
-      }
-
-      const kanjiArray = JSON.parse(textData);
-      furiganaDictMap = new Map();
-
-      // Construir mapa de kanji: { on: [], kun: [] }
-      kanjiArray.forEach(item => {
-        if (Array.isArray(item) && item[0]) {
-          const char = item[0];
-          const onStr = item[1] || "";
-          const kunStr = item[2] || "";
-          furiganaDictMap.set(char, {
-            on: onStr.split(" ").filter(Boolean).map(katakanaToHiragana),
-            kun: kunStr.split(" ").filter(Boolean)
-          });
-        }
-      });
-
-      // 2. Intentar cargar palabras comunes si es posible (no bloqueante)
-      try {
-        actualizarProgresoFurigana(92, "Cargando vocabulario común...", "Optimizando palabras compuestas...");
-        const termRes = await fetch(termUrl);
-        if (termRes.ok) {
-          const termsData = await termRes.json();
-          furiganaWordMap = new Map();
-          termsData.forEach(t => {
-            if (Array.isArray(t) && t[0] && t[1] && t[0] !== t[1]) {
-              const word = t[0];
-              const reading = t[1];
-              if (!furiganaWordMap.has(word)) {
-                furiganaWordMap.set(word, reading);
+            if (overlaySub && video) {
+              const currentTime = video.currentTime;
+              const subActual = subtitulos.find(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
+              if (subActual) {
+                overlaySub.innerHTML = subActual.textoFurigana || subActual.texto;
               }
             }
-          });
-        }
-      } catch (errTerms) {
-        console.log("Vocabulario compuesto opcional omitido, usando diccionario base:", errTerms);
-      }
-
-      actualizarProgresoFurigana(100, "✅ ¡Furigana listo!", "Diccionario inicializado con éxito.");
-      isDownloadingFurigana = false;
-      ocultarProgresoFurigana(2500);
-
-      // Enriquecer subtítulos actuales si ya hay subtítulos cargados
-      if (subtitulos && subtitulos.length > 0) {
-        subtitulos.forEach(s => {
-          s.textoFurigana = agregarFurigana(s.texto);
-        });
-        window.subtitlesData = subtitulos;
-        renderSidebarSubtitles();
-
-        if (overlaySub && video) {
-          const currentTime = video.currentTime;
-          const subActual = subtitulos.find(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
-          if (subActual) {
-            overlaySub.innerHTML = subActual.textoFurigana || subActual.texto;
           }
-        }
-      }
 
-      // Activar visualmente el Furigana
-      document.body.classList.remove("sin-furigana");
-      const btnFuri = document.getElementById("btn-toggle-furigana");
-      if (btnFuri) btnFuri.classList.add("active-tool");
-      if (typeof mostrarToast === "function") mostrarToast("🌸 ¡Furigana generado y activado!");
-
+          // Activar visualmente el Furigana
+          document.body.classList.remove("sin-furigana");
+          const btnFuri = document.getElementById("btn-toggle-furigana");
+          if (btnFuri) btnFuri.classList.add("active-tool");
+          if (typeof mostrarToast === "function") {
+            mostrarToast(desdeCache ? "⚡ Furigana cargado desde memoria local" : "🌸 ¡Furigana descargado y guardado permanentemente!");
+          }
+        });
     } catch (e) {
+      clearInterval(progressInterval);
       isDownloadingFurigana = false;
-      console.error("Error al cargar diccionario furigana:", e);
-      actualizarProgresoFurigana(100, "⚠️ Error de descarga", "No se pudo cargar el archivo local.");
+      console.error("Excepción al inicializar Kuromoji:", e);
+      actualizarProgresoFurigana(100, "⚠️ Error de inicialización", e.message || "Error desconocido");
       ocultarProgresoFurigana(3500);
-      if (typeof mostrarToast === "function") mostrarToast("⚠️ No se pudo inicializar el diccionario de Furigana");
     }
   }
 
@@ -204,7 +292,7 @@ function initVideoPlayerModule() {
     });
   }
 
-  /** Convierte katakana a hiragana */
+  /** Convierte katakana a hiragana (Kuromoji devuelve lecturas en katakana) */
   function katakanaToHiragana(str) {
     if (!str) return "";
     return str.replace(/[\u30A1-\u30F6]/g, ch =>
@@ -220,110 +308,43 @@ function initVideoPlayerModule() {
   }
 
   /**
-   * Procesa una cadena de texto y genera <ruby> sobre los kanji usando el mapa indexado
+   * Dado un token de Kuromoji, devuelve HTML con <ruby> SOLO sobre la parte kanji.
+   * Para tokens mixtos (kanji + okurigana, ej: 住んで → すんで) recorta el sufijo
+   * kana compartido entre surface_form y reading, y solo wrappea la parte kanji.
    */
-  function procesarTextoAFurigana(textoPlano) {
-    if (!textoPlano || !furiganaDictMap) return textoPlano;
+  function tokenToRuby(surface, reading) {
+    if (!reading || reading === "*") return surface;
 
-    let res = "";
-    let i = 0;
-    const len = textoPlano.length;
+    const hReading = katakanaToHiragana(reading);
+    const chars = [...surface];
 
-    while (i < len) {
-      const ch = textoPlano[i];
+    // Sin kanji → texto plano
+    if (!chars.some(esKanji)) return surface;
 
-      if (esKanji(ch)) {
-        // Agrupar kanjis consecutivos
-        let kanjiGroup = ch;
-        let j = i + 1;
-        while (j < len && esKanji(textoPlano[j])) {
-          kanjiGroup += textoPlano[j];
-          j++;
-        }
-
-        // 1. Revisar si coincide con una palabra conocida en el mapa de vocabulario
-        if (furiganaWordMap && furiganaWordMap.has(kanjiGroup)) {
-          const reading = furiganaWordMap.get(kanjiGroup);
-          res += `<ruby>${kanjiGroup}<rt>${reading}</rt></ruby>`;
-          i = j;
-          continue;
-        }
-
-        // Mirar el okurigana siguiente (caracteres hiragana que le siguen)
-        let okuriRestante = "";
-        let k = j;
-        while (k < len && !esKanji(textoPlano[k]) && /[\u3040-\u309F]/.test(textoPlano[k])) {
-          okuriRestante += textoPlano[k];
-          k++;
-        }
-
-        // 2. Si es un solo kanji
-        if (kanjiGroup.length === 1) {
-          const kanjiInfo = furiganaDictMap.get(kanjiGroup);
-          if (kanjiInfo) {
-            let lecturaElegida = null;
-
-            // Probar lecturas KUN con okurigana coincidente
-            if (kanjiInfo.kun && kanjiInfo.kun.length > 0) {
-              for (const kun of kanjiInfo.kun) {
-                if (kun.includes(".")) {
-                  const [raiz, sufijo] = kun.split(".");
-                  if (okuriRestante && (okuriRestante.startsWith(sufijo) || (sufijo && okuriRestante.startsWith(sufijo[0])))) {
-                    lecturaElegida = raiz.replace(/^-|-$/g, "");
-                    break;
-                  }
-                }
-              }
-
-              if (!lecturaElegida) {
-                const primeraKun = kanjiInfo.kun[0];
-                if (primeraKun) {
-                  lecturaElegida = primeraKun.split(".")[0].replace(/^-|-$/g, "");
-                }
-              }
-            }
-
-            // Usar lectura ON como alternativa
-            if (!lecturaElegida && kanjiInfo.on && kanjiInfo.on.length > 0) {
-              lecturaElegida = kanjiInfo.on[0];
-            }
-
-            if (lecturaElegida) {
-              res += `<ruby>${kanjiGroup}<rt>${lecturaElegida}</rt></ruby>`;
-              i = j;
-              continue;
-            }
-          }
-        } else {
-          // Múltiples kanjis consecutivos (compuesto)
-          let grupoRuby = "";
-          for (const kChar of kanjiGroup) {
-            const kInfo = furiganaDictMap.get(kChar);
-            let l = "";
-            if (kInfo) {
-              if (kInfo.on && kInfo.on.length > 0) l = kInfo.on[0];
-              else if (kInfo.kun && kInfo.kun.length > 0) l = kInfo.kun[0].split(".")[0].replace(/^-|-$/g, "");
-            }
-            if (l) {
-              grupoRuby += `<ruby>${kChar}<rt>${l}</rt></ruby>`;
-            } else {
-              grupoRuby += kChar;
-            }
-          }
-          res += grupoRuby;
-          i = j;
-          continue;
-        }
-
-        res += kanjiGroup;
-        i = j;
-      } else {
-        res += ch;
-        i++;
-      }
+    // Todo kanji → wrap completo
+    if (chars.every(esKanji)) {
+      return `<ruby>${surface}<rt>${hReading}</rt></ruby>`;
     }
 
-    return res;
+    // Mixto: recortar okurigana sufijo coincidente
+    const readingChars = [...hReading];
+    let sufijo = 0;
+    while (
+      sufijo < chars.length &&
+      sufijo < readingChars.length &&
+      !esKanji(chars[chars.length - 1 - sufijo]) &&
+      chars[chars.length - 1 - sufijo] === readingChars[readingChars.length - 1 - sufijo]
+    ) {
+      sufijo++;
+    }
+
+    const parteKanji  = chars.slice(0, chars.length - sufijo).join("");
+    const parteOkuri  = chars.slice(chars.length - sufijo).join("");
+    const lecturaKanji = readingChars.slice(0, readingChars.length - sufijo).join("");
+
+    if (!parteKanji || ![...parteKanji].some(esKanji)) return surface;
+
+    return `<ruby>${parteKanji}<rt>${lecturaKanji}</rt></ruby>${parteOkuri}`;
   }
 
   /**
@@ -331,7 +352,7 @@ function initVideoPlayerModule() {
    * Preserva los saltos de línea (<br>) y el resto del HTML intacto.
    */
   function agregarFurigana(texto) {
-    if (!furiganaDictMap || !texto) return texto;
+    if (!kuromojiTokenizer || !texto) return texto;
 
     // Si ya contiene etiquetas <ruby>, respetarlas
     if (texto.includes("<ruby") || texto.includes("<rt>")) {
@@ -344,7 +365,10 @@ function initVideoPlayerModule() {
       if (parte.startsWith("<") && parte.endsWith(">")) {
         return parte;
       }
-      return procesarTextoAFurigana(parte);
+      if (!parte.trim()) return parte;
+
+      const tokens = kuromojiTokenizer.tokenize(parte);
+      return tokens.map(t => tokenToRuby(t.surface_form, t.reading)).join("");
     });
 
     return resultado.join("");
@@ -673,19 +697,27 @@ function initVideoPlayerModule() {
   // Toggle Furigana: activa/desactiva la visibilidad de los <rt> vía CSS
   const btnFurigana = document.getElementById("btn-toggle-furigana");
   if (btnFurigana) {
-    btnFurigana.addEventListener("click", () => {
-      // Si el diccionario no ha sido descargado aún, solicitar confirmación con modal
-      if (!furiganaDictMap) {
-        abrirModalFurigana();
+    btnFurigana.addEventListener("click", async () => {
+      // 1. Si el tokenizer ya está listo en memoria, alternar visibilidad
+      if (kuromojiTokenizer) {
+        document.body.classList.toggle("sin-furigana");
+        btnFurigana.classList.toggle("active-tool");
+
+        const isActive = !document.body.classList.contains("sin-furigana");
+        if (typeof mostrarToast === "function") {
+          mostrarToast(isActive ? "🌸 Furigana activado" : "Furigana desactivado");
+        }
         return;
       }
 
-      document.body.classList.toggle("sin-furigana");
-      btnFurigana.classList.toggle("active-tool");
-
-      const isActive = !document.body.classList.contains("sin-furigana");
-      if (typeof mostrarToast === "function") {
-        mostrarToast(isActive ? "🌸 Furigana activado" : "Furigana desactivado");
+      // 2. Si no está en memoria, revisar si ya se guardó previamente en IndexedDB
+      const estaEnCache = await verificarSiDiccionarioEstaCacheado();
+      if (estaEnCache) {
+        // Ya está guardado en el navegador: cargar de inmediato sin mostrar modal
+        iniciarDescargaFurigana(true);
+      } else {
+        // Primera vez absoluta: solicitar confirmación de descarga inicial
+        abrirModalFurigana();
       }
     });
   }

@@ -13,6 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@500;700&family=Zen+Maru+Gothic:wght@500;700&family=DotGothic16&family=BIZ+UDMincho&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Kuromoji para análisis morfológico de precisión (carga diferida) -->
+  <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js" defer></script>
 </head>
 <body>
 
@@ -273,14 +276,14 @@
     <button id="btn-close-furigana-modal" class="modal-close-btn" aria-label="Cerrar modal">&times;</button>
     <div style="text-align: center; margin-bottom: 15px;">
       <div style="font-size: 3rem; margin-bottom: 8px;">🌸📖</div>
-      <h2 style="margin: 0 0 8px; font-size: 1.35rem; color: var(--color-h3);">Activar Furigana Automático</h2>
+      <h2 style="margin: 0 0 8px; font-size: 1.35rem; color: var(--color-h3);">Activar Furigana Automático (Kuromoji)</h2>
       <p style="font-size: 0.92rem; opacity: 0.9; line-height: 1.5; margin: 0 auto; max-width: 420px;">
-        Para generar las lecturas de los kanji sobre tus subtítulos, se inicializará el diccionario morfológico japonés <strong>(~1.4 MB)</strong>.
+        Para generar las lecturas morfológicas de alta precisión sobre tus subtítulos, se inicializará el diccionario Kuromoji de tu repositorio.
       </p>
     </div>
     <div class="furigana-modal-info" style="background: rgba(0, 0, 0, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 12px 16px; font-size: 0.85rem; line-height: 1.4; margin-bottom: 20px;">
-      <p style="margin: 0 0 6px;">⚡ <strong>Rápido y sin bloqueos:</strong> Se procesa de forma nativa en segundo plano con una barra de progreso en la esquina inferior izquierda.</p>
-      <p style="margin: 0;">💾 Solo se realiza una vez durante tu sesión.</p>
+      <p style="margin: 0 0 6px;">⚡ <strong>Sin saturar tu navegación:</strong> Se descarga en segundo plano desde tu repositorio con barra de progreso.</p>
+      <p style="margin: 0;">💾 <strong>Solo 1 vez:</strong> Se guardará en el almacenamiento persistente de tu navegador (IndexedDB) para que en todas tus próximas visitas cargue al instante sin volver a descargar.</p>
     </div>
     <div style="display: flex; gap: 12px; justify-content: flex-end;">
       <button id="btn-cancel-furigana-dl" class="btn-tool-sm" style="padding: 9px 18px; font-size: 0.88rem;">Cancelar</button>
