@@ -21,7 +21,7 @@
   justify-content: space-between;
   gap: 12px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
   overflow: visible !important;
@@ -86,6 +86,66 @@
   background-image: 
     linear-gradient(90deg, rgba(9, 9, 21, 0.92) 0%, rgba(18, 14, 36, 0.85) 50%, rgba(30, 19, 56, 0.65) 100%),
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 L320,80 L350,80 L400,30 Z' fill='%2306b6d4' opacity='0.4'/><path d='M380,0 L300,80 L320,80 L380,20 Z' fill='%23d946ef' opacity='0.35'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-fuji-dawn {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.90) 50%, rgba(51, 65, 85, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.85) 50%, rgba(51, 65, 85, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,10 C360,20 330,45 315,80 C350,65 380,30 400,10 Z' fill='%2360a5fa' opacity='0.45'/><path d='M385,0 C345,25 315,50 295,80 C330,65 365,30 385,0 Z' fill='%23f43f5e' opacity='0.35'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-matcha-zen {
+  background: linear-gradient(90deg, rgba(20, 26, 14, 0.94) 0%, rgba(34, 46, 22, 0.90) 50%, rgba(49, 66, 32, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(20, 26, 14, 0.94) 0%, rgba(34, 46, 22, 0.85) 50%, rgba(49, 66, 32, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C360,15 330,40 310,80 C345,60 375,25 400,0 Z' fill='%2384cc16' opacity='0.4'/><circle cx='360' cy='40' r='5' fill='%23eab308' opacity='0.4'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-kyoto-autumn {
+  background: linear-gradient(90deg, rgba(38, 14, 14, 0.94) 0%, rgba(58, 20, 20, 0.90) 50%, rgba(80, 29, 29, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(38, 14, 14, 0.94) 0%, rgba(58, 20, 20, 0.85) 50%, rgba(80, 29, 29, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C350,20 320,45 300,80 C340,65 370,30 400,0 Z' fill='%23dc2626' opacity='0.45'/><path d='M380,0 C340,25 310,50 290,80 C325,65 355,30 380,0 Z' fill='%23f59e0b' opacity='0.35'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-amethyst-magic {
+  background: linear-gradient(90deg, rgba(20, 12, 38, 0.94) 0%, rgba(35, 18, 66, 0.90) 50%, rgba(50, 26, 94, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(20, 12, 38, 0.94) 0%, rgba(35, 18, 66, 0.85) 50%, rgba(50, 26, 94, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C360,20 330,45 310,80 C345,65 375,30 400,0 Z' fill='%23a855f7' opacity='0.4'/><circle cx='370' cy='30' r='4' fill='%23c084fc' opacity='0.5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-golden-shrine {
+  background: linear-gradient(90deg, rgba(24, 20, 10, 0.94) 0%, rgba(40, 32, 14, 0.90) 50%, rgba(60, 48, 18, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(24, 20, 10, 0.94) 0%, rgba(40, 32, 14, 0.85) 50%, rgba(60, 48, 18, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C350,15 320,40 300,80 C340,65 370,30 400,0 Z' fill='%23fbbf24' opacity='0.45'/><path d='M385,0 C345,25 315,50 295,80 C330,68 360,35 385,0 Z' fill='%23f59e0b' opacity='0.35'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+}
+
+.rpg-hud-bar.theme-ocean-breeze {
+  background: linear-gradient(90deg, rgba(8, 28, 44, 0.94) 0%, rgba(12, 45, 72, 0.90) 50%, rgba(16, 64, 100, 0.85) 100%);
+  background-image: 
+    linear-gradient(90deg, rgba(8, 28, 44, 0.94) 0%, rgba(12, 45, 72, 0.85) 50%, rgba(16, 64, 100, 0.65) 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' fill='none'><path d='M400,0 C360,15 330,40 310,80 C345,60 375,25 400,0 Z' fill='%230ea5e9' opacity='0.4'/><path d='M380,0 C340,25 310,50 290,80 C325,65 355,30 380,0 Z' fill='%2314b8a6' opacity='0.3'/></svg>");
   background-repeat: no-repeat;
   background-position: right center;
   background-size: auto 100%;
@@ -273,8 +333,8 @@
 .torii-arrow-btn {
   background: none;
   border: none;
-  color: #64748b;
-  font-size: 0.75rem;
+  color: #9facbe;
+  font-size: 1.4rem;
   cursor: pointer;
   padding: 0 4px;
   height: 32px;
@@ -310,6 +370,79 @@
 .torii-bgm-popout.open {
   display: flex;
   animation: toriiPopoutIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* TEMAS TRANSLÚCIDOS DEL POPOUT DE MÚSICA BGM */
+.torii-bgm-popout.theme-floral-navy {
+  background: linear-gradient(145deg, rgba(9, 19, 34, 0.90) 0%, rgba(13, 27, 50, 0.85) 50%, rgba(21, 44, 80, 0.80) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.15);
+}
+
+.torii-bgm-popout.theme-torii-sunset {
+  background: linear-gradient(145deg, rgba(24, 13, 36, 0.90) 0%, rgba(46, 16, 48, 0.85) 50%, rgba(74, 21, 40, 0.80) 100%);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(249, 115, 22, 0.15);
+}
+
+.torii-bgm-popout.theme-sakura-night {
+  background: linear-gradient(145deg, rgba(26, 15, 30, 0.90) 0%, rgba(40, 20, 47, 0.85) 50%, rgba(61, 27, 70, 0.80) 100%);
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(244, 114, 182, 0.15);
+}
+
+.torii-bgm-popout.theme-emerald-bamboo {
+  background: linear-gradient(145deg, rgba(6, 25, 23, 0.90) 0%, rgba(13, 40, 36, 0.85) 50%, rgba(19, 60, 53, 0.80) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(16, 185, 129, 0.15);
+}
+
+.torii-bgm-popout.theme-cyber-tokyo {
+  background: linear-gradient(145deg, rgba(9, 9, 21, 0.90) 0%, rgba(18, 14, 36, 0.85) 50%, rgba(30, 19, 56, 0.80) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+.torii-bgm-popout.theme-fuji-dawn {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.86) 50%, rgba(51, 65, 85, 0.82) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(96, 165, 250, 0.15);
+}
+
+.torii-bgm-popout.theme-matcha-zen {
+  background: linear-gradient(145deg, rgba(20, 26, 14, 0.92) 0%, rgba(34, 46, 22, 0.86) 50%, rgba(49, 66, 32, 0.82) 100%);
+  border: 1px solid rgba(132, 204, 22, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(132, 204, 22, 0.15);
+}
+
+.torii-bgm-popout.theme-kyoto-autumn {
+  background: linear-gradient(145deg, rgba(38, 14, 14, 0.92) 0%, rgba(58, 20, 20, 0.86) 50%, rgba(80, 29, 29, 0.82) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(220, 38, 38, 0.15);
+}
+
+.torii-bgm-popout.theme-amethyst-magic {
+  background: linear-gradient(145deg, rgba(20, 12, 38, 0.92) 0%, rgba(35, 18, 66, 0.86) 50%, rgba(50, 26, 94, 0.82) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+.torii-bgm-popout.theme-golden-shrine {
+  background: linear-gradient(145deg, rgba(24, 20, 10, 0.92) 0%, rgba(40, 32, 14, 0.86) 50%, rgba(60, 48, 18, 0.82) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(251, 191, 36, 0.15);
+}
+
+.torii-bgm-popout.theme-ocean-breeze {
+  background: linear-gradient(145deg, rgba(8, 28, 44, 0.92) 0%, rgba(12, 45, 72, 0.86) 50%, rgba(16, 64, 100, 0.82) 100%);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(14, 165, 233, 0.15);
+}
+
+.torii-bgm-popout.theme-torii-classic,
+.torii-bgm-popout.theme-discord-classic {
+  background: rgba(24, 26, 30, 0.90);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .torii-popout-header {
@@ -552,7 +685,7 @@
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
   z-index: 10001;
   overflow: hidden;
-  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
   position: absolute;
 }
 
@@ -601,6 +734,42 @@
   background: linear-gradient(145deg, rgba(9, 9, 21, 0.88) 0%, rgba(18, 14, 36, 0.82) 50%, rgba(30, 19, 56, 0.78) 100%);
   border: 1px solid rgba(168, 85, 247, 0.25);
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+.torii-profile-popout.theme-fuji-dawn {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 41, 59, 0.84) 50%, rgba(51, 65, 85, 0.80) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(96, 165, 250, 0.15);
+}
+
+.torii-profile-popout.theme-matcha-zen {
+  background: linear-gradient(145deg, rgba(20, 26, 14, 0.90) 0%, rgba(34, 46, 22, 0.84) 50%, rgba(49, 66, 32, 0.80) 100%);
+  border: 1px solid rgba(132, 204, 22, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(132, 204, 22, 0.15);
+}
+
+.torii-profile-popout.theme-kyoto-autumn {
+  background: linear-gradient(145deg, rgba(38, 14, 14, 0.90) 0%, rgba(58, 20, 20, 0.84) 50%, rgba(80, 29, 29, 0.80) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(220, 38, 38, 0.15);
+}
+
+.torii-profile-popout.theme-amethyst-magic {
+  background: linear-gradient(145deg, rgba(20, 12, 38, 0.90) 0%, rgba(35, 18, 66, 0.84) 50%, rgba(50, 26, 94, 0.80) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+.torii-profile-popout.theme-golden-shrine {
+  background: linear-gradient(145deg, rgba(24, 20, 10, 0.90) 0%, rgba(40, 32, 14, 0.84) 50%, rgba(60, 48, 18, 0.80) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(251, 191, 36, 0.15);
+}
+
+.torii-profile-popout.theme-ocean-breeze {
+  background: linear-gradient(145deg, rgba(8, 28, 44, 0.90) 0%, rgba(12, 45, 72, 0.84) 50%, rgba(16, 64, 100, 0.80) 100%);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(14, 165, 233, 0.15);
 }
 
 .torii-profile-popout.theme-torii-classic,
@@ -841,7 +1010,7 @@
   color: #ffffff;
 }
 
-/* POPOUT FLOTANTE DE MISIONES DIARIAS */
+/* POPOUT FLOTANTE DE MISIONES DIARIAS Y TEMAS */
 .collapsible-quests-panel.torii-floating-quests {
   position: fixed;
   bottom: 78px;
@@ -857,6 +1026,80 @@
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
   padding: 0;
   overflow: hidden;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+/* TEMAS TRANSLÚCIDOS DE MISIONES DIARIAS FLOTANTES */
+.collapsible-quests-panel.torii-floating-quests.theme-floral-navy {
+  background: linear-gradient(145deg, rgba(9, 19, 34, 0.92) 0%, rgba(13, 27, 50, 0.88) 50%, rgba(21, 44, 80, 0.84) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-torii-sunset {
+  background: linear-gradient(145deg, rgba(24, 13, 36, 0.92) 0%, rgba(46, 16, 48, 0.88) 50%, rgba(74, 21, 40, 0.84) 100%);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(249, 115, 22, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-sakura-night {
+  background: linear-gradient(145deg, rgba(26, 15, 30, 0.92) 0%, rgba(40, 20, 47, 0.88) 50%, rgba(61, 27, 70, 0.84) 100%);
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(244, 114, 182, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-emerald-bamboo {
+  background: linear-gradient(145deg, rgba(6, 25, 23, 0.92) 0%, rgba(13, 40, 36, 0.88) 50%, rgba(19, 60, 53, 0.84) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(16, 185, 129, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-cyber-tokyo {
+  background: linear-gradient(145deg, rgba(9, 9, 21, 0.92) 0%, rgba(18, 14, 36, 0.88) 50%, rgba(30, 19, 56, 0.84) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-fuji-dawn {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.88) 50%, rgba(51, 65, 85, 0.84) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(96, 165, 250, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-matcha-zen {
+  background: linear-gradient(145deg, rgba(20, 26, 14, 0.92) 0%, rgba(34, 46, 22, 0.88) 50%, rgba(49, 66, 32, 0.84) 100%);
+  border: 1px solid rgba(132, 204, 22, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(132, 204, 22, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-kyoto-autumn {
+  background: linear-gradient(145deg, rgba(38, 14, 14, 0.92) 0%, rgba(58, 20, 20, 0.88) 50%, rgba(80, 29, 29, 0.84) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(220, 38, 38, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-amethyst-magic {
+  background: linear-gradient(145deg, rgba(20, 12, 38, 0.92) 0%, rgba(35, 18, 66, 0.88) 50%, rgba(50, 26, 94, 0.84) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-golden-shrine {
+  background: linear-gradient(145deg, rgba(24, 20, 10, 0.92) 0%, rgba(40, 32, 14, 0.88) 50%, rgba(60, 48, 18, 0.84) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(251, 191, 36, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-ocean-breeze {
+  background: linear-gradient(145deg, rgba(8, 28, 44, 0.92) 0%, rgba(12, 45, 72, 0.88) 50%, rgba(16, 64, 100, 0.84) 100%);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(14, 165, 233, 0.15);
+}
+
+.collapsible-quests-panel.torii-floating-quests.theme-torii-classic,
+.collapsible-quests-panel.torii-floating-quests.theme-discord-classic {
+  background: rgba(24, 26, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .collapsible-quests-panel.torii-floating-quests .daily-quests-section {
@@ -866,7 +1109,80 @@
   border: none !important;
   box-shadow: none !important;
   width: 100% !important;
-  color: var(--azulNa) !important;
+  color: #f1f5f9 !important;
+}
+
+.collapsible-quests-panel.torii-floating-quests .daily-quests-section .seccion-titulo {
+  color: #ffffff !important;
+}
+
+.collapsible-quests-panel.torii-floating-quests .quest-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+}
+
+.collapsible-quests-panel.torii-floating-quests .quest-title {
+  color: #ffffff !important;
+}
+
+.collapsible-quests-panel.torii-floating-quests .quest-desc {
+  color: #94a3b8 !important;
+}
+
+.collapsible-quests-panel.torii-floating-quests .quest-progress-track {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* GRADIENTES Y COLORES DE PROGRESO SEGÚN TEMA */
+.collapsible-quests-panel.theme-floral-navy .quest-progress-fill,
+.daily-quests-section.theme-floral-navy .quest-progress-fill { background: linear-gradient(90deg, #38bdf8 0%, #ec4899 100%); }
+.collapsible-quests-panel.theme-torii-sunset .quest-progress-fill,
+.daily-quests-section.theme-torii-sunset .quest-progress-fill { background: linear-gradient(90deg, #f97316 0%, #ef4444 100%); }
+.collapsible-quests-panel.theme-sakura-night .quest-progress-fill,
+.daily-quests-section.theme-sakura-night .quest-progress-fill { background: linear-gradient(90deg, #f472b6 0%, #c084fc 100%); }
+.collapsible-quests-panel.theme-emerald-bamboo .quest-progress-fill,
+.daily-quests-section.theme-emerald-bamboo .quest-progress-fill { background: linear-gradient(90deg, #10b981 0%, #34d399 100%); }
+.collapsible-quests-panel.theme-cyber-tokyo .quest-progress-fill,
+.daily-quests-section.theme-cyber-tokyo .quest-progress-fill { background: linear-gradient(90deg, #06b6d4 0%, #d946ef 100%); }
+.collapsible-quests-panel.theme-fuji-dawn .quest-progress-fill,
+.daily-quests-section.theme-fuji-dawn .quest-progress-fill { background: linear-gradient(90deg, #60a5fa 0%, #f43f5e 100%); }
+.collapsible-quests-panel.theme-matcha-zen .quest-progress-fill,
+.daily-quests-section.theme-matcha-zen .quest-progress-fill { background: linear-gradient(90deg, #84cc16 0%, #eab308 100%); }
+.collapsible-quests-panel.theme-kyoto-autumn .quest-progress-fill,
+.daily-quests-section.theme-kyoto-autumn .quest-progress-fill { background: linear-gradient(90deg, #dc2626 0%, #f59e0b 100%); }
+.collapsible-quests-panel.theme-amethyst-magic .quest-progress-fill,
+.daily-quests-section.theme-amethyst-magic .quest-progress-fill { background: linear-gradient(90deg, #a855f7 0%, #818cf8 100%); }
+.collapsible-quests-panel.theme-golden-shrine .quest-progress-fill,
+.daily-quests-section.theme-golden-shrine .quest-progress-fill { background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%); }
+.collapsible-quests-panel.theme-ocean-breeze .quest-progress-fill,
+.daily-quests-section.theme-ocean-breeze .quest-progress-fill { background: linear-gradient(90deg, #0ea5e9 0%, #14b8a6 100%); }
+.collapsible-quests-panel.theme-torii-classic .quest-progress-fill,
+.daily-quests-section.theme-torii-classic .quest-progress-fill { background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%); }
+
+/* BADGES DE RECOMPENSA XP SEGÚN TEMA */
+.collapsible-quests-panel.theme-floral-navy .quest-reward-badge { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+.collapsible-quests-panel.theme-torii-sunset .quest-reward-badge { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+.collapsible-quests-panel.theme-sakura-night .quest-reward-badge { background: rgba(244, 114, 182, 0.2); color: #f472b6; }
+.collapsible-quests-panel.theme-emerald-bamboo .quest-reward-badge { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.collapsible-quests-panel.theme-cyber-tokyo .quest-reward-badge { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+.collapsible-quests-panel.theme-fuji-dawn .quest-reward-badge { background: rgba(96, 165, 250, 0.2); color: #93c5fd; }
+.collapsible-quests-panel.theme-matcha-zen .quest-reward-badge { background: rgba(132, 204, 22, 0.2); color: #a3e635; }
+.collapsible-quests-panel.theme-kyoto-autumn .quest-reward-badge { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+.collapsible-quests-panel.theme-amethyst-magic .quest-reward-badge { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.collapsible-quests-panel.theme-golden-shrine .quest-reward-badge { background: rgba(251, 191, 36, 0.2); color: #fcd34d; }
+.collapsible-quests-panel.theme-ocean-breeze .quest-reward-badge { background: rgba(14, 165, 233, 0.2); color: #38bdf8; }
+.collapsible-quests-panel.theme-torii-classic .quest-reward-badge { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+/* BOTÓN RECLAMAR MISIONES CON EFECTO ACTIVO */
+.btn-claim-quest.claimable {
+  animation: pulseClaimBtn 1.5s infinite;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+@keyframes pulseClaimBtn {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
 }
 
 /* RESPONSIVE EN MÓVILES */

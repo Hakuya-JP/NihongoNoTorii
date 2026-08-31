@@ -28,46 +28,74 @@ const TORII_DB_NAME = "ToriiAudioStore";
 const TORII_DB_VERSION = 1;
 const TORII_STORE_NAME = "custom_tracks";
 
+let _customSongsPromise = null;
+
 function abrirDBMusica() {
   return new Promise((resolve) => {
     if (!window.indexedDB) {
       resolve(null);
       return;
     }
-    const request = indexedDB.open(TORII_DB_NAME, TORII_DB_VERSION);
-    request.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains(TORII_STORE_NAME)) {
-        db.createObjectStore(TORII_STORE_NAME, { keyPath: "id" });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => resolve(null);
+    try {
+      const request = indexedDB.open(TORII_DB_NAME, TORII_DB_VERSION);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(TORII_STORE_NAME)) {
+          db.createObjectStore(TORII_STORE_NAME, { keyPath: "id" });
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => resolve(null);
+    } catch (e) {
+      resolve(null);
+    }
   });
 }
 
-async function cargarCancionesPersonalizadasDB() {
-  try {
-    const db = await abrirDBMusica();
-    if (!db) {
-      const guardadas = localStorage.getItem("torii_custom_tracks");
-      if (guardadas) BGM_CUSTOM_PLAYLIST = JSON.parse(guardadas);
-      return;
-    }
-    const tx = db.transaction(TORII_STORE_NAME, "readonly");
-    const store = tx.objectStore(TORII_STORE_NAME);
-    const req = store.getAll();
-    req.onsuccess = () => {
-      if (req.result && req.result.length > 0) {
-        // Ordenar con las más recientes primero
-        BGM_CUSTOM_PLAYLIST = req.result.sort((a, b) => (b.dateAdded || 0) - (a.dateAdded || 0));
+function cargarCancionesPersonalizadasDB() {
+  if (!_customSongsPromise) {
+    _customSongsPromise = new Promise(async (resolve) => {
+      try {
+        const db = await abrirDBMusica();
+        if (!db) {
+          try {
+            const guardadas = localStorage.getItem("torii_custom_tracks");
+            if (guardadas) BGM_CUSTOM_PLAYLIST = JSON.parse(guardadas);
+          } catch(e) {}
+          const hud = document.getElementById("rpg-hud-bar");
+          if (hud) renderHeaderRPG_HUD();
+          actualizarEstadoVisualBGM();
+          resolve(BGM_CUSTOM_PLAYLIST);
+          return;
+        }
+        const tx = db.transaction(TORII_STORE_NAME, "readonly");
+        const store = tx.objectStore(TORII_STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => {
+          if (req.result && req.result.length > 0) {
+            BGM_CUSTOM_PLAYLIST = req.result.sort((a, b) => (b.dateAdded || 0) - (a.dateAdded || 0));
+          }
+          const hud = document.getElementById("rpg-hud-bar");
+          if (hud) renderHeaderRPG_HUD();
+          actualizarEstadoVisualBGM();
+          resolve(BGM_CUSTOM_PLAYLIST);
+        };
+        req.onerror = () => {
+          const hud = document.getElementById("rpg-hud-bar");
+          if (hud) renderHeaderRPG_HUD();
+          actualizarEstadoVisualBGM();
+          resolve(BGM_CUSTOM_PLAYLIST);
+        };
+      } catch (e) {
+        console.warn("Error al cargar canciones personalizadas de DB:", e);
+        const hud = document.getElementById("rpg-hud-bar");
+        if (hud) renderHeaderRPG_HUD();
+        actualizarEstadoVisualBGM();
+        resolve(BGM_CUSTOM_PLAYLIST);
       }
-      const hud = document.getElementById("rpg-hud-bar");
-      if (hud) renderHeaderRPG_HUD();
-    };
-  } catch (e) {
-    console.warn("Error al cargar canciones personalizadas de DB:", e);
+    });
   }
+  return _customSongsPromise;
 }
 
 async function guardarCancionEnDB(cancion) {
@@ -78,9 +106,6 @@ async function guardarCancionEnDB(cancion) {
       const store = tx.objectStore(TORII_STORE_NAME);
       store.put(cancion);
     }
-    try {
-      localStorage.setItem("torii_custom_tracks", JSON.stringify(BGM_CUSTOM_PLAYLIST));
-    } catch(err) {}
   } catch (e) {
     console.warn("Error al guardar canción en DB:", e);
   }
@@ -94,15 +119,12 @@ async function borrarCancionDeDB(id) {
       const store = tx.objectStore(TORII_STORE_NAME);
       store.delete(id);
     }
-    try {
-      localStorage.setItem("torii_custom_tracks", JSON.stringify(BGM_CUSTOM_PLAYLIST));
-    } catch(err) {}
   } catch (e) {
     console.warn("Error al borrar canción de DB:", e);
   }
 }
 
-// Cargar canciones personalizadas al iniciar
+// Iniciar carga de DB inmediatamente
 cargarCancionesPersonalizadasDB();
 
 // ==========================================================================
@@ -114,15 +136,28 @@ let bgmAudioObject = null;
 function guardarEstadoPlaybackBGM() {
   if (!bgmAudioObject) return;
   try {
-    sessionStorage.setItem("bgm_track_index", (typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0);
+    const playlist = getBgmPlaylist();
+    const currentSongIdx = (typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0;
+    const currentSong = playlist[currentSongIdx];
+
+    sessionStorage.setItem("bgm_track_index", currentSongIdx);
+    if (currentSong) {
+      sessionStorage.setItem("bgm_track_id", currentSong.id || currentSong.src);
+      sessionStorage.setItem("bgm_track_title", currentSong.title || "");
+      sessionStorage.setItem("bgm_track_is_custom", currentSong.isCustom ? "true" : "false");
+    }
+    sessionStorage.setItem("bgm_is_playing", (!bgmAudioObject.paused).toString());
     sessionStorage.setItem("bgm_time", bgmAudioObject.currentTime || 0);
-    sessionStorage.setItem("bgm_timestamp", Date.now());
+    sessionStorage.setItem("bgm_timestamp", Date.now().toString());
   } catch (e) {
     console.warn("No se pudo guardar estado BGM en sessionStorage", e);
   }
 }
 
-function initBgmPlayer() {
+async function initBgmPlayer() {
+  // Asegurar que las canciones personalizadas en DB se hayan cargado antes de iniciar
+  await cargarCancionesPersonalizadasDB();
+
   if (!bgmAudioObject) {
     bgmAudioObject = new Audio();
     bgmAudioObject.volume = (typeof userProfile !== "undefined" && userProfile.musicVolume !== undefined) ? userProfile.musicVolume : 0.35;
@@ -135,10 +170,12 @@ function initBgmPlayer() {
         if (typeof guardarPerfil === "function") guardarPerfil();
       }
       sessionStorage.setItem("user_has_interacted", "true");
+      sessionStorage.setItem("bgm_is_playing", "true");
       actualizarEstadoVisualBGM();
     });
 
     bgmAudioObject.addEventListener("pause", () => {
+      sessionStorage.setItem("bgm_is_playing", "false");
       actualizarEstadoVisualBGM();
     });
 
@@ -157,24 +194,33 @@ function initBgmPlayer() {
     });
 
     bgmAudioObject.addEventListener("error", (e) => {
-      console.warn("No se pudo cargar la canción de fondo BGM:", e);
+      console.warn("Aviso BGM:", e);
     });
 
-    window.addEventListener("beforeunload", () => {
-      guardarEstadoPlaybackBGM();
+    window.addEventListener("beforeunload", guardarEstadoPlaybackBGM);
+    window.addEventListener("pagehide", guardarEstadoPlaybackBGM);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        guardarEstadoPlaybackBGM();
+      }
     });
   }
 
   cargarCancionActualBGM();
 
-  // Restaurar tiempo exacto de reproducción entre páginas
+  // Restaurar tiempo exacto de reproducción entre páginas (continuidad fluida)
   const savedTime = parseFloat(sessionStorage.getItem("bgm_time"));
   const savedTimestamp = parseInt(sessionStorage.getItem("bgm_timestamp"), 10);
+  const wasPlaying = sessionStorage.getItem("bgm_is_playing") === "true";
   let initialSeekTime = 0;
 
   if (!isNaN(savedTime) && !isNaN(savedTimestamp)) {
     const elapsed = (Date.now() - savedTimestamp) / 1000;
-    initialSeekTime = Math.max(0, savedTime + elapsed);
+    if (elapsed >= 0 && elapsed < 8) {
+      initialSeekTime = Math.max(0, savedTime + elapsed);
+    } else {
+      initialSeekTime = Math.max(0, savedTime);
+    }
   }
 
   const applySeekTime = () => {
@@ -184,28 +230,25 @@ function initBgmPlayer() {
       } else {
         try {
           bgmAudioObject.currentTime = initialSeekTime;
-        } catch (err) {
-          console.log("No se pudo asignar currentTime:", err);
-        }
+        } catch (err) {}
       }
     }
   };
 
   bgmAudioObject.addEventListener("loadedmetadata", applySeekTime, { once: true });
+  bgmAudioObject.addEventListener("canplay", applySeekTime, { once: true });
 
   const userHasInteracted = sessionStorage.getItem("user_has_interacted") === "true";
   const shouldPlay = typeof userProfile !== "undefined" && userProfile.musicEnabled !== false && (userProfile.musicVolume === undefined || userProfile.musicVolume > 0);
 
-  if (shouldPlay) {
-    if (userHasInteracted) {
-      bgmAudioObject.play().then(() => {
-        applySeekTime();
-        actualizarEstadoVisualBGM();
-      }).catch(e => {
-        console.log("Esperando interacción inicial para BGM");
-      });
-    }
-  } else {
+  if (shouldPlay && (userHasInteracted || wasPlaying)) {
+    bgmAudioObject.play().then(() => {
+      applySeekTime();
+      actualizarEstadoVisualBGM();
+    }).catch(e => {
+      console.log("Autoplay de BGM esperando interacción del usuario");
+    });
+  } else if (!shouldPlay) {
     bgmAudioObject.pause();
   }
 
@@ -220,6 +263,8 @@ function initBgmPlayer() {
   };
 
   document.addEventListener("click", registrarInteraccionGlobal, { once: true });
+
+  actualizarEstadoVisualBGM();
 }
 
 function actualizarEstadoVisualBGM() {
@@ -291,14 +336,39 @@ function actualizarEstadoVisualBGM() {
   });
 }
 
-function cargarCancionActualBGM() {
+function cargarCancionActualBGM(forzarIndex = null) {
   if (!bgmAudioObject) return;
   const playlist = getBgmPlaylist();
-  let idx = (typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0;
+  if (playlist.length === 0) return;
+
+  let idx = -1;
+
+  if (typeof forzarIndex === "number" && forzarIndex >= 0 && forzarIndex < playlist.length) {
+    idx = forzarIndex;
+  } else {
+    // Buscar por ID guardado en sessionStorage si existe
+    const savedTrackId = sessionStorage.getItem("bgm_track_id");
+    if (savedTrackId) {
+      idx = playlist.findIndex(s => (s.id && s.id === savedTrackId) || s.src === savedTrackId);
+    }
+    if (idx === -1) {
+      idx = (typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0;
+    }
+  }
+
   if (idx < 0 || idx >= playlist.length) idx = 0;
-  
+
+  if (typeof userProfile !== "undefined") {
+    userProfile.currentMusicIndex = idx;
+  }
+
   const song = playlist[idx];
   if (!song) return;
+
+  sessionStorage.setItem("bgm_track_index", idx);
+  sessionStorage.setItem("bgm_track_id", song.id || song.src);
+  sessionStorage.setItem("bgm_track_title", song.title || "");
+  sessionStorage.setItem("bgm_track_is_custom", song.isCustom ? "true" : "false");
 
   const finalSrc = song.isCustom ? song.src : ((window.TORII_BASE_PATH || "") + song.src);
 
@@ -376,7 +446,8 @@ function siguienteCancionBGM(autoPlay = true) {
     userProfile.currentMusicIndex = idx;
     if (typeof guardarPerfil === "function") guardarPerfil();
   }
-  cargarCancionActualBGM();
+  cargarCancionActualBGM(idx);
+  guardarEstadoPlaybackBGM();
 
   if (autoPlay && (typeof userProfile === "undefined" || userProfile.musicEnabled !== false) && bgmAudioObject) {
     bgmAudioObject.play().then(() => {
@@ -385,6 +456,31 @@ function siguienteCancionBGM(autoPlay = true) {
   } else {
     actualizarEstadoVisualBGM();
   }
+  renderHeaderRPG_HUD();
+  if (typeof mostrarToast === "function") mostrarToast(`🎵 Sonando: ${playlist[idx].title}`);
+}
+
+function anteriorCancionBGM(autoPlay = true) {
+  sessionStorage.setItem("bgm_time", 0);
+  const playlist = getBgmPlaylist();
+  let idx = ((typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0) - 1;
+  if (idx < 0) idx = playlist.length - 1;
+  
+  if (typeof userProfile !== "undefined") {
+    userProfile.currentMusicIndex = idx;
+    if (typeof guardarPerfil === "function") guardarPerfil();
+  }
+  cargarCancionActualBGM(idx);
+  guardarEstadoPlaybackBGM();
+
+  if (autoPlay && (typeof userProfile === "undefined" || userProfile.musicEnabled !== false) && bgmAudioObject) {
+    bgmAudioObject.play().then(() => {
+      actualizarEstadoVisualBGM();
+    }).catch(e => console.log("Error BGM play"));
+  } else {
+    actualizarEstadoVisualBGM();
+  }
+  renderHeaderRPG_HUD();
   if (typeof mostrarToast === "function") mostrarToast(`🎵 Sonando: ${playlist[idx].title}`);
 }
 
@@ -394,16 +490,23 @@ function cambiarCancionPorIndice(idx) {
   sessionStorage.setItem("bgm_time", 0);
   if (typeof userProfile !== "undefined") {
     userProfile.currentMusicIndex = idx;
+    userProfile.musicEnabled = true;
+    userProfile.soundEnabled = true;
     if (typeof guardarPerfil === "function") guardarPerfil();
   }
-  cargarCancionActualBGM();
-  if ((typeof userProfile === "undefined" || userProfile.musicEnabled !== false) && bgmAudioObject) {
+  cargarCancionActualBGM(idx);
+  guardarEstadoPlaybackBGM();
+
+  sessionStorage.setItem("user_has_interacted", "true");
+  sessionStorage.setItem("bgm_is_playing", "true");
+
+  if (bgmAudioObject) {
     bgmAudioObject.play().then(() => {
       actualizarEstadoVisualBGM();
     }).catch(e => console.log("Error BGM play"));
-  } else {
-    actualizarEstadoVisualBGM();
   }
+  actualizarEstadoVisualBGM();
+  renderHeaderRPG_HUD();
   if (typeof mostrarToast === "function") mostrarToast(`🎵 Selección: ${playlist[idx].title}`);
 }
 
@@ -438,6 +541,10 @@ function agregarCancionPersonalizada(event) {
 
     sessionStorage.setItem("user_has_interacted", "true");
     sessionStorage.setItem("bgm_time", 0);
+    sessionStorage.setItem("bgm_track_id", nuevaPista.id);
+    sessionStorage.setItem("bgm_track_title", nuevaPista.title);
+    sessionStorage.setItem("bgm_track_is_custom", "true");
+    sessionStorage.setItem("bgm_is_playing", "true");
 
     if (!bgmAudioObject) initBgmPlayer();
     if (bgmAudioObject) {
@@ -872,16 +979,22 @@ function renderHeaderRPG_HUD() {
           <div class="torii-menu-item-theme">
             <div class="torii-theme-header">
               <span class="torii-menu-icon">🎨</span>
-              <span class="torii-menu-title">Personalizar Barra y Popout</span>
+              <span class="torii-menu-title">Personalizar</span>
             </div>
             <div class="torii-theme-pills">
-              <button type="button" class="theme-pill-btn ${hudTheme === 'floral-navy' ? 'active' : ''}" onclick="cambiarTemaHUD('floral-navy')">🌸 Follaje</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-sunset' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-sunset')">⛩️ Torii</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'sakura-night' ? 'active' : ''}" onclick="cambiarTemaHUD('sakura-night')">🌸 Sakura</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'emerald-bamboo' ? 'active' : ''}" onclick="cambiarTemaHUD('emerald-bamboo')">🍃 Bambú</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'cyber-tokyo' ? 'active' : ''}" onclick="cambiarTemaHUD('cyber-tokyo')">🌌 Cyber</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-classic' || hudTheme === 'discord-classic' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-classic')">🖤 Oscuro</button>
-              <button type="button" class="theme-pill-btn custom-img-btn ${hudTheme === 'custom' ? 'active' : ''}" onclick="document.getElementById('torii-hud-bg-file').click()" title="Subir imagen desde tu PC">📁 Subir fondo</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'floral-navy' ? 'active' : ''}" onclick="cambiarTemaHUD('floral-navy')" title="Follaje Azul Marino">🌸 Follaje</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-sunset' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-sunset')" title="Atardecer Carmesí">⛩️ Torii</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'sakura-night' ? 'active' : ''}" onclick="cambiarTemaHUD('sakura-night')" title="Noche de Sakura">🌸 Sakura</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'emerald-bamboo' ? 'active' : ''}" onclick="cambiarTemaHUD('emerald-bamboo')" title="Bambú Esmeralda">🍃 Bambú</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'cyber-tokyo' ? 'active' : ''}" onclick="cambiarTemaHUD('cyber-tokyo')" title="Cyberpunk Neón">🌌 Cyber</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'fuji-dawn' ? 'active' : ''}" onclick="cambiarTemaHUD('fuji-dawn')" title="Monte Fuji al Amanecer">🗻 Fuji</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'matcha-zen' ? 'active' : ''}" onclick="cambiarTemaHUD('matcha-zen')" title="Matcha Zen">🍵 Matcha</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'kyoto-autumn' ? 'active' : ''}" onclick="cambiarTemaHUD('kyoto-autumn')" title="Otoño Momiji en Kioto">🍁 Momiji</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'amethyst-magic' ? 'active' : ''}" onclick="cambiarTemaHUD('amethyst-magic')" title="Amatista Púrpura">🔮 Amatista</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'golden-shrine' ? 'active' : ''}" onclick="cambiarTemaHUD('golden-shrine')" title="Santuario Dorado">✨ Santuario</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'ocean-breeze' ? 'active' : ''}" onclick="cambiarTemaHUD('ocean-breeze')" title="Océano Kanagawa">🌊 Océano</button>
+              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-classic' || hudTheme === 'discord-classic' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-classic')" title="Carbón Oscuro">🖤 Oscuro</button>
+              <button type="button" class="theme-pill-btn custom-img-btn ${hudTheme === 'custom' ? 'active' : ''}" onclick="document.getElementById('torii-hud-bg-file').click()" title="Subir fondo personalizado (imagen)">➕</button>
             </div>
             <!-- INPUT OCULTO PARA SUBIR IMAGEN DESDE EL PC -->
             <input type="file" id="torii-hud-bg-file" accept="image/*" style="display:none;" onchange="cargarImagenFondoHUD(event)">
@@ -896,15 +1009,6 @@ function renderHeaderRPG_HUD() {
             </div>
             <span class="torii-menu-arrow">›</span>
           </a>
-
-          <!-- COPIAR ID / DATOS -->
-          <button type="button" class="torii-menu-item" onclick="copiarInfoUsuario()">
-            <span class="torii-menu-icon">📋</span>
-            <div class="torii-menu-text">
-              <span class="torii-menu-title">Copiar ID de estudiante</span>
-              <span class="torii-menu-subtitle">${userName} (${info.titulo})</span>
-            </div>
-          </button>
         </div>
       </div>
     </div>
@@ -978,6 +1082,7 @@ function cambiarTemaHUD(nuevoTema) {
     if (typeof guardarPerfil === "function") guardarPerfil();
   }
   renderHeaderRPG_HUD();
+  renderDailyQuestsUI();
   if (typeof mostrarToast === "function") mostrarToast(`🎨 Tema aplicado: ${nuevoTema}`);
 }
 
@@ -1239,26 +1344,39 @@ function renderDailyQuestsUI() {
     if (hud) {
       container = document.createElement("div");
       container.id = "daily-quests-container";
-      container.className = "collapsible-quests-panel";
+      container.className = "collapsible-quests-panel torii-floating-quests";
       hud.parentNode.insertBefore(container, hud.nextSibling);
     }
   }
 
   if (!container) return;
 
-  if (!isPerfil && !container.classList.contains("collapsible-quests-panel")) {
-    container.classList.add("collapsible-quests-panel");
+  const hudTheme = (typeof userProfile !== "undefined" && userProfile.hudTheme) ? userProfile.hudTheme : "floral-navy";
+  const hudCustomBg = (typeof userProfile !== "undefined" && userProfile.hudCustomBg) ? userProfile.hudCustomBg : "";
+  const isExpanded = container.classList.contains("expanded");
+
+  if (!isPerfil) {
+    container.className = `collapsible-quests-panel torii-floating-quests theme-${hudTheme} ${isExpanded ? 'expanded' : ''}`;
+    if (hudTheme === 'custom' && hudCustomBg) {
+      container.style.backgroundImage = `linear-gradient(rgba(10, 16, 28, 0.88), rgba(10, 16, 28, 0.94)), url('${hudCustomBg}')`;
+      container.style.backgroundSize = 'cover';
+      container.style.backgroundPosition = 'center';
+    } else {
+      container.style.backgroundImage = '';
+    }
   }
 
   if (typeof userProfile === "undefined" || !userProfile.misionesDiarias || userProfile.misionesDiarias.length === 0) return;
 
   container.innerHTML = `
-    <div class="daily-quests-section">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h2 class="seccion-titulo" style="margin: 0; font-size: 1.3rem;">📜 Misiones Diarias del Aprendiz</h2>
+    <div class="daily-quests-section theme-${hudTheme}">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 class="seccion-titulo" style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+          <span>📜</span> Misiones Diarias del Aprendiz
+        </h2>
         <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 0.8rem; opacity: 0.8;">Se reinician cada día</span>
-          ${!isPerfil ? `<button onclick="toggleDailyQuestsPanel()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; line-height: 1;" title="Cerrar panel">&times;</button>` : ''}
+          <span style="font-size: 0.78rem; opacity: 0.8;">Se reinician cada día</span>
+          ${!isPerfil ? `<button type="button" onclick="toggleDailyQuestsPanel()" class="torii-popout-close-btn-small" title="Cerrar panel">&times;</button>` : ''}
         </div>
       </div>
       <div class="quests-grid">
@@ -1275,9 +1393,9 @@ function renderDailyQuestsUI() {
               </div>
               <div class="quest-footer">
                 <div class="quest-progress-track">
-                  <div class="quest-progress-fill" style="width: ${pct}%; background: ${m.completada ? '#22c55e' : '#3b82f6'};"></div>
+                  <div class="quest-progress-fill" style="width: ${pct}%;"></div>
                 </div>
-                <button class="btn-claim-quest" ${(!m.completada || m.reclamada) ? 'disabled' : ''} onclick="reclamarMisionDiaria(${idx})">
+                <button class="btn-claim-quest ${m.completada && !m.reclamada ? 'claimable' : ''}" ${(!m.completada || m.reclamada) ? 'disabled' : ''} onclick="reclamarMisionDiaria(${idx})">
                   ${m.reclamada ? 'Reclamado' : (m.completada ? 'Reclamar' : `${pct}%`)}
                 </button>
               </div>
@@ -1289,8 +1407,9 @@ function renderDailyQuestsUI() {
   `;
 }
 
-function initRpgSystemModule() {
-  initBgmPlayer();
+async function initRpgSystemModule() {
+  await cargarCancionesPersonalizadasDB();
+  await initBgmPlayer();
   renderHeaderRPG_HUD();
   actualizarBloqueoContenidoUI();
   initDailyQuests();

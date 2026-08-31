@@ -77,10 +77,13 @@ function initPageTransitions() {
 
     if (link.origin === window.location.origin) {
       e.preventDefault();
+      if (typeof guardarEstadoPlaybackBGM === "function") {
+        guardarEstadoPlaybackBGM();
+      }
       overlay.classList.add("active");
       setTimeout(() => {
         window.location.href = href;
-      }, 140);
+      }, 100);
     }
   });
 
