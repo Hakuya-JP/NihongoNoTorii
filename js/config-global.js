@@ -57,37 +57,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initPageTransitions() {
-  let overlay = document.getElementById("page-transition-overlay");
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.id = "page-transition-overlay";
-    document.body.appendChild(overlay);
-  }
-
-  setTimeout(() => {
-    overlay.classList.remove("active");
-  }, 50);
-
   document.addEventListener("click", (e) => {
     const link = e.target.closest("a");
     if (!link) return;
 
     const href = link.getAttribute("href");
-    if (!href || href.startsWith("#") || href.startsWith("javascript:") || link.target === "_blank") return;
+    if (!href || href.startsWith("#") || href.startsWith("javascript:")) return;
 
-    if (link.origin === window.location.origin) {
-      e.preventDefault();
-      if (typeof guardarEstadoPlaybackBGM === "function") {
-        guardarEstadoPlaybackBGM();
-      }
-      overlay.classList.add("active");
-      setTimeout(() => {
-        window.location.href = href;
-      }, 100);
+    if (typeof guardarEstadoPlaybackBGM === "function") {
+      guardarEstadoPlaybackBGM();
     }
-  });
-
-  window.addEventListener("pageshow", () => {
-    if (overlay) overlay.classList.remove("active");
-  });
+  }, { passive: true });
 }

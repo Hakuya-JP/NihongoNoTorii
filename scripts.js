@@ -28,6 +28,9 @@
   ];
 
   modules.forEach(src => {
-    document.write(`<script src="${basePath}${src}"></script>`);
+    const script = document.createElement("script");
+    script.src = `${basePath}${src}`;
+    script.async = false; // Descarga en paralelo y ejecuta en orden sin bloquear el DOM
+    document.head.appendChild(script);
   });
 })();
