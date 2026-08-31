@@ -27,16 +27,150 @@ function initVideoPlayerModule() {
   let fontSizeOverlay = 1.4;
 
   // ------------------------------------------------------------------
-  // FURIGANA: tokenizador Kuromoji (carga asíncrona del diccionario)
+  // FURIGANA: tokenizador Kuromoji (carga bajo demanda y barra de progreso)
   // ------------------------------------------------------------------
   let kuromojiTokenizer = null;
+  let isDownloadingFurigana = false;
 
-  if (typeof kuromoji !== "undefined") {
-    kuromoji
-      .builder({ dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/" })
-      .build((err, tokenizer) => {
-        if (!err) kuromojiTokenizer = tokenizer;
-      });
+  function abrirModalFurigana() {
+    const modal = document.getElementById("furigana-confirm-modal");
+    if (modal) modal.classList.add("active");
+  }
+
+  function cerrarModalFurigana() {
+    const modal = document.getElementById("furigana-confirm-modal");
+    if (modal) modal.classList.remove("active");
+  }
+
+  function actualizarProgresoFurigana(pct, statusText, detailText) {
+    const widget = document.getElementById("furigana-download-widget");
+    const bar = document.getElementById("furigana-progress-bar");
+    const percentSpan = document.getElementById("furigana-dl-percent");
+    const statusSpan = document.getElementById("furigana-dl-status");
+    const detailSpan = document.getElementById("furigana-dl-detail");
+    const spinner = document.getElementById("furigana-spinner-icon");
+
+    if (widget) widget.classList.add("visible");
+    if (bar) bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+    if (percentSpan) percentSpan.textContent = `${Math.round(pct)}%`;
+    if (statusSpan && statusText) statusSpan.textContent = statusText;
+    if (detailSpan && detailText) detailSpan.textContent = detailText;
+    if (spinner && pct >= 100) spinner.textContent = "✅";
+    else if (spinner) spinner.textContent = "⏳";
+  }
+
+  function ocultarProgresoFurigana(delay = 2500) {
+    setTimeout(() => {
+      const widget = document.getElementById("furigana-download-widget");
+      if (widget) widget.classList.remove("visible");
+    }, delay);
+  }
+
+  async function iniciarDescargaFurigana() {
+    if (isDownloadingFurigana || kuromojiTokenizer) return;
+    isDownloadingFurigana = true;
+    cerrarModalFurigana();
+
+    actualizarProgresoFurigana(8, "Conectando con repositorio...", "Descargando Kuromoji...");
+
+    // 1. Cargar script si no existe
+    if (typeof kuromoji === "undefined") {
+      try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js";
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Fallo al descargar script Kuromoji"));
+          document.head.appendChild(script);
+        });
+      } catch (err) {
+        console.error("Error al cargar Kuromoji script:", err);
+        actualizarProgresoFurigana(100, "⚠️ Error de red", "No se pudo cargar el script base.");
+        isDownloadingFurigana = false;
+        ocultarProgresoFurigana(3500);
+        if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al descargar motor de Furigana");
+        return;
+      }
+    }
+
+    actualizarProgresoFurigana(25, "Descargando diccionario japonés...", "Obteniendo archivos morfológicos (~18 MB)...");
+
+    let progresoActual = 25;
+    const progressInterval = setInterval(() => {
+      if (progresoActual < 88) {
+        progresoActual += Math.floor(Math.random() * 8) + 4;
+        actualizarProgresoFurigana(
+          progresoActual,
+          "Descargando e indexando...",
+          `Procesando vocabulario (${Math.round(progresoActual)}%)...`
+        );
+      }
+    }, 450);
+
+    try {
+      kuromoji
+        .builder({ dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/" })
+        .build((err, tokenizer) => {
+          clearInterval(progressInterval);
+          isDownloadingFurigana = false;
+
+          if (err || !tokenizer) {
+            console.warn("Kuromoji build error:", err);
+            actualizarProgresoFurigana(100, "⚠️ Error al procesar diccionario", "Intenta nuevamente.");
+            ocultarProgresoFurigana(4000);
+            if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al inicializar el diccionario de Furigana");
+            return;
+          }
+
+          kuromojiTokenizer = tokenizer;
+          actualizarProgresoFurigana(100, "✅ ¡Furigana listo!", "Diccionario japonés cargado con éxito.");
+          ocultarProgresoFurigana(2500);
+
+          // Enriquecer subtítulos actuales si ya hay subtítulos cargados
+          if (subtitulos && subtitulos.length > 0) {
+            subtitulos.forEach(s => {
+              s.textoFurigana = agregarFurigana(s.texto);
+            });
+            window.subtitlesData = subtitulos;
+            renderSidebarSubtitles();
+
+            if (overlaySub && video) {
+              const currentTime = video.currentTime;
+              const subActual = subtitulos.find(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
+              if (subActual) {
+                overlaySub.innerHTML = subActual.textoFurigana || subActual.texto;
+              }
+            }
+          }
+
+          // Activar visualmente el Furigana
+          document.body.classList.remove("sin-furigana");
+          const btnFuri = document.getElementById("btn-toggle-furigana");
+          if (btnFuri) btnFuri.classList.add("active-tool");
+          if (typeof mostrarToast === "function") mostrarToast("🌸 ¡Furigana generado y activado!");
+        });
+    } catch (e) {
+      clearInterval(progressInterval);
+      isDownloadingFurigana = false;
+      console.error("Excepción al construir Kuromoji:", e);
+      actualizarProgresoFurigana(100, "⚠️ Fallo en inicialización", e.message || "Error desconocido");
+      ocultarProgresoFurigana(3500);
+    }
+  }
+
+  // Listeners de modal de furigana
+  const btnCloseFuriModal = document.getElementById("btn-close-furigana-modal");
+  const btnCancelFuriDl = document.getElementById("btn-cancel-furigana-dl");
+  const btnConfirmFuriDl = document.getElementById("btn-confirm-furigana-dl");
+  const modalFurigana = document.getElementById("furigana-confirm-modal");
+
+  if (btnCloseFuriModal) btnCloseFuriModal.addEventListener("click", cerrarModalFurigana);
+  if (btnCancelFuriDl) btnCancelFuriDl.addEventListener("click", cerrarModalFurigana);
+  if (btnConfirmFuriDl) btnConfirmFuriDl.addEventListener("click", iniciarDescargaFurigana);
+  if (modalFurigana) {
+    modalFurigana.addEventListener("click", (e) => {
+      if (e.target === modalFurigana) cerrarModalFurigana();
+    });
   }
 
   /** Convierte katakana a hiragana (Kuromoji devuelve lecturas en katakana) */
@@ -436,8 +570,19 @@ function initVideoPlayerModule() {
   const btnFurigana = document.getElementById("btn-toggle-furigana");
   if (btnFurigana) {
     btnFurigana.addEventListener("click", () => {
+      // Si el diccionario no ha sido descargado aún, solicitar confirmación con modal
+      if (!kuromojiTokenizer) {
+        abrirModalFurigana();
+        return;
+      }
+
       document.body.classList.toggle("sin-furigana");
       btnFurigana.classList.toggle("active-tool");
+
+      const isActive = !document.body.classList.contains("sin-furigana");
+      if (typeof mostrarToast === "function") {
+        mostrarToast(isActive ? "🌸 Furigana activado" : "Furigana desactivado");
+      }
     });
   }
 
