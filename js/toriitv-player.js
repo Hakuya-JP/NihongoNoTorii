@@ -654,19 +654,27 @@ function initVideoPlayerModule() {
             sub.traduccion = await obtenerTraduccionRapida(fraseLimpia);
           }
 
+          const esModeloVideo = typeof ankiConfig !== "undefined" && 
+            (ankiConfig.model === "ToriiDeckVideo" || ankiConfig.model === "ToriiVideo");
+
           // 1. Siempre guardar copia de respaldo en la lista local de la web
           if (typeof agregarTarjetaMinadaLocal === "function") {
-            agregarTarjetaMinadaLocal(sub);
+            agregarTarjetaMinadaLocal(sub, esModeloVideo ? "video" : "imagen");
           }
-          starBtn.innerText = "★";
-          starBtn.classList.add("active");
 
           // 2. Enviar directamente a Anki vía AnkiConnect
           if (typeof window.enviarObjetoAAnki === "function" && typeof ankiConfig !== "undefined" && ankiConfig.enabled) {
             try {
-              const resId = await window.enviarObjetoAAnki(sub);
-              if (typeof mostrarToast === "function") mostrarToast("📇 ¡Tarjeta enviada directamente a Anki!");
-              starBtn.title = `¡Enviada a Anki (ID: ${resId}) y guardada en tu lista!`;
+              const resAnki = await window.enviarObjetoAAnki(sub);
+              const esVideo = resAnki && typeof resAnki === "object" ? resAnki.isVideo : false;
+              const ankiId = resAnki && typeof resAnki === "object" ? resAnki.id : resAnki;
+              
+              if (esVideo) {
+                if (typeof mostrarToast === "function") mostrarToast("🎬 ¡Tarjeta con clip de video creada en Anki!");
+              } else {
+                if (typeof mostrarToast === "function") mostrarToast("📇 ¡Tarjeta enviada directamente a Anki!");
+              }
+              starBtn.title = `¡Enviada a Anki (ID: ${ankiId}) y guardada en tu lista!`;
             } catch (error) {
               console.warn("AnkiConnect no respondió (quedó guardada en tu lista web):", error.message);
               if (typeof mostrarToast === "function") mostrarToast("⭐ Guardada en tu lista web (Anki offline)");
@@ -676,6 +684,9 @@ function initVideoPlayerModule() {
             if (typeof mostrarToast === "function") mostrarToast("⭐ Guardada en tu lista web");
             starBtn.title = "¡Añadida a tu lista de la web!";
           }
+
+          starBtn.innerText = "★";
+          starBtn.classList.add("active");
         });
       }
 

@@ -77,7 +77,7 @@ async function obtenerTraduccionRapida(textoJapones) {
   return "";
 }
 
-function agregarTarjetaMinadaLocal(sub) {
+function agregarTarjetaMinadaLocal(sub, tipo) {
   const timestamp = Date.now();
   const fraseLimpia = sub.texto.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
 
@@ -87,6 +87,7 @@ function agregarTarjetaMinadaLocal(sub) {
     furigana: sub.texto,
     traduccion: sub.traduccion || "",
     tiempo: sub.inicio ? sub.inicio : 0,
+    tipo: tipo || (typeof ankiConfig !== "undefined" && (ankiConfig.model === "ToriiDeckVideo" || ankiConfig.model === "ToriiVideo") ? "video" : "imagen"),
     fecha: new Date().toLocaleDateString()
   };
 
@@ -166,9 +167,12 @@ function renderMinedCardsUI() {
     const cardDiv = document.createElement("div");
     cardDiv.className = "mined-card-item";
     const tradHtml = tarjeta.traduccion ? `<div class="mined-card-trad" style="font-size: 0.85rem; opacity: 0.85; color: var(--crema2); margin-top: 4px;">ES: ${tarjeta.traduccion}</div>` : '';
+    const badgeTipo = tarjeta.tipo === "video" 
+      ? `<span style="background: rgba(255,140,0,0.18); color: var(--naranja, #ff8c00); padding: 2px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: bold; margin-left: 6px;">🎬 Video</span>`
+      : `<span style="background: rgba(20,100,130,0.15); color: var(--azul, #146482); padding: 2px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: bold; margin-left: 6px;">🖼️ Imagen</span>`;
     cardDiv.innerHTML = `
       <button class="mined-card-del" title="Eliminar de la lista" onclick="eliminarTarjetaMinadaLocal('${tarjeta.id}')">&times;</button>
-      <span class="mined-card-time">⏱️ ${tarjeta.fecha || "Captura"}</span>
+      <span class="mined-card-time">⏱️ ${tarjeta.fecha || "Captura"} ${badgeTipo}</span>
       <div class="mined-card-text">${tarjeta.furigana}</div>
       ${tradHtml}
     `;

@@ -16,7 +16,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- TODO: Cambia el título -->
   <title>Bienvenido a tu primera leccion de japones — KANA | Nihongo no Torii</title>
-  <link rel="icon" type="image/png" href="../../image/logonnt.png" />
+  <link rel="icon" type="image/x-icon" href="../../ToriiIcon.ico" />
+  <link rel="shortcut icon" href="../../ToriiIcon.ico" />
   <link rel="stylesheet" href="../../styles.css">
 </head>
 <body>
@@ -94,20 +95,70 @@
 
 <article class="leccion-content">
 
-  <h3 class="leccion-section-title">🌸 [TODO: Título de la primera sección]</h3>
+  <h3 class="leccion-section-title">🌸 Hiragana y Katakana</h3>
 
   <p style="font-size:1.05rem; line-height:1.75; color:var(--texto-principal); margin:0 0 18px;">
-    [TODO: Párrafo introductorio de la lección.]
+            <!-- 1. VIDEO EXPLICATIVO (PRIMERO) -->
+          <div id="seccion-video" class="video-card-box">
+            
+
+            <div class="video-responsive-container">
+              <iframe 
+                src="https://www.youtube-nocookie.com/embed/uYdEIyaYV40" 
+                title="Video Introductorio de Hiragana" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
   </p>
 
   <!-- BLOQUE 1: INTRODUCCIÓN AL HIRAGANA -->
             <div id="tema-introduccion" class="explanation-card-item">
               <h3>📌 ¿Que es el KANA?</h3>
               <p>
-                El silabario Hiragana consta de <strong>46 caracteres fonéticos principales</strong>. Cada uno representa un sonido compuesto por una consonante y una vocal (o una vocal sola). Además, existen los <strong>Sonidos Impuros (Dakuon)</strong> creados con comillas (゛) o círculos (゜), y los <strong>Diptongos (Yoon)</strong> combinados con <em>ya, yu, yo</em> pequeños.
+                El idioma japones esta compuesto por <strong>2 sistemas de escritura Kanji y KANA.</strong>
+                El KANA esta compesto por 2 silabarios que se escriben de forma distinta pero suenan igual y tienen la misma cantidad de silabas son como las minusculas y las mayusculas en el español.<br>
+                Estos silabarios tienen como nombre Hiragana y Katakana. El Hiragana consta de <strong>46 Silabas principales</strong>. de las cuales 5 son vocales y los demas estan compuesto por 
+                una consonante y una vocal a exepccion de<strong>ん</strong>. Tambien hay alteraciones y combinaciones de estos pero de momento aprenderemos las 46 silabas principales del hiragana.
+              </p>
+              <p>
               </p>
             </div>
+    <div id="tema-tabla-gojuon" class="explanation-card-item">
+      <div style="display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 260px;">
+          <h3>Tabla 五十音 (Gojūon)</h3>
+          <p>
+            La tabla 五十音 (Gojūon) es una tabla que organiza los kana (hiragana y katakana) según sus sonidos base, de los cuales como su nombre lo indica son 50, aunque actualmente solo cuenta con 46. Esta tabla es utilizada con frecuencia para guiarse al aprender kana.
+          </p><br>
+          <p>
+            📌 <em>Si le das clic a la imagen de la derecha podrás ver y practicar todos los hiraganas en la tabla interactiva.</em>
+          </p>
+        </div>
+        <div style="width: 210px; max-width: 100%; flex-shrink: 0; margin: 10px auto;">
+          <!-- BOTÓN EXCLUSIVO CON LA IMAGEN "tablahiragana.png" APUNTANDO A LA PÁGINA INDEPENDIENTE -->
+          <a href="../../tabla-hiragana.html" class="table-image-button-box" title="Ir a la Tabla Completa de Hiragana">
+            <img src="../../image/tablahiragana.png" alt="Tabla Hiragana" class="table-image-btn">
+          </a>
+        </div>
+      </div>
 
+      <div style="margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 12px;">
+        <p>
+          <strong>Organización de la tabla:</strong><br>
+          La tabla esta compuesta de filas y columnas dependiendo si la tabla esta horizontal o vertical las columnas y las filas cambian
+           si vas a la tabla veras que de forma horizontal o de fila estan las vocales <strong>あ (a), い (i), う (u), え (e), お (o)</strong> las cuales son las mismas que las de idioma español pero en otro orden.
+           luego a tu izquierda de forma vertical o de columna estan las consonantes　<strong>か (Ka), さ (sa), た (ta), な (na), は (ha) ま (ma), や (ya), ら (ra), わ (wo)</strong>
+          <br> pero esto de filas  y columnas a veces puede resultar algo enredozo por lo que vamos agruparlos en <strong>Familias</strong>
+          <br>Una familia es la combinacion de una consonante con las 5 vocales y la familia resivira el nombre de su primer silaba. 
+          <br>Por ejemplo: Si combinamos la 5 vocales con la consonante K-, eso nos daria か (Ka), き (ka), く (ku), け (ke), こ (ko) y se le denominaria <strong>Familia か (Ka)</strong>.
+          Sin embargo, vijense bien en la tabla y algunas posiciones quedan vacías porque esos sonidos ya no se utilizan en el japonés cotidiano). El único kana que no incluye un sonido vocálico, <strong>ん (n)</strong>, normalmente se muestra por separado.
+        </p>
+      </div>
+    </div>
+
+          
   <!-- EJEMPLO DE CALLOUT TIP -->
   <div class="nnt-callout tip">
     <div class="nnt-callout-icon">💡</div>
