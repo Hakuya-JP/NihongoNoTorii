@@ -438,9 +438,11 @@ function initVideoPlayerModule() {
   // Furigana desactivado por defecto
   document.body.classList.add("sin-furigana");
 
-  if (!video.getAttribute("src") && overlaySub) {
-    overlaySub.innerText = "🎬 Da clic aquí para cargar el video";
-    overlaySub.classList.add("centrado");
+  const videoPlaceholder = document.getElementById("video-placeholder");
+  if (videoPlaceholder) {
+    videoPlaceholder.addEventListener("click", () => {
+      if (inputVideo) inputVideo.click();
+    });
   }
 
   video.addEventListener("click", () => {
@@ -462,6 +464,8 @@ function initVideoPlayerModule() {
       if (file) {
         window.currentVideoFile = file;
         video.src = URL.createObjectURL(file);
+        const placeholder = document.getElementById("video-placeholder");
+        if (placeholder) placeholder.classList.add("oculto");
         if (overlaySub) {
           overlaySub.innerText = "";
           overlaySub.classList.remove("centrado");

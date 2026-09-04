@@ -811,7 +811,7 @@ function renderHeaderRPG_HUD() {
   const userLema = (typeof userProfile !== "undefined" && userProfile.lema) ? userProfile.lema : "明日のことは、明日にならないとわからない。わからないからこそ、生きている意味があるのかもしれない 🍥";
   const userRacha = (typeof userProfile !== "undefined" ? (userProfile.rachaDias || 1) : 1);
   const userTarget = (typeof userProfile !== "undefined" ? (userProfile.nivelObjetivo || "JLPT N5") : "JLPT N5");
-  const hudTheme = (typeof userProfile !== "undefined" && userProfile.hudTheme) ? userProfile.hudTheme : "floral-navy";
+  const hudTheme = (typeof userProfile !== "undefined" && userProfile.hudTheme) ? userProfile.hudTheme : "torii-sunset";
   const hudCustomBg = (typeof userProfile !== "undefined" && userProfile.hudCustomBg) ? userProfile.hudCustomBg : "";
 
   const isAvatarUrl = userAvatar.startsWith("http://") || userAvatar.startsWith("https://") || userAvatar.startsWith("data:image/");
@@ -975,30 +975,17 @@ function renderHeaderRPG_HUD() {
             <span class="torii-menu-arrow">›</span>
           </button>
 
-          <!-- SELECTOR RÁPIDO DE TEMAS HUD -->
-          <div class="torii-menu-item-theme">
-            <div class="torii-theme-header">
-              <span class="torii-menu-icon">🎨</span>
-              <span class="torii-menu-title">Personalizar</span>
+          <!-- BOTÓN TEMAS Y PERSONALIZACIÓN -->
+          <button type="button" class="torii-menu-item torii-menu-item-theme" onclick="abrirModalTemasDesdePopout()">
+            <span class="torii-menu-icon">🎨</span>
+            <div class="torii-menu-text">
+              <span class="torii-menu-title">Temas y colores</span>
+              <span class="torii-menu-subtitle">Personalizar paleta y modo de color</span>
             </div>
-            <div class="torii-theme-pills">
-              <button type="button" class="theme-pill-btn ${hudTheme === 'floral-navy' ? 'active' : ''}" onclick="cambiarTemaHUD('floral-navy')" title="Follaje Azul Marino">🌸 Follaje</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-sunset' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-sunset')" title="Atardecer Carmesí">⛩️ Torii</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'sakura-night' ? 'active' : ''}" onclick="cambiarTemaHUD('sakura-night')" title="Noche de Sakura">🌸 Sakura</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'emerald-bamboo' ? 'active' : ''}" onclick="cambiarTemaHUD('emerald-bamboo')" title="Bambú Esmeralda">🍃 Bambú</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'cyber-tokyo' ? 'active' : ''}" onclick="cambiarTemaHUD('cyber-tokyo')" title="Cyberpunk Neón">🌌 Cyber</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'fuji-dawn' ? 'active' : ''}" onclick="cambiarTemaHUD('fuji-dawn')" title="Monte Fuji al Amanecer">🗻 Fuji</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'matcha-zen' ? 'active' : ''}" onclick="cambiarTemaHUD('matcha-zen')" title="Matcha Zen">🍵 Matcha</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'kyoto-autumn' ? 'active' : ''}" onclick="cambiarTemaHUD('kyoto-autumn')" title="Otoño Momiji en Kioto">🍁 Momiji</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'amethyst-magic' ? 'active' : ''}" onclick="cambiarTemaHUD('amethyst-magic')" title="Amatista Púrpura">🔮 Amatista</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'golden-shrine' ? 'active' : ''}" onclick="cambiarTemaHUD('golden-shrine')" title="Santuario Dorado">✨ Santuario</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'ocean-breeze' ? 'active' : ''}" onclick="cambiarTemaHUD('ocean-breeze')" title="Océano Kanagawa">🌊 Océano</button>
-              <button type="button" class="theme-pill-btn ${hudTheme === 'torii-classic' || hudTheme === 'discord-classic' ? 'active' : ''}" onclick="cambiarTemaHUD('torii-classic')" title="Carbón Oscuro">🖤 Oscuro</button>
-              <button type="button" class="theme-pill-btn custom-img-btn ${hudTheme === 'custom' ? 'active' : ''}" onclick="document.getElementById('torii-hud-bg-file').click()" title="Subir fondo personalizado (imagen)">➕</button>
-            </div>
-            <!-- INPUT OCULTO PARA SUBIR IMAGEN DESDE EL PC -->
-            <input type="file" id="torii-hud-bg-file" accept="image/*" style="display:none;" onchange="cargarImagenFondoHUD(event)">
-          </div>
+            <span class="torii-menu-arrow">›</span>
+          </button>
+          <!-- INPUT OCULTO PARA SUBIR IMAGEN DESDE EL PC -->
+          <input type="file" id="torii-hud-bg-file" accept="image/*" style="display:none;" onchange="cargarImagenFondoHUD(event)">
 
           <!-- ENLACE A PERFIL COMPLETO -->
           <a href="${perfilUrl}" class="torii-menu-item">
@@ -1055,6 +1042,18 @@ function abrirModalEditarDesdePopout() {
   }
 }
 
+function abrirModalTemasDesdePopout() {
+  const profilePopout = document.getElementById("torii-profile-popout");
+  if (profilePopout) profilePopout.classList.remove("open");
+  
+  if (typeof abrirModalTemas === "function") {
+    abrirModalTemas();
+  } else {
+    window.location.href = (window.TORII_BASE_PATH || "") + "perfil.html";
+  }
+}
+window.abrirModalTemasDesdePopout = abrirModalTemasDesdePopout;
+
 function anteriorCancionBGM() {
   sessionStorage.setItem("bgm_time", 0);
   let idx = ((typeof userProfile !== "undefined" ? userProfile.currentMusicIndex : 0) || 0) - 1;
@@ -1080,6 +1079,9 @@ function cambiarTemaHUD(nuevoTema) {
   if (typeof userProfile !== "undefined") {
     userProfile.hudTheme = nuevoTema;
     if (typeof guardarPerfil === "function") guardarPerfil();
+  }
+  if (typeof aplicarTemaGlobal === "function") {
+    aplicarTemaGlobal(nuevoTema);
   }
   renderHeaderRPG_HUD();
   renderDailyQuestsUI();

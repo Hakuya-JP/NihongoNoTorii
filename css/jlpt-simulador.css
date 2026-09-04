@@ -162,10 +162,18 @@ body.dark-mode .jlpt-level-card.active {
 }
 
 .exam-config-card {
-  background: var(--blanco3, #ffffff);
-  border-radius: 14px;
-  padding: 20px;
-  border: 1px solid rgba(0,0,0,0.08);
+  background: var(--blanco2, #ffffff);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1.5px solid var(--azul);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .exam-config-card {
+  background: var(--blanco2, #0a425d);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-lg);
 }
 
 .config-field {
@@ -181,7 +189,8 @@ body.dark-mode .jlpt-level-card.active {
 }
 
 .jlpt-custom-select {
-  padding: 12px 16px;
+  width: 100%;
+  padding: 13px 18px;
   border: 2px solid var(--azul);
   border-radius: 12px;
   background: var(--blanco);
@@ -190,10 +199,36 @@ body.dark-mode .jlpt-level-card.active {
   font-weight: 700;
   outline: none;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+}
+
+.jlpt-custom-select:focus {
+  border-color: var(--naranja) !important;
+  box-shadow: 0 0 0 3px rgba(255, 148, 71, 0.25), var(--shadow-sm) !important;
+}
+
+.jlpt-custom-select option {
+  background-color: var(--blanco, #ffffff);
+  color: var(--texto-principal);
+  padding: 10px 14px;
 }
 
 body.dark-mode .jlpt-custom-select {
-  border-color: var(--naranja);
+  background: var(--blanco2, #0a425d) !important;
+  color: #ffffff !important;
+  border-color: var(--naranja, #ff9447) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+body.dark-mode .jlpt-custom-select:focus {
+  border-color: var(--naranja, #ff9447) !important;
+  box-shadow: 0 0 0 3px rgba(255, 148, 71, 0.35) !important;
+}
+
+body.dark-mode .jlpt-custom-select option {
+  background-color: var(--blanco2, #0a425d) !important;
+  color: #ffffff !important;
 }
 
 .examen-preview-box {
@@ -204,13 +239,16 @@ body.dark-mode .jlpt-custom-select {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
-  background: rgba(20, 100, 130, 0.05);
-  padding: 16px;
+  background: var(--blanco3, rgba(20, 100, 130, 0.05));
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 18px;
   border-radius: 12px;
+  box-shadow: var(--shadow-sm);
 }
 
 body.dark-mode .preview-info-grid {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .preview-item {

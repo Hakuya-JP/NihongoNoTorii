@@ -66,6 +66,7 @@
 
     <div class="profile-actions">
       <button id="btn-open-edit-modal" class="btn btn-primary btn-edit-profile">✏️ Personalizar Perfil</button>
+      <button type="button" id="btn-open-themes-modal" class="btn btn-secondary btn-themes-profile" onclick="abrirModalTemas(event)">🎨 Temas</button>
     </div>
   </section>
 
@@ -362,17 +363,23 @@
         <input type="text" id="input-profile-tag" class="form-control" placeholder="Ej: hakuya_mitsumine" maxlength="30" />
       </div>
 
-      <!-- TEMA DE LA BARRA RPG HUD -->
+      <!-- TEMA Y COLOR GENERAL DEL SITIO -->
       <div class="form-group">
-        <label for="select-profile-hud-theme" class="form-label">🎨 Tema y Fondo Translúcido (Barra y Popout)</label>
+        <label for="select-profile-hud-theme" class="form-label">🎨 Tema y Colores del Sitio (Estilo Windows)</label>
         <select id="select-profile-hud-theme" class="form-control">
-          <option value="floral-navy">🌸 Follaje Nocturno (Floral Navy - Recomendado)</option>
-          <option value="torii-sunset">⛩️ Noche Torii (Torii Sunset)</option>
+          <option value="torii-sunset" selected>⛩️ Noche Torii (Torii Sunset - Por defecto)</option>
           <option value="sakura-night">🌸 Sakura Blossom (Cerezos en Flor)</option>
           <option value="emerald-bamboo">🍃 Bosque Esmeralda (Bambú Teal)</option>
           <option value="cyber-tokyo">🌌 Cyber Tokio (Neon Glow)</option>
+          <option value="floral-navy">🌸 Follaje Nocturno (Floral Navy)</option>
+          <option value="fuji-dawn">🗻 Monte Fuji (Dawn Mist)</option>
+          <option value="matcha-zen">🍵 Matcha Zen (Té Verde)</option>
+          <option value="kyoto-autumn">🍁 Otoño Momiji (Kioto Carmesí)</option>
+          <option value="amethyst-magic">🔮 Amatista Púrpura (Mystic)</option>
+          <option value="golden-shrine">✨ Santuario Dorado (Kinkaku-ji)</option>
+          <option value="ocean-breeze">🌊 Océano Kanagawa (Gran Ola)</option>
           <option value="torii-classic">🖤 Torii Oscuro (Dark Slate)</option>
-          <option value="custom">📁 Imagen Personalizada</option>
+          <option value="custom">📁 Imagen Personalizada (Solo Barra)</option>
         </select>
       </div>
 
@@ -445,6 +452,43 @@
       </div>
 
     </form>
+  </div>
+</div>
+
+<!-- MODAL DE PERSONALIZACIÓN Y SELECCIÓN DE TEMAS (ESTILO WINDOWS) -->
+<div id="themes-modal" class="modal-overlay">
+  <div class="themes-modal-content">
+    <button id="btn-close-themes-modal" class="modal-close-btn" onclick="cerrarModalTemas()" aria-label="Cerrar ventana de temas">&times;</button>
+    
+    <div class="modal-header">
+      <h2>🎨 Personalización de Temas</h2>
+      <p>Elige tu estilo visual favorito. Los colores se aplicarán a todo Nihongo no Torii al estilo de Windows.</p>
+    </div>
+
+    <!-- BARRA SUPERIOR DE CONFIGURACIÓN Y MODO CLARO / OSCURO -->
+    <div class="themes-config-top-bar">
+      <div class="current-theme-indicator">
+        <span class="indicator-lbl">Tema actual:</span>
+        <span id="themes-modal-current-badge" class="current-theme-pill">⛩️ Noche Torii</span>
+      </div>
+
+      <div class="theme-mode-switch-group">
+        <span class="mode-lbl">Modo:</span>
+        <button type="button" id="btn-theme-mode-light" class="theme-mode-btn" onclick="seleccionarModoTema('light')">☀️ Claro</button>
+        <button type="button" id="btn-theme-mode-dark" class="theme-mode-btn" onclick="seleccionarModoTema('dark')">🌙 Oscuro</button>
+      </div>
+    </div>
+
+    <!-- GRID DE TARJETAS DE TEMAS -->
+    <div class="themes-catalog-grid" id="themes-catalog-grid">
+      <!-- Generado dinámicamente con las muestras de color y previsualización -->
+    </div>
+
+    <!-- PIE DE LA VENTANA -->
+    <div class="modal-footer-btns">
+      <button type="button" id="btn-reset-default-theme" class="btn btn-secondary" onclick="restablecerTemaPorDefecto()">🔄 Restablecer a Torii</button>
+      <button type="button" id="btn-close-themes-modal-action" class="btn btn-primary" onclick="cerrarModalTemas()">✓ Listo</button>
+    </div>
   </div>
 </div>
 

@@ -52,9 +52,14 @@
       
       <!-- 1. ZONA DEL VIDEO (Columna 1, Fila 1) -->
       <div id="video-wrapper" class="video-container">
-        <video id="main-video" controls>
+        <video id="main-video" controls poster="image/Vervideo.png">
           Tu navegador no soporta la reproducción de video HTML5.
         </video>
+
+        <!-- Portada visual para cargar el video -->
+        <div id="video-placeholder" class="video-placeholder-cover" title="Da clic aquí para cargar el video">
+          <img src="image/Vervideo.png" alt="Da clic aquí para cargar el video" class="video-placeholder-img" />
+        </div>
 
         <!-- Botón flotante para pantalla completa -->
         <button id="btn-fullscreen" class="btn-player-fs" title="Pantalla completa" aria-label="Pantalla completa">
@@ -67,9 +72,7 @@
         </button>
 
         <!-- Subtítulo flotante sobre el video -->
-        <div id="overlay-subtitles" class="overlay-subtitles sin-fondo">
-          Carga un video y un archivo de subtítulos para comenzar
-        </div>
+        <div id="overlay-subtitles" class="overlay-subtitles sin-fondo"></div>
 
         <!-- Panel flotante de configuración sobre el video -->
         <div class="video-overlay-config oculto" id="video-config-panel">

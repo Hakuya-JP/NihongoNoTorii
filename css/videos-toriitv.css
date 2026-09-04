@@ -82,6 +82,42 @@
   display: block;
 }
 
+/* PORTADA VISUAL INICIAL DEL REPRODUCTOR (VERVIDEO.PNG) */
+.video-placeholder-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  cursor: pointer;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.video-placeholder-cover.oculto {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-placeholder-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.video-placeholder-cover:hover .video-placeholder-img {
+  filter: brightness(1.06);
+  transform: scale(1.015);
+}
+
 /* BARRA DE HERRAMIENTAS: Forzada a la misma columna del reproductor */
 .player-toolbar {
   grid-column: 1 / 2; /* Alineado exacto con el ancho del video */

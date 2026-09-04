@@ -7,7 +7,7 @@ let userProfile = {
   avatar: "⛩️",
   nivelObjetivo: "JLPT N5",
   lema: "明日のことは、明日にならないとわからない。わからないからこそ、生きている意味があるのかもしれない 🍥",
-  hudTheme: "floral-navy",
+  hudTheme: "torii-sunset",
   hudCustomBg: "",
   metaDiariaMin: 15,
   rachaDias: 1,
@@ -36,6 +36,14 @@ function initUserProfileModule() {
     }
   }
 
+  // Garantizar que el tema por defecto sea Torii y aplicar el tema global
+  if (!userProfile.hudTheme || userProfile.hudTheme === "custom") {
+    userProfile.hudTheme = localStorage.getItem("torii_theme") || "torii-sunset";
+  }
+  if (typeof aplicarTemaGlobal === "function") {
+    aplicarTemaGlobal(userProfile.hudTheme);
+  }
+
   // Actualizar racha diaria y conceder XP
   const hoy = new Date().toISOString().split("T")[0];
   if (userProfile.ultimaFechaAcceso !== hoy) {
@@ -61,8 +69,10 @@ function initUserProfileModule() {
   // Listeners del botón de editar en la página de perfil (si existen)
   const btnOpenEditModal = document.getElementById("btn-open-edit-modal");
   const btnEditAvatarBadge = document.getElementById("btn-edit-profile");
+  const btnOpenThemesModal = document.getElementById("btn-open-themes-modal");
   if (btnOpenEditModal) btnOpenEditModal.addEventListener("click", abrirModalEditarPerfil);
   if (btnEditAvatarBadge) btnEditAvatarBadge.addEventListener("click", abrirModalEditarPerfil);
+  if (btnOpenThemesModal) btnOpenThemesModal.addEventListener("click", abrirModalTemas);
 }
 
 function asegurarModalEditarPerfilEnDOM() {
@@ -122,17 +132,23 @@ function asegurarModalEditarPerfilEnDOM() {
             <input type="text" id="input-profile-tag" class="form-control" placeholder="Ej: hakuya_mitsumine" maxlength="30" />
           </div>
 
-          <!-- TEMA DE LA BARRA RPG HUD -->
+          <!-- TEMA Y COLOR GENERAL DEL SITIO -->
           <div class="form-group">
-            <label for="select-profile-hud-theme" class="form-label">🎨 Tema y Fondo Translúcido (Barra y Popout)</label>
+            <label for="select-profile-hud-theme" class="form-label">🎨 Tema y Colores del Sitio (Estilo Windows)</label>
             <select id="select-profile-hud-theme" class="form-control">
-              <option value="floral-navy">🌸 Follaje Nocturno (Floral Navy - Recomendado)</option>
-              <option value="torii-sunset">⛩️ Noche Torii (Torii Sunset)</option>
+              <option value="torii-sunset" selected>⛩️ Noche Torii (Torii Sunset - Por defecto)</option>
               <option value="sakura-night">🌸 Sakura Blossom (Cerezos en Flor)</option>
               <option value="emerald-bamboo">🍃 Bosque Esmeralda (Bambú Teal)</option>
               <option value="cyber-tokyo">🌌 Cyber Tokio (Neon Glow)</option>
+              <option value="floral-navy">🌸 Follaje Nocturno (Floral Navy)</option>
+              <option value="fuji-dawn">🗻 Monte Fuji (Dawn Mist)</option>
+              <option value="matcha-zen">🍵 Matcha Zen (Té Verde)</option>
+              <option value="kyoto-autumn">🍁 Otoño Momiji (Kioto Carmesí)</option>
+              <option value="amethyst-magic">🔮 Amatista Púrpura (Mystic)</option>
+              <option value="golden-shrine">✨ Santuario Dorado (Kinkaku-ji)</option>
+              <option value="ocean-breeze">🌊 Océano Kanagawa (Gran Ola)</option>
               <option value="torii-classic">🖤 Torii Oscuro (Dark Slate)</option>
-              <option value="custom">📁 Imagen Personalizada</option>
+              <option value="custom">📁 Imagen Personalizada (Solo Barra)</option>
             </select>
           </div>
 
@@ -259,6 +275,17 @@ function vincularEventosModalPerfil(modal) {
       }
     };
   }
+
+  // Previsualización en vivo del tema seleccionado
+  const selectThemeEl = modal.querySelector("#select-profile-hud-theme");
+  if (selectThemeEl) {
+    selectThemeEl.onchange = () => {
+      const val = selectThemeEl.value;
+      if (typeof aplicarTemaGlobal === "function") {
+        aplicarTemaGlobal(val);
+      }
+    };
+  }
 }
 
 function abrirModalEditarPerfil() {
@@ -282,7 +309,7 @@ function abrirModalEditarPerfil() {
   if (selectGoal) selectGoal.value = userProfile.metaDiariaMin || 15;
   if (inputDob) inputDob.value = userProfile.fechaNacimiento || "1993-09-26";
   if (selectCountry) selectCountry.value = userProfile.paisExamen || "UK";
-  if (selectTheme) selectTheme.value = userProfile.hudTheme || "floral-navy";
+  if (selectTheme) selectTheme.value = userProfile.hudTheme || "torii-sunset";
   
   avatarSeleccionadoTemporal = userProfile.avatar || "⛩️";
 
@@ -309,6 +336,10 @@ function abrirModalEditarPerfil() {
 function cerrarModalEditarPerfil() {
   const modal = document.getElementById("edit-profile-modal");
   if (modal) modal.classList.remove("active");
+  // Restaurar el tema guardado del perfil si se canceló sin guardar
+  if (typeof aplicarTemaGlobal === "function" && typeof userProfile !== "undefined") {
+    aplicarTemaGlobal(userProfile.hudTheme || "torii-sunset");
+  }
 }
 
 function guardarEdicionPerfil() {
@@ -330,7 +361,7 @@ function guardarEdicionPerfil() {
   const nuevaMeta = selectGoal ? parseInt(selectGoal.value, 10) : 15;
   const nuevaFechaNac = inputDob && inputDob.value ? inputDob.value : "1993-09-26";
   const nuevoPais = selectCountry ? selectCountry.value : "UK";
-  const nuevoTema = selectTheme ? selectTheme.value : (userProfile.hudTheme || "floral-navy");
+  const nuevoTema = selectTheme ? selectTheme.value : (userProfile.hudTheme || "torii-sunset");
 
   let nuevoAvatar = avatarSeleccionadoTemporal || "⛩️";
   if (customAvatarInput && customAvatarInput.value.trim()) {
@@ -348,6 +379,9 @@ function guardarEdicionPerfil() {
   userProfile.hudTheme = nuevoTema;
 
   guardarPerfil();
+  if (typeof aplicarTemaGlobal === "function") {
+    aplicarTemaGlobal(nuevoTema);
+  }
   cerrarModalEditarPerfil();
   
   if (typeof renderUserProfileUI === "function") renderUserProfileUI();
@@ -498,3 +532,313 @@ function renderUserProfileUI() {
     renderizarGaleriaCertificadosPerfil();
   }
 }
+
+// ==========================================================================
+// SECCIÓN 7: CATÁLOGO Y GESTIÓN DE VENTANA MODAL DE TEMAS (ESTILO WINDOWS)
+// ==========================================================================
+const TORII_THEMES_CATALOG = [
+  {
+    id: "torii-sunset",
+    nombre: "Noche Torii",
+    emoji: "⛩️",
+    desc: "Bermellón santuario y azul profundo (Predeterminado)",
+    primaryColor: "#146482",
+    accentColor: "#ff9447",
+    surfaceLight: "#ffeedb",
+    surfaceDark: "#0a425d"
+  },
+  {
+    id: "sakura-night",
+    nombre: "Sakura Blossom",
+    emoji: "🌸",
+    desc: "Flor de cerezo rosada y ciruela nocturna",
+    primaryColor: "#b83264",
+    accentColor: "#e8437a",
+    surfaceLight: "#fae8ee",
+    surfaceDark: "#2e1226"
+  },
+  {
+    id: "emerald-bamboo",
+    nombre: "Bosque Esmeralda",
+    emoji: "🍃",
+    desc: "Jade de bambú japonés y menta brillante",
+    primaryColor: "#1b5e4b",
+    accentColor: "#10b981",
+    surfaceLight: "#e5f4ec",
+    surfaceDark: "#0b3328"
+  },
+  {
+    id: "cyber-tokyo",
+    nombre: "Cyber Tokio",
+    emoji: "🌌",
+    desc: "Violeta de neón y destellos cian de Shinjuku",
+    primaryColor: "#5b21b6",
+    accentColor: "#06b6d4",
+    surfaceLight: "#f3e8ff",
+    surfaceDark: "#161130"
+  },
+  {
+    id: "floral-navy",
+    nombre: "Follaje Nocturno",
+    emoji: "🌸",
+    desc: "Azul marino real con acentos ámbar dorado",
+    primaryColor: "#1e3a8a",
+    accentColor: "#f59e0b",
+    surfaceLight: "#e2e8f0",
+    surfaceDark: "#0b1c36"
+  },
+  {
+    id: "fuji-dawn",
+    nombre: "Monte Fuji",
+    emoji: "🗻",
+    desc: "Neblina azul matinal y amanecer coral",
+    primaryColor: "#2563eb",
+    accentColor: "#f43f5e",
+    surfaceLight: "#e0e7ff",
+    surfaceDark: "#172033"
+  },
+  {
+    id: "matcha-zen",
+    nombre: "Matcha Zen",
+    emoji: "🍵",
+    desc: "Verde matcha natural y corteza de cedro",
+    primaryColor: "#4d7c0f",
+    accentColor: "#84cc16",
+    surfaceLight: "#ecfccb",
+    surfaceDark: "#1d2a13"
+  },
+  {
+    id: "kyoto-autumn",
+    nombre: "Otoño Momiji",
+    emoji: "🍁",
+    desc: "Carmesí de arce otoñal y brasas doradas",
+    primaryColor: "#991b1b",
+    accentColor: "#ea580c",
+    surfaceLight: "#fee2e2",
+    surfaceDark: "#2e1010"
+  },
+  {
+    id: "amethyst-magic",
+    nombre: "Amatista Púrpura",
+    emoji: "🔮",
+    desc: "Amatista noble y brillo estelar místico",
+    primaryColor: "#6b21a8",
+    accentColor: "#a855f7",
+    surfaceLight: "#e9d5ff",
+    surfaceDark: "#22103a"
+  },
+  {
+    id: "golden-shrine",
+    nombre: "Santuario Dorado",
+    emoji: "✨",
+    desc: "Ocre Kinkaku-ji y resplandor solar ámbar",
+    primaryColor: "#854d0e",
+    accentColor: "#d97706",
+    surfaceLight: "#fef9c3",
+    surfaceDark: "#291f0a"
+  },
+  {
+    id: "ocean-breeze",
+    nombre: "Océano Kanagawa",
+    emoji: "🌊",
+    desc: "Azul oleaje y turquesa de la Gran Ola",
+    primaryColor: "#0369a1",
+    accentColor: "#0284c7",
+    surfaceLight: "#bae6fd",
+    surfaceDark: "#0a2942"
+  },
+  {
+    id: "torii-classic",
+    nombre: "Torii Oscuro",
+    emoji: "🖤",
+    desc: "Pizarra carbón minimalista con chispa carmesí",
+    primaryColor: "#343a40",
+    accentColor: "#e03131",
+    surfaceLight: "#dee2e6",
+    surfaceDark: "#1f2226"
+  }
+];
+
+function asegurarModalTemasEnDOM() {
+  let modal = document.getElementById("themes-modal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "themes-modal";
+    modal.className = "modal-overlay";
+    modal.innerHTML = `
+      <div class="themes-modal-content">
+        <button id="btn-close-themes-modal" class="modal-close-btn" onclick="cerrarModalTemas()" aria-label="Cerrar ventana de temas">&times;</button>
+        
+        <div class="modal-header">
+          <h2>🎨 Personalización de Temas</h2>
+          <p>Elige tu estilo visual favorito. Los colores se aplicarán a todo Nihongo no Torii al estilo de Windows.</p>
+        </div>
+
+        <div class="themes-config-top-bar">
+          <div class="current-theme-indicator">
+            <span class="indicator-lbl">Tema actual:</span>
+            <span id="themes-modal-current-badge" class="current-theme-pill">⛩️ Noche Torii</span>
+          </div>
+
+          <div class="theme-mode-switch-group">
+            <span class="mode-lbl">Modo:</span>
+            <button type="button" id="btn-theme-mode-light" class="theme-mode-btn" onclick="seleccionarModoTema('light')">☀️ Claro</button>
+            <button type="button" id="btn-theme-mode-dark" class="theme-mode-btn" onclick="seleccionarModoTema('dark')">🌙 Oscuro</button>
+          </div>
+        </div>
+
+        <div class="themes-catalog-grid" id="themes-catalog-grid"></div>
+
+        <div class="modal-footer-btns">
+          <button type="button" id="btn-reset-default-theme" class="btn btn-secondary" onclick="restablecerTemaPorDefecto()">🔄 Restablecer a Torii</button>
+          <button type="button" id="btn-close-themes-modal-action" class="btn btn-primary" onclick="cerrarModalTemas()">✓ Listo</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      cerrarModalTemas();
+    }
+  };
+
+  return modal;
+}
+
+function abrirModalTemas(event) {
+  if (event) event.stopPropagation();
+  
+  // Cerrar otros popouts o modales si están abiertos
+  const editModal = document.getElementById("edit-profile-modal");
+  if (editModal) editModal.classList.remove("active");
+  const profilePopout = document.getElementById("torii-profile-popout");
+  if (profilePopout) profilePopout.classList.remove("open");
+
+  const modal = asegurarModalTemasEnDOM();
+  renderThemesCatalogGrid();
+  actualizarBarraModoTemaModal();
+
+  modal.classList.add("active");
+}
+
+function cerrarModalTemas() {
+  const modal = document.getElementById("themes-modal");
+  if (modal) modal.classList.remove("active");
+}
+
+function renderThemesCatalogGrid() {
+  const grid = document.getElementById("themes-catalog-grid");
+  if (!grid) return;
+
+  const currentTheme = (typeof userProfile !== "undefined" && userProfile.hudTheme) ? userProfile.hudTheme : (localStorage.getItem("torii_theme") || "torii-sunset");
+  const isDarkMode = document.body.classList.contains("dark-mode");
+
+  grid.innerHTML = TORII_THEMES_CATALOG.map(t => {
+    const isActive = t.id === currentTheme;
+    const surfaceTone = isDarkMode ? t.surfaceDark : t.surfaceLight;
+
+    return `
+      <div class="theme-catalog-card ${isActive ? 'active' : ''}" onclick="seleccionarTemaDesdeModal('${t.id}')">
+        <!-- Mockup Visual simulado de la interfaz -->
+        <div class="theme-mockup-preview" style="background: ${surfaceTone};">
+          <div class="theme-mockup-header" style="background: ${t.primaryColor};">
+            <div class="theme-mockup-dots">
+              <span class="mockup-dot"></span>
+              <span class="mockup-dot"></span>
+              <span class="mockup-dot"></span>
+            </div>
+            <span style="font-size: 0.65rem; color: #ffffff; opacity: 0.9;">${t.emoji}</span>
+          </div>
+          <div class="theme-mockup-body">
+            <div class="theme-mockup-card-shape" style="border: 1px solid ${t.primaryColor}40;"></div>
+            <div class="theme-mockup-accent-shape" style="background: ${t.accentColor};"></div>
+          </div>
+        </div>
+
+        <div class="theme-card-info">
+          <div class="theme-card-title-row">
+            <span class="theme-card-title">${t.emoji} ${t.nombre}</span>
+            <span class="theme-card-check">✓ Activo</span>
+          </div>
+          <span class="theme-card-desc">${t.desc}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Actualizar pill indicador del tema actual
+  const currentBadge = document.getElementById("themes-modal-current-badge");
+  if (currentBadge) {
+    const found = TORII_THEMES_CATALOG.find(t => t.id === currentTheme) || TORII_THEMES_CATALOG[0];
+    currentBadge.innerHTML = `${found.emoji} ${found.nombre}`;
+  }
+}
+
+function seleccionarTemaDesdeModal(themeId) {
+  if (typeof userProfile !== "undefined") {
+    userProfile.hudTheme = themeId;
+    if (typeof guardarPerfil === "function") guardarPerfil();
+  }
+  
+  if (typeof aplicarTemaGlobal === "function") {
+    aplicarTemaGlobal(themeId);
+  }
+
+  // Refrescar tarjetas visuales y badge
+  renderThemesCatalogGrid();
+
+  // Sincronizar select si existe
+  const selectTheme = document.getElementById("select-profile-hud-theme");
+  if (selectTheme) selectTheme.value = themeId;
+
+  // Actualizar RPG HUD bar si está renderizada
+  if (typeof renderHeaderRPG_HUD === "function") renderHeaderRPG_HUD();
+
+  const found = TORII_THEMES_CATALOG.find(t => t.id === themeId);
+  const nombre = found ? `${found.emoji} ${found.nombre}` : themeId;
+  if (typeof mostrarToast === "function") mostrarToast(`🎨 Tema aplicado: ${nombre}`);
+}
+
+function actualizarBarraModoTemaModal() {
+  const isDarkMode = document.body.classList.contains("dark-mode");
+  const btnLight = document.getElementById("btn-theme-mode-light");
+  const btnDark = document.getElementById("btn-theme-mode-dark");
+
+  if (btnLight) btnLight.classList.toggle("active", !isDarkMode);
+  if (btnDark) btnDark.classList.toggle("active", isDarkMode);
+}
+
+function seleccionarModoTema(mode) {
+  const body = document.body;
+  const html = document.documentElement;
+  const btnHeaderToggle = document.getElementById("dark-mode-toggle");
+
+  if (mode === "dark") {
+    body.classList.add("dark-mode");
+    html.classList.add("dark-mode");
+    localStorage.setItem("theme", "dark");
+    if (btnHeaderToggle) btnHeaderToggle.innerText = "☀️";
+  } else {
+    body.classList.remove("dark-mode");
+    html.classList.remove("dark-mode");
+    localStorage.setItem("theme", "light");
+    if (btnHeaderToggle) btnHeaderToggle.innerText = "🌙";
+  }
+
+  actualizarBarraModoTemaModal();
+  renderThemesCatalogGrid();
+  if (typeof mostrarToast === "function") mostrarToast(`🌓 Modo ${mode === 'dark' ? 'Oscuro' : 'Claro'} activado`);
+}
+
+function restablecerTemaPorDefecto() {
+  seleccionarTemaDesdeModal("torii-sunset");
+  if (typeof mostrarToast === "function") mostrarToast("⛩️ Tema restablecido a Noche Torii por defecto");
+}
+
+window.abrirModalTemas = abrirModalTemas;
+window.cerrarModalTemas = cerrarModalTemas;
+window.seleccionarTemaDesdeModal = seleccionarTemaDesdeModal;
+window.seleccionarModoTema = seleccionarModoTema;
+window.restablecerTemaPorDefecto = restablecerTemaPorDefecto;

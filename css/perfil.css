@@ -538,30 +538,46 @@ body.dark-mode .form-control {
   color: #f8fafc;
 }
 
-/* VISIBILIDAD DE OPCIONES DESPLEGABLES (SELECT & OPTION) EN MODO CLARO Y OSCURO */
+/* VISIBILIDAD Y ESTILO DE OPCIONES DESPLEGABLES (SELECT & OPTION) CONECTADOS AL TEMA */
 select.form-control,
 select {
-  color: #10304a;
-  background-color: #ffffff;
+  color: var(--texto-principal) !important;
+  background-color: var(--blanco, #ffffff) !important;
+  border: 1.5px solid var(--azul) !important;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+}
+
+select.form-control:focus,
+select:focus {
+  border-color: var(--naranja) !important;
+  box-shadow: 0 0 0 3px rgba(255, 148, 71, 0.25), var(--shadow-sm) !important;
 }
 
 select.form-control option,
 select option {
-  background-color: #ffffff;
-  color: #10304a;
+  background-color: var(--blanco, #ffffff);
+  color: var(--texto-principal);
   padding: 8px 12px;
 }
 
 body.dark-mode select.form-control,
 body.dark-mode select {
-  background-color: #10304a !important;
+  background-color: var(--blanco2, #0a425d) !important;
   color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: var(--naranja, #ff9447) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+body.dark-mode select.form-control:focus,
+body.dark-mode select:focus {
+  border-color: var(--naranja, #ff9447) !important;
+  box-shadow: 0 0 0 3px rgba(255, 148, 71, 0.35) !important;
 }
 
 body.dark-mode select.form-control option,
 body.dark-mode select option {
-  background-color: #10304a !important;
+  background-color: var(--blanco2, #0a425d) !important;
   color: #ffffff !important;
 }
 
@@ -606,4 +622,293 @@ body.dark-mode .avatar-option-btn {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 24px;
+}
+
+/* ==========================================================================
+   20. BOTÓN Y VENTANA MODAL DE TEMAS Y PERSONALIZACIÓN (ESTILO WINDOWS)
+   ========================================================================== */
+.btn-themes-profile {
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--azul);
+  color: #ffffff !important;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+.btn-themes-profile:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.themes-modal-content {
+  background: var(--blanco2, #ffffff);
+  color: var(--texto-principal, #1a1a1a);
+  width: 92%;
+  max-width: 860px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.dark-mode .themes-modal-content {
+  background: var(--blanco2, #131c2a);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.modal-overlay.active .themes-modal-content {
+  transform: translateY(0);
+}
+
+/* Barra superior de configuración */
+.themes-config-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--blanco, rgba(0, 0, 0, 0.04));
+  padding: 12px 18px;
+  border-radius: 14px;
+  margin: 18px 0 22px 0;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+body.dark-mode .themes-config-top-bar {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.current-theme-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.indicator-lbl {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.current-theme-pill {
+  background: var(--azul);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 5px 14px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.theme-mode-switch-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+body.dark-mode .theme-mode-switch-group {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.mode-lbl {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0 6px;
+  opacity: 0.85;
+}
+
+.theme-mode-btn {
+  border: none;
+  background: transparent;
+  color: var(--texto-principal);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+body.dark-mode .theme-mode-btn {
+  color: #e2e8f0;
+}
+
+.theme-mode-btn.active {
+  background: var(--naranja);
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Catálogo Grid de Temas */
+.themes-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.theme-catalog-card {
+  background: var(--blanco);
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  text-align: left;
+}
+
+body.dark-mode .theme-catalog-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-catalog-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--naranja);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.theme-catalog-card.active {
+  border-color: var(--naranja);
+  box-shadow: 0 0 0 2px var(--naranja), 0 8px 25px rgba(0, 0, 0, 0.18);
+}
+
+/* Mini Mockup Visual en la Tarjeta */
+.theme-mockup-preview {
+  height: 54px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-mockup-header {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+.theme-mockup-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.mockup-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.theme-mockup-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.theme-mockup-card-shape {
+  width: 55%;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.theme-mockup-accent-shape {
+  width: 28%;
+  height: 14px;
+  border-radius: 4px;
+}
+
+/* Info del tema */
+.theme-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.theme-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theme-card-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.theme-card-check {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--naranja);
+  background: rgba(255, 148, 71, 0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: none;
+}
+
+.theme-catalog-card.active .theme-card-check {
+  display: inline-block;
+}
+
+.theme-card-desc {
+  font-size: 0.78rem;
+  opacity: 0.75;
+  line-height: 1.35;
+}
+
+/* Botón flotante para ver temas en el HUD */
+.torii-theme-more-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s ease;
+}
+.torii-theme-more-btn:hover {
+  background: var(--naranja);
+  border-color: var(--naranja);
 }

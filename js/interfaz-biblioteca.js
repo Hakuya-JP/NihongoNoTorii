@@ -46,12 +46,21 @@ function toggleDarkMode() {
   body.classList.toggle('dark-mode');
   html.classList.toggle('dark-mode');
   
-  if (body.classList.contains('dark-mode')) {
+  const isDark = body.classList.contains('dark-mode');
+  if (isDark) {
     if (btn) btn.innerText = "☀️";
     localStorage.setItem('theme', 'dark');
   } else {
     if (btn) btn.innerText = "🌙";
     localStorage.setItem('theme', 'light');
+  }
+
+  // Sincronizar modal de temas si está abierto o cargado
+  if (typeof actualizarBarraModoTemaModal === "function") {
+    actualizarBarraModoTemaModal();
+  }
+  if (typeof renderThemesCatalogGrid === "function") {
+    renderThemesCatalogGrid();
   }
 }
 

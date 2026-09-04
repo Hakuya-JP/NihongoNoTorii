@@ -1,4 +1,41 @@
 // ==========================================================================
+// SECCIÓN 0: GESTIÓN GLOBAL DE TEMAS Y PERSONALIZACIÓN (ESTILO WINDOWS)
+// ==========================================================================
+function aplicarTemaGlobal(themeId) {
+  if (!themeId || themeId === "custom") {
+    themeId = "torii-sunset";
+  }
+  document.documentElement.setAttribute("data-theme", themeId);
+  if (document.body) {
+    document.body.setAttribute("data-theme", themeId);
+  }
+  localStorage.setItem("torii_theme", themeId);
+  
+  // Sincronizar select de temas si existe en el DOM
+  const selectTheme = document.getElementById("select-profile-hud-theme");
+  if (selectTheme && selectTheme.value !== themeId) {
+    selectTheme.value = themeId;
+  }
+}
+window.aplicarTemaGlobal = aplicarTemaGlobal;
+
+// Aplicación inmediata del tema antes de renderizar para evitar destellos
+(function() {
+  let temaGuardado = localStorage.getItem("torii_theme");
+  if (!temaGuardado) {
+    try {
+      const perfilGuardado = localStorage.getItem("torii_user_profile");
+      if (perfilGuardado) {
+        const parsed = JSON.parse(perfilGuardado);
+        if (parsed && parsed.hudTheme) temaGuardado = parsed.hudTheme;
+      }
+    } catch(e) {}
+  }
+  if (!temaGuardado || temaGuardado === "custom") temaGuardado = "torii-sunset";
+  document.documentElement.setAttribute("data-theme", temaGuardado);
+})();
+
+// ==========================================================================
 // SECCIÓN 1: CONFIGURACIÓN GLOBAL Y PERSISTENCIA (ANKI)
 // ==========================================================================
 let ankiConfig = {
@@ -13,6 +50,10 @@ let ankiConfig = {
 // SECCIÓN 2: INICIALIZACIÓN PRINCIPAL (DOM CONTENT LOADED)
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
+
+  // --- 2.0 APLICAR TEMA GLOBAL ---
+  const temaActual = document.documentElement.getAttribute("data-theme") || localStorage.getItem("torii_theme") || "torii-sunset";
+  aplicarTemaGlobal(temaActual);
 
   // --- 2.1 CARRUSEL INFINITO ---
   const track = document.querySelector('.slider-track');

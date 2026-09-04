@@ -909,22 +909,43 @@
 
 .torii-menu-item {
   width: 100%;
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #e2e8f0;
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  transition: background 0.15s;
+  transition: all 0.2s ease;
   text-align: left;
 }
 
 .torii-menu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.torii-menu-item.torii-menu-item-theme {
   background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  position: relative;
+  overflow: hidden;
+}
+
+.torii-menu-item.torii-menu-item-theme:hover {
+  background: var(--naranja) !important;
+  border-color: var(--naranja) !important;
+  color: #ffffff !important;
+  box-shadow: var(--shadow-accent);
+}
+
+.torii-menu-item.torii-menu-item-theme:hover .torii-menu-subtitle,
+.torii-menu-item.torii-menu-item-theme:hover .torii-menu-arrow {
+  color: #ffffff !important;
 }
 
 .torii-menu-icon {
@@ -952,14 +973,6 @@
 .torii-menu-arrow {
   color: #64748b;
   font-size: 1rem;
-}
-
-.torii-menu-item-theme {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 8px 10px;
-  margin: 4px 0;
 }
 
 .torii-theme-header {
@@ -993,10 +1006,10 @@
 }
 
 .theme-pill-btn.active {
-  background: var(--naranja, #ff9800);
-  color: #ffffff;
-  border-color: var(--naranja, #ff9800);
-  box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+  background: var(--naranja) !important;
+  color: #ffffff !important;
+  border-color: var(--naranja) !important;
+  box-shadow: var(--shadow-accent) !important;
 }
 
 .theme-pill-btn.custom-img-btn {

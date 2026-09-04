@@ -180,11 +180,36 @@ body.dark-mode .mined-cards-title {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-sort-mined {
+  background: var(--azul);
+  color: #ffffff;
+  border: 1px solid var(--azul);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+}
+
+.btn-sort-mined:hover {
+  background: var(--naranja);
+  border-color: var(--naranja);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-accent);
 }
 
 .btn-export-anki {
-  background: #2e7d32;
-  color: white;
+  background: var(--naranja);
+  color: #ffffff;
   border: none;
   padding: 8px 16px;
   border-radius: 8px;
@@ -194,27 +219,46 @@ body.dark-mode .mined-cards-title {
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: var(--shadow-accent);
+  transition: all 0.25s ease;
 }
 
 .btn-export-anki:hover {
-  background: #1b5e20;
+  filter: brightness(1.15);
   transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 .btn-clear-mined {
   background: transparent;
-  color: #d32f2f;
-  border: 1px solid #d32f2f;
+  color: var(--texto-principal);
+  border: 1.5px solid var(--azul);
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-clear-mined:hover {
-  background: rgba(211, 47, 47, 0.1);
+  background: var(--azul);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary);
+}
+
+body.dark-mode .btn-clear-mined {
+  color: #f8fafc;
+  border-color: var(--naranja);
+}
+
+body.dark-mode .btn-clear-mined:hover {
+  background: var(--naranja);
+  border-color: var(--naranja);
+  color: #ffffff;
+  box-shadow: var(--shadow-accent);
 }
 
 .mined-cards-wrapper {
