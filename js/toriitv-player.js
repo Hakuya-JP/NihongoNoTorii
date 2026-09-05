@@ -24,7 +24,7 @@ function initVideoPlayerModule() {
 
   let subtitulos = [];
   let timeOffset = 0;
-  let fontSizeOverlay = 1.4;
+  let fontSizeScale = parseFloat(localStorage.getItem("toriitv_sub_scale")) || 1.0;
 
   // ------------------------------------------------------------------
   // FURIGANA: ANÁLISIS MORFOLÓGICO KUROMOJI CON CACHÉ PERSISTENTE (INDEXEDDB)
@@ -766,8 +766,172 @@ function initVideoPlayerModule() {
     });
   }
 
-  if (btnTextPlus) btnTextPlus.addEventListener("click", () => { fontSizeOverlay += 0.2; if(overlaySub) overlaySub.style.fontSize = `${fontSizeOverlay}rem`; });
-  if (btnTextMinus) btnTextMinus.addEventListener("click", () => { if (fontSizeOverlay > 0.8) fontSizeOverlay -= 0.2; if(overlaySub) overlaySub.style.fontSize = `${fontSizeOverlay}rem`; });
+  function aplicarEscalaFuenteSubtitulos() {
+    if (overlaySub) {
+      overlaySub.style.setProperty('--sub-font-scale', fontSizeScale.toFixed(2));
+    }
+    localStorage.setItem("toriitv_sub_scale", fontSizeScale.toFixed(2));
+  }
+  aplicarEscalaFuenteSubtitulos();
+
+  if (btnTextPlus) {
+    btnTextPlus.addEventListener("click", () => {
+      if (fontSizeScale < 2.5) {
+        fontSizeScale = Math.round((fontSizeScale + 0.15) * 100) / 100;
+        aplicarEscalaFuenteSubtitulos();
+        if (typeof mostrarToast === "function") mostrarToast(`🔍 Zoom Subtítulos: ${Math.round(fontSizeScale * 100)}%`);
+      }
+    });
+  }
+
+  if (btnTextMinus) {
+    btnTextMinus.addEventListener("click", () => {
+      if (fontSizeScale > 0.5) {
+        fontSizeScale = Math.round((fontSizeScale - 0.15) * 100) / 100;
+        aplicarEscalaFuenteSubtitulos();
+        if (typeof mostrarToast === "function") mostrarToast(`🔍 Zoom Subtítulos: ${Math.round(fontSizeScale * 100)}%`);
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // ARRASTRE LIBRE Y POSICIONAMIENTO DE SUBTÍTULOS SOBRE EL REPRODUCTOR
+  // ------------------------------------------------------------------
+  let isMovableSub = localStorage.getItem("toriitv_sub_movable") === "true";
+  let isDraggingSub = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let subInitialLeftPct = 50;
+  let subInitialTopPct = 80;
+
+  const btnToggleMoveSub = document.getElementById("btn-toggle-move-sub");
+
+  function actualizarEstadoMoverSubUI() {
+    if (overlaySub) {
+      overlaySub.classList.toggle("is-movable", isMovableSub);
+    }
+    if (btnToggleMoveSub) {
+      btnToggleMoveSub.classList.toggle("active-tool", isMovableSub);
+      btnToggleMoveSub.innerHTML = isMovableSub ? "✋ Mover (ON)" : "✋ Mover";
+    }
+    localStorage.setItem("toriitv_sub_movable", isMovableSub ? "true" : "false");
+  }
+  actualizarEstadoMoverSubUI();
+
+  if (btnToggleMoveSub) {
+    btnToggleMoveSub.addEventListener("click", () => {
+      isMovableSub = !isMovableSub;
+      actualizarEstadoMoverSubUI();
+      if (typeof mostrarToast === "function") {
+        mostrarToast(isMovableSub ? "✋ Arrastre de subtítulos activado (puedes moverlos)" : "🔒 Posición de subtítulos bloqueada");
+      }
+    });
+  }
+
+  // Cargar posición guardada en localStorage si existe
+  try {
+    const savedPos = localStorage.getItem("toriitv_sub_pos");
+    if (savedPos) {
+      const parsed = JSON.parse(savedPos);
+      if (parsed && typeof parsed.left === "number" && typeof parsed.top === "number") {
+        subInitialLeftPct = parsed.left;
+        subInitialTopPct = parsed.top;
+        if (overlaySub) {
+          overlaySub.style.left = `${subInitialLeftPct}%`;
+          overlaySub.style.top = `${subInitialTopPct}%`;
+        }
+      }
+    }
+  } catch (err) {}
+
+  function iniciarArrastreSubtitulo(e) {
+    // Solo permitir si la opción de mover está activada en la barra de configuración
+    if (!isMovableSub) return;
+    // Solo arrastrar con clic primario o toque táctil
+    if (e.type === "mousedown" && e.button !== 0) return;
+    if (overlaySub.innerText.trim() === "" && overlaySub.innerHTML.trim() === "") return;
+
+    isDraggingSub = true;
+    overlaySub.classList.add("is-dragging");
+
+    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
+    dragStartX = clientX;
+    dragStartY = clientY;
+
+    // Obtener porcentaje actual del contenedor
+    const rectParent = videoWrapper.getBoundingClientRect();
+    const rectSub = overlaySub.getBoundingClientRect();
+    const currentCenterX = (rectSub.left + rectSub.width / 2) - rectParent.left;
+    const currentCenterY = (rectSub.top + rectSub.height / 2) - rectParent.top;
+
+    subInitialLeftPct = (currentCenterX / rectParent.width) * 100;
+    subInitialTopPct = (currentCenterY / rectParent.height) * 100;
+
+    e.preventDefault();
+  }
+
+  function moverArrastreSubtitulo(e) {
+    if (!isDraggingSub || !isMovableSub) return;
+
+    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
+    const deltaX = clientX - dragStartX;
+    const deltaY = clientY - dragStartY;
+
+    const rectParent = videoWrapper.getBoundingClientRect();
+    if (rectParent.width === 0 || rectParent.height === 0) return;
+
+    let newLeftPct = subInitialLeftPct + (deltaX / rectParent.width) * 100;
+    let newTopPct = subInitialTopPct + (deltaY / rectParent.height) * 100;
+
+    // Limitar dentro del reproductor con margen de seguridad
+    newLeftPct = Math.max(5, Math.min(95, newLeftPct));
+    newTopPct = Math.max(5, Math.min(95, newTopPct));
+
+    overlaySub.style.left = `${newLeftPct.toFixed(2)}%`;
+    overlaySub.style.top = `${newTopPct.toFixed(2)}%`;
+  }
+
+  function finalizarArrastreSubtitulo() {
+    if (!isDraggingSub) return;
+    isDraggingSub = false;
+    overlaySub.classList.remove("is-dragging");
+
+    // Guardar posición en porcentaje para mantener consistencia en cualquier resolución / pantalla completa
+    const leftVal = parseFloat(overlaySub.style.left) || 50;
+    const topVal = parseFloat(overlaySub.style.top) || 80;
+
+    try {
+      localStorage.setItem("toriitv_sub_pos", JSON.stringify({ left: leftVal, top: topVal }));
+    } catch (err) {}
+  }
+
+  if (overlaySub) {
+    overlaySub.addEventListener("mousedown", iniciarArrastreSubtitulo);
+    overlaySub.addEventListener("touchstart", iniciarArrastreSubtitulo, { passive: false });
+
+    window.addEventListener("mousemove", moverArrastreSubtitulo);
+    window.addEventListener("touchmove", moverArrastreSubtitulo, { passive: false });
+
+    window.addEventListener("mouseup", finalizarArrastreSubtitulo);
+    window.addEventListener("touchend", finalizarArrastreSubtitulo);
+  }
+
+  // Botón para restablecer posición al centro inferior por defecto
+  const btnResetSubPos = document.getElementById("btn-reset-sub-pos");
+  if (btnResetSubPos && overlaySub) {
+    btnResetSubPos.addEventListener("click", () => {
+      subInitialLeftPct = 50;
+      subInitialTopPct = 80;
+      overlaySub.style.left = "50%";
+      overlaySub.style.top = "80%";
+      localStorage.removeItem("toriitv_sub_pos");
+      if (typeof mostrarToast === "function") mostrarToast("📍 Posición de subtítulos centrada");
+    });
+  }
 
   // Toggle Furigana: activa/desactiva la visibilidad de los <rt> vía CSS
   const btnFurigana = document.getElementById("btn-toggle-furigana");

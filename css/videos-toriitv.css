@@ -74,6 +74,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  container-type: inline-size;
 }
 
 #main-video {
@@ -292,17 +293,21 @@ body.dark-mode #sub-font-family option {
   color: #ffffff;
 }
 
-/* SUBTÍTULOS FLOTANTES Y FONDO DINÁMICO */
+/* SUBTÍTULOS FLOTANTES Y FONDO DINÁMICO (ARRASTRABLE Y ESCALABLE) */
 .overlay-subtitles {
   --bg-sub-color: rgba(0, 0, 0, 0.75);
+  --sub-font-scale: 1;
   
   position: absolute;
-  bottom: 50px;
-  left: 5%;
-  right: 5%;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  max-width: 90%;
   text-align: center;
   color: #ffffff;
-  font-size: 1.4rem;
+  /* Tamaño proporcional al ancho del contenedor del reproductor (cqw / %), escalable con los botones de zoom */
+  font-size: calc(clamp(1rem, 3.2cqw, 2.4rem) * var(--sub-font-scale, 1));
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), -2px -2px 4px rgba(0, 0, 0, 0.9);
   pointer-events: auto;
@@ -311,7 +316,28 @@ body.dark-mode #sub-font-family option {
   padding: 8px 16px;
   border-radius: 8px;
   background-color: var(--bg-sub-color);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, outline 0.15s ease, box-shadow 0.15s ease;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Estado cuando la opción de mover está activada */
+.overlay-subtitles.is-movable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.overlay-subtitles.is-movable:hover:not(:empty) {
+  outline: 1.5px dashed rgba(255, 255, 255, 0.55);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.overlay-subtitles.is-dragging {
+  cursor: grabbing !important;
+  outline: 2px solid var(--naranja, #ff9447) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  transition: none !important;
 }
 
 /* Ocultar el fondo cuando está desactivado */
@@ -337,6 +363,8 @@ body.dark-mode #sub-font-family option {
   background: transparent !important;
   padding: 0 !important;
   border-radius: 0 !important;
+  outline: none !important;
+  cursor: default !important;
 }
 
 /* ESTILOS DE FURIGANA (RUBY) */
@@ -474,13 +502,13 @@ body.sin-furigana .sub-line rt {
 #video-wrapper:fullscreen .overlay-subtitles {
   position: absolute !important;
   z-index: 2147483647 !important;
-  bottom: 8% !important;
 }
 
 .btn-player-fs {
   position: absolute;
-  bottom: 15px;
+  top: 15px;
   right: 15px;
+  bottom: auto;
   z-index: 25;
   background: rgba(0, 0, 0, 0.6);
   color: #ffffff;
@@ -511,9 +539,9 @@ body.dark-mode .btn-player-fs:hover {
 }
 
 #video-wrapper:fullscreen .btn-player-fs {
-  bottom: 25px;
+  top: 25px;
   right: 25px;
-  top: auto;
+  bottom: auto;
   z-index: 2147483647 !important;
 }
 
@@ -528,8 +556,9 @@ video::-webkit-media-controls-fullscreen-button {
 
 .btn-toggle-config {
   position: absolute;
-  bottom: 15px;
+  top: 15px;
   right: 60px;
+  bottom: auto;
   z-index: 30;
   background: rgba(0, 0, 0, 0.6);
   color: #ffffff;
@@ -562,8 +591,9 @@ body.dark-mode .btn-toggle-config:hover {
 /* Panel flotante de ajustes - MODO CLARO (Adaptado al Tema) */
 .video-overlay-config {
   position: absolute;
-  bottom: 60px;
+  top: 60px;
   right: 15px;
+  bottom: auto;
   z-index: 35;
   background: var(--blanco2);
   border: 1px solid var(--border-color, rgba(0, 0, 0, 0.15));
@@ -591,21 +621,21 @@ body.dark-mode .video-overlay-config {
 .video-overlay-config.oculto {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(10px);
+  transform: translateY(-10px);
 }
 
 /* Ajustes en Pantalla Completa */
 #video-wrapper:fullscreen .btn-toggle-config {
-  bottom: 25px;
+  top: 25px;
   right: 75px;
-  top: auto;
+  bottom: auto;
   z-index: 2147483647 !important;
 }
 
 #video-wrapper:fullscreen .video-overlay-config {
-  bottom: 75px;
+  top: 75px;
   right: 25px;
-  top: auto;
+  bottom: auto;
   z-index: 2147483647 !important;
 }
 
