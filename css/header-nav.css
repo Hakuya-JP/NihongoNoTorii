@@ -86,21 +86,207 @@
 
 
 /* ==========================================================================
-   11. BOTÓN INTERRUPTOR (THEME TOGGLE)
+   11. BOTÓN INTERRUPTOR: LÁMPARA JAPONESA (CHOCHIN)
    ========================================================================== */
 .theme-toggle-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 0;
   margin-left: 15px;
-  transition: transform 0.3s ease;
   outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.theme-toggle-btn:hover {
-  transform: scale(1.2);
+/* Ensamblaje General de la Lámpara (Chochin) */
+.lantern-assembly {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform-origin: top center;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
+  transition: filter 0.3s ease;
+}
+
+.lantern-assembly:hover {
+  filter: drop-shadow(0 6px 12px rgba(255, 148, 71, 0.45));
+}
+
+/* Tapas de Madera Superior e Inferior (Kubi) */
+.wood-cap {
+  width: 22px;
+  height: 4px;
+  background: #2b1704;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+.wood-cap.top {
+  margin-bottom: -1px;
+}
+
+.wood-cap.bottom {
+  margin-top: -1px;
+}
+
+/* Cuerpo de Papel Tradicional */
+.lantern-body {
+  position: relative;
+  width: 32px;
+  height: 42px;
+  border-radius: 16px / 21px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  transition: background 0.7s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Costillas de Bambú (Ribs) */
+.bamboo-ribs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 5px,
+    rgba(0, 0, 0, 0.15) 5px,
+    rgba(0, 0, 0, 0.15) 6px
+  );
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Núcleo de Llama / Resplandor Central */
+.flame-core {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.8;
+  filter: blur(2px);
+  z-index: 1;
+  transition: all 0.6s ease;
+}
+
+/* Kanji en el Papel: 明 (Luz) vs 暗 (Oscuridad) */
+.lantern-kanji {
+  position: relative;
+  z-index: 3;
+  font-family: 'Shippori Mincho', 'Yu Mincho', serif;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+/* Borlón / Tassel Inferior */
+.tassel-skirt {
+  width: 5px;
+  height: 9px;
+  background: #c92a2a;
+  border-radius: 1px 1px 3px 3px;
+  margin-top: 1px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.tassel-skirt::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 4px;
+  background: #c92a2a;
+  box-shadow: -1px 0 #c92a2a, 1px 0 #c92a2a;
+}
+
+/* Modo Encendido (Luz Cálida - Modo Claro) */
+.lantern-assembly.is-lit .lantern-body {
+  background: radial-gradient(circle at 50% 50%, #FFF5CC 0%, #FFB03B 45%, #E65100 85%);
+  box-shadow: 0 0 16px rgba(255, 148, 71, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.lantern-assembly.is-lit .flame-core {
+  background: radial-gradient(circle, #ffffff 10%, #ffeb3b 60%, transparent 100%);
+  animation: lanternFlicker 2.5s infinite alternate ease-in-out;
+}
+
+.lantern-assembly.is-lit .lantern-kanji {
+  color: #5c1800;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Modo Apagado (Noche Oscura - Modo Oscuro) */
+.lantern-assembly.is-unlit .lantern-body {
+  background: radial-gradient(circle at 50% 30%, #8b69c2 0%, #15111B 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 0 8px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.lantern-assembly.is-unlit .flame-core {
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.3) 0%, transparent 70%);
+  opacity: 0.25;
+}
+
+.lantern-assembly.is-unlit .lantern-kanji {
+  color: #dfd7f5;
+  text-shadow: 0 0 5px rgba(186, 155, 255, 0.4);
+}
+
+.lantern-assembly.is-unlit .wood-cap {
+  background: #24192e;
+}
+
+.lantern-assembly.is-unlit .tassel-skirt,
+.lantern-assembly.is-unlit .tassel-skirt::after {
+  background: #6b21a8;
+}
+
+/* Animación de Balanceo Suave en Reposo */
+.lantern-assembly.idle-sway {
+  animation: idleSway 4s ease-in-out infinite alternate;
+}
+
+@keyframes idleSway {
+  0%   { transform: rotate(-1.5deg); }
+  100% { transform: rotate(1.5deg); }
+}
+
+/* Animación de Bamboleo / Tirón al hacer clic */
+.lantern-assembly.swaying {
+  animation: pullSwing 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes pullSwing {
+  0%   { transform: rotate(0deg) scale(1); }
+  15%  { transform: rotate(12deg) translateY(4px) scale(0.96); }
+  35%  { transform: rotate(-8deg) translateY(-1px); }
+  60%  { transform: rotate(4deg); }
+  80%  { transform: rotate(-2deg); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes lanternFlicker {
+  0%   { opacity: 0.75; transform: scale(0.95); }
+  50%  { opacity: 0.95; transform: scale(1.05); }
+  100% { opacity: 0.8;  transform: scale(1.0); }
 }
 
 
@@ -150,8 +336,7 @@
 
   .theme-toggle-btn {
     margin-left: 0;
-    margin-top: 10px;
-    font-size: 1.5rem;
+    margin-top: 6px;
   }
 
   .top-nav.menu-open {

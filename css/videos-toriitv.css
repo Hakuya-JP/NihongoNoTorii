@@ -283,8 +283,13 @@ body.dark-mode select#sub-font-family {
 }
 
 #sub-font-family option {
-  background-color: #fff;
-  color: #333;
+  background-color: var(--blanco, #fff);
+  color: var(--texto-principal, #333);
+}
+
+body.dark-mode #sub-font-family option {
+  background-color: var(--blanco, #152e3f);
+  color: #ffffff;
 }
 
 /* SUBTÍTULOS FLOTANTES Y FONDO DINÁMICO */
@@ -474,7 +479,7 @@ body.sin-furigana .sub-line rt {
 
 .btn-player-fs {
   position: absolute;
-  top: 15px;
+  bottom: 15px;
   right: 15px;
   z-index: 25;
   background: rgba(0, 0, 0, 0.6);
@@ -506,8 +511,9 @@ body.dark-mode .btn-player-fs:hover {
 }
 
 #video-wrapper:fullscreen .btn-player-fs {
-  top: 25px;
+  bottom: 25px;
   right: 25px;
+  top: auto;
   z-index: 2147483647 !important;
 }
 
@@ -522,7 +528,7 @@ video::-webkit-media-controls-fullscreen-button {
 
 .btn-toggle-config {
   position: absolute;
-  top: 15px;
+  bottom: 15px;
   right: 60px;
   z-index: 30;
   background: rgba(0, 0, 0, 0.6);
@@ -553,50 +559,53 @@ body.dark-mode .btn-toggle-config:hover {
   transform: scale(1.1);
 }
 
-/* Panel flotante de ajustes - MODO CLARO */
+/* Panel flotante de ajustes - MODO CLARO (Adaptado al Tema) */
 .video-overlay-config {
   position: absolute;
-  top: 60px;
+  bottom: 60px;
   right: 15px;
   z-index: 35;
-  background: rgba(255, 228, 196, 0.92);
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  color: #1a1a1a;
-  backdrop-filter: blur(8px);
+  background: var(--blanco2);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.15));
+  color: var(--texto-principal, #1a1a1a);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 12px;
   padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg, 0 8px 32px rgba(0, 0, 0, 0.2));
   transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Panel flotante de ajustes - MODO OSCURO */
+/* Panel flotante de ajustes - MODO OSCURO (Adaptado al Tema) */
 body.dark-mode .video-overlay-config {
-  background: rgba(9, 74, 117, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  background: var(--blanco2);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  color: var(--texto-principal, #ffffff);
+  box-shadow: var(--shadow-modal, 0 8px 32px rgba(0, 0, 0, 0.5));
 }
 
 /* Ocultar menú por defecto */
 .video-overlay-config.oculto {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-10px);
+  transform: translateY(10px);
 }
 
 /* Ajustes en Pantalla Completa */
 #video-wrapper:fullscreen .btn-toggle-config {
-  top: 25px;
+  bottom: 25px;
   right: 75px;
+  top: auto;
   z-index: 2147483647 !important;
 }
 
 #video-wrapper:fullscreen .video-overlay-config {
-  top: 75px;
+  bottom: 75px;
   right: 25px;
+  top: auto;
   z-index: 2147483647 !important;
 }
 

@@ -819,12 +819,17 @@ function seleccionarModoTema(mode) {
     body.classList.add("dark-mode");
     html.classList.add("dark-mode");
     localStorage.setItem("theme", "dark");
-    if (btnHeaderToggle) btnHeaderToggle.innerText = "☀️";
   } else {
     body.classList.remove("dark-mode");
     html.classList.remove("dark-mode");
     localStorage.setItem("theme", "light");
-    if (btnHeaderToggle) btnHeaderToggle.innerText = "🌙";
+  }
+
+  // Sincronizar Chochin (Lámpara Japonesa)
+  if (typeof syncLanternUI === "function") {
+    syncLanternUI(mode === "dark", true);
+  } else {
+    if (btnHeaderToggle) btnHeaderToggle.innerText = mode === "dark" ? "☀️" : "🌙";
   }
 
   actualizarBarraModoTemaModal();

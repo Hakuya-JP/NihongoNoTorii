@@ -140,8 +140,8 @@ body.dark-mode .anki-input-group select {
 }
 
 body.dark-mode .mined-cards-section {
-  background: var(--bg-card, #131c2a);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--blanco2);
+  border-color: var(--border-color, rgba(255, 255, 255, 0.12));
 }
 
 .mined-cards-header {

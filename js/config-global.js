@@ -66,12 +66,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem('theme');
   const body = document.body;
   const html = document.documentElement;
-  const btnDark = document.getElementById('dark-mode-toggle');
+  const isDark = savedTheme === 'dark';
   
-  if (savedTheme === 'dark') {
+  if (isDark) {
     body.classList.add('dark-mode');
     html.classList.add('dark-mode');
-    if (btnDark) btnDark.innerText = "☀️";
+  }
+
+  // Sincronizar Chochin (Lámpara Japonesa)
+  if (typeof syncLanternUI === "function") {
+    syncLanternUI(isDark, false);
+  } else {
+    const btnDark = document.getElementById('dark-mode-toggle');
+    if (btnDark) btnDark.innerText = isDark ? "☀️" : "🌙";
   }
 
   // --- 2.3 HIGHLIGHT MENÚ NAVEGACIÓN ---

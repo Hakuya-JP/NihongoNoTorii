@@ -37,23 +37,77 @@ function toggleMenu() {
 }
 window.toggleMenu = toggleMenu;
 
-// Interruptor Dark Mode
-function toggleDarkMode() {
+// Sincronización visual del Chochin (Lámpara Japonesa)
+function syncLanternUI(isDark, animate = false) {
+  let assembly = document.getElementById('lantern-assembly');
+  let kanji = document.getElementById('lantern-kanji');
+  const btn = document.getElementById('dark-mode-toggle');
+
+  // Si el botón existe pero no tiene la estructura Chochin inyectada, se inyecta dinámicamente
+  if (btn && !assembly) {
+    btn.innerHTML = `
+      <div id="lantern-assembly" class="lantern-assembly ${isDark ? 'is-unlit' : 'is-lit'} idle-sway">
+        <div class="wood-cap top"></div>
+        <div id="lantern-body" class="lantern-body">
+          <div class="bamboo-ribs"></div>
+          <div class="flame-core"></div>
+          <span id="lantern-kanji" class="lantern-kanji">${isDark ? '暗' : '明'}</span>
+        </div>
+        <div class="wood-cap bottom"></div>
+        <div class="tassel-skirt"></div>
+      </div>
+    `;
+    btn.setAttribute("title", "Lámpara Chochin (明 / 暗)");
+    btn.setAttribute("aria-label", "Alternar modo claro y oscuro");
+    assembly = document.getElementById('lantern-assembly');
+    kanji = document.getElementById('lantern-kanji');
+  }
+
+  if (assembly) {
+    if (animate) {
+      assembly.classList.remove('swaying');
+      void assembly.offsetWidth; // Forzar reflow
+      assembly.classList.add('swaying');
+      setTimeout(() => {
+        assembly.classList.remove('swaying');
+      }, 1800);
+    }
+
+    if (isDark) {
+      assembly.classList.remove('is-lit');
+      assembly.classList.add('is-unlit');
+    } else {
+      assembly.classList.remove('is-unlit');
+      assembly.classList.add('is-lit');
+    }
+  }
+
+  if (kanji) {
+    // 明 (Luz / Modo Claro) vs 暗 (Oscuridad / Modo Oscuro)
+    kanji.textContent = isDark ? '暗' : '明';
+  }
+}
+window.syncLanternUI = syncLanternUI;
+
+// Inicialización automática de la Lámpara al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+  const isDark = document.body.classList.contains('dark-mode') || document.documentElement.classList.contains('dark-mode') || localStorage.getItem('theme') === 'dark';
+  syncLanternUI(isDark, false);
+});
+
+// Interruptor Dark Mode / Lámpara Chochin
+function toggleDarkMode(animate = true) {
   const body = document.body;
   const html = document.documentElement;
-  const btn = document.getElementById('dark-mode-toggle');
   
   body.classList.toggle('dark-mode');
   html.classList.toggle('dark-mode');
   
   const isDark = body.classList.contains('dark-mode');
-  if (isDark) {
-    if (btn) btn.innerText = "☀️";
-    localStorage.setItem('theme', 'dark');
-  } else {
-    if (btn) btn.innerText = "🌙";
-    localStorage.setItem('theme', 'light');
-  }
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+  // Actualizar Lámpara Chochin
+  syncLanternUI(isDark, animate);
 
   // Sincronizar modal de temas si está abierto o cargado
   if (typeof actualizarBarraModoTemaModal === "function") {
@@ -63,6 +117,13 @@ function toggleDarkMode() {
     renderThemesCatalogGrid();
   }
 }
+window.toggleDarkMode = toggleDarkMode;
+
+// Alias directo para toggleLantern
+function toggleLantern() {
+  toggleDarkMode(true);
+}
+window.toggleLantern = toggleLantern;
 
 // Sidebar Biblioteca - Detalle
 function verDetalle(titulo, imagen, descripcion, linkPdf, linkExtra, linkAudio, linkRespuestas) {
