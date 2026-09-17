@@ -1,0 +1,1949 @@
+/* ==========================================================================
+   NIHONGO NO TORII - SECCIÓN LECTURA & VISOR MOKURO (CSS)
+   ========================================================================== */
+
+/* Variables específicas de Mokuro y Lectura — se conectan al sistema de temas */
+:root {
+  /* Modo oscuro por defecto (cuando dark-mode está activo) */
+  --mokuro-bg: var(--gris-suave, #1e2430);
+  --mokuro-canvas-bg: var(--primary, #141820);
+  --mokuro-toolbar-bg: var(--blanco, #272f3e);
+  --mokuro-border: rgba(255, 255, 255, 0.12);
+  --mokuro-text-box-border: rgba(237, 28, 36, 0.45);
+  --mokuro-text-box-hover-bg: rgba(255, 255, 255, 0.96);
+  --mokuro-text-color: #111;
+  --mokuro-accent: var(--accent, #e53935);
+  --mokuro-accent-hover: var(--accent, #f44336);
+  /* Superficie de tarjetas y modales */
+  --card-bg: var(--blanco, #ffffff);
+  --card-bg-alt: var(--blanco2, #f7f5f0);
+}
+
+/* Adaptación a Modo Claro */
+html:not(.dark-mode) {
+  --mokuro-bg: var(--gris-suave, #f3f5f9);
+  --mokuro-canvas-bg: var(--blanco2, #e2e7ef);
+  --mokuro-toolbar-bg: var(--blanco, #ffffff);
+  --mokuro-border: rgba(0, 0, 0, 0.1);
+  --mokuro-text-box-border: rgba(220, 38, 38, 0.5);
+  --mokuro-text-box-hover-bg: rgba(255, 255, 255, 0.98);
+  --mokuro-text-color: var(--texto-principal, #111827);
+  --card-bg: var(--blanco, #ffffff);
+  --card-bg-alt: var(--blanco2, #f7f5f0);
+}
+
+/* Modo Tinta Electrónica (E-Ink) */
+.e-ink-mode {
+  --mokuro-bg: #ffffff !important;
+  --mokuro-canvas-bg: #ffffff !important;
+  --mokuro-toolbar-bg: #ffffff !important;
+  --mokuro-border: #000000 !important;
+  --mokuro-text-box-border: #000000 !important;
+  --mokuro-text-box-hover-bg: #ffffff !important;
+  --mokuro-text-color: #000000 !important;
+  filter: contrast(140%) grayscale(100%);
+}
+
+/* --------------------------------------------------------------------------
+   HERO / BANNER DE LECTURA
+   -------------------------------------------------------------------------- */
+.lectura-hero {
+  position: relative;
+  background: linear-gradient(135deg, rgba(20, 26, 40, 0.92), rgba(30, 42, 60, 0.88)), url('../image/Paisaje1.jpg') center/cover no-repeat;
+  color: #fff;
+  padding: 50px 25px 40px;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin-bottom: 35px;
+  text-align: center;
+}
+
+.lectura-hero-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.lectura-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(229, 57, 53, 0.25);
+  border: 1px solid rgba(229, 57, 53, 0.5);
+  color: #ff8a80;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+}
+
+.lectura-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin: 0 0 10px;
+  font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
+  text-shadow: 0 3px 12px rgba(0,0,0,0.5);
+}
+
+.lectura-subtitle {
+  font-size: 1.25rem;
+  color: #e0e6ed;
+  margin: 0 0 25px;
+  line-height: 1.6;
+}
+
+.lectura-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-hero-lectura {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--azulNa, #13a2ce);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(19, 162, 206, 0.35);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-hero-lectura:hover {
+  transform: translateY(-2px);
+  background: var(--primary, #0f8db3);
+  box-shadow: 0 6px 20px rgba(19, 162, 206, 0.5);
+  color: #fff;
+}
+
+.btn-hero-mokuro {
+  background: var(--accent, #e53935);
+  box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
+}
+
+.btn-hero-mokuro:hover {
+  background: var(--primary, #d32f2f);
+  box-shadow: 0 6px 20px rgba(229, 57, 53, 0.55);
+}
+
+.btn-hero-outline {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+}
+
+.btn-hero-outline:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* --------------------------------------------------------------------------
+   SECCIÓN PRINCIPAL DEL CATÁLOGO DE LECTURA
+   -------------------------------------------------------------------------- */
+.lectura-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+.lectura-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 40px 0 20px;
+  border-bottom: 2px solid var(--mokuro-border);
+  padding-bottom: 12px;
+}
+
+.lectura-section-title {
+  font-size: 1.7rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: var(--color-h1, #1e293b);
+}
+
+html.dark-mode .lectura-section-title {
+  color: var(--color-h1, #f1f5f9);
+}
+
+.lectura-section-tag {
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(19, 162, 206, 0.15);
+  color: var(--azulNa, #13a2ce);
+  font-weight: 700;
+}
+
+/* Cuadrícula de Mangas */
+.manga-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 25px;
+  margin-top: 15px;
+}
+
+.manga-card {
+  background: transparent;
+  border-radius: 16px;
+  overflow: visible; /* Permite que la animación de portadas en abanico se vea completa */
+  box-shadow: none;
+  border: none;
+  transition: transform 0.25s, box-shadow 0.25s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+html.dark-mode .manga-card {
+  background: transparent;
+}
+
+.manga-card:hover {
+  transform: translateY(-5px);
+  box-shadow: none;
+}
+
+.manga-thumb-wrap {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: #111;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+.manga-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.manga-card:hover .manga-thumb {
+  transform: scale(1.04);
+}
+
+.manga-badge-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(229, 57, 53, 0.9);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+}
+
+.manga-jlpt-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(19, 162, 206, 0.9);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+/* ==========================================================================
+   PRESENTACIÓN EN PILA DE VOLÚMENES (STACK DE PORTADAS COMO EN LA IMAGEN)
+   ========================================================================== */
+.manga-stack-container {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: transparent;
+  overflow: visible; /* Las portadas en abanico se ven completas al hacer hover */
+  cursor: pointer;
+  perspective: 1000px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border-radius: 16px 16px 0 0;
+}
+
+.manga-stack-layer {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: calc(100% - 58px);
+  height: calc(100% - 20px);
+  object-fit: fill;
+  border-radius: 6px;
+  box-shadow: -4px 4px 14px rgba(0, 0, 0, 0.45), 0 0 2px rgba(255, 255, 255, 0.15);
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.4s ease, filter 0.4s ease;
+  transform-origin: bottom left;
+}
+
+/* Tomo 1: portada principal al frente a la izquierda */
+.manga-stack-layer.layer-0 {
+  z-index: 3;
+  transform: translate(0, 0);
+  box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+/* Tomo 2: sobresaliendo a la derecha */
+.manga-stack-layer.layer-1 {
+  z-index: 2;
+  transform: translate(22px, -3px) scale(0.98);
+  filter: brightness(0.92);
+  opacity: 0.95;
+}
+
+/* Tomo 3: sobresaliendo aún más a la derecha */
+.manga-stack-layer.layer-2 {
+  z-index: 1;
+  transform: translate(44px, -6px) scale(0.96);
+  filter: brightness(0.85);
+  opacity: 0.9;
+}
+
+/* Hover: despliegue pronunciado en abanico interactivo donde se aprecian mucho más las portadas */
+.manga-card:hover .manga-stack-layer.layer-0 {
+  transform: translate(-10px, 4px) rotate(-2.5deg) scale(1.02);
+  box-shadow: 6px 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+.manga-card:hover .manga-stack-layer.layer-1 {
+  transform: translate(26px, -4px) rotate(1.8deg) scale(1);
+  filter: brightness(0.98);
+  opacity: 1;
+  box-shadow: 4px 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+.manga-card:hover .manga-stack-layer.layer-2 {
+  transform: translate(56px, -10px) rotate(4.5deg) scale(0.98);
+  filter: brightness(0.94);
+  opacity: 1;
+  box-shadow: 4px 8px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* Si solo hay 1 tomo, que ocupe todo el ancho centrado */
+.manga-stack-layer:only-child {
+  width: calc(100% - 20px);
+  transform: translate(0, 0) !important;
+}
+
+/* Badge del número de tomos */
+.manga-stack-count-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Cuadrícula de volúmenes en el modal */
+.volumes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 6px 2px 14px;
+}
+
+.volume-card-item {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--mokuro-border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+html.dark-mode .volume-card-item {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.volume-card-item:hover {
+  transform: translateY(-3px);
+  border-color: var(--azulNa, #13a2ce);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.volume-thumb-wrap {
+  width: 100%;
+  height: 240px;
+  position: relative;
+  overflow: hidden;
+  background: #111;
+}
+
+.volume-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.volume-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.volume-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.volume-meta {
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+.manga-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background: transparent;
+  border-radius: 0 0 16px 16px;
+  border: none;
+  box-shadow: none;
+}
+
+.manga-card-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.manga-card-jp-title {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0 0 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.manga-desc {
+  font-size: 0.88rem;
+  color: #666;
+  line-height: 1.5;
+  margin: 0 0 16px;
+  flex-grow: 1;
+}
+
+html.dark-mode .manga-desc {
+  color: #aaa;
+}
+
+.manga-btn-read {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--azulNa, #13a2ce);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.manga-btn-read:hover {
+  background: var(--primary, #0e87ad);
+  color: #fff;
+}
+
+.manga-btn-read.demo-btn {
+  background: var(--accent, #e53935);
+}
+
+.manga-btn-read.demo-btn:hover {
+  background: var(--primary, #c62828);
+}
+
+.btn-delete-manga {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(229, 57, 53, 0.1);
+  color: var(--accent, #e53935);
+  border: 1px solid rgba(229, 57, 53, 0.3);
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s, border-color 0.2s;
+}
+
+.btn-delete-manga:hover {
+  background: var(--accent, #e53935);
+  color: #ffffff;
+  border-color: var(--primary, #d32f2f);
+  transform: scale(1.05);
+}
+
+html.dark-mode .btn-delete-manga {
+  background: rgba(229, 57, 53, 0.18);
+  border-color: rgba(229, 57, 53, 0.4);
+  color: var(--accent, #ff6b6b);
+}
+
+html.dark-mode .btn-delete-manga:hover {
+  background: var(--accent, #e53935);
+  color: #ffffff;
+}
+
+.btn-attach-mokuro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(19, 162, 206, 0.1);
+  color: var(--azulNa, #13a2ce);
+  border: 1px solid rgba(19, 162, 206, 0.35);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s, border-color 0.2s;
+}
+
+.btn-attach-mokuro:hover {
+  background: var(--azulNa, #13a2ce);
+  color: #ffffff;
+  border-color: var(--primary, #0e87ad);
+  transform: scale(1.05);
+}
+
+html.dark-mode .btn-attach-mokuro {
+  background: rgba(19, 162, 206, 0.2);
+  border-color: rgba(19, 162, 206, 0.45);
+  color: var(--azulNa, #38bdf8);
+}
+
+html.dark-mode .btn-attach-mokuro:hover {
+  background: var(--azulNa, #13a2ce);
+  color: #ffffff;
+}
+
+/* Botón flotante de cámara para cambiar portada en el modal de tomos */
+.volume-thumb-wrap {
+  position: relative;
+  cursor: pointer;
+}
+
+.volume-thumb-wrap .btn-cover-thumb-overlay {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 5;
+  background: rgba(20, 24, 33, 0.78);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.2s ease, background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+}
+
+.volume-thumb-wrap:hover .btn-cover-thumb-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.volume-thumb-wrap .btn-cover-thumb-overlay:hover {
+  background: var(--azulNa, #13a2ce);
+  border-color: #ffffff;
+  transform: scale(1.12);
+}
+
+/* --------------------------------------------------------------------------
+   ZONA DE CARGA DE ARCHIVOS LOCALES (.MOKURO / CARPETA)
+   -------------------------------------------------------------------------- */
+.dropzone-container {
+  background: var(--card-bg, #ffffff);
+  border: 2px dashed rgba(19, 162, 206, 0.4);
+  border-radius: 18px;
+  padding: 35px 25px;
+  text-align: center;
+  transition: border-color 0.25s, background 0.25s;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+html.dark-mode .dropzone-container {
+  background: var(--blanco, #1a2130);
+  border-color: rgba(19, 162, 206, 0.3);
+}
+
+.dropzone-container:hover, .dropzone-container.drag-over {
+  border-color: var(--azulNa, #13a2ce);
+  background: rgba(19, 162, 206, 0.05);
+}
+
+.dropzone-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.dropzone-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.dropzone-subtitle {
+  color: #777;
+  font-size: 0.95rem;
+  max-width: 600px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
+}
+
+html.dark-mode .dropzone-subtitle {
+  color: #a0aec0;
+}
+
+.dropzone-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-upload-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: 1px solid var(--mokuro-border);
+  background: var(--azulNa, #13a2ce);
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.btn-upload-choice:hover {
+  background: var(--primary, #0e87ad);
+}
+
+.btn-upload-choice.btn-secondary-choice {
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
+html.dark-mode .btn-upload-choice.btn-secondary-choice {
+  border-color: rgba(255,255,255,0.2);
+}
+
+.btn-upload-choice.btn-secondary-choice:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+html.dark-mode .btn-upload-choice.btn-secondary-choice:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+/* --------------------------------------------------------------------------
+   MODAL GUÍA MOKURO (VIDEO + INSTRUCCIONES)
+   -------------------------------------------------------------------------- */
+.modal-guia-content {
+  width: min(860px, 96vw);
+  max-width: 860px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding-bottom: 10px;
+}
+
+.guia-video-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 */
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 18px 0 22px;
+}
+
+.guia-video-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.guia-instrucciones {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 4px;
+}
+
+.guia-paso {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.guia-paso-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent, #e53935);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.guia-paso > div {
+  flex: 1;
+}
+
+.guia-paso strong {
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.guia-paso p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+html.dark-mode .guia-paso p {
+  color: #a0aec0;
+}
+
+.step-num-badge {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 50%;
+  background: var(--accent, #e53935);
+  color: #fff;
+  font-weight: 800;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.terminal-box {
+  background: var(--primary, #0f141c);
+  color: #a7f3d0;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  margin-top: 8px;
+  overflow-x: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.terminal-copy-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.terminal-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.guia-atajos {
+  background: rgba(19, 162, 206, 0.08);
+  border-left: 4px solid var(--azulNa, #13a2ce);
+  padding: 14px 18px;
+  border-radius: 10px;
+}
+
+.guia-atajos h4 {
+  margin: 0 0 8px;
+  color: var(--azulNa, #13a2ce);
+  font-size: 0.95rem;
+}
+
+.guia-atajos ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+
+
+/* ==========================================================================
+   VISOR WEB INTERACTIVO MOKURO (READER VIEW)
+   ========================================================================== */
+#mokuro-reader-wrapper {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  background: var(--mokuro-canvas-bg);
+  overflow: hidden;
+  flex-direction: column;
+}
+
+#mokuro-reader-wrapper.active {
+  display: flex;
+}
+
+/* Barra de Herramientas del Lector */
+.mokuro-toolbar {
+  height: 52px;
+  background: var(--mokuro-toolbar-bg);
+  border-bottom: 1px solid var(--mokuro-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  user-select: none;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-btn {
+  background: transparent;
+  color: inherit;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+html.dark-mode .toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-btn.btn-accent {
+  background: var(--accent, #e53935);
+  color: #fff;
+}
+
+.toolbar-btn.btn-accent:hover {
+  background: var(--primary, #c62828);
+}
+
+.reader-title-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.page-nav-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--mokuro-border);
+}
+
+html.dark-mode .page-nav-control {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.page-input-box {
+  width: 45px;
+  height: 28px;
+  text-align: center;
+  border: 1px solid var(--mokuro-border);
+  border-radius: 6px;
+  background: inherit;
+  color: inherit;
+  font-weight: 700;
+}
+
+.page-total-label {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+/* Menú Desplegable de Ajustes */
+.mokuro-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.mokuro-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: var(--mokuro-toolbar-bg);
+  border: 1px solid var(--mokuro-border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  width: 260px;
+  z-index: 1010;
+}
+
+.mokuro-dropdown.open .mokuro-dropdown-menu {
+  display: block;
+}
+
+.dropdown-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 6px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--mokuro-border);
+}
+
+.dropdown-item-row:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item-row label {
+  cursor: pointer;
+}
+
+.dropdown-item-row input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.dropdown-item-row select {
+  background: var(--mokuro-toolbar-bg, #ffffff);
+  color: var(--texto-principal, #222);
+  border: 1px solid var(--mokuro-border);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.dropdown-item-row select option {
+  background: #ffffff;
+  color: #222;
+}
+
+html.dark-mode .dropdown-item-row select {
+  background: #1c2331;
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+html.dark-mode .dropdown-item-row select option {
+  background: #1c2331;
+  color: #f1f5f9;
+}
+
+/* Menú Desplegable de Anki en Mokuro Toolbar */
+.anki-manga-dropdown-menu {
+  color: var(--mokuro-text-color, inherit);
+}
+
+.anki-manga-dropdown-menu h3 {
+  color: var(--texto-principal, inherit);
+}
+
+.anki-manga-dropdown-menu input[type="text"],
+.anki-manga-dropdown-menu select {
+  background: var(--mokuro-canvas-bg, rgba(0, 0, 0, 0.04));
+  color: var(--mokuro-text-color, inherit);
+  border: 1px solid var(--mokuro-border);
+}
+
+html.dark-mode .anki-manga-dropdown-menu input[type="text"],
+html.dark-mode .anki-manga-dropdown-menu select {
+  background: rgba(15, 23, 42, 0.85);
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.anki-manga-dropdown-menu input[type="text"]:focus,
+.anki-manga-dropdown-menu select:focus {
+  outline: none;
+  border-color: var(--azulNa, #13a2ce);
+}
+
+/* Área de Visualización (Stage) */
+#mokuro-stage {
+  flex-grow: 1;
+  width: 100%;
+  height: calc(100vh - 52px);
+  position: relative;
+  overflow: hidden;
+  user-select: text;
+  background-color: var(--mokuro-canvas-bg);
+}
+
+/* Cursor interactivo de mano cuando hay zoom activo para arrastre fluido */
+#mokuro-stage.is-zoomed {
+  cursor: grab;
+  user-select: none;
+}
+
+#mokuro-stage.is-zoomed:active {
+  cursor: grabbing;
+}
+
+#mokuro-stage.is-zoomed .textBox {
+  user-select: text;
+}
+
+/* Contenedor de Páginas (Target de Panzoom) */
+#mokuro-pages-container {
+  display: inline-flex;
+  flex-direction: row;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+#mokuro-pages-container.r2l-view {
+  flex-direction: row-reverse;
+}
+
+/* Estilo de Página */
+.mokuro-page {
+  position: relative;
+  background-color: #fff;
+  /*box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); */
+  margin: 0 0px;
+  flex-shrink: 0;
+  display: none;
+}
+
+.mokuro-page.visible-page {
+  display: block;
+}
+
+.mokuro-page img.page-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Capa de Cajas OCR (Mokuro Overlay) */
+.mokuro-ocr-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.textBox {
+  position: absolute;
+  padding: 0;
+  line-height: 1.1em;
+  font-size: 16px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  pointer-events: auto;
+  cursor: text;
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Meiryo', 'MS Gothic', sans-serif;
+  color: transparent; /* Por defecto transparente sobre la viñeta para lectura Yomitan */
+}
+
+/* Mostrar bordes si el usuario lo activa */
+.show-ocr-borders .textBox {
+  border: 1.5px solid var(--mokuro-text-box-border);
+  background: rgba(229, 57, 53, 0.05);
+}
+
+.textBox:hover, .textBox.active-box {
+  background: var(--mokuro-text-box-hover-bg) !important;
+  color: var(--mokuro-text-color) !important;
+  border: 1.5px solid var(--mokuro-accent) !important;
+  z-index: 9999 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+.textBox p {
+  margin: 0;
+  white-space: pre;
+  letter-spacing: 0.05em;
+  line-height: 1.15em;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.textBox:hover p, .textBox.active-box p {
+  opacity: 1;
+}
+
+/* Si el usuario elige modo visible permanente */
+.ocr-always-visible .textBox {
+  background: rgba(255, 255, 255, 0.85);
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.ocr-always-visible .textBox p {
+  opacity: 1;
+}
+
+/* Si se desactiva el OCR */
+.ocr-disabled .textBox {
+  display: none !important;
+}
+
+/* Zonas Clicables Flotantes de Navegación */
+.nav-edge-zone {
+  position: fixed;
+  top: 52px;
+  height: calc(100vh - 52px);
+  width: 7vw;
+  min-width: 50px;
+  z-index: 50;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.nav-edge-zone:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+html.dark-mode .nav-edge-zone:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-edge-left {
+  left: 0;
+}
+
+.nav-edge-right {
+  right: 0;
+}
+
+.nav-edge-arrow {
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+/* ==========================================================================
+   MODO PANTALLA COMPLETA INMERSIVO (SIN BARRAS NI DISTRACCIONES)
+   ========================================================================== */
+#mokuro-reader-wrapper:fullscreen .mokuro-toolbar,
+#mokuro-reader-wrapper:-webkit-full-screen .mokuro-toolbar,
+#mokuro-reader-wrapper.is-fullscreen .mokuro-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  z-index: 10050;
+}
+
+/* Revelar suavemente la barra superior solo si el cursor se acerca al borde superior */
+#mokuro-reader-wrapper:fullscreen .mokuro-toolbar:hover,
+#mokuro-reader-wrapper:-webkit-full-screen .mokuro-toolbar:hover,
+#mokuro-reader-wrapper.is-fullscreen .mokuro-toolbar:hover {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#mokuro-reader-wrapper:fullscreen .mokuro-toolbar::after,
+#mokuro-reader-wrapper:-webkit-full-screen .mokuro-toolbar::after,
+#mokuro-reader-wrapper.is-fullscreen .mokuro-toolbar::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 18px;
+  pointer-events: auto;
+}
+
+#mokuro-reader-wrapper:fullscreen #mokuro-stage,
+#mokuro-reader-wrapper:-webkit-full-screen #mokuro-stage,
+#mokuro-reader-wrapper.is-fullscreen #mokuro-stage {
+  height: 100vh;
+  width: 100vw;
+}
+
+#mokuro-reader-wrapper:fullscreen .nav-edge-zone,
+#mokuro-reader-wrapper:-webkit-full-screen .nav-edge-zone,
+#mokuro-reader-wrapper.is-fullscreen .nav-edge-zone {
+  height: 100vh;
+}
+
+/* ==========================================================================
+   BARRA FLOTANTE INFERIOR DE AVANCE RÁPIDO (SCRUBBER BAR AL PASAR EL CURSOR)
+   ========================================================================== */
+.reader-bottom-scrubber {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  z-index: 10040;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px 12px;
+  box-sizing: border-box;
+  pointer-events: auto; /* Detecta el cursor en los últimos 60px inferiores de la pantalla */
+}
+
+.scrubber-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--primary, #0f141c);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 8px 18px;
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  width: min(680px, 92vw);
+  direction: rtl; /* Progreso de derecha a izquierda, como se lee el manga */
+  opacity: 0;
+  transform: translateY(25px);
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+/* Se revela SOLO cuando el cursor se acerca a la parte inferior de la pantalla o mientras se arrastra */
+.reader-bottom-scrubber:hover .scrubber-inner,
+.reader-bottom-scrubber.active-scrub .scrubber-inner {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.scrubber-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.scrubber-btn:hover {
+  background: var(--azulNa, #13a2ce);
+  transform: scale(1.08);
+}
+
+.scrubber-slider-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.reader-page-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  outline: none;
+  cursor: pointer;
+  transition: height 0.15s;
+}
+
+.reader-page-slider:hover {
+  height: 8px;
+}
+
+.reader-page-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--azulNa, #13a2ce);
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s, background 0.15s;
+}
+
+.reader-page-slider::-webkit-slider-thumb:hover,
+.reader-page-slider:active::-webkit-slider-thumb {
+  transform: scale(1.25);
+  background: var(--accent, #e53935);
+}
+
+.reader-page-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--azulNa, #13a2ce);
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.slider-tooltip {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent, #e53935);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.slider-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--accent, #e53935);
+}
+
+.scrubber-slider-wrap:hover .slider-tooltip,
+.reader-page-slider:active + .slider-tooltip {
+  opacity: 1;
+}
+
+.scrubber-page-info {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 65px;
+  text-align: left;
+  flex-shrink: 0;
+  direction: ltr; /* Mantener números en orden normal izquierda a derecha */
+}
+
+/* --------------------------------------------------------------------------
+   POPUP DE ACCIÓN RÁPIDA & MINADO TORII (CLICK EN GLOBO)
+   -------------------------------------------------------------------------- */
+.torii-quick-popup {
+  position: fixed;
+  z-index: 10050;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--mokuro-border);
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+  padding: 14px 16px;
+  max-width: 360px;
+  display: none;
+  animation: popIn 0.18s ease-out;
+}
+
+html.dark-mode .torii-quick-popup {
+  background: var(--blanco, #1c2331);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.quick-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--mokuro-border);
+  padding-bottom: 6px;
+}
+
+.quick-popup-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(229, 57, 53, 0.15);
+  color: var(--accent, #e53935);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.quick-popup-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: inherit;
+  padding: 0;
+}
+
+.quick-popup-text {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+
+.quick-popup-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-quick-action {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--mokuro-border);
+  color: inherit;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.2s;
+}
+
+html.dark-mode .btn-quick-action {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-quick-action:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+html.dark-mode .btn-quick-action:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-quick-action.btn-mine-anki {
+  background: var(--accent, #e53935);
+  color: #fff;
+  border-color: var(--primary, #d32f2f);
+}
+
+.btn-quick-action.btn-mine-anki:hover {
+  background: var(--primary, #c62828);
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVIDAD & MÓVILES
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .lectura-title {
+    font-size: 2rem;
+  }
+  
+  .lectura-subtitle {
+    font-size: 1rem;
+  }
+
+  .manga-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  
+  .manga-thumb-wrap {
+    height: 260px;
+  }
+  
+  .reader-title-label {
+    display: none;
+  }
+  
+  .mokuro-toolbar {
+    padding: 0 8px;
+  }
+
+  .nav-edge-zone {
+    width: 12vw;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   MODAL PARA AÑADIR MANGA (.CBZ, .ZIP, CARPETAS)
+   -------------------------------------------------------------------------- */
+.modal-overlay-manga {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10060;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+}
+
+.modal-overlay-manga.active {
+  display: flex;
+}
+
+.modal-content-manga {
+  background: var(--card-bg, #ffffff);
+  border-radius: 20px;
+  width: min(540px, 92vw);
+  padding: 30px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--mokuro-border);
+  position: relative;
+  animation: popIn 0.2s ease-out;
+}
+
+html.dark-mode .modal-content-manga {
+  background: var(--blanco3, #1e2533);
+}
+
+.modal-header-manga {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--mokuro-border);
+  padding-bottom: 12px;
+}
+
+.modal-header-manga h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-close-btn-manga {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.modal-close-btn-manga:hover {
+  opacity: 1;
+}
+
+.form-group-manga {
+  margin-bottom: 16px;
+}
+
+.form-group-manga label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.form-input-manga {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--mokuro-border);
+  background: rgba(0, 0, 0, 0.03);
+  color: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+html.dark-mode .form-input-manga {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.form-input-manga:focus {
+  outline: none;
+  border-color: var(--azulNa, #13a2ce);
+}
+
+.file-drop-box {
+  border: 2px dashed rgba(19, 162, 206, 0.4);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(19, 162, 206, 0.03);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-drop-box:hover {
+  border-color: var(--azulNa, #13a2ce);
+  background: rgba(19, 162, 206, 0.08);
+}
+
+.import-progress-container {
+  display: none;
+  margin-top: 18px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--mokuro-border);
+}
+
+html.dark-mode .import-progress-container {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+html.dark-mode .progress-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--azulNa, #13a2ce), var(--accent, #e53935));
+  transition: width 0.2s ease;
+  border-radius: 4px;
+}
+
+.progress-status-text {
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
+html.dark-mode .progress-status-text {
+  color: #a0aec0;
+}
+
+/* ==========================================================================
+   OVERLAY FIN DE TOMO → SIGUIENTE VOLUMEN
+   ========================================================================== */
+.next-volume-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.next-volume-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.next-vol-card {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  background: var(--blanco, #1e2533);
+  border-radius: 20px;
+  padding: 32px 36px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  max-width: 560px;
+  width: 90vw;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.next-volume-overlay.visible .next-vol-card {
+  transform: translateY(0);
+}
+
+.next-vol-cover-wrap {
+  flex-shrink: 0;
+}
+
+.next-vol-cover {
+  width: 110px;
+  height: 155px;
+  object-fit: fill;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.next-vol-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.next-vol-badge {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #4caf50;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.next-vol-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--texto-principal, #f1f5f9);
+  line-height: 1.3;
+}
+
+.next-vol-subtitle {
+  font-size: 0.9rem;
+  color: var(--azulNa, #13a2ce);
+  font-weight: 700;
+  margin: 0;
+}
+
+.btn-continue-next-vol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent, #e53935);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-continue-next-vol:hover {
+  background: var(--primary, #c62828);
+  transform: scale(1.03);
+}
+
+.btn-dismiss-next-vol {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.btn-dismiss-next-vol:hover {
+  color: rgba(255,255,255,0.75);
+}
+
+/* ==========================================================================
+   HERRAMIENTA DE RECORTE DE PANTALLA (SNIPPING TOOL ESTILO WINDOWS)
+   ========================================================================== */
+.manga-snipping-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10005;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: crosshair;
+  user-select: none;
+  touch-action: none;
+}
+
+.snipping-toolbar {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 24, 33, 0.94);
+  backdrop-filter: blur(12px);
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  pointer-events: auto;
+  z-index: 10006;
+}
+
+.btn-snip-skip,
+.btn-snip-cancel {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 5px 13px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-snip-skip:hover {
+  background: var(--azulNa, #13a2ce);
+  border-color: var(--azulNa, #13a2ce);
+}
+
+.btn-snip-cancel {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.btn-snip-cancel:hover {
+  background: #e53935;
+  border-color: #e53935;
+}
+
+.snipping-selection-box {
+  position: fixed;
+  border: 2px dashed #00e5ff;
+  background: transparent;
+  box-shadow: 0 0 0 99999px rgba(0, 0, 0, 0.52);
+  pointer-events: none;
+  display: none;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   MODAL DE CREACIÓN DE TARJETA ANKI (ANVERSO KANJI + REVERSO ORACIÓN/TRAD/IMG)
+   ========================================================================== */
+.modal-anki-manga {
+  max-width: 540px !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+.kanji-chip-btn {
+  background: rgba(19, 162, 206, 0.12);
+  border: 1px solid rgba(19, 162, 206, 0.35);
+  color: var(--azulNa, #13a2ce);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 1.18rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.kanji-chip-btn:hover,
+.kanji-chip-btn.active {
+  background: var(--azulNa, #13a2ce);
+  color: #ffffff;
+  border-color: var(--azulNa, #13a2ce);
+  transform: scale(1.1);
+}

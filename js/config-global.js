@@ -97,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- 2.4 INICIALIZACIÓN DE MÓDULOS ---
   initPageTransitions();   // Transición suave entre páginas
   if (typeof initVideoPlayerModule === "function") initVideoPlayerModule(); // Módulo ToriiTV
+  if (typeof initSubtitleEditorModule === "function") initSubtitleEditorModule(); // Módulo Estudio de Subtítulos
   if (typeof initAnkiConfigModule === "function") initAnkiConfigModule();  // Módulo Anki
   if (typeof initUserProfileModule === "function") initUserProfileModule(); // Módulo Perfil
   if (typeof initMinedCardsModule === "function") initMinedCardsModule();  // Módulo Tarjetas Minadas

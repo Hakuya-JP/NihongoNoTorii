@@ -502,6 +502,10 @@ function initVideoPlayerModule() {
           asociarTraduccionesES();
           renderSidebarSubtitles();
           
+          if (typeof window.toriiNotificarSubtitulosActualizados === "function") {
+            window.toriiNotificarSubtitulosActualizados(subtitulos);
+          }
+          
           if (video.getAttribute("src") && overlaySub) {
             overlaySub.innerText = ""; 
             overlaySub.classList.remove("centrado");
@@ -526,6 +530,9 @@ function initVideoPlayerModule() {
           const textoCrudo = evt.target.result;
           subtitulosES = (extension === "ass" || extension === "ssa") ? parseASS(textoCrudo) : parseSRT(textoCrudo);
           asociarTraduccionesES();
+          if (typeof window.toriiNotificarSubtitulosActualizados === "function") {
+            window.toriiNotificarSubtitulosActualizados(subtitulos);
+          }
           if (typeof mostrarToast === "function") mostrarToast("💬 Subtítulo en español cargado para Anki");
         };
         reader.readAsText(file);
@@ -1121,4 +1128,50 @@ function initVideoPlayerModule() {
       });
     }
   }
+
+  // ------------------------------------------------------------------
+  // API EXPUESTA PARA EL ESTUDIO Y EDITOR DE SUBTÍTULOS DE TORIITV
+  // ------------------------------------------------------------------
+  window.toriiSetSubtitles = function(nuevosSubtitulos, forzarRender = true) {
+    subtitulos = Array.isArray(nuevosSubtitulos) ? nuevosSubtitulos : [];
+    window.subtitlesData = subtitulos;
+    if (forzarRender) {
+      if (typeof asociarTraduccionesES === "function") asociarTraduccionesES();
+      renderSidebarSubtitles();
+      if (subCount) {
+        subCount.innerText = `${subtitulos.length} líneas`;
+      }
+      if (overlaySub && video) {
+        const currentTime = video.currentTime;
+        const subActual = subtitulos.find(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
+        overlaySub.innerHTML = subActual ? (subActual.textoFurigana || subActual.texto) : "";
+      }
+    }
+  };
+
+  window.toriiGetSubtitles = function() {
+    return subtitulos || [];
+  };
+
+  window.toriiGetTimeOffset = function() {
+    return timeOffset;
+  };
+
+  window.toriiSetTimeOffset = function(nuevoOffset) {
+    timeOffset = Number(nuevoOffset) || 0;
+    window.toriiTimeOffset = timeOffset;
+    if (typeof actualizarTiemposUI === "function") actualizarTiemposUI();
+  };
+
+  window.toriiAgregarFurigana = function(texto) {
+    return typeof agregarFurigana === "function" ? agregarFurigana(texto) : texto;
+  };
+
+  window.toriiGetVideo = function() {
+    return video;
+  };
+
+  // Compatibilidad con invocaciones externas
+  window.toriiAbrirBarraIzquierda = function() {};
+  window.toriiCerrarBarraIzquierda = function() {};
 }

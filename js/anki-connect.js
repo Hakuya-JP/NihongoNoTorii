@@ -805,3 +805,305 @@ window.enviarObjetoAAnki = async function(sub) {
 
   return { id: res.result, isVideo: videoAdjuntado };
 };
+
+// ==========================================================================
+// SECCIÓN 6: INTEGRACIÓN ANKI PARA MANGA (NIHONGO NO TORII)
+// ==========================================================================
+async function asegurarModeloToriiMangaEnAnki(userModels) {
+  const mangaCss = `.card { font-family: "Segoe UI", "Noto Sans JP", -apple-system, sans-serif; background-color: #0b2f3a; color: #ffffff; text-align: center; }
+.flashcard { max-width: 100%; margin: 0 auto; background: #103f4f; border-radius: 28px; padding: 35px; box-shadow: 0 10px 24px rgba(0,0,0,.35); position: relative; box-sizing: border-box; }
+.kanji-front { font-size: 58px; line-height: 1.3; font-weight: 800; color: #FFDEBD; margin: 20px 0; letter-spacing: 2px; }
+.manga-hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.15); margin: 18px 0; }
+.manga-image img, img { max-width: 85%; max-height: 420px; object-fit: contain; border-radius: 16px; margin: 18px auto; display: block; box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
+.sentenceBox { position: relative; margin-top: 24px; padding: 10px 60px 18px; }
+.sentence { font-size: 32px; line-height: 1.8; text-align: center; word-break: keep-all; color: #ffffff; }
+ruby rt { font-size: 18px; color: #FFDEBD; }
+.buttonsColumn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; }
+.icon { width: 38px; height: 38px; border-radius: 50%; background: #146482; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: transform 0.2s ease, background 0.2s ease; font-weight: bold; font-size: 16px; }
+.icon:hover { background: #ff9447; transform: scale(1.08); }
+.translation { font-size: 22px; line-height: 1.6; color: #FFDEBD; margin-top: 16px; }
+.hidden { display: none !important; }
+.source-tag { font-size: 13px; opacity: 0.55; color: #93c0de; margin-top: 18px; }
+@media (max-width: 750px) {
+  .flashcard { padding: 20px; }
+  .kanji-front { font-size: 40px; }
+  .sentenceBox { padding: 5px; }
+  .sentence { font-size: 22px; line-height: 1.7; }
+  ruby rt { font-size: 12px; }
+  .buttonsColumn { position: static; transform: none; flex-direction: row; justify-content: center; margin-top: 16px; }
+  .icon { width: 36px; height: 36px; }
+  .translation { font-size: 18px; }
+}`;
+
+  const frontHtml = `<div class="flashcard">
+  <div class="kanji-front">{{Kanji}}</div>
+</div>`;
+
+  const backHtml = `<div class="flashcard">
+  <div class="kanji-front">{{Kanji}}</div>
+  <hr class="manga-hr">
+  {{#Imagen}}
+  <div class="manga-image">
+    {{Imagen}}
+  </div>
+  {{/Imagen}}
+  <div class="sentenceBox">
+    <div id="sentencePlain" class="sentence">
+      {{Oracion}}
+    </div>
+    <div id="sentenceFuri" class="sentence hidden">
+      {{furigana:Furigana}}
+    </div>
+    <div class="buttonsColumn">
+      <div class="icon" onclick="toggleFuri()" title="Mostrar/Ocultar Furigana">👁</div>
+      {{#Traduccion}}<div class="icon" onclick="toggleTrad()" title="Mostrar Traducción">ES</div>{{/Traduccion}}
+    </div>
+  </div>
+  {{#Traduccion}}
+  <div id="trad" class="translation hidden">
+    {{Traduccion}}
+  </div>
+  {{/Traduccion}}
+  {{#Fuente}}
+  <div class="source-tag">📖 {{Fuente}}</div>
+  {{/Fuente}}
+</div>
+<script>
+function toggleFuri() {
+  var plain = document.getElementById("sentencePlain");
+  var furi = document.getElementById("sentenceFuri");
+  if (plain && furi) {
+    var estaOculto = furi.classList.contains("hidden");
+    plain.classList.toggle("hidden", estaOculto);
+    furi.classList.toggle("hidden", !estaOculto);
+  }
+}
+function toggleTrad() {
+  var t = document.getElementById("trad");
+  if (t) {
+    t.classList.toggle("hidden");
+  }
+}
+</script>`;
+
+  const yaExiste = userModels.some(m => m.toLowerCase().replace(/[\s_-]/g, "") === "toriimanga");
+  if (yaExiste) {
+    const real = userModels.find(m => m.toLowerCase().replace(/[\s_-]/g, "") === "toriimanga") || "ToriiManga";
+    try {
+      // Asegurar que el campo Furigana esté presente en el modelo
+      const fieldsRes = await invokeAnki("modelFieldNames", 6, { modelName: real });
+      if (fieldsRes && fieldsRes.result && !fieldsRes.result.includes("Furigana")) {
+        await invokeAnki("modelFieldAdd", 6, { modelName: real, fieldName: "Furigana", index: 2 });
+      }
+      // Consultar plantillas existentes para actualizar con el nombre exacto
+      let tmplObj = { "ToriiManga": { Front: frontHtml, Back: backHtml } };
+      try {
+        const tmplRes = await invokeAnki("modelTemplates", 6, { modelName: real });
+        if (tmplRes && tmplRes.result && Object.keys(tmplRes.result).length > 0) {
+          tmplObj = {};
+          Object.keys(tmplRes.result).forEach(tName => {
+            tmplObj[tName] = { Front: frontHtml, Back: backHtml };
+          });
+        }
+      } catch (_) {}
+
+      // Actualizar plantillas con los botones interactivos (👁 para Furigana y ES para Traducción)
+      await invokeAnki("updateModelTemplates", 6, {
+        model: {
+          name: real,
+          templates: tmplObj
+        }
+      });
+      // Actualizar diseño CSS
+      await invokeAnki("updateModelStyling", 6, {
+        model: {
+          name: real,
+          css: mangaCss
+        }
+      });
+    } catch (eUpdate) {
+      console.warn("Aviso al actualizar plantilla de ToriiManga:", eUpdate);
+    }
+    return real;
+  }
+
+  try {
+    const resCreate = await invokeAnki("createModel", 6, {
+      modelName: "ToriiManga",
+      inOrderFields: ["Kanji", "Oracion", "Furigana", "Traduccion", "Imagen", "Fuente"],
+      css: mangaCss,
+      cardTemplates: [
+        {
+          Name: "ToriiManga",
+          Front: frontHtml,
+          Back: backHtml
+        }
+      ]
+    });
+    if (resCreate && !resCreate.error) {
+      console.log("¡Modelo ToriiManga creado exitosamente en Anki con botones de Furigana y Traducción!");
+      return "ToriiManga";
+    }
+  } catch (err) {
+    console.warn("No se pudo auto-crear el modelo ToriiManga en Anki:", err);
+  }
+  return null;
+}
+
+window.enviarMangaAAnki = async function({ kanji, sentence, furigana, translation, croppedDataUrl, deckName, sourceTitle }) {
+  const currentAnkiConfig = (typeof ankiConfig !== "undefined" && ankiConfig) 
+    ? ankiConfig 
+    : {
+        enabled: localStorage.getItem("anki_enabled") !== "false",
+        deck: localStorage.getItem("anki_deck") || "Default",
+        model: localStorage.getItem("anki_model") || "ToriiDeckVideo",
+        url: localStorage.getItem("anki_url") || "http://127.0.0.1:8765"
+      };
+
+  if (!currentAnkiConfig.enabled) {
+    throw new Error("La función de Anki está desactivada en los ajustes.");
+  }
+
+  // 1. Obtener modelos existentes en Anki
+  const allModelsRes = await invokeAnki("modelNames");
+  if (allModelsRes.error || !allModelsRes.result || allModelsRes.result.length === 0) {
+    throw new Error(allModelsRes.error || "No se pudieron consultar los tipos de tarjeta en Anki.");
+  }
+
+  const userModels = allModelsRes.result;
+  let realModelName = await asegurarModeloToriiMangaEnAnki(userModels);
+
+  if (!realModelName) {
+    // Si no se pudo crear ToriiManga, buscar modelo compatible
+    realModelName = userModels.find(m => ["basic", "basico", "básico"].includes(m.toLowerCase().trim())) ||
+                    userModels.find(m => /^(Torii|Basic|Japanese)/i.test(m)) ||
+                    userModels[0];
+  }
+
+  // 2. Obtener los campos del modelo
+  const modelFieldsRes = await invokeAnki("modelFieldNames", 6, { modelName: realModelName });
+  if (modelFieldsRes.error || !modelFieldsRes.result) {
+    throw new Error(`Error al leer los campos del modelo "${realModelName}": ${modelFieldsRes.error}`);
+  }
+
+  const camposReales = modelFieldsRes.result;
+  let fieldsObj = {};
+  camposReales.forEach(campo => { fieldsObj[campo] = ""; });
+
+  const timestamp = Date.now();
+  const fraseLimpia = (sentence || "").replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
+  const kanjiLimpio = (kanji || "").trim() || fraseLimpia.split(/\s+/)[0] || fraseLimpia;
+  const furiFinal = (furigana && furigana.trim()) ? furigana.trim() : fraseLimpia;
+  const tradLimpia = (translation || "").trim();
+  const fuenteLimpia = (sourceTitle || "Manga Mokuro").trim();
+
+  const encontrarCampo = (posiblesNombres) => {
+    return camposReales.find(c =>
+      posiblesNombres.some(p =>
+        c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s_-]/g, "") ===
+        p.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s_-]/g, "")
+      )
+    );
+  };
+
+  const campoKanji = encontrarCampo(["Kanji", "Front", "Frente", "Pregunta", "Palabra", "Word", "Vocabulario", "Expression"]);
+  const campoOracion = encontrarCampo(["Oracion", "Sentence", "Ejemplo", "Contexto", "Texto", "Frase"]);
+  const campoFurigana = encontrarCampo(["Furigana", "Reading", "Lectura"]);
+  const campoTraduccion = encontrarCampo(["Traduccion", "Translation", "Significado", "Español", "Spanish", "Meaning"]);
+  const campoImagen = encontrarCampo(["Imagen", "Image", "Picture", "Snapshot", "Screenshot", "Captura", "Media", "Video"]);
+  const campoFuente = encontrarCampo(["Fuente", "Source", "Origen", "Referencia", "Libro", "Manga"]);
+  const campoBack = encontrarCampo(["Back", "Reverso", "Respuesta"]) || (camposReales.length > 1 ? camposReales[1] : camposReales[0]);
+
+  // Si es el modelo nativo ToriiManga
+  if (realModelName.toLowerCase().replace(/[\s_-]/g, "") === "toriimanga") {
+    if (campoKanji) fieldsObj[campoKanji] = kanjiLimpio;
+    if (campoOracion) fieldsObj[campoOracion] = fraseLimpia;
+    if (campoFurigana) fieldsObj[campoFurigana] = furiFinal;
+    if (campoTraduccion) fieldsObj[campoTraduccion] = tradLimpia;
+    if (campoFuente) fieldsObj[campoFuente] = fuenteLimpia;
+  } else if (realModelName.toLowerCase().startsWith("toriitv")) {
+    // Si el usuario usa la plantilla de ToriiTV
+    const campoInstrucciones = encontrarCampo(["Instrucciones", "Instructions"]);
+    if (campoInstrucciones) fieldsObj[campoInstrucciones] = "Kanji / Expresión objetivo:";
+    if (campoOracion) fieldsObj[campoOracion] = kanjiLimpio; // Frente muestra el kanji
+    if (campoFurigana) fieldsObj[campoFurigana] = furiFinal;   // Reverso furigana
+    if (campoTraduccion) fieldsObj[campoTraduccion] = tradLimpia;
+  } else {
+    // Modelo genérico o Básico (Front / Back)
+    if (campoKanji) fieldsObj[campoKanji] = kanjiLimpio;
+    let contenidoBack = `<div style="font-size:1.3em; font-weight:bold; margin-bottom:8px;">${fraseLimpia}</div>`;
+    if (furiFinal && furiFinal !== fraseLimpia) {
+      contenidoBack += `<div style="font-size:1.1em; color:#93c0de; margin-bottom:6px;">${furiFinal}</div>`;
+    }
+    if (tradLimpia) contenidoBack += `<div style="color:#FFDEBD; margin-bottom:8px;">${tradLimpia}</div>`;
+    if (fuenteLimpia) contenidoBack += `<div style="font-size:0.8em; opacity:0.65; margin-top:10px;">📖 ${fuenteLimpia}</div>`;
+
+    if (campoBack && campoBack !== campoKanji) {
+      fieldsObj[campoBack] = contenidoBack;
+    } else if (campoOracion) {
+      fieldsObj[campoOracion] = fraseLimpia;
+      if (campoFurigana) fieldsObj[campoFurigana] = furiFinal;
+      if (campoTraduccion) fieldsObj[campoTraduccion] = tradLimpia;
+    }
+  }
+
+  // Asegurar que el primer campo de Anki nunca quede vacío (requisito estricto de Anki)
+  if (camposReales[0] && !fieldsObj[camposReales[0]]) {
+    fieldsObj[camposReales[0]] = kanjiLimpio;
+  }
+  if (camposReales[1] && !fieldsObj[camposReales[1]]) {
+    fieldsObj[camposReales[1]] = fraseLimpia;
+  }
+
+  // 3. Resolver y asegurar mazo de destino
+  let targetDeck = (deckName || currentAnkiConfig.deck || "Default").trim();
+  if (!targetDeck) targetDeck = "Default";
+
+  try {
+    await invokeAnki("createDeck", 6, { deck: targetDeck });
+  } catch (errDeck) {
+    console.warn("Aviso al asegurar mazo en Anki:", errDeck);
+  }
+
+  const notePayload = {
+    deckName: targetDeck,
+    modelName: realModelName,
+    fields: fieldsObj,
+    tags: ["ToriiManga", "NihongoNoTorii"],
+    options: { allowDuplicate: true }
+  };
+
+  // 4. Adjuntar recorte del manga mediante la API nativa picture de AnkiConnect
+  if (croppedDataUrl && typeof croppedDataUrl === "string") {
+    let cleanBase64 = croppedDataUrl;
+    if (cleanBase64.includes(",")) {
+      cleanBase64 = cleanBase64.split(",")[1];
+    }
+    cleanBase64 = cleanBase64.replace(/[\r\n\s]/g, "");
+
+    if (cleanBase64.length > 50) {
+      const destImgField = campoImagen || (campoBack && campoBack !== campoKanji ? campoBack : (camposReales[1] || camposReales[0]));
+      const imgFilename = `manga_torii_${timestamp}.jpg`;
+      notePayload.picture = [{
+        data: cleanBase64,
+        filename: imgFilename,
+        fields: [destImgField]
+      }];
+    }
+  }
+
+  // 5. Enviar a AnkiConnect
+  const res = await invokeAnki("addNote", 6, { note: notePayload });
+
+  if (res.error) {
+    console.error("Error devuelto por AnkiConnect al agregar tarjeta de manga:", res.error);
+    throw new Error(res.error);
+  }
+
+  return {
+    id: res.result,
+    deck: targetDeck,
+    model: realModelName
+  };
+};
+

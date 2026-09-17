@@ -261,6 +261,102 @@ body.dark-mode .btn-clear-mined:hover {
   box-shadow: var(--shadow-accent);
 }
 
+/* ==========================================================================
+   VENTANA MODAL FLOTANTE: MI LISTA DE TARJETAS MINADAS
+   ========================================================================== */
+.mined-modal-overlay {
+  z-index: 100020 !important;
+}
+
+.mined-modal-card {
+  width: 95%;
+  max-width: 1040px;
+  max-height: 86vh;
+  background: var(--blanco2, #ffffff);
+  color: var(--texto-principal, #1a1a1a);
+  border-radius: 20px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  transform: scale(0.94) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.active .mined-modal-card {
+  transform: scale(1) translateY(0);
+}
+
+body.dark-mode .mined-modal-card {
+  background: var(--blanco2, #131c2a);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+}
+
+.mined-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.dark-mode .mined-modal-header {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.mined-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mined-modal-icon {
+  font-size: 1.65rem;
+}
+
+.mined-modal-title {
+  margin: 0;
+  font-size: 1.35rem;
+  color: var(--color-h3, #1a365d);
+}
+
+body.dark-mode .mined-modal-title {
+  color: #ffffff;
+}
+
+.mined-modal-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 28px;
+  background: rgba(0, 0, 0, 0.015);
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
+}
+
+body.dark-mode .mined-modal-actions-bar {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.mined-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 28px;
+}
+
+.mined-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
 .mined-cards-wrapper {
   position: relative;
   width: 100%;

@@ -34,6 +34,7 @@
     <a href="lecciones.html">Lecciones</a>
     <a href="videos.html">Videos</a>
     <a href="biblioteca.html">Biblioteca</a>
+    <a href="lectura.html">Lectura</a>
     <a href="ToriiTV.html" class="active">ToriiTV</a>
     <a href="jlpt-simulador.html">Simulador JLPT</a>
     <a href="perfil.html" class="nav-profile-item">
@@ -64,10 +65,124 @@
   <section class="seccion-reproductor">
     <h2 class="seccion-titulo">ToriiTV</h2>
 
-    <!-- CONTENEDOR PRINCIPAL (Grid de 2 columnas) -->
+    <!-- CONTENEDOR PRINCIPAL: BARRA COMPACTA A LA IZQUIERDA + VIDEO + TRANSCRIPCIÓN -->
     <div class="player-container">
       
-      <!-- 1. ZONA DEL VIDEO (Columna 1, Fila 1) -->
+      <!-- 0. BARRA LATERAL COMPACTA DE HERRAMIENTAS (A la izquierda del video) -->
+      <aside id="player-compact-sidebar" class="player-compact-sidebar" aria-label="Herramientas del Reproductor">
+        
+        <!-- Cargar Video -->
+        <label class="compact-bar-btn" for="input-video" data-tooltip="Cargar Video">
+          <span class="compact-btn-icon">📁</span>
+          <span class="compact-btn-label">Video</span>
+          <input type="file" id="input-video" accept="video/*" hidden />
+        </label>
+
+        <!-- Subtítulo JP -->
+        <label class="compact-bar-btn" for="input-sub" data-tooltip="Cargar Subtítulo Japonés (SRT, VTT, ASS)">
+          <span class="compact-btn-icon">💬</span>
+          <span class="compact-btn-label">Sub JP</span>
+          <input type="file" id="input-sub" accept=".srt,.vtt,.ass,.ssa" hidden />
+        </label>
+
+        <!-- Subtítulo ES (Anki) -->
+        <label class="compact-bar-btn" for="input-sub-es" data-tooltip="Cargar Subtítulo en Español para tarjetas de Anki">
+          <span class="compact-btn-icon">🌐</span>
+          <span class="compact-btn-label">Sub ES</span>
+          <input type="file" id="input-sub-es" accept=".srt,.vtt,.ass,.ssa" hidden />
+        </label>
+
+        <div class="compact-bar-divider"></div>
+
+        <!-- Descargar Subtítulo -->
+        <button id="btn-export-sub" class="compact-bar-btn" data-tooltip="Descargar Subtítulo Actual (SRT)">
+          <span class="compact-btn-icon">💾</span>
+          <span class="compact-btn-label">Guardar</span>
+        </button>
+
+        <!-- Estudio / Editor de Subtítulos -->
+        <button id="btn-toggle-sub-editor" class="compact-bar-btn" data-tooltip="Estudio y Editor de Subtítulos (Crear, Sincronizar, Editar)" onclick="typeof toggleSubtitleEditor === 'function' ? toggleSubtitleEditor() : document.getElementById('sub-editor-section')?.classList.toggle('oculto')">
+          <span class="compact-btn-icon">🛠️</span>
+          <span class="compact-btn-label">Editor</span>
+        </button>
+
+        <!-- Configuración de AnkiConnect con Menú Flotante -->
+        <div class="compact-anki-wrapper">
+          <button id="btn-toggle-anki-config" class="compact-bar-btn" data-tooltip="Configuración AnkiConnect">
+            <span class="compact-btn-icon">📇</span>
+            <span class="compact-btn-label">Anki</span>
+          </button>
+
+          <!-- Menú flotante emergente para Anki hacia la derecha -->
+          <div id="anki-config-panel" class="anki-config-panel compact-anki-flyout oculto">
+            <div class="anki-config-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="margin: 0; font-size: 1rem;">⚙️ AnkiConnect</h3>
+              <span id="anki-status-indicator" class="anki-status offline" style="font-size: 0.8rem;">● Desconectado</span>
+            </div>
+
+            <!-- Paso 1: Botón de Conexión Inicial -->
+            <button id="btn-connect-anki" class="btn-save-anki" style="background: #0284c7; width: 100%; margin-top: 10px; padding: 9px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>🔗 Conectar con AnkiConnect</span>
+            </button>
+
+            <!-- Paso 2: Grupo de Ajustes (se activa tras conectar) -->
+            <div id="anki-settings-group" style="display: none; margin-top: 10px;">
+              <!-- Switch para activar o desactivar -->
+              <label class="anki-switch-container" style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="anki-enabled-toggle" checked>
+                <span class="switch-label">Habilitar creación directa</span>
+              </label>
+
+              <hr class="anki-divider" style="margin: 10px 0;">
+
+              <!-- URL de AnkiConnect -->
+              <div class="anki-input-group">
+                <label for="anki-url-input">URL de AnkiConnect:</label>
+                <input type="text" id="anki-url-input" value="http://127.0.0.1:8765" placeholder="http://127.0.0.1:8765" style="width: 100%; padding: 6px; border-radius: 4px; box-sizing: border-box;" />
+              </div>
+
+              <!-- Seleccionar Mazo Detectado de Anki -->
+              <div class="anki-input-group" style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <label for="anki-deck-select">Mazo de Anki (Deck):</label>
+                  <button id="btn-refresh-decks" style="background: none; border: none; cursor: pointer; font-size: 0.85rem;" title="Actualizar lista de mazos de Anki">🔄</button>
+                </div>
+                <select id="anki-deck-select" style="width: 100%; padding: 6px; border-radius: 4px;">
+                  <option value="Default">Cargando mazos...</option>
+                </select>
+              </div>
+
+              <!-- Seleccionar Tipo de Tarjeta Preestablecido de la Web -->
+              <div class="anki-input-group" style="margin-top: 10px;">
+                <label for="anki-model-select">Tipo de Tarjeta (Plantilla Web):</label>
+                <select id="anki-model-select" style="width: 100%; padding: 6px; border-radius: 4px;">
+                  <option value="ToriiDeckVideo">🎬 ToriiDeck con Video (Clip de Video animado + Audio)</option>
+                  <option value="ToriiDeck">⛩️ ToriiDeck con Imagen (Fotograma estático + Audio)</option>
+                  <option value="Basic">📝 Básico (Frente / Reverso)</option>
+                  <option value="BasicImage">🖼️ Básico con Imagen (Frente, Reverso, Imagen)</option>
+                  <option value="Japanese">🎌 Japonés Estándar (Expression, Reading)</option>
+                </select>
+              </div>
+
+              <button id="btn-save-anki" class="btn-save-anki" style="margin-top: 12px; width: 100%;">Guardar Ajustes</button>
+            </div>
+
+            <!-- Caja de Diagnóstico / Ayuda de Errores -->
+            <div id="anki-help-info" class="anki-help-box" style="display: none; margin-top: 10px; padding: 8px; border-radius: 6px; font-size: 0.78rem; line-height: 1.4; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3);">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjetas Minadas (Abre ventana modal completa) -->
+        <button id="btn-toggle-mined-cards-bar" class="compact-bar-btn" data-tooltip="Ver Tarjetas Minadas">
+          <span class="compact-btn-icon">📋</span>
+          <span class="compact-btn-label">Tarjetas</span>
+          <span id="mined-count-pill" class="compact-count-pill">0</span>
+        </button>
+
+      </aside>
+
+      <!-- 1. ZONA DEL VIDEO (Columna Central) -->
       <div id="video-wrapper" class="video-container">
         <video id="main-video" controls poster="image/Vervideo.png">
           Tu navegador no soporta la reproducción de video HTML5.
@@ -152,99 +267,7 @@
         </div>
       </div>
 
-      <!-- 2. BARRA DE HERRAMIENTAS INFERIOR (Columna 1, Fila 2) -->
-      <div class="player-toolbar">
-        <div class="toolbar-group">
-          
-          <label class="btn-tool" for="input-video">
-            <span>📂 Cargar Video</span>
-            <input type="file" id="input-video" accept="video/*" hidden />
-          </label>
-
-          <label class="btn-tool" for="input-sub">
-            <span>💬 Subtítulo JP</span>
-            <input type="file" id="input-sub" accept=".srt,.vtt,.ass,.ssa" hidden />
-          </label>
-
-          <label class="btn-tool" for="input-sub-es" title="Subtítulo en español para tarjetas de Anki">
-            <span>💬 Subtítulo ES (Anki)</span>
-            <input type="file" id="input-sub-es" accept=".srt,.vtt,.ass,.ssa" hidden />
-          </label>
-
-          <button id="btn-export-sub" class="btn-tool btn-secundario-tool">
-            <span>💾 Descargar</span>
-          </button>
-
-          <!-- Wrapper del menú desplegable de Anki -->
-          <div class="anki-dropdown-wrapper" style="position: relative; display: inline-block;">
-            <button id="btn-toggle-anki-config" class="btn-tool" title="Configurar AnkiConnect">
-              <span>📇 Configuración de Anki</span>
-            </button>
-
-            <!-- Panel desplegable de Anki -->
-            <div id="anki-config-panel" class="anki-config-panel oculto">
-              <div class="anki-config-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; font-size: 1rem;">⚙️ AnkiConnect</h3>
-                <span id="anki-status-indicator" class="anki-status offline" style="font-size: 0.8rem;">● Desconectado</span>
-              </div>
-
-              <!-- Paso 1: Botón de Conexión Inicial -->
-              <button id="btn-connect-anki" class="btn-save-anki" style="background: #0284c7; width: 100%; margin-top: 10px; padding: 9px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <span>🔗 Conectar con AnkiConnect</span>
-              </button>
-
-              <!-- Paso 2: Grupo de Ajustes (se activa tras conectar) -->
-              <div id="anki-settings-group" style="display: none; margin-top: 10px;">
-                <!-- Switch para activar o desactivar -->
-                <label class="anki-switch-container" style="display: flex; align-items: center; gap: 8px;">
-                  <input type="checkbox" id="anki-enabled-toggle" checked>
-                  <span class="switch-label">Habilitar creación directa</span>
-                </label>
-
-                <hr class="anki-divider" style="margin: 10px 0;">
-
-                <!-- URL de AnkiConnect -->
-                <div class="anki-input-group">
-                  <label for="anki-url-input">URL de AnkiConnect:</label>
-                  <input type="text" id="anki-url-input" value="http://127.0.0.1:8765" placeholder="http://127.0.0.1:8765" style="width: 100%; padding: 6px; border-radius: 4px; box-sizing: border-box;" />
-                </div>
-
-                <!-- Seleccionar Mazo Detectado de Anki -->
-                <div class="anki-input-group" style="margin-top: 10px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label for="anki-deck-select">Mazo de Anki (Deck):</label>
-                    <button id="btn-refresh-decks" style="background: none; border: none; cursor: pointer; font-size: 0.85rem;" title="Actualizar lista de mazos de Anki">🔄</button>
-                  </div>
-                  <select id="anki-deck-select" style="width: 100%; padding: 6px; border-radius: 4px;">
-                    <option value="Default">Cargando mazos...</option>
-                  </select>
-                </div>
-
-                <!-- Seleccionar Tipo de Tarjeta Preestablecido de la Web -->
-                <div class="anki-input-group" style="margin-top: 10px;">
-                  <label for="anki-model-select">Tipo de Tarjeta (Plantilla Web):</label>
-                  <select id="anki-model-select" style="width: 100%; padding: 6px; border-radius: 4px;">
-                    <option value="ToriiDeckVideo">🎬 ToriiDeck con Video (Clip de Video animado + Audio)</option>
-                    <option value="ToriiDeck">⛩️ ToriiDeck con Imagen (Fotograma estático + Audio)</option>
-                    <option value="Basic">📝 Básico (Frente / Reverso)</option>
-                    <option value="BasicImage">🖼️ Básico con Imagen (Frente, Reverso, Imagen)</option>
-                    <option value="Japanese">🎌 Japonés Estándar (Expression, Reading)</option>
-                  </select>
-                </div>
-
-                <button id="btn-save-anki" class="btn-save-anki" style="margin-top: 12px; width: 100%;">Guardar Ajustes</button>
-              </div>
-
-              <!-- Caja de Diagnóstico / Ayuda de Errores -->
-              <div id="anki-help-info" class="anki-help-box" style="display: none; margin-top: 10px; padding: 8px; border-radius: 6px; font-size: 0.78rem; line-height: 1.4; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3);">
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- 3. PANEL LATERAL DE SUBTÍTULOS (Columna 2, Filas 1 y 2) -->
+      <!-- 2. PANEL LATERAL DE SUBTÍTULOS (Columna 2) -->
       <aside class="subtitles-sidebar">
         <div class="sidebar-header">
           <h3>Transcripción</h3>
@@ -258,44 +281,127 @@
     </div>
   </section>
 
-  <!-- 4. SECCIÓN DE TARJETAS MINADAS Y EXPORTADOR ANKI -->
-  <section class="mined-cards-section">
-    <div class="mined-cards-header">
-      <h3 class="mined-cards-title">
-        <span>📋 Mi Lista de Tarjetas Minadas</span>
-        <span id="mined-count-badge" class="mined-count-badge">0 tarjetas</span>
-      </h3>
-      <div class="mined-cards-actions">
-        <button id="btn-sort-mined" class="btn-sort-mined" title="Ordenar por fecha">
-          <span>🔃 Recientes primero</span>
+  <!-- 3.5 SECCIÓN DE ESTUDIO Y EDITOR DE SUBTÍTULOS (NUEVO) -->
+  <section id="sub-editor-section" class="sub-editor-section oculto">
+    <div class="sub-editor-header">
+      <div class="sub-editor-title-wrap">
+        <h3 class="sub-editor-title">
+          <span>🎬 Estudio y Editor de Subtítulos</span>
+          <span id="sub-editor-count-badge" class="sub-badge">0 líneas</span>
+        </h3>
+        <p class="sub-editor-subtitle">Crea desde cero, modifica textos, afina tiempos y sincroniza desfases con precisión milimétrica.</p>
+      </div>
+
+      <div class="sub-editor-search-box">
+        <input type="text" id="sub-editor-search" class="sub-editor-search-input" placeholder="🔍 Buscar frase en japonés o español..." />
+      </div>
+    </div>
+
+    <!-- Barra de Herramientas del Editor -->
+    <div class="sub-editor-toolbar">
+      <div class="sub-toolbar-group primary-actions">
+        <button id="btn-sub-new-project" class="btn-tool" title="Crear un proyecto limpio de subtítulos para este video">
+          <span>✨ Nuevo Proyecto</span>
         </button>
-        <button id="btn-export-anki-txt" class="btn-export-anki" title="Descargar archivo .txt listo para importar en Anki">
-          <span>📥 Descargar Archivo para Anki (.txt)</span>
+        <button id="btn-sub-add-line" class="btn-tool" title="Agregar subtítulo en el segundo actual del video (Ctrl + Enter)">
+          <span>➕ Agregar Subtítulo</span>
         </button>
-        <button id="btn-clear-mined" class="btn-clear-mined" title="Vaciar todas las tarjetas de la lista">
-          <span>🗑️ Vaciar Lista</span>
+        <button id="btn-sub-import-text" class="btn-tool btn-secundario-tool" title="Pegar guion, letra de canción o transcripción">
+          <span>📋 Importar Guion / Letra</span>
+        </button>
+      </div>
+
+      <div class="sub-toolbar-group sync-actions">
+        <button id="btn-sub-sync-tools" class="btn-tool btn-sync-highlight" title="Herramientas inteligentes: Sincronización por 2 Puntos (para desfase progresivo) y desfase por tramos">
+          <span>⚡ Sincronización Inteligente</span>
+        </button>
+        <button id="btn-sub-fix-overlaps" class="btn-tool-sm" title="Corregir subtítulos que se superponen entre sí">
+          <span>🛡️ Reparar Solapamientos</span>
+        </button>
+      </div>
+
+      <div class="sub-toolbar-group export-actions">
+        <button id="btn-sub-restore-draft" class="btn-tool-sm" style="display: none;" title="Restaurar el último borrador guardado automáticamente">
+          <span>♻️ Restaurar Borrador</span>
+        </button>
+        <button id="btn-sub-apply-player" class="btn-tool" style="background: #10b981;" title="Enviar los subtítulos editados directamente al reproductor de ToriiTV">
+          <span>🔄 Aplicar al Reproductor</span>
+        </button>
+        <button id="btn-sub-export" class="btn-tool btn-secundario-tool" title="Descargar subtítulos en formato .SRT, .VTT o .ASS">
+          <span>💾 Descargar Subtítulo</span>
         </button>
       </div>
     </div>
 
-    <!-- Lista / Grid de Tarjetas Guardadas con Wrapper y sombra difuminada -->
-    <div class="mined-cards-wrapper">
-      <div id="mined-cards-grid" class="mined-cards-grid collapsed">
-        <div class="empty-mined-msg">
-          <p>No tienes tarjetas minadas aún. Haz clic en la estrella <strong>⭐</strong> en los subtítulos para agregarlas a tu lista.</p>
-        </div>
-      </div>
-      <div class="mined-cards-gradient-overlay"></div>
+    <!-- Banner de Guía Rápida y Atajos de Teclado -->
+    <div class="sub-editor-shortcuts-bar">
+      <span>💡 <strong>Atajos rápidos:</strong></span>
+      <span class="shortcut-tag"><kbd>[</kbd> Fijar Inicio (In)</span>
+      <span class="shortcut-tag"><kbd>]</kbd> Fijar Fin (Out) y avanzar</span>
+      <span class="shortcut-tag"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> Nueva Línea</span>
+      <span class="shortcut-tag"><kbd>▶️</kbd> Preescuchar fragmento</span>
     </div>
 
-    <!-- Botón Mostrar Más / Mostrar Menos -->
-    <div class="mined-expand-bar" style="text-align: center; margin-top: 15px;">
-      <button id="btn-toggle-expand-mined" class="btn-expand-mined">
-        <span>Mostrar más 🔻</span>
-      </button>
+    <!-- Tabla Interactiva del Editor -->
+    <div class="sub-editor-table-wrap">
+      <table class="sub-editor-table">
+        <thead>
+          <tr>
+            <th style="width: 45px;">#</th>
+            <th style="width: 140px;">Inicio (In)</th>
+            <th style="width: 140px;">Fin (Out)</th>
+            <th style="width: 80px;">Duración</th>
+            <th>Texto Japonés (Subtítulo)</th>
+            <th>Traducción Español (Opcional para Anki)</th>
+            <th style="width: 155px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="sub-editor-tbody">
+          <!-- Se genera dinámicamente -->
+        </tbody>
+      </table>
     </div>
   </section>
 </main>
+
+<!-- VENTANA MODAL FLOTANTE: MI LISTA DE TARJETAS MINADAS -->
+<div id="mined-cards-modal" class="modal-overlay mined-modal-overlay">
+  <div class="modal-card mined-modal-card">
+    
+    <!-- Cabecera de la Ventana Modal -->
+    <div class="mined-modal-header">
+      <div class="mined-modal-title-group">
+        <span class="mined-modal-icon">📋</span>
+        <h3 class="mined-modal-title">Mi Lista de Tarjetas Minadas</h3>
+        <span id="mined-count-badge" class="mined-count-badge">0 tarjetas</span>
+      </div>
+      <button id="btn-close-mined-modal" class="modal-close-btn" aria-label="Cerrar ventana">&times;</button>
+    </div>
+
+    <!-- Barra de Acciones y Filtros -->
+    <div class="mined-modal-actions-bar">
+      <button id="btn-sort-mined" class="btn-sort-mined" title="Alternar orden por fecha">
+        <span>🔃 Recientes primero</span>
+      </button>
+      <button id="btn-export-anki-txt" class="btn-export-anki" title="Descargar archivo .txt listo para importar en Anki">
+        <span>📥 Descargar Archivo para Anki (.txt)</span>
+      </button>
+      <button id="btn-clear-mined" class="btn-clear-mined" title="Vaciar todas las tarjetas de la lista">
+        <span>🗑️ Vaciar Lista</span>
+      </button>
+    </div>
+
+    <!-- Contenido con Scroll de Tarjetas -->
+    <div class="mined-modal-body">
+      <div id="mined-cards-grid" class="mined-modal-grid">
+        <div class="empty-mined-msg">
+          <p>No tienes tarjetas minadas aún. Haz clic en la estrella <strong>⭐</strong> en los subtítulos durante el video para agregarlas a tu lista.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-- MODAL DE CONFIRMACIÓN PARA DESCARGAR DICCIONARIO FURIGANA -->
 <div id="furigana-confirm-modal" class="modal-overlay">
@@ -376,6 +482,154 @@
       <div id="badges-grid" class="badges-grid">
         <!-- Generado dinámicamente -->
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE SINCRONIZACIÓN INTELIGENTE DE SUBTÍTULOS -->
+<div id="sub-modal-sync" class="modal-overlay sub-editor-modal">
+  <div class="profile-modal-content sub-modal-card">
+    <button class="modal-close-btn sub-modal-close" aria-label="Cerrar modal">&times;</button>
+    <div class="sub-modal-header">
+      <div style="font-size: 2.2rem; margin-bottom: 6px;">⚡⏱️</div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: var(--color-h3);">Sincronización Inteligente de Subtítulos</h2>
+      <p style="font-size: 0.88rem; opacity: 0.85; margin: 4px 0 0;">Corrige desfases complejos, cambios de ritmo o adelantos por intros.</p>
+    </div>
+
+    <!-- Pestaña 1: Sincronización Proporcional por 2 Puntos -->
+    <div class="sync-tool-box">
+      <h3 class="sync-tool-title">🎯 Sincronización Proporcional por 2 Puntos (Interpolación Lineal)</h3>
+      <p class="sync-tool-desc">
+        Ideal cuando los subtítulos tienen desfase al inicio pero después no (o viceversa), o si la velocidad/framerate no coincide. Indicarás cuándo debe sonar la primera frase y cuándo la última, y el sistema recalculará proporcionalmente todas las frases intermedias.
+      </p>
+
+      <div class="sync-points-grid">
+        <!-- Punto A (Inicio) -->
+        <div class="sync-point-card">
+          <label class="sync-point-label">📍 Punto A (Inicio / Primera Frase):</label>
+          <select id="sync-point-a-select" class="sub-input-select"></select>
+          <div class="sync-capture-row">
+            <input type="text" id="sync-real-a" class="sub-input-time" placeholder="00:01.200" />
+            <button id="btn-sync-capture-a" class="btn-tool-sm" title="Capturar el segundo exacto donde está pausado el video">⏱️ Del Video</button>
+          </div>
+        </div>
+
+        <!-- Punto B (Final) -->
+        <div class="sync-point-card">
+          <label class="sync-point-label">📍 Punto B (Final / Frase de Referencia):</label>
+          <select id="sync-point-b-select" class="sub-input-select"></select>
+          <div class="sync-capture-row">
+            <input type="text" id="sync-real-b" class="sub-input-time" placeholder="04:30.500" />
+            <button id="btn-sync-capture-b" class="btn-tool-sm" title="Capturar el segundo exacto donde está pausado el video">⏱️ Del Video</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-apply-2points-sync" class="btn-tool" style="width: 100%; margin-top: 10px; justify-content: center; background: var(--naranja);">
+        <span>⚡ Aplicar Sincronización Proporcional</span>
+      </button>
+    </div>
+
+    <!-- Pestaña 2: Desfase por Tramo (Shift Posterior) -->
+    <div class="sync-tool-box" style="margin-top: 15px;">
+      <h3 class="sync-tool-title">⏩ Desfase por Tramo (Desde línea seleccionada en adelante)</h3>
+      <p class="sync-tool-desc">
+        Útil cuando un opening recortado o corte publicitario desfasó todos los subtítulos a partir de un minuto específico, dejando las frases anteriores intactas.
+      </p>
+      
+      <div class="sync-shift-row">
+        <div style="flex: 1;">
+          <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Desde la Línea #:</label>
+          <input type="number" id="sync-shift-from-index" value="1" min="1" class="sub-input-number" style="width: 100%; box-sizing: border-box;" />
+        </div>
+        <div style="flex: 1;">
+          <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Desfase (+/- Segundos):</label>
+          <input type="number" id="sync-shift-delta" value="0.0" step="0.1" class="sub-input-number" style="width: 100%; box-sizing: border-box;" placeholder="Ej: +1.5 o -0.8" />
+        </div>
+        <button id="btn-apply-shift-from" class="btn-tool" style="align-self: flex-end; margin-bottom: 1px;">
+          <span>⏩ Aplicar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pestaña 3: Ajuste Rápido Global -->
+    <div class="sync-tool-box" style="margin-top: 15px;">
+      <h3 class="sync-tool-title">🌐 Ajuste Fino Global (Toda la pista)</h3>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+        <button class="btn-tool-sm btn-shift-quick" data-delta="-1.0">-1.0s</button>
+        <button class="btn-tool-sm btn-shift-quick" data-delta="-0.5">-0.5s</button>
+        <button class="btn-tool-sm btn-shift-quick" data-delta="-0.1">-0.1s</button>
+        <button class="btn-tool-sm btn-shift-quick" data-delta="0.1">+0.1s</button>
+        <button class="btn-tool-sm btn-shift-quick" data-delta="0.5">+0.5s</button>
+        <button class="btn-tool-sm btn-shift-quick" data-delta="1.0">+1.0s</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE IMPORTACIÓN DE GUION / LETRA (LYRICS IMPORTER) -->
+<div id="sub-modal-import" class="modal-overlay sub-editor-modal">
+  <div class="profile-modal-content sub-modal-card">
+    <button class="modal-close-btn sub-modal-close" aria-label="Cerrar modal">&times;</button>
+    <div class="sub-modal-header">
+      <div style="font-size: 2.2rem; margin-bottom: 6px;">📋🎵</div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: var(--color-h3);">Importar Guion o Letra de Canción</h2>
+      <p style="font-size: 0.88rem; opacity: 0.85; margin: 4px 0 0;">Convierte cualquier texto plano línea por línea en subtítulos listos para sincronizar.</p>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px;">Pega el texto aquí (un verso o frase por renglón):</label>
+      <textarea id="sub-import-raw-text" rows="9" class="sub-editor-import-textarea" placeholder="Ejemplo:
+こんにちは
+今日もいい天気ですね
+一緒に日本語を勉強しましょう"></textarea>
+    </div>
+
+    <div class="sync-shift-row" style="margin-top: 12px; align-items: center;">
+      <div>
+        <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Duración estimada por línea (segundos):</label>
+        <input type="number" id="sub-import-duration" value="2.8" step="0.2" min="0.5" class="sub-input-number" style="width: 120px;" />
+      </div>
+
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 15px;">
+        <input type="checkbox" id="sub-import-start-at-video" checked />
+        <span>Iniciar en el segundo actual del video</span>
+      </label>
+    </div>
+
+    <button id="btn-do-import-text" class="btn-tool" style="width: 100%; margin-top: 15px; justify-content: center; background: var(--naranja);">
+      <span>📥 Importar y Generar Bloques de Subtítulos</span>
+    </button>
+  </div>
+</div>
+
+<!-- MODAL DE EXPORTACIÓN Y DESCARGA DE SUBTÍTULOS -->
+<div id="sub-modal-export" class="modal-overlay sub-editor-modal">
+  <div class="profile-modal-content sub-modal-card" style="max-width: 460px;">
+    <button class="modal-close-btn sub-modal-close" aria-label="Cerrar modal">&times;</button>
+    <div class="sub-modal-header">
+      <div style="font-size: 2.2rem; margin-bottom: 6px;">💾🎬</div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: var(--color-h3);">Descargar Subtítulos</h2>
+      <p style="font-size: 0.88rem; opacity: 0.85; margin: 4px 0 0;">Elige el formato estándar que prefieras para tus videos y reproductores.</p>
+    </div>
+
+    <div style="margin: 15px 0; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06);">
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; cursor: pointer;">
+        <input type="checkbox" id="chk-export-include-es" checked />
+        <span>Incluir traducción al español en el archivo descargado</span>
+      </label>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <button id="btn-exp-format-srt" class="btn-tool" style="justify-content: center; padding: 10px;">
+        <span>📄 Formato SubRip (.SRT) - Universal para VLC, MPC y TV</span>
+      </button>
+      <button id="btn-exp-format-vtt" class="btn-tool btn-secundario-tool" style="justify-content: center; padding: 10px;">
+        <span>🌐 Formato WebVTT (.VTT) - Para Navegadores Web y HTML5</span>
+      </button>
+      <button id="btn-exp-format-ass" class="btn-tool btn-secundario-tool" style="justify-content: center; padding: 10px;">
+        <span>🎭 Formato Advanced SubStation (.ASS) - Para Anime con Estilos</span>
+      </button>
     </div>
   </div>
 </div>

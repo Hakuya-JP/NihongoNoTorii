@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nihongo no Torii - Sala de Lectura & Mokuro</title>
+  <link rel="icon" type="image/x-icon" href="ToriiIcon.ico" />
+  <link rel="shortcut icon" href="ToriiIcon.ico" />
+
+  <!-- Fuentes de Google Fonts para estética japonesa -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Noto+Sans+JP:wght@500;700;800&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ENCABEZADO PRINCIPAL (NAVBAR INSTITUCIONAL) -->
+<header class="main-header">
+  <div class="header-brand">
+    <a href="index.html" class="nav-logo">
+      <img src="image/logonnt.png" alt="Logo Nihongo no Torii">
+    </a>
+    <h1 class="logo-text">Nihongo no Torii</h1>
+  </div>
+
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">☰</button>
+
+  <nav id="menu" class="top-nav">
+    <a href="index.html">Inicio</a>
+    <a href="lecciones.html">Lecciones</a>
+    <a href="videos.html">Videos</a>
+    <a href="biblioteca.html">Biblioteca</a>
+    <a href="lectura.html" class="active">Lectura</a>
+    <a href="ToriiTV.html">ToriiTV</a>
+    <a href="jlpt-simulador.html">Simulador JLPT</a>
+    <a href="perfil.html" class="nav-profile-item"></a>
+    
+    <!-- Interruptor Lámpara Japonesa (Chochin) -->
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Alternar modo claro y oscuro" title="Lámpara Chochin (明 / 暗)">
+      <div id="lantern-assembly" class="lantern-assembly is-lit idle-sway">
+        <div class="wood-cap top"></div>
+        <div id="lantern-body" class="lantern-body">
+          <div class="bamboo-ribs"></div>
+          <div class="flame-core"></div>
+          <span id="lantern-kanji" class="lantern-kanji">明</span>
+        </div>
+        <div class="wood-cap bottom"></div>
+        <div class="tassel-skirt"></div>
+      </div>
+    </button>
+  </nav>
+</header>
+
+<!-- BANNER DE BIENVENIDA A LA SALA DE LECTURA -->
+<section class="lectura-hero">
+  <div class="lectura-hero-inner">
+    <span class="lectura-badge">⛩️ Inmersión y Manga con OCR</span>
+    <h1 class="lectura-title">Sala de Lectura (読書)</h1>
+    <p class="lectura-subtitle">
+      Lee manga auténtico en japonés con texto seleccionable interactivo mediante el sistema <strong>Mokuro</strong>. 
+      Compatible al 100% con <strong>Yomitan</strong>, búsqueda de vocabulario instantánea y minado directo a <strong>Anki</strong>.
+    </p>
+
+    <div class="lectura-actions-bar">
+      <button class="btn-hero-lectura btn-hero-mokuro" id="btn-hero-upload-manga">
+        <span>📂</span> Cargar Manga
+      </button>
+      <button class="btn-hero-lectura btn-hero-outline" id="btn-abrir-guia-mokuro">
+        <span>📖</span> Guía Mokuro
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENEDOR PRINCIPAL DEL CATÁLOGO -->
+<main class="lectura-container">
+
+  <!-- SECCIÓN: MI BIBLIOTECA PERSONAL (CBZ, ZIP, CARPETAS, MOKURO) -->
+  <section style="margin-top: 20px;">
+    <div class="lectura-section-header">
+      <h2 class="lectura-section-title">
+        <span>📖</span> Mi Biblioteca de Mangas
+      </h2>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <span class="lectura-section-tag">Almacenamiento Local (IndexedDB)</span>
+        <button id="btn-open-add-manga-modal" class="btn-hero-lectura btn-hero-mokuro" style="padding: 9px 18px; font-size: 0.95rem;">
+          <span>📂</span> Cargar Manga
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensaje si la biblioteca está vacía -->
+    <div id="empty-mangas-notice" style="text-align:center; padding:35px 20px; background:rgba(0,0,0,0.02); border-radius:16px; border:2px dashed var(--mokuro-border); margin-top:15px;">
+      <div style="font-size:2.8rem; margin-bottom:10px;">📚</div>
+      <h3 style="margin:0 0 8px; font-size:1.25rem;">Tu biblioteca de mangas está vacía</h3>
+      <p style="color:#777; font-size:0.95rem; margin:0 0 18px; max-width:560px; margin-left:auto; margin-right:auto; line-height:1.5;">
+        Carga tus archivos <strong>.cbz</strong>, <strong>.zip</strong> o <strong>múltiples imágenes</strong> de manga. Se guardarán en tu navegador para que los leas en cualquier momento con tus opciones de OCR y traducción interactiva.
+      </p>
+      <button class="btn-hero-lectura btn-hero-mokuro" onclick="document.getElementById('modal-add-manga').classList.add('active')">
+        <span>📂</span> Cargar Manga
+      </button>
+    </div>
+
+    <!-- Cuadrícula dinámica de mangas del usuario -->
+    <div class="manga-grid" id="my-mangas-grid">
+      <!-- Se inyecta dinámicamente desde js/manga-db.js -->
+    </div>
+  </section>
+
+  <!-- Input oculto para subir archivo .mokuro a un manga existente -->
+  <input type="file" id="input-attach-mokuro" accept=".mokuro,.json" style="display:none;" />
+
+</main>
+
+<!-- =========================================================================
+     MODAL GUÍA MOKURO (VIDEO + INSTRUCCIONES)
+     ========================================================================= -->
+<div id="modal-guia-mokuro" class="modal-overlay-manga" role="dialog" aria-modal="true" aria-labelledby="guia-modal-title">
+  <div class="modal-content-manga modal-guia-content">
+    <div class="modal-header-manga">
+      <h3 id="guia-modal-title"><span>⚙️</span> Guía: Cómo usar Mokuro con Nihongo no Torii</h3>
+      <button id="btn-close-guia-modal" class="modal-close-btn-manga" aria-label="Cerrar">&#x2715;</button>
+    </div>
+
+    <!-- Video YouTube embebido -->
+    <div class="guia-video-wrap">
+      <iframe
+        id="guia-youtube-iframe"
+        src=""
+        data-src="https://www.youtube.com/embed/3JVQVH1B7JY?rel=0&modestbranding=1"
+        title="Tutorial Mokuro – Nihongo no Torii"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- Instrucciones compactas debajo del video -->
+    <div class="guia-instrucciones">
+
+      <div class="guia-paso">
+        <span class="guia-paso-num">1</span>
+        <div>
+          <strong>Instalar Mokuro</strong>
+          <p>Abre tu terminal con Python 3.10+ instalado y ejecuta:</p>
+          <div class="terminal-box">
+            <code>pip install mokuro</code>
+            <button class="terminal-copy-btn" data-cmd="pip install mokuro">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="guia-paso">
+        <span class="guia-paso-num">2</span>
+        <div>
+          <strong>Procesar tu Manga con OCR</strong>
+          <p>Coloca las imágenes de las páginas en una carpeta y ejecuta:</p>
+          <div class="terminal-box">
+            <code>mokuro "C:\Ruta\A\Tu\Manga\Tomo1"</code>
+            <button class="terminal-copy-btn" data-cmd='mokuro "C:\Ruta\A\Tu\Manga\Tomo1"'>Copiar</button>
+          </div>
+          <p style="margin-top:8px;">Mokuro generará un archivo <code>.mokuro</code> dentro de la carpeta.</p>
+        </div>
+      </div>
+
+      <div class="guia-paso">
+        <span class="guia-paso-num">3</span>
+        <div>
+          <strong>Cargar en Nihongo no Torii</strong>
+          <p>Haz clic en <strong>"Cargar Manga"</strong>, selecciona el <code>.cbz</code> o las imágenes y el archivo <code>.mokuro</code>. ¡Listo para leer con Yomitan y minar a Anki!</p>
+        </div>
+      </div>
+
+      <div class="guia-atajos">
+        <h4>⌨️ Atajos en el Visor de Manga</h4>
+        <ul>
+          <li><strong>← / →</strong> — Cambiar página (según dirección R2L)</li>
+          <li><strong>Espacio / PageDown</strong> — Página siguiente</li>
+          <li><strong>Ctrl + Scroll</strong> — Zoom in/out</li>
+          <li><strong>0</strong> — Ajustar a pantalla &nbsp;·&nbsp; <strong>1</strong> — Escala 1:1</li>
+          <li><strong>Clic en globo</strong> — Escuchar pronunciación o minar a Anki</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ==========================================================================
+     VISOR WEB INTERACTIVO MOKURO (READER VIEW MODAL)
+     ========================================================================== -->
+<div id="mokuro-reader-wrapper">
+
+  <!-- BARRA SUPERIOR DE HERRAMIENTAS -->
+  <header class="mokuro-toolbar">
+    <!-- Grupo Izquierdo: Salir y Título -->
+    <div class="toolbar-group">
+      <button id="btn-exit-reader" class="toolbar-btn btn-accent" title="Volver a la Sala de Lectura">
+        <span>←</span> Volver
+      </button>
+      <span id="reader-manga-title" class="reader-title-label">うちの猫’ず日記 - Volumen 1</span>
+    </div>
+
+    <!-- Grupo Central: Navegación de Páginas -->
+    <div class="toolbar-group">
+      <button id="btn-prev-page" class="toolbar-btn" title="Página Anterior">◀</button>
+      <div class="page-nav-control">
+        <input type="number" id="page-current-input" class="page-input-box" min="1" value="1" />
+        <span id="page-total-display" class="page-total-label">/ 1</span>
+      </div>
+      <button id="btn-next-page" class="toolbar-btn" title="Página Siguiente">▶</button>
+    </div>
+
+    <!-- Grupo Derecho: Zoom y Ajustes -->
+    <div class="toolbar-group">
+      <button id="btn-zoom-fit-screen" class="toolbar-btn" title="Ajustar a Pantalla">Ajuste Automatico</button>
+      <button id="btn-zoom-fit-width" class="toolbar-btn" title="Ajustar a Ancho">↔ Ancho</button>
+      <button id="btn-zoom-original" class="toolbar-btn" title="Tamaño 1:1">1:1</button>
+      <button id="btn-toggle-fullscreen" class="toolbar-btn" title="Pantalla Completa">⛶</button>
+
+      <!-- Configuración de AnkiConnect con Menú Flotante estilo ToriiTV -->
+      <div class="mokuro-dropdown" id="mokuro-anki-dropdown">
+        <button id="btn-mokuro-anki" class="toolbar-btn" title="Configurar AnkiConnect y Mazo">
+          <span>📇</span> Anki
+        </button>
+        <div class="mokuro-dropdown-menu anki-manga-dropdown-menu" style="min-width: 290px; padding: 16px; text-align: left;">
+          <div class="anki-config-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="margin: 0; font-size: 0.95rem; font-weight: 700;">⚙️ AnkiConnect</h3>
+            <span id="manga-anki-status-indicator" class="anki-status offline" style="font-size: 0.78rem;">● Desconectado</span>
+          </div>
+
+          <!-- Botón de Conexión Inicial -->
+          <button type="button" id="btn-manga-connect-anki" class="btn-save-anki" style="background: #0284c7; width: 100%; margin-top: 4px; padding: 9px; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>🔗 Conectar con AnkiConnect</span>
+          </button>
+
+          <!-- Grupo de Ajustes tras conectar -->
+          <div id="manga-anki-settings-group" style="display: none; margin-top: 10px;">
+            <label class="anki-switch-container" style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer; margin-bottom: 8px;">
+              <input type="checkbox" id="manga-anki-enabled-toggle" checked style="cursor: pointer; width: 15px; height: 15px;">
+              <span class="switch-label">Habilitar creación directa</span>
+            </label>
+
+            <hr class="anki-divider" style="margin: 8px 0;">
+
+            <!-- URL de AnkiConnect -->
+            <div class="anki-input-group" style="margin-bottom: 8px;">
+              <label for="manga-anki-url-input" style="font-size: 0.78rem; opacity: 0.85; margin-bottom: 3px; display: block;">URL de AnkiConnect:</label>
+              <input type="text" id="manga-anki-url-input" value="http://127.0.0.1:8765" placeholder="http://127.0.0.1:8765" style="width: 100%; padding: 6px 8px; border-radius: 6px; box-sizing: border-box;" />
+            </div>
+
+            <!-- Seleccionar Mazo Detectado de Anki -->
+            <div class="anki-input-group" style="margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label for="manga-anki-deck-select" style="font-size: 0.78rem; opacity: 0.85; font-weight: 600;">Mazo de Anki (Deck):</label>
+                <button type="button" id="btn-manga-refresh-decks" style="background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 0 4px;" title="Actualizar lista de mazos de Anki">🔄</button>
+              </div>
+              <select id="manga-anki-deck-select" style="width: 100%; padding: 6px 8px; border-radius: 6px; cursor: pointer; box-sizing: border-box;">
+                <option value="Default">Cargando mazos...</option>
+              </select>
+            </div>
+
+            <button type="button" id="btn-manga-save-anki" class="btn-save-anki" style="margin-top: 6px; width: 100%; padding: 8px; font-size: 0.88rem;">Guardar Mazo</button>
+          </div>
+
+          <!-- Caja de Diagnóstico / Ayuda de Errores -->
+          <div id="manga-anki-help-info" class="anki-help-box" style="display: none; margin-top: 10px; padding: 8px; border-radius: 6px; font-size: 0.76rem; line-height: 1.4; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3);">
+          </div>
+        </div>
+      </div>
+
+      <!-- Menú Desplegable de Configuración -->
+      <div class="mokuro-dropdown" id="mokuro-settings-dropdown">
+        <button id="btn-settings-dropdown" class="toolbar-btn" title="Opciones de Lectura">⚙️ Opciones</button>
+        <div class="mokuro-dropdown-menu">
+          
+          <div class="dropdown-item-row">
+            <label for="chk-r2l">Lectura Derecha a Izq. (Manga)</label>
+            <input type="checkbox" id="chk-r2l" checked />
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-double-page">Vista Doble Página</label>
+            <input type="checkbox" id="chk-double-page" />
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-has-cover">Primera página es portada</label>
+            <input type="checkbox" id="chk-has-cover" checked />
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-enable-ocr">Capa OCR Activa</label>
+            <input type="checkbox" id="chk-enable-ocr" checked />
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-show-borders">Mostrar contornos OCR</label>
+            <input type="checkbox" id="chk-show-borders" />
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-always-ocr">Texto OCR siempre visible</label>
+            <input type="checkbox" id="chk-always-ocr" />
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-editable-text">Texto OCR editable</label>
+            <input type="checkbox" id="chk-editable-text" />
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="select-font-size">Tamaño de Fuente:</label>
+            <select id="select-font-size">
+              <option value="auto">Automático</option>
+              <option value="14">14px</option>
+              <option value="18">18px</option>
+              <option value="22">22px</option>
+              <option value="28">28px</option>
+              <option value="34">34px</option>
+            </select>
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-eink-mode">Modo E-Ink (Alto Contraste)</label>
+            <input type="checkbox" id="chk-eink-mode" />
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ESCENARIO PRINCIPAL (STAGE & PANZOOM) -->
+  <div id="mokuro-stage">
+    
+    <!-- Zonas laterales flotantes para pasar páginas con clic -->
+    <div class="nav-edge-zone nav-edge-left" id="nav-zone-left" title="Clic para navegar">
+      <span class="nav-edge-arrow">‹</span>
+    </div>
+    <div class="nav-edge-zone nav-edge-right" id="nav-zone-right" title="Clic para navegar">
+      <span class="nav-edge-arrow">›</span>
+    </div>
+
+    <!-- Contenedor dinámico de páginas -->
+    <div id="mokuro-pages-container" class="r2l-view">
+      <!-- Las páginas con imágenes y capas textBox se inyectan dinámicamente aquí -->
+    </div>
+
+    <!-- BARRA FLOTANTE INFERIOR PARA AVANCE RÁPIDO (SE REVELA AL PASAR EL CURSOR) -->
+    <div id="reader-bottom-scrubber" class="reader-bottom-scrubber">
+      <div class="scrubber-inner">
+        <button id="btn-scrubber-prev" class="scrubber-btn" title="Página Anterior">▶</button>
+        <div class="scrubber-slider-wrap">
+          <input type="range" id="reader-page-slider" class="reader-page-slider" min="1" max="1" value="1" step="1" />
+          <div id="slider-tooltip" class="slider-tooltip">Pág. 1</div>
+        </div>
+        <button id="btn-scrubber-next" class="scrubber-btn" title="Página Siguiente">◀</button>
+        <span id="scrubber-page-info" class="scrubber-page-info">1 / 1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP RÁPIDO DE ACCIÓN & MINADO TORII (AL HACER CLIC EN UN GLOBO) -->
+  <div id="torii-quick-popup" class="torii-quick-popup">
+    <div class="quick-popup-header">
+      <span class="quick-popup-badge">⛩️ Diálogo Seleccionado</span>
+      <button id="btn-close-quick-popup" class="quick-popup-close" title="Cerrar">&times;</button>
+    </div>
+    <div id="quick-popup-text-content" class="quick-popup-text"></div>
+    <div class="quick-popup-actions">
+      <button id="btn-mine-quick-text" class="btn-quick-action btn-mine-anki" title="Guardar tarjeta en Anki y Torii">
+        <span>⚡</span> Minar a Anki
+      </button>
+      <button id="btn-speak-quick-text" class="btn-quick-action" title="Escuchar pronunciación">
+        <span>🔊</span> Voz
+      </button>
+      <button id="btn-copy-quick-text" class="btn-quick-action" title="Copiar texto al portapapeles">
+        <span>📋</span> Copiar
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL PARA AÑADIR MANGA (CBZ, ZIP, IMÁGENES Y MOKURO) -->
+<div id="modal-add-manga" class="modal-overlay-manga">
+  <div class="modal-content-manga">
+    <div class="modal-header-manga">
+      <h3><span>📖</span> Cargar Manga a mi Biblioteca</h3>
+      <button id="btn-close-add-modal" class="modal-close-btn-manga" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <!-- Modal de confirmación de confianza (solo se muestra la primera vez) -->
+    <div id="manga-trust-notice" style="display:none; background:rgba(19, 162, 206, 0.09); border:1px solid rgba(19, 162, 206, 0.3); border-radius:12px; padding:14px; margin-bottom:18px;">
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <span style="font-size:1.4rem; line-height:1;">🛡️</span>
+        <div>
+          <strong style="font-size:0.95rem; display:block; margin-bottom:4px;">Almacenamiento Local Seguro</strong>
+          <p style="margin:0; font-size:0.85rem; color:#666; line-height:1.4;">
+            Esta aplicación guarda tus mangas exclusivamente dentro del almacenamiento local de tu propio navegador (IndexedDB). Tus archivos nunca se suben a ningún servidor externo.
+          </p>
+          <label style="display:flex; align-items:center; gap:8px; margin-top:8px; font-size:0.85rem; font-weight:700; cursor:pointer;">
+            <input type="checkbox" id="chk-trust-site" checked /> Confío en esta página (no volver a preguntar)
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campo 1: Archivo del Manga o Imágenes -->
+    <div class="form-group-manga">
+      <label for="input-manga-media" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>Archivo del Manga o Imágenes <strong style="color:#e53935;">*</strong></span>
+        <span id="manga-media-file-count" style="font-size:0.8rem; color:var(--azulNa, #13a2ce); font-weight:600;"></span>
+      </label>
+      <input type="file" id="input-manga-media" accept=".cbz,.zip,.jpg,.jpeg,.png,.webp,.avif" multiple class="form-input-manga" />
+      <small style="color:#777; font-size:0.82rem; display:block; margin-top:5px; line-height:1.4;">
+        Selecciona un archivo <strong>.cbz</strong>, <strong>.zip</strong> o <strong>múltiples imágenes</strong> de las páginas a la vez.
+      </small>
+    </div>
+
+    <!-- Campo 2: Archivo .mokuro OCR (Opcional) -->
+    <div class="form-group-manga" style="margin-top:16px;">
+      <label for="input-manga-mokuro" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>Archivo OCR <code>.mokuro</code> <span style="color:#777; font-weight:normal;">(Opcional)</span></span>
+        <span id="manga-mokuro-file-name" style="font-size:0.8rem; color:#2e7d32; font-weight:600;"></span>
+      </label>
+      <input type="file" id="input-manga-mokuro" accept=".mokuro,.json" class="form-input-manga" />
+      <small style="color:#777; font-size:0.82rem; display:block; margin-top:5px; line-height:1.4;">
+        Si tienes el archivo <code>.mokuro</code> selecciónalo aquí para tener traducción interactiva con Yomitan. Si no lo tienes, ¡no te preocupes! Podrás leer el manga sin él y vincularlo más tarde.
+      </small>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;">
+      <div class="form-group-manga" style="margin-bottom:0;">
+        <label for="input-manga-custom-title">Título del Manga:</label>
+        <input type="text" id="input-manga-custom-title" class="form-input-manga" placeholder="Ej: Yotsubato!, Frieren..." />
+      </div>
+
+      <div class="form-group-manga" style="margin-bottom:0;">
+        <label for="input-manga-custom-volume">Tomo / Volumen:</label>
+        <input type="text" id="input-manga-custom-volume" class="form-input-manga" placeholder="Ej: Tomo 1, Vol. 02..." />
+      </div>
+    </div>
+
+    <!-- Aviso sobre OCR Mokuro detectado o ausente -->
+    <div id="manga-mokuro-status-notice" style="display:none; margin-top:16px; padding:12px; border-radius:10px; font-size:0.88rem; line-height:1.4;">
+    </div>
+
+    <!-- Barra de progreso -->
+    <div id="manga-import-progress-wrap" class="import-progress-container">
+      <div class="progress-track">
+        <div id="manga-import-progress-bar" class="progress-fill"></div>
+      </div>
+      <div id="manga-import-status-text" class="progress-status-text">Procesando páginas y guardando en biblioteca...</div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:22px;">
+      <button type="button" class="btn-upload-choice btn-secondary-choice" onclick="document.getElementById('modal-add-manga').classList.remove('active')">
+        Cancelar
+      </button>
+      <button type="button" id="btn-submit-add-manga" class="btn-upload-choice" style="background:#e53935; border-color:#d32f2f;">
+        <span>💾</span> Guardar en mi Biblioteca
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PARA ESCOGER VOLUMEN/TOMO DE UNA SERIE -->
+<div id="modal-select-volume" class="modal-overlay-manga">
+  <div class="modal-content-manga" style="width: min(780px, 94vw); max-width: 780px;">
+    <div class="modal-header-manga">
+      <div>
+        <h3 id="modal-series-title" style="margin:0 0 4px;"><span>📚</span> Seleccionar Volumen</h3>
+        <span id="modal-series-count" style="font-size:0.85rem; color:#777;">0 tomos disponibles</span>
+      </div>
+      <button id="btn-close-volume-modal" class="modal-close-btn-manga" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <!-- Cuadrícula con los tomos de esta serie -->
+    <div id="series-volumes-grid" class="volumes-grid">
+      <!-- Se inyecta dinámicamente con las portadas y datos de cada tomo -->
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; border-top:1px solid var(--mokuro-border); padding-top:12px;">
+      <small style="color:#777; font-size:0.82rem;">
+        💡 Puedes cargar más tomos de esta serie usando el botón "Cargar Manga".
+      </small>
+      <button type="button" class="btn-upload-choice btn-secondary-choice" onclick="document.getElementById('modal-select-volume').classList.remove('active')">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS PRINCIPALES -->
+<script src="js/jszip.min.js"></script>
+<script src="js/panzoom.min.js"></script>
+<script src="scripts.js"></script>
+<script src="js/anki-connect.js"></script>
+<script src="js/tarjetas-minadas.js"></script>
+<script src="js/manga-db.js"></script>
+<script src="js/mokuro-reader.js"></script>
+
+<script>
+  (function () {
+    const modal   = document.getElementById('modal-guia-mokuro');
+    const iframe  = document.getElementById('guia-youtube-iframe');
+    const btnOpen = document.getElementById('btn-abrir-guia-mokuro');
+    const btnClose = document.getElementById('btn-close-guia-modal');
+
+    function openGuia() {
+      // Cargar el video solo al abrir (lazy) para que no reproduzca en segundo plano
+      if (iframe && !iframe.src) {
+        iframe.src = iframe.dataset.src;
+      }
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeGuia() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      // Detener el video quitando el src (se vuelve a poner al abrir de nuevo)
+      if (iframe) iframe.src = '';
+    }
+
+    if (btnOpen)  btnOpen.addEventListener('click', openGuia);
+    if (btnClose) btnClose.addEventListener('click', closeGuia);
+
+    // Cerrar al hacer clic en el fondo oscuro
+    if (modal) {
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeGuia();
+      });
+    }
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal && modal.classList.contains('active')) closeGuia();
+    });
+  })();
+</script>
+</body>
+</html>

@@ -24,28 +24,52 @@ function initMinedCardsModule() {
   const btnSortMined = document.getElementById("btn-sort-mined");
   const btnToggleExpand = document.getElementById("btn-toggle-expand-mined");
 
+  // Botones y panel en la barra compacta lateral
+  const btnToggleMinedBar = document.getElementById("btn-toggle-mined-cards-bar");
+  const minedFlyout = document.getElementById("mined-cards-flyout");
+  const btnCloseMinedFlyout = document.getElementById("btn-close-mined-flyout");
+  const btnSortMinedFlyout = document.getElementById("btn-sort-mined-flyout");
+  const btnExportTxtFlyout = document.getElementById("btn-export-anki-txt-flyout");
+  const btnClearMinedFlyout = document.getElementById("btn-clear-mined-flyout");
+  const btnGotoMinedSection = document.getElementById("btn-goto-mined-section");
+
   if (btnExportTxt) {
     btnExportTxt.addEventListener("click", exportarListaAAnkiTxt);
   }
+  if (btnExportTxtFlyout) {
+    btnExportTxtFlyout.addEventListener("click", exportarListaAAnkiTxt);
+  }
+
+  function ejecutarVaciarLista() {
+    if (minedCardsList.length === 0) return;
+    if (confirm("¿Estás seguro de vaciar todas las tarjetas minadas de tu lista?")) {
+      minedCardsList = [];
+      guardarTarjetasMinadas();
+      renderMinedCardsUI();
+      if (typeof mostrarToast === "function") mostrarToast("🗑️ Lista de tarjetas minadas vaciada");
+    }
+  }
 
   if (btnClearMined) {
-    btnClearMined.addEventListener("click", () => {
-      if (minedCardsList.length === 0) return;
-      if (confirm("¿Estás seguro de vaciar todas las tarjetas minadas de tu lista?")) {
-        minedCardsList = [];
-        guardarTarjetasMinadas();
-        renderMinedCardsUI();
-        if (typeof mostrarToast === "function") mostrarToast("🗑️ Lista de tarjetas minadas vaciada");
-      }
-    });
+    btnClearMined.addEventListener("click", ejecutarVaciarLista);
+  }
+  if (btnClearMinedFlyout) {
+    btnClearMinedFlyout.addEventListener("click", ejecutarVaciarLista);
+  }
+
+  function alternarOrdenMined() {
+    minedSortRecentFirst = !minedSortRecentFirst;
+    renderMinedCardsUI();
+    if (typeof mostrarToast === "function") {
+      mostrarToast(minedSortRecentFirst ? "🔃 Ordenado: Más recientes primero" : "🔃 Ordenado: Más antiguas primero");
+    }
   }
 
   if (btnSortMined) {
-    btnSortMined.addEventListener("click", () => {
-      minedSortRecentFirst = !minedSortRecentFirst;
-      renderMinedCardsUI();
-      if (typeof mostrarToast === "function") mostrarToast(minedSortRecentFirst ? "🔃 Ordenado: Más recientes primero" : "🔃 Ordenado: Más antiguas primero");
-    });
+    btnSortMined.addEventListener("click", alternarOrdenMined);
+  }
+  if (btnSortMinedFlyout) {
+    btnSortMinedFlyout.addEventListener("click", alternarOrdenMined);
   }
 
   if (btnToggleExpand) {
@@ -54,6 +78,54 @@ function initMinedCardsModule() {
       renderMinedCardsUI();
     });
   }
+
+  // Comportamiento del botón de la barra compacta: Abre la Ventana Modal de Tarjetas
+  const minedModal = document.getElementById("mined-cards-modal");
+  const btnCloseMinedModal = document.getElementById("btn-close-mined-modal");
+
+  function abrirModalTarjetas() {
+    renderMinedCardsUI();
+    if (minedModal) {
+      minedModal.classList.add("active");
+    }
+  }
+
+  function cerrarModalTarjetas() {
+    if (minedModal) {
+      minedModal.classList.remove("active");
+    }
+  }
+
+  if (btnToggleMinedBar) {
+    btnToggleMinedBar.addEventListener("click", (e) => {
+      e.stopPropagation();
+      abrirModalTarjetas();
+    });
+  }
+
+  if (btnCloseMinedModal) {
+    btnCloseMinedModal.addEventListener("click", (e) => {
+      e.stopPropagation();
+      cerrarModalTarjetas();
+    });
+  }
+
+  if (minedModal) {
+    minedModal.addEventListener("click", (e) => {
+      if (e.target === minedModal) {
+        cerrarModalTarjetas();
+      }
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && minedModal && minedModal.classList.contains("active")) {
+      cerrarModalTarjetas();
+    }
+  });
+
+  window.abrirModalTarjetasMinadas = abrirModalTarjetas;
+  window.cerrarModalTarjetasMinadas = cerrarModalTarjetas;
 }
 
 function guardarTarjetasMinadas() {
@@ -117,17 +189,29 @@ function eliminarTarjetaMinadaLocal(id) {
 }
 
 function renderMinedCardsUI() {
-  const badgeCount = document.getElementById("mined-count-badge");
+  const badgeCounts = document.querySelectorAll(".mined-count-badge, #mined-count-badge");
+  const pillCount = document.getElementById("mined-count-pill");
   const gridContainer = document.getElementById("mined-cards-grid");
   const btnSortMined = document.getElementById("btn-sort-mined");
+  const btnSortMinedFlyout = document.getElementById("btn-sort-mined-flyout");
   const btnToggleExpand = document.getElementById("btn-toggle-expand-mined");
 
-  if (badgeCount) {
-    badgeCount.textContent = `${minedCardsList.length} tarjeta${minedCardsList.length !== 1 ? "s" : ""}`;
+  const countText = `${minedCardsList.length} tarjeta${minedCardsList.length !== 1 ? "s" : ""}`;
+  badgeCounts.forEach(el => {
+    el.textContent = countText;
+  });
+
+  if (pillCount) {
+    pillCount.textContent = minedCardsList.length;
+    pillCount.style.display = minedCardsList.length > 0 ? "inline-block" : "none";
   }
 
+  const sortHtml = minedSortRecentFirst ? "<span>🔃 Recientes primero</span>" : "<span>🔃 Antiguas primero</span>";
   if (btnSortMined) {
-    btnSortMined.innerHTML = minedSortRecentFirst ? "<span>🔃 Recientes primero</span>" : "<span>🔃 Antiguas primero</span>";
+    btnSortMined.innerHTML = sortHtml;
+  }
+  if (btnSortMinedFlyout) {
+    btnSortMinedFlyout.innerHTML = sortHtml;
   }
 
   if (btnToggleExpand) {
