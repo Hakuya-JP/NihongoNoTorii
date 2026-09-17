@@ -805,7 +805,7 @@ function renderHeaderRPG_HUD() {
   const soundActive = typeof userProfile !== "undefined" && userProfile.musicEnabled !== false && userProfile.soundEnabled !== false;
   const isMuted = !soundActive || !isPlaying || currentVolume === 0;
 
-  const userName = (typeof userProfile !== "undefined" && userProfile.nombre) ? userProfile.nombre : "はくや（白夜）";
+  const userName = (typeof userProfile !== "undefined" && userProfile.nombre) ? userProfile.nombre : "Aprendiz Torii";
   const userTag = (typeof userProfile !== "undefined" && userProfile.tag) ? userProfile.tag : "hakuya_mitsumine";
   const userAvatar = (typeof userProfile !== "undefined" && userProfile.avatar) ? userProfile.avatar : "⛩️";
   const userLema = (typeof userProfile !== "undefined" && userProfile.lema) ? userProfile.lema : "明日のことは、明日にならないとわからない。わからないからこそ、生きている意味があるのかもしれない 🍥";
@@ -1109,7 +1109,7 @@ function cargarImagenFondoHUD(event) {
 function copiarInfoUsuario() {
   const currentXp = typeof userProfile !== "undefined" ? (userProfile.xp || 0) : 0;
   const info = calcularInfoNivel(currentXp);
-  const nombre = (typeof userProfile !== "undefined" && userProfile.nombre) ? userProfile.nombre : "はくや（白夜）";
+  const nombre = (typeof userProfile !== "undefined" && userProfile.nombre) ? userProfile.nombre : "Aprendiz Torii";
   const texto = `⛩️ ${nombre} | ${info.titulo} (Lv. ${info.level} · ${currentXp} XP) - Nihongo no Torii`;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(texto).then(() => {

@@ -2,7 +2,7 @@
 // SECCIÓN 6 (PERFIL): MÓDULO PERFIL DEL ESTUDIANTE
 // ==========================================================================
 let userProfile = {
-  nombre: "はくや（白夜）",
+  nombre: "Aprendiz Torii",
   tag: "hakuya_mitsumine",
   avatar: "⛩️",
   nivelObjetivo: "JLPT N5",
@@ -31,6 +31,11 @@ function initUserProfileModule() {
   if (guardado) {
     try {
       userProfile = { ...userProfile, ...JSON.parse(guardado) };
+      // Si el nombre guardado era el predeterminado antiguo, actualizarlo a "Aprendiz Torii"
+      if (userProfile.nombre === "はくや（白夜）" || userProfile.nombre === "Estudiante Torii") {
+        userProfile.nombre = "Aprendiz Torii";
+        guardarPerfil();
+      }
     } catch (e) {
       console.warn("Error al cargar perfil de usuario:", e);
     }
@@ -123,7 +128,7 @@ function asegurarModalEditarPerfilEnDOM() {
           <!-- NOMBRE DEL ESTUDIANTE -->
           <div class="form-group">
             <label for="input-profile-name" class="form-label">Nombre o Apodo (氏名 / Name)</label>
-            <input type="text" id="input-profile-name" class="form-control" required placeholder="Ej: はくや（白夜）, SATOU UTSUJI..." maxlength="40" />
+            <input type="text" id="input-profile-name" class="form-control" required placeholder="Ej: Aprendiz Torii, SATOU UTSUJI..." maxlength="40" />
           </div>
 
           <!-- TAG O HANDLE DE USUARIO -->
@@ -302,7 +307,7 @@ function abrirModalEditarPerfil() {
   const selectCountry = modal.querySelector("#select-profile-country");
   const selectTheme = modal.querySelector("#select-profile-hud-theme");
 
-  if (inputName) inputName.value = userProfile.nombre || "はくや（白夜）";
+  if (inputName) inputName.value = userProfile.nombre || "Aprendiz Torii";
   if (inputTag) inputTag.value = userProfile.tag || "hakuya_mitsumine";
   if (selectLevel) selectLevel.value = userProfile.nivelObjetivo || "JLPT N5";
   if (inputMotto) inputMotto.value = userProfile.lema || "";
@@ -354,7 +359,7 @@ function guardarEdicionPerfil() {
   const selectCountry = modal.querySelector("#select-profile-country");
   const selectTheme = modal.querySelector("#select-profile-hud-theme");
 
-  const nuevoNombre = inputName && inputName.value.trim() ? inputName.value.trim() : "はくや（白夜）";
+  const nuevoNombre = inputName && inputName.value.trim() ? inputName.value.trim() : "Aprendiz Torii";
   const nuevoTag = inputTag && inputTag.value.trim() ? inputTag.value.trim().replace(/^@/, '') : "hakuya_mitsumine";
   const nuevoNivel = selectLevel ? selectLevel.value : "JLPT N5";
   const nuevoLema = inputMotto ? inputMotto.value.trim() : "";

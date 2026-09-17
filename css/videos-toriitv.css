@@ -84,7 +84,7 @@
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
   position: sticky;
   top: 80px;
-  z-index: 50;
+  z-index: 10000;
   box-sizing: border-box;
 }
 
@@ -188,11 +188,13 @@
 .compact-anki-flyout {
   position: absolute !important;
   left: calc(100% + 14px) !important;
-  top: 0 !important;
-  bottom: auto !important;
-  width: 310px !important;
-  z-index: 999 !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22) !important;
+  bottom: -20px !important;
+  top: auto !important;
+  width: 320px !important;
+  z-index: 10001 !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35) !important;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 /* Indicador numérico (Pill) en el icono de tarjetas */
@@ -781,6 +783,9 @@ body.sin-furigana .sub-line rt {
     left: 50% !important;
     transform: translateX(-50%) !important;
     top: calc(100% + 8px) !important;
+    bottom: auto !important;
+    max-height: 75vh;
+    z-index: 10001 !important;
   }
   .subtitles-sidebar {
     width: 100%;

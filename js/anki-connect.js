@@ -87,18 +87,27 @@ function initAnkiConfigModule() {
   if (btnConnectAnki) {
     btnConnectAnki.addEventListener("click", async () => {
       btnConnectAnki.innerHTML = "<span>⏳ Solicitando conexión con Anki...</span>";
-      await cargarMazosAnki();
+      await cargarMazosAnki(false);
     });
   }
 
   if (btnRefreshDecks) {
-    btnRefreshDecks.addEventListener("click", cargarMazosAnki);
+    btnRefreshDecks.addEventListener("click", () => cargarMazosAnki(false));
   }
 
   if (btnToggleAnki && panelAnki) {
     btnToggleAnki.addEventListener("click", (e) => {
       e.stopPropagation();
+      const estabaOculto = panelAnki.classList.contains("oculto");
       panelAnki.classList.toggle("oculto");
+      if (estabaOculto) {
+        // Al abrir, si no está conectado o no se han cargado mazos, verificar conexión
+        const statusIndicator = document.getElementById("anki-status-indicator");
+        const yaConectado = statusIndicator && statusIndicator.classList.contains("online");
+        if (!yaConectado) {
+          cargarMazosAnki(true);
+        }
+      }
     });
 
     document.addEventListener("click", (e) => {
@@ -126,9 +135,14 @@ function initAnkiConfigModule() {
       if (typeof mostrarToast === "function") mostrarToast("⚙️ Ajustes de Anki guardados");
     });
   }
+
+  // Verificación inicial silenciosa al cargar la página
+  if (ankiConfig.enabled !== false) {
+    cargarMazosAnki(true);
+  }
 }
 
-async function cargarMazosAnki() {
+async function cargarMazosAnki(silent = false) {
   const selectDeck = document.getElementById("anki-deck-select");
   const statusIndicator = document.getElementById("anki-status-indicator");
   const helpInfo = document.getElementById("anki-help-info");
@@ -140,37 +154,45 @@ async function cargarMazosAnki() {
   const resDecks = await invokeAnki("deckNames");
 
   if (resDecks.error || !resDecks.result) {
-    selectDeck.innerHTML = '<option value="Default">Default (Offline)</option>';
+    if (!selectDeck.options || selectDeck.options.length <= 1) {
+      selectDeck.innerHTML = '<option value="Default">Default (Offline)</option>';
+    }
 
     if (statusIndicator) {
       statusIndicator.textContent = "● Desconectado";
       statusIndicator.className = "anki-status offline";
     }
 
+    // Solo se muestra el botón de conectar si realmente está desconectado
     if (btnConnectAnki) {
       btnConnectAnki.style.display = "flex";
-      btnConnectAnki.innerHTML = "<span>🔗 Reintentar Conexión a Anki</span>";
+      btnConnectAnki.innerHTML = "<span>🔗 Conectar con AnkiConnect</span>";
     }
 
     if (settingsGroup) settingsGroup.style.display = "none";
 
     if (helpInfo) {
-      helpInfo.style.display = "block";
-      if (resDecks.errorType === "MIXED_CONTENT") {
-        helpInfo.innerHTML = `<strong>⚠️ Solicitud de Permiso / Conexión:</strong> Si el navegador o Anki abrió una ventana emergente pidiendo permiso, haz clic en <strong>Permitir</strong>.<br><br>💡 Si usas HTTPS, abre la app desde <strong>http://</strong> o permite contenido no seguro en los ajustes de URL.`;
+      if (!silent) {
+        helpInfo.style.display = "block";
+        if (resDecks.errorType === "MIXED_CONTENT") {
+          helpInfo.innerHTML = `<strong>⚠️ Solicitud de Permiso / Conexión:</strong> Si el navegador o Anki abrió una ventana emergente pidiendo permiso, haz clic en <strong>Permitir</strong>.<br><br>💡 Si usas HTTPS, abre la app desde <strong>http://</strong> o permite contenido no seguro en los ajustes de URL.`;
+        } else {
+          helpInfo.innerHTML = `<strong>⚠️ Anki no responde:</strong><br>1. Asegúrate de tener Anki abierto.<br>2. Revisa que el complemento <strong>AnkiConnect</strong> (código: <code>2055492159</code>) esté instalado.`;
+        }
       } else {
-        helpInfo.innerHTML = `<strong>⚠️ Anki no responde:</strong><br>1. Asegúrate de tener Anki abierto.<br>2. Revisa que el complemento <strong>AnkiConnect</strong> (código: <code>2055492159</code>) esté instalado.`;
+        helpInfo.style.display = "none";
       }
     }
     return;
   }
 
-  // Conexión exitosa
+  // Conexión exitosa: Anki ya está conectado
   if (statusIndicator) {
     statusIndicator.textContent = "● Conectado";
     statusIndicator.className = "anki-status online";
   }
 
+  // Quitar el botón de conectar si ya está conectado (es redundante)
   if (btnConnectAnki) {
     btnConnectAnki.style.display = "none";
   }
