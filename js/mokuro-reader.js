@@ -60,7 +60,6 @@
   // Sincronizar checkboxes del menú con el estado
   function syncUIWithState() {
     const checkR2l = document.getElementById('chk-r2l');
-    const checkDouble = document.getElementById('chk-double-page');
     const checkCover = document.getElementById('chk-has-cover');
     const checkOcr = document.getElementById('chk-enable-ocr');
     const checkBorders = document.getElementById('chk-show-borders');
@@ -70,7 +69,6 @@
     const checkEInk = document.getElementById('chk-eink-mode');
 
     if (checkR2l) checkR2l.checked = mokuroState.isR2L;
-    if (checkDouble) checkDouble.checked = mokuroState.isDoublePage;
     if (checkCover) checkCover.checked = mokuroState.hasCover;
     if (checkOcr) checkOcr.checked = mokuroState.showOcr;
     if (checkBorders) checkBorders.checked = mokuroState.showBorders;
@@ -79,7 +77,23 @@
     if (selectFontSize) selectFontSize.value = mokuroState.fontSize;
     if (checkEInk) checkEInk.checked = mokuroState.eInkMode;
 
+    updateDoublePageToolbarBtn();
     updateContainerClasses();
+  }
+
+  function updateDoublePageToolbarBtn() {
+    const btn = document.getElementById('btn-toggle-double-page');
+    const textEl = document.getElementById('double-page-btn-text');
+    if (!btn) return;
+    if (mokuroState.isDoublePage) {
+      btn.classList.add('active');
+      btn.title = 'Modo Doble Página ACTIVO (Clic para 1 Página)';
+      if (textEl) textEl.textContent = 'Doble Pág.';
+    } else {
+      btn.classList.remove('active');
+      btn.title = 'Modo 1 Página ACTIVO (Clic para Doble Página)';
+      if (textEl) textEl.textContent = 'Doble Página';
+    }
   }
 
   function updateContainerClasses() {
@@ -152,6 +166,10 @@
         }
         // Bloquear arrastre en barras de herramientas, popups y controles
         if (e.target.closest('.mokuro-toolbar') || e.target.closest('.torii-quick-popup') || e.target.closest('.reader-bottom-scrubber')) {
+          return true;
+        }
+        // Si el modo editable está activo y el clic es sobre un cuadro de texto, ceder el evento
+        if (mokuroState.editableText && e.target.closest('.textBox')) {
           return true;
         }
         // Permitir arrastre fluido con clic izquierdo cuando hay zoom activo
@@ -497,6 +515,8 @@
 
     if (total === 0) return;
 
+    closeToriiMiningPopup();
+
     // Asegurar índice dentro de los límites
     if (mokuroState.currentPageIdx < 0) mokuroState.currentPageIdx = 0;
     if (mokuroState.currentPageIdx >= total) mokuroState.currentPageIdx = total - 1;
@@ -671,7 +691,16 @@
         boxDiv.appendChild(p);
       });
 
-      // Evento de clic derecho: Abrir menú Torii de minado rápido
+      // Clic izquierdo: abrir popup de minado (solo si el modo editable está inactivo)
+      boxDiv.addEventListener('click', (e) => {
+        if (mokuroState.editableText) return; // Permitir edición nativa con clic izquierdo
+        e.preventDefault();
+        e.stopPropagation();
+        const fullText = lines.join(' ');
+        openToriiMiningPopup(fullText, e.clientX, e.clientY);
+      });
+
+      // Clic derecho: abrir popup de minado siempre (incluso en modo editable)
       boxDiv.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -850,6 +879,19 @@
     popup.style.left = `${posX}px`;
     popup.style.top = `${posY}px`;
     popup.style.display = 'block';
+
+    // Refrescar estado del botón toggle de OCR editable
+    const btnEd = document.getElementById('btn-toggle-editable-popup');
+    const lblEd = document.getElementById('editable-popup-label');
+    if (btnEd) {
+      if (mokuroState.editableText) {
+        btnEd.classList.add('active');
+        if (lblEd) lblEd.textContent = 'OCR: ON';
+      } else {
+        btnEd.classList.remove('active');
+        if (lblEd) lblEd.textContent = 'OCR OFF';
+      }
+    }
   }
 
   function closeToriiMiningPopup() {
@@ -911,7 +953,8 @@
       <div id="snipping-selection-box" class="snipping-selection-box"></div>
     `;
 
-    document.body.appendChild(overlay);
+    const hostTarget = document.fullscreenElement || document.webkitFullscreenElement || document.getElementById('mokuro-reader-wrapper') || document.body;
+    hostTarget.appendChild(overlay);
 
     const box = overlay.querySelector('#snipping-selection-box');
     let isDragging = false;
@@ -1161,7 +1204,7 @@
     const modal = document.createElement('div');
     modal.id = 'modal-anki-manga-creator';
     modal.className = 'modal-overlay-manga active';
-    modal.style.zIndex = '10002';
+    modal.style.zIndex = '100080';
 
     modal.innerHTML = `
       <div class="modal-content-manga modal-anki-manga" style="max-width: 540px; padding: 24px; border-radius: 20px;">
@@ -1257,7 +1300,8 @@
       </div>
     `;
 
-    document.body.appendChild(modal);
+    const hostTarget = document.fullscreenElement || document.webkitFullscreenElement || document.getElementById('mokuro-reader-wrapper') || document.body;
+    hostTarget.appendChild(modal);
 
     const inputKanji = modal.querySelector('#input-anki-front-kanji');
     const inputSentence = modal.querySelector('#input-anki-back-sentence');
@@ -1500,6 +1544,7 @@
     const container = document.getElementById('mokuro-pages-container');
     if (wrapper) {
       wrapper.classList.add('active');
+      document.body.classList.add('mokuro-reading-active');
       document.body.style.overflow = 'hidden';
       if (container) container.innerHTML = '';
       currentMangaKey = null;           // Forzar reconstrucción de páginas
@@ -1514,6 +1559,7 @@
     const stage = document.getElementById('mokuro-stage');
     if (wrapper) {
       wrapper.classList.remove('active');
+      document.body.classList.remove('mokuro-reading-active');
       document.body.style.overflow = '';
       if (pzInstance) {
         pzInstance.dispose();
@@ -1789,11 +1835,20 @@
     const btnFitScreen = document.getElementById('btn-zoom-fit-screen');
     const btnFitWidth = document.getElementById('btn-zoom-fit-width');
     const btnZoomOriginal = document.getElementById('btn-zoom-original');
+    const btnDoublePage = document.getElementById('btn-toggle-double-page');
     const btnFullscreen = document.getElementById('btn-toggle-fullscreen');
 
     if (btnFitScreen) btnFitScreen.addEventListener('click', zoomFitToScreen);
     if (btnFitWidth) btnFitWidth.addEventListener('click', zoomFitToWidth);
     if (btnZoomOriginal) btnZoomOriginal.addEventListener('click', zoomOriginal);
+    if (btnDoublePage) {
+      btnDoublePage.addEventListener('click', () => {
+        mokuroState.isDoublePage = !mokuroState.isDoublePage;
+        savePreferences();
+        syncUIWithState();
+        renderCurrentPages();
+      });
+    }
     if (btnFullscreen) btnFullscreen.addEventListener('click', toggleFullScreen);
 
     // Menú de opciones (Dropdown)
@@ -1890,7 +1945,6 @@
 
     // Opciones de configuración
     const chkR2l = document.getElementById('chk-r2l');
-    const chkDouble = document.getElementById('chk-double-page');
     const chkCover = document.getElementById('chk-has-cover');
     const chkOcr = document.getElementById('chk-enable-ocr');
     const chkBorders = document.getElementById('chk-show-borders');
@@ -1908,13 +1962,6 @@
       });
     }
 
-    if (chkDouble) {
-      chkDouble.addEventListener('change', (e) => {
-        mokuroState.isDoublePage = e.target.checked;
-        savePreferences();
-        renderCurrentPages();
-      });
-    }
 
     if (chkCover) {
       chkCover.addEventListener('change', (e) => {
@@ -1952,6 +1999,7 @@
         mokuroState.editableText = e.target.checked;
         const boxes = document.querySelectorAll('.textBox');
         boxes.forEach(b => b.contentEditable = mokuroState.editableText ? 'true' : 'false');
+        document.body.classList.toggle('ocr-edit-mode', mokuroState.editableText);
       });
     }
 
@@ -1980,13 +2028,49 @@
     // Popup de Minado Torii
     const btnClosePopup = document.getElementById('btn-close-quick-popup');
     const btnCopyPopup = document.getElementById('btn-copy-quick-text');
-    const btnSpeakPopup = document.getElementById('btn-speak-quick-text');
+    const btnToggleEditablePopup = document.getElementById('btn-toggle-editable-popup');
     const btnMinePopup = document.getElementById('btn-mine-quick-text');
+
+    function updateEditablePopupBtn() {
+      if (!btnToggleEditablePopup) return;
+      const labelEl = document.getElementById('editable-popup-label');
+      if (mokuroState.editableText) {
+        btnToggleEditablePopup.classList.add('active');
+        btnToggleEditablePopup.title = 'Texto OCR editable: ACTIVO (clic para desactivar)';
+        if (labelEl) labelEl.textContent = 'OCR: ON';
+      } else {
+        btnToggleEditablePopup.classList.remove('active');
+        btnToggleEditablePopup.title = 'Texto OCR editable: INACTIVO (clic para activar)';
+        if (labelEl) labelEl.textContent = 'OCR OFF';
+      }
+    }
 
     if (btnClosePopup) btnClosePopup.addEventListener('click', closeToriiMiningPopup);
     if (btnCopyPopup) btnCopyPopup.addEventListener('click', copyCurrentMokuroText);
-    if (btnSpeakPopup) btnSpeakPopup.addEventListener('click', () => playPronunciation(mokuroState.activeTextBoxText));
+    if (btnToggleEditablePopup) {
+      btnToggleEditablePopup.addEventListener('click', () => {
+        mokuroState.editableText = !mokuroState.editableText;
+        const boxes = document.querySelectorAll('.textBox');
+        boxes.forEach(b => b.contentEditable = mokuroState.editableText ? 'true' : 'false');
+        document.body.classList.toggle('ocr-edit-mode', mokuroState.editableText);
+        // Sync with the dropdown checkbox if still present
+        const chkEd = document.getElementById('chk-editable-text');
+        if (chkEd) chkEd.checked = mokuroState.editableText;
+        updateEditablePopupBtn();
+      });
+    }
     if (btnMinePopup) btnMinePopup.addEventListener('click', mineCurrentMokuroText);
+
+    // Cerrar torii-quick-popup al hacer clic o toque fuera de él
+    document.addEventListener('pointerdown', (e) => {
+      const popup = document.getElementById('torii-quick-popup');
+      if (!popup || popup.style.display === 'none') return;
+      // Si el clic fue dentro del popup o en una caja de diálogo de Mokuro, no cerrar aquí
+      if (popup.contains(e.target) || e.target.closest('.torii-quick-popup') || e.target.closest('.mokuro-text-box')) {
+        return;
+      }
+      closeToriiMiningPopup();
+    });
 
     // Atajos de Teclado
     document.addEventListener('keydown', (e) => {

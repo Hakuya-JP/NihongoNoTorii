@@ -289,11 +289,13 @@ function exportarListaAAnkiTxt() {
 
 function mostrarToast(mensaje) {
   let toast = document.getElementById("torii-toast");
-  if (!toast) {
+  const targetParent = document.fullscreenElement || document.webkitFullscreenElement || document.body;
+  if (!toast || toast.parentElement !== targetParent) {
+    if (toast) toast.remove();
     toast = document.createElement("div");
     toast.id = "torii-toast";
     toast.className = "torii-toast";
-    document.body.appendChild(toast);
+    targetParent.appendChild(toast);
   }
 
   toast.textContent = mensaje;

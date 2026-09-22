@@ -449,6 +449,55 @@ function initVideoPlayerModule() {
     if (!video.getAttribute("src") && inputVideo) inputVideo.click();
   });
 
+  // Sincronización continua de altura entre la barra de herramientas, subtítulos y el reproductor de video
+  const playerCompactSidebar = document.getElementById("player-compact-sidebar");
+  const subtitlesSidebar = document.querySelector(".subtitles-sidebar");
+
+  function sincronizarAlturasConReproductor() {
+    if (!videoWrapper || !playerCompactSidebar) return;
+    if (document.fullscreenElement || window.innerWidth <= 680) {
+      playerCompactSidebar.style.height = "";
+      if (subtitlesSidebar) subtitlesSidebar.style.height = "";
+      return;
+    }
+
+    const alturaVideo = videoWrapper.clientHeight;
+    if (alturaVideo > 80) {
+      playerCompactSidebar.style.height = `${alturaVideo}px`;
+      if (subtitlesSidebar) {
+        subtitlesSidebar.style.height = `${alturaVideo}px`;
+      }
+    }
+  }
+
+  // Observador de cambio de tamaño en tiempo real sobre el marco del video
+  if (window.ResizeObserver && videoWrapper) {
+    const videoResizeObserver = new ResizeObserver(() => {
+      sincronizarAlturasConReproductor();
+    });
+    videoResizeObserver.observe(videoWrapper);
+    videoResizeObserver.observe(video);
+  }
+
+  // Adaptar la proporción del marco al aspecto nativo del archivo de video cargado (elimina barras negras)
+  video.addEventListener("loadedmetadata", () => {
+    if (video.videoWidth && video.videoHeight) {
+      video.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+    }
+    sincronizarAlturasConReproductor();
+  });
+  video.addEventListener("play", sincronizarAlturasConReproductor);
+  video.addEventListener("playing", sincronizarAlturasConReproductor);
+  video.addEventListener("timeupdate", () => {
+    if (videoWrapper && playerCompactSidebar && Math.abs(videoWrapper.clientHeight - playerCompactSidebar.clientHeight) > 4) {
+      sincronizarAlturasConReproductor();
+    }
+  });
+  window.addEventListener("resize", sincronizarAlturasConReproductor);
+  sincronizarAlturasConReproductor();
+  setTimeout(sincronizarAlturasConReproductor, 150);
+  setTimeout(sincronizarAlturasConReproductor, 500);
+
   if (subListContainer) {
     subListContainer.addEventListener("click", (e) => {
       if (subtitulos.length === 0 && inputSub && !e.target.closest('.sub-line')) {
@@ -470,6 +519,7 @@ function initVideoPlayerModule() {
           overlaySub.innerText = "";
           overlaySub.classList.remove("centrado");
         }
+        sincronizarAlturasConReproductor();
         
         if (subtitulos.length === 0 && subListContainer) {
           subListContainer.innerHTML = `
@@ -650,6 +700,9 @@ function initVideoPlayerModule() {
       lineDiv.addEventListener("click", (e) => {
         if (e.target.classList.contains("btn-anki-star")) return;
         video.currentTime = sub.inicio + timeOffset;
+        isUserScrollingSubtitles = false;
+        ultimoSubIndexActivo = index;
+        centrarSubtituloEnLista(index, true);
         video.play().catch(() => {});
       });
 
@@ -703,6 +756,56 @@ function initVideoPlayerModule() {
 
       subListContainer.appendChild(lineDiv);
     });
+    sincronizarAlturasConReproductor();
+  }
+
+  // Control de scroll inteligente para la lista de subtítulos
+  let ultimoSubIndexActivo = -1;
+  let isUserScrollingSubtitles = false;
+  let userSubScrollTimeout = null;
+
+  function registrarScrollManualUsuario() {
+    isUserScrollingSubtitles = true;
+    if (userSubScrollTimeout) clearTimeout(userSubScrollTimeout);
+    userSubScrollTimeout = setTimeout(() => {
+      isUserScrollingSubtitles = false;
+      // Al terminar de leer manualmente, volver a centrar suavemente el subtítulo que está sonando
+      if (ultimoSubIndexActivo !== -1) {
+        centrarSubtituloEnLista(ultimoSubIndexActivo, false);
+      }
+    }, 2800);
+  }
+
+  if (subListContainer) {
+    subListContainer.addEventListener("wheel", registrarScrollManualUsuario, { passive: true });
+    subListContainer.addEventListener("touchmove", registrarScrollManualUsuario, { passive: true });
+  }
+
+  function centrarSubtituloEnLista(index, force = false) {
+    if (!subListContainer) return;
+    const targetDiv = subListContainer.children[index];
+    if (!targetDiv) return;
+
+    // Resaltar elemento activo
+    const prevActive = subListContainer.querySelector(".sub-line.active");
+    if (prevActive && prevActive !== targetDiv) {
+      prevActive.classList.remove("active");
+    }
+    targetDiv.classList.add("active");
+
+    // Si el usuario está leyendo manualmente hacia arriba o abajo, no forzar movimiento salvo clic explícito
+    if (isUserScrollingSubtitles && !force) return;
+
+    // Centrar suavemente la línea activa en el medio vertical del contenedor
+    const containerHeight = subListContainer.clientHeight;
+    const targetTop = targetDiv.offsetTop;
+    const targetHeight = targetDiv.clientHeight;
+    const scrollToY = targetTop - (containerHeight / 2) + (targetHeight / 2);
+
+    subListContainer.scrollTo({
+      top: Math.max(0, scrollToY),
+      behavior: "smooth"
+    });
   }
 
   // Sincronización continua de Video y Subtítulos + Contador de Tiempo de Estudio
@@ -720,7 +823,8 @@ function initVideoPlayerModule() {
     if (subtitulos.length === 0) return;
 
     const currentTime = video.currentTime;
-    const subActual = subtitulos.find(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
+    const subActualIndex = subtitulos.findIndex(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
+    const subActual = subActualIndex !== -1 ? subtitulos[subActualIndex] : null;
 
     if (overlaySub) {
       if (subActual) {
@@ -731,16 +835,16 @@ function initVideoPlayerModule() {
     }
 
     if (subListContainer) {
-      const activeDiv = subListContainer.querySelector(".sub-line.active");
-      if (activeDiv) activeDiv.classList.remove("active");
-
-      if (subActual) {
-        const index = subtitulos.indexOf(subActual);
-        const targetDiv = subListContainer.children[index];
-        if (targetDiv) {
-          targetDiv.classList.add("active");
-          targetDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (subActualIndex !== -1) {
+        // Solo accionar cuando el subtítulo realmente cambia de línea
+        if (subActualIndex !== ultimoSubIndexActivo) {
+          ultimoSubIndexActivo = subActualIndex;
+          centrarSubtituloEnLista(subActualIndex, false);
         }
+      } else if (ultimoSubIndexActivo !== -1) {
+        const activeDiv = subListContainer.querySelector(".sub-line.active");
+        if (activeDiv) activeDiv.classList.remove("active");
+        ultimoSubIndexActivo = -1;
       }
     }
   });

@@ -483,7 +483,7 @@ function renderPreguntaActual() {
           <div class="mondai-image-box">
             <div class="mondai-image-wrapper" onclick="abrirModalImagen('${mondaiImg}')" title="Haz clic para ampliar la instrucción/ejemplo del もんだい">
               <img src="${mondaiImg}" alt="Instrucción de ${mondaiTitulo}">
-              <span class="image-zoom-hint">🔍 Haz clic para ampliar instrucción/ejemplo</span>
+              <span class="image-zoom-hint">🔍 Haz clic para ampliar</span>
             </div>
           </div>
         ` : ''}

@@ -213,11 +213,14 @@
       <button id="btn-next-page" class="toolbar-btn" title="Página Siguiente">▶</button>
     </div>
 
-    <!-- Grupo Derecho: Zoom y Ajustes -->
+    <!-- Grupo Derecho: Zoom, Vistas y Ajustes -->
     <div class="toolbar-group">
       <button id="btn-zoom-fit-screen" class="toolbar-btn" title="Ajustar a Pantalla">Ajuste Automatico</button>
       <button id="btn-zoom-fit-width" class="toolbar-btn" title="Ajustar a Ancho">↔ Ancho</button>
       <button id="btn-zoom-original" class="toolbar-btn" title="Tamaño 1:1">1:1</button>
+      <button id="btn-toggle-double-page" class="toolbar-btn" title="Alternar Vista Doble Página (2 Páginas)">
+        <span>📖</span> <span id="double-page-btn-text">Doble Página</span>
+      </button>
       <button id="btn-toggle-fullscreen" class="toolbar-btn" title="Pantalla Completa">⛶</button>
 
       <!-- Configuración de AnkiConnect con Menú Flotante estilo ToriiTV -->
@@ -281,10 +284,6 @@
             <input type="checkbox" id="chk-r2l" checked />
           </div>
 
-          <div class="dropdown-item-row">
-            <label for="chk-double-page">Vista Doble Página</label>
-            <input type="checkbox" id="chk-double-page" />
-          </div>
 
           <div class="dropdown-item-row">
             <label for="chk-has-cover">Primera página es portada</label>
@@ -374,8 +373,8 @@
       <button id="btn-mine-quick-text" class="btn-quick-action btn-mine-anki" title="Guardar tarjeta en Anki y Torii">
         <span>⚡</span> Minar a Anki
       </button>
-      <button id="btn-speak-quick-text" class="btn-quick-action" title="Escuchar pronunciación">
-        <span>🔊</span> Voz
+      <button id="btn-toggle-editable-popup" class="btn-quick-action" title="Activar/desactivar texto OCR Off">
+        <span>✏️</span> <span id="editable-popup-label">OCR Off</span>
       </button>
       <button id="btn-copy-quick-text" class="btn-quick-action" title="Copiar texto al portapapeles">
         <span>📋</span> Copiar

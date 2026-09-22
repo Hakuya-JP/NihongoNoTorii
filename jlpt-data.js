@@ -565,6 +565,9 @@ const JLPT_DATA = {
           preguntas: [
   {
     id: "n5-1-g1",
+    mondai: "もんだい 1",
+    mondaiInstruccion:"( )に 何を入れますか。1·2·3·4から いちばん",
+    mondaiImagen: "image/JLPT/N5/EjemploN5GM1.png",
     pregunta: "日本（ ____ ）ラーメンは おいしいです。",
     contexto: "",
     opciones: [
@@ -579,7 +582,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g2",
     pregunta: "わたしには きょうだいが 二人 います。弟（ ____ ）妹です。",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. は",
       "2. も",
@@ -592,7 +595,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g3",
     pregunta: "山下「田中さん（ ____ ）きのう どこかに 出かけましたか。」\n田中「いいえ、いえに いました。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. で",
       "2. は",
@@ -605,7 +608,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g4",
     pregunta: "（タクシーで）\nA「つぎの かどを 右（ ____ ）まがって ください。」\nB「わかりました。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. が",
       "2. や",
@@ -618,7 +621,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g5",
     pregunta: "きのう、わたしは ひとり（ ____ ）えいがを 見に 行きました。",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. が",
       "2. を",
@@ -631,7 +634,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g6",
     pregunta: "山下「今日 パーティーが ありますから、田中さん（ ____ ）来て ください。」\n田中「ありがとうございます。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. に",
       "2. も",
@@ -644,7 +647,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g7",
     pregunta: "田中「この ぼうしは 山田さん（ ____ ）ですか。」\n山田「はい。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. や",
       "2. は",
@@ -657,7 +660,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g8",
     pregunta: "駅まで タクシーで 1000円（ ____ ）です。",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. ぐらい",
       "2. など",
@@ -670,7 +673,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g9",
     pregunta: "A「さようなら。」\nB「さようなら。また（ ____ ）。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. おととい",
       "2. 今日",
@@ -683,7 +686,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g10",
     pregunta: "わたしの 母は 50さいです。父は 55さいです。母は 父（ ____ ）5さい わかいです。",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. から",
       "2. まで",
@@ -696,7 +699,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g11",
     pregunta: "子ども「いただきます。」\n母「あ、食べる（ ____ ）手を あらいましょう。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. まえに",
       "2. のまえに",
@@ -709,7 +712,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g12",
     pregunta: "A「東京でも 雪が ふりますか。」\nB「ええ、ふりますよ。でも、きょねんは あまり（ ____ ）。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. ふりませんでした",
       "2. ふりません",
@@ -721,7 +724,7 @@ const JLPT_DATA = {
   },{
     id: "n5-1-g13",
     pregunta: "（川で）\nA「見て ください。小さな 魚が たくさん（ ____ ）よ。」\nB「ほんとうですね。30ぴきくらい いますね。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. およぎます",
       "2. およぎません",
@@ -747,7 +750,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g15",
     pregunta: "たまごりょうりの じょうずな 作りかたを（ ____ ）読みました。",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. 何に",
       "2. 何も",
@@ -760,7 +763,7 @@ const JLPT_DATA = {
   {
     id: "n5-1-g16",
     pregunta: "（電話で）\n本田「はい、本田です。」\n北山「あ、北山花子です。すみません、（ ____ ）。」\n本田「はい。ちょっと まって くださいね。」",
-    contexto: "（ ）に 何を 入れますか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. ひろこさんを おねがいします",
       "2. ひろこさんを ください",
@@ -772,9 +775,11 @@ const JLPT_DATA = {
   },
   {
     id: "n5-2-g17",
+    mondai: "もんだい 2",
+    mondaiInstruccion:"★ に 何を入れますか。1·2·3·4から いちばん いい ものを 一つ えらんで ください。",
+    mondaiImagen: "image/JLPT/N5/EjemploN5GM2.png",
     pregunta: "（店で）\n田中「すみません。くだもの ＿ ＿ ★ ＿ か。」\n店の人「こちらです。」",
-    contexto: "★ に 入る ものは どれですか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
-    imagenUrl: "image/JLPT/N5/EjemploN5GM2.png",
+    contexto: "",
     opciones: [
       "1. どこ",
       "2. あります",
@@ -782,12 +787,12 @@ const JLPT_DATA = {
       "4. に"
     ],
     respuestaCorrecta: 4,
-    explicacion: "El orden correcto de la oración es 「くだもの [3. は] [1. どこ] [4. に] [2. あります] か」(くだものは どこに ありますか). Por lo tanto, la opción que ocupa la posición de la estrella (★) es la 4 (に)."
+    explicacion: "El orden correcto de la oración es 「くだもの [3. は] [1. どこ] [4. に] [2. あります] か」(くだものは どこに ありますか)."
   },
 {
     id: "n5-2-g18",
     pregunta: "A「山下さんは？」\nB「となりの へやで ＿ ＿ ★ ＿ して います。」",
-    contexto: "★ に 入る ものは どれですか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. れんしゅう",
       "2. の",
@@ -795,12 +800,12 @@ const JLPT_DATA = {
       "4. を"
     ],
     respuestaCorrecta: 1,
-    explicacion: "El orden correcto de la oración es 「ギター [3] の [2] れんしゅう [1] を [4] して います」(ギターの れんしゅうを して います). Por lo tanto, la opción que ocupa la posición de la estrella (★) es la 1 (れんしゅう)."
+    explicacion: "El orden correcto de la oración es 「ギター [3] の [2] れんしゅう [1] を [4] して います」(ギターの れんしゅうを して います)."
   },
   {
     id: "n5-2-g19",
     pregunta: "A「会社 ＿ ＿ ★ ＿ 行って いますか。」\nB「わたしは あるいて 行って います。」",
-    contexto: "★ に 入る ものは どれですか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    contexto: "",
     opciones: [
       "1. で",
       "2. は",
@@ -808,10 +813,10 @@ const JLPT_DATA = {
       "4. 何"
     ],
     respuestaCorrecta: 4,
-    explicacion: "El orden correcto de la oración es 「会社 [3] へ [2] は [4] 何 [1] で 行って いますか」(会社へは 何で 行っていますか). Por lo tanto, la opción que ocupa la posición de la estrella (★) es la 1 (で)."
+    explicacion: "El orden correcto de la oración es 「会社 [3] へ [2] は [4] 何 [1] で 行って いますか」(会社へは 何で 行っていますか)."
   },
   {
-    id: "n5-g2-v20",
+    id: "n5-2-g20",
     pregunta: "山田「ジョンさん、しゅくだいは ぜんぶ おわりましたか。」\nジョン「いいえ、まだです。ここ ＿ ＿ ★ ＿、さいごの もんだいが むずかしいです。」",
     contexto: "★ に 入る ものは どれですか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
     opciones: [
@@ -824,9 +829,9 @@ const JLPT_DATA = {
     explicacion: "El orden correcto de la oración es 「ここ [4] まで [1] は [2] かんたんでした [3] が、さいごの もんだいが むずかしいです」(ここまでは かんたんでしたが). Por lo tanto, la opción que ocupa la posición de la estrella (★) es la 2 (かんたんでした)."
   },
   {
-    id: "n5-g2-v21",
-    pregunta: "（本屋で）\nヤン「わたしは この 本を 買います。アンナさんは どんな 本が いいですか。」\nアンナ「わたしは もう一点 ＿ ＿ ★ ＿ が いいです。」",
-    contexto: "★ に 入る ものは どれですか。１・２・３・４から いちばん いい ものを 一つ えらんで ください。",
+    id: "n5-2-g21",
+    pregunta: "（本屋で）\nヤン「わたしは この 本を 買います。アンナさんは どんな 本が いいですか。」\nアンナ「わたしは もう　少し ＿ ＿ ★ ＿ が いいです。」",
+    contexto: "",
     opciones: [
       "1. 本",
       "2. かんたんな",
@@ -836,6 +841,77 @@ const JLPT_DATA = {
     respuestaCorrecta: 2,
     explicacion: "El orden correcto de la oración es 「もう 少し [2] かんたんな [4] 日本語の [1] 本が いいです」(もう 少し かんたんな 日本語の 本が いいです). La opción en la posición de la estrella (★) es la 1 (本), correspondiente al índice 0 del arreglo."
   },
+  {
+    id: "n5-3-g22",
+    mondai: "もんだい 3",
+    mondaiInstruccion:"[ 22 ] から [ 26 ] に 何を 入れますか。ぶんしょうのいみを かんがえて、1 · 2 · 3 · 4 から いちばん いい ものを　一つ えらんで ください。",
+    mondaiImagen: "image/JLPT/N5/EjemploN5GM3.png",
+    pregunta: "",
+    contexto: "",
+    opciones: [
+      "1. 行くから",
+      "2. 行ってから",
+      "3. 来るから",
+      "4. 来てから"
+    ],
+    respuestaCorrecta: 4,
+    explicacion: "El hablante ya está en Japón, por lo que utiliza el verbo 来る (venir). La estructura ~てから (después de / desde que) indica que desde que llegó a Japón ha comido en varios restaurantes: 「来てから」"
+  },
+  {
+    id: "n5-3-g23",
+    mondai: "もんだい 3",
+    mondaiInstruccion:"[ 22 ] から [ 26 ] に 何を 入れますか。ぶんしょうのいみを かんがえて、1 · 2 · 3 · 4 から いちばん いい ものを　一つ えらんで ください。",
+    mondaiImagen: "image/JLPT/N5/EjemploN5GM3p1.png",
+    pregunta: "",
+    contexto: "",
+    opciones: [
+      "1. 行きましたか",
+      "2. 行きませんか",
+      "3. 行って いましたか",
+      "4. 行って いませんか"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "Al dirigirse a los compañeros de clase con 「いっしょに」, la forma ~ませんか es la expresión estándar para hacer una invitación: '¿Por qué no vamos juntos?'"
+  },
+  {
+    id: "n5-3-g24",
+    pregunta: "わたしは えきの ちかくの 本屋が すきです。えきの ちかくの 本屋 【 24 】 大きい お店です。",
+    contexto: "文章の いみを かんがえて、１・２・３・４から いちばん いいものを ひとつ えらんで ください。",
+    opciones: [
+      "1. か",
+      "2. と",
+      "3. の",
+      "4. は"
+    ],
+    respuestaCorrecta: 3,
+    explicacion: "La partícula 「は」 se utiliza para marcar el tema de la oración: 'La librería cerca de la estación es un lugar grande'[cite: 17]."
+  },
+  {
+    id: "n5-3-g25",
+    pregunta: "外国の 本も 売って います。わたしの 国のも 【 25 】。",
+    contexto: "文章の いみを かんがえて、１・２・３・４から いちばん いいものを ひとつ record くだい。",
+    opciones: [
+      "1. います",
+      "2. 読みます",
+      "3. あります",
+      "4. します"
+    ],
+    respuestaCorrecta: 2,
+    explicacion: "Para hablar de la existencia de objetos inanimados (libros), se utiliza el verbo 「あります」: 'También hay (libros) de mi país'[cite: 17]."
+  },
+  {
+    id: "n5-3-g26",
+    pregunta: "そして、わたしが すきな りょうりの 本も 多いです。【 26 】、本は いつも えきの ちかくの 本屋で 買います。",
+    contexto: "文章の いみを かんがえて、１・２・３・４から いちばん いいものを ひとつ えらんで ください。",
+    opciones: [
+      "1. だから",
+      "2. では",
+      "3. それから",
+      "4. でも"
+    ],
+    respuestaCorrecta: 0,
+    explicacion: "El conector causal 「だから」 (por esa razón / por lo tanto) enlaza los motivos expuestos previamente con la conclusión de comprar siempre en esa librería[cite: 17]."
+  }
 
 
 ] },

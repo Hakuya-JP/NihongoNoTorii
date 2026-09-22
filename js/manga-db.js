@@ -1121,8 +1121,18 @@
       const btnCamera = volCard.querySelector('.btn-cover-thumb-overlay');
       if (btnCamera) btnCamera.addEventListener('click', handleVolCoverChange);
 
+      // Clic en la portada → abrir el manga directamente
       const thumbWrap = volCard.querySelector('.volume-thumb-wrap');
-      if (thumbWrap) thumbWrap.addEventListener('click', handleVolCoverChange);
+      if (thumbWrap) {
+        thumbWrap.style.cursor = 'pointer';
+        thumbWrap.title = 'Clic para leer este volumen';
+        thumbWrap.addEventListener('click', (e) => {
+          // Si el clic fue en el botón de cámara, no abrir el lector
+          if (e.target.closest('.btn-cover-thumb-overlay')) return;
+          modal.classList.remove('active');
+          launchMangaFromDB(vol.id, { volumes });
+        });
+      }
 
       // Evento leer este volumen específico
       const btnRead = volCard.querySelector('.btn-read-volume');

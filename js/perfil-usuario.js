@@ -3,7 +3,7 @@
 // ==========================================================================
 let userProfile = {
   nombre: "Aprendiz Torii",
-  tag: "hakuya_mitsumine",
+  tag: "Aprendiz_Torii",
   avatar: "⛩️",
   nivelObjetivo: "JLPT N5",
   lema: "明日のことは、明日にならないとわからない。わからないからこそ、生きている意味があるのかもしれない 🍥",
@@ -134,7 +134,7 @@ function asegurarModalEditarPerfilEnDOM() {
           <!-- TAG O HANDLE DE USUARIO -->
           <div class="form-group">
             <label for="input-profile-tag" class="form-label">Usuario / Tag (@handle)</label>
-            <input type="text" id="input-profile-tag" class="form-control" placeholder="Ej: hakuya_mitsumine" maxlength="30" />
+            <input type="text" id="input-profile-tag" class="form-control" placeholder="Ej: Aprendiz_Torii" maxlength="30" />
           </div>
 
           <!-- TEMA Y COLOR GENERAL DEL SITIO -->

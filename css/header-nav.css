@@ -11,7 +11,7 @@
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 999;
+  z-index: 20000 !important;
 }
 
 .nav-logo img {
@@ -317,6 +317,7 @@
     position: fixed; /* CORREGIDO: Cambiado de absolute a fixed para que acompañe el scroll */
     top: 75px;
     right: 0;
+    z-index: 20001 !important;
     background: var(--azul);
     width: 100%;
     text-align: center;
