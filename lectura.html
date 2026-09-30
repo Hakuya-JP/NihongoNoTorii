@@ -278,53 +278,104 @@
       <div class="mokuro-dropdown" id="mokuro-settings-dropdown">
         <button id="btn-settings-dropdown" class="toolbar-btn" title="Opciones de Lectura">⚙️ Opciones</button>
         <div class="mokuro-dropdown-menu">
+          <div class="mokuro-dropdown-header">
+            <span class="dropdown-header-title">⚙️ Ajustes de Lectura</span>
+          </div>
           
           <div class="dropdown-item-row">
-            <label for="chk-r2l">Lectura Derecha a Izq. (Manga)</label>
-            <input type="checkbox" id="chk-r2l" checked />
-          </div>
-
-
-          <div class="dropdown-item-row">
-            <label for="chk-has-cover">Primera página es portada</label>
-            <input type="checkbox" id="chk-has-cover" checked />
-          </div>
-
-          <div class="dropdown-item-row">
-            <label for="chk-enable-ocr">Capa OCR Activa</label>
-            <input type="checkbox" id="chk-enable-ocr" checked />
+            <label for="chk-r2l" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">📖</span>
+              <span class="dropdown-item-text">Lectura Derecha a Izq.</span>
+            </label>
+            <label class="torii-switch" for="chk-r2l" title="Lectura Derecha a Izquierda">
+              <input type="checkbox" id="chk-r2l" checked />
+              <span class="torii-switch-slider"></span>
+            </label>
           </div>
 
           <div class="dropdown-item-row">
-            <label for="chk-show-borders">Mostrar contornos OCR</label>
-            <input type="checkbox" id="chk-show-borders" />
+            <label for="chk-has-cover" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">📑</span>
+              <span class="dropdown-item-text">Primera pág. es portada</span>
+            </label>
+            <label class="torii-switch" for="chk-has-cover" title="Primera página como portada">
+              <input type="checkbox" id="chk-has-cover" checked />
+              <span class="torii-switch-slider"></span>
+            </label>
           </div>
 
           <div class="dropdown-item-row">
-            <label for="chk-always-ocr">Texto OCR siempre visible</label>
-            <input type="checkbox" id="chk-always-ocr" />
+            <label for="chk-enable-ocr" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">👁️</span>
+              <span class="dropdown-item-text">Capa OCR Activa</span>
+            </label>
+            <label class="torii-switch" for="chk-enable-ocr" title="Activar/desactivar capa OCR">
+              <input type="checkbox" id="chk-enable-ocr" checked />
+              <span class="torii-switch-slider"></span>
+            </label>
           </div>
 
           <div class="dropdown-item-row">
-            <label for="chk-editable-text">Texto OCR editable</label>
-            <input type="checkbox" id="chk-editable-text" />
+            <label for="chk-show-borders" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">🔲</span>
+              <span class="dropdown-item-text">Mostrar contornos OCR</span>
+            </label>
+            <label class="torii-switch" for="chk-show-borders" title="Mostrar contornos de cuadros OCR">
+              <input type="checkbox" id="chk-show-borders" />
+              <span class="torii-switch-slider"></span>
+            </label>
           </div>
 
           <div class="dropdown-item-row">
-            <label for="select-font-size">Tamaño de Fuente:</label>
-            <select id="select-font-size">
-              <option value="auto">Automático</option>
-              <option value="14">14px</option>
-              <option value="18">18px</option>
-              <option value="22">22px</option>
-              <option value="28">28px</option>
-              <option value="34">34px</option>
-            </select>
+            <label for="chk-always-ocr" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">💬</span>
+              <span class="dropdown-item-text">Texto OCR siempre visible</span>
+            </label>
+            <label class="torii-switch" for="chk-always-ocr" title="Hacer el texto OCR siempre visible">
+              <input type="checkbox" id="chk-always-ocr" />
+              <span class="torii-switch-slider"></span>
+            </label>
           </div>
 
           <div class="dropdown-item-row">
-            <label for="chk-eink-mode">Modo E-Ink (Alto Contraste)</label>
-            <input type="checkbox" id="chk-eink-mode" />
+            <label for="chk-editable-text" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">✏️</span>
+              <span class="dropdown-item-text">Texto OCR editable</span>
+            </label>
+            <label class="torii-switch" for="chk-editable-text" title="Habilitar edición de texto OCR">
+              <input type="checkbox" id="chk-editable-text" />
+              <span class="torii-switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="dropdown-item-row dropdown-select-row">
+            <label for="select-font-size" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">🔤</span>
+              <span class="dropdown-item-text">Fuente:</span>
+            </label>
+            <div class="dropdown-select-wrapper">
+              <select id="select-font-size" title="Seleccionar tamaño de fuente">
+                <option value="auto">Automático</option>
+                <option value="12">12px</option>
+                <option value="14">14px</option>
+                <option value="18">18px</option>
+                <option value="22">22px</option>
+                <option value="28">28px</option>
+                <option value="34">34px</option>
+                <option value="42">42px</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-eink-mode" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">🖤</span>
+              <span class="dropdown-item-text">Modo E-Ink (Alto Contraste)</span>
+            </label>
+            <label class="torii-switch" for="chk-eink-mode" title="Activar modo E-Ink">
+              <input type="checkbox" id="chk-eink-mode" />
+              <span class="torii-switch-slider"></span>
+            </label>
           </div>
 
         </div>
@@ -373,8 +424,8 @@
       <button id="btn-mine-quick-text" class="btn-quick-action btn-mine-anki" title="Guardar tarjeta en Anki y Torii">
         <span>⚡</span> Minar a Anki
       </button>
-      <button id="btn-toggle-editable-popup" class="btn-quick-action" title="Activar/desactivar texto OCR Off">
-        <span>✏️</span> <span id="editable-popup-label">OCR Off</span>
+      <button id="btn-toggle-editable-popup" class="btn-quick-action" title="Activar/desactivar texto OCR editable">
+        <span>✏️</span> <span id="editable-popup-label">OCR Editable</span>
       </button>
       <button id="btn-copy-quick-text" class="btn-quick-action" title="Copiar texto al portapapeles">
         <span>📋</span> Copiar

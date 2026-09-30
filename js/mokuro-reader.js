@@ -614,10 +614,10 @@
     pageDiv.className = 'mokuro-page';
     pageDiv.id = `mokuro-page-${pageIdx}`;
 
-    const initialW = pageData.img_width || 800;
-    const initialH = pageData.img_height || 1200;
-    pageDiv.style.width = `${initialW}px`;
-    pageDiv.style.height = `${initialH}px`;
+    const baseW = pageData.img_width || 800;
+    const baseH = pageData.img_height || 1200;
+    pageDiv.style.width = `${baseW}px`;
+    pageDiv.style.height = `${baseH}px`;
 
     const imgSrc = getImageUrl(pageData.img_path);
 
@@ -629,12 +629,13 @@
     // Si la imagen carga, actualizar dimensiones reales y reajustar pantalla
     img.onload = function() {
       if (img.naturalWidth && img.naturalHeight) {
-        if (!pageData.img_width || pageData.img_width === 800) {
+        // Solo sobrescribir si no había dimensiones en el Mokuro o no hay bloques OCR
+        if (!pageData.img_width || (!pageData.blocks || pageData.blocks.length === 0)) {
           pageData.img_width = img.naturalWidth;
           pageData.img_height = img.naturalHeight;
+          pageDiv.style.width = `${pageData.img_width}px`;
+          pageDiv.style.height = `${pageData.img_height}px`;
         }
-        pageDiv.style.width = `${pageData.img_width}px`;
-        pageDiv.style.height = `${pageData.img_height}px`;
       }
       applyCurrentZoomMode(); // Respetar el modo de zoom activo al cargar la imagen
     };
@@ -663,44 +664,151 @@
       if (mokuroState.editableText) boxDiv.contentEditable = 'true';
 
       const [xmin, ymin, xmax, ymax] = block.box;
-      const w = xmax - xmin;
-      const h = ymax - ymin;
+      const w = Math.max(1, xmax - xmin);
+      const h = Math.max(1, ymax - ymin);
 
-      boxDiv.style.left = `${xmin}px`;
-      boxDiv.style.top = `${ymin}px`;
-      boxDiv.style.width = `${w}px`;
-      boxDiv.style.height = `${h}px`;
+      // Posicionamiento porcentual sobre la página para calzar exactamente con la viñeta
+      boxDiv.style.left = `${(xmin / baseW) * 100}%`;
+      boxDiv.style.top = `${(ymin / baseH) * 100}%`;
+      boxDiv.style.width = `${(w / baseW) * 100}%`;
+      boxDiv.style.height = `${(h / baseH) * 100}%`;
       boxDiv.style.zIndex = 10 + bIdx;
-
-      let fSize = block.font_size || 18;
-      fSize = Math.max(12, Math.min(fSize, 36));
-      if (mokuroState.fontSize !== 'auto') {
-        fSize = parseInt(mokuroState.fontSize, 10);
-      }
-      boxDiv.style.fontSize = `${fSize}px`;
+      boxDiv.style.fontSize = (mokuroState.fontSize !== 'auto') ? `${mokuroState.fontSize}px` : `${block.font_size || 18}px`;
 
       if (block.vertical) {
         boxDiv.style.writingMode = 'vertical-rl';
+      } else {
+        boxDiv.style.writingMode = 'horizontal-tb';
       }
 
-      // Líneas de texto
+      // Líneas de texto y adaptación precisa a las letras del manga
       const lines = block.lines || [];
-      lines.forEach(lineText => {
+      const hasLineCoords = Array.isArray(block.lines_coords) && block.lines_coords.length === lines.length;
+
+      lines.forEach((lineText, lIdx) => {
         const p = document.createElement('p');
         p.textContent = lineText;
+
+        if (hasLineCoords) {
+          // Coordenadas exactas de cada línea detectadas por Mokuro
+          const coords = block.lines_coords[lIdx];
+          const xs = coords.map(pt => pt[0]);
+          const ys = coords.map(pt => pt[1]);
+          const lXmin = Math.min(...xs);
+          const lYmin = Math.min(...ys);
+          const lXmax = Math.max(...xs);
+          const lYmax = Math.max(...ys);
+          const lW = Math.max(1, lXmax - lXmin);
+          const lH = Math.max(1, lYmax - lYmin);
+
+          // Posición y dimensiones relativas (%) dentro de boxDiv
+          const relLeft = Math.max(0, Math.min(100, ((lXmin - xmin) / w) * 100));
+          const relTop = Math.max(0, Math.min(100, ((lYmin - ymin) / h) * 100));
+          const relWidth = Math.max(0.5, Math.min(100, (lW / w) * 100));
+          const relHeight = Math.max(0.5, Math.min(100, (lH / h) * 100));
+
+          p.style.position = 'absolute';
+          p.style.left = `${relLeft}%`;
+          p.style.top = `${relTop}%`;
+          p.style.width = `${relWidth}%`;
+          p.style.height = `${relHeight}%`;
+
+          const cleanText = lineText.trim();
+          const numChars = Math.max(1, cleanText.length);
+
+          if (block.vertical) {
+            p.style.writingMode = 'vertical-rl';
+            const charH = lH / numChars;
+            const idealFont = Math.min(lW * 0.95, charH);
+            const baseFont = block.font_size || idealFont;
+            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.35, 200));
+
+            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+            p.style.lineHeight = `${Math.max(lW, usedFont * 1.05).toFixed(1)}px`;
+
+            if (charH > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+              const extraSpace = (lH - (numChars * usedFont)) / (numChars - 1);
+              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+            }
+          } else {
+            p.style.writingMode = 'horizontal-tb';
+            const charW = lW / numChars;
+            const idealFont = Math.min(lH * 0.95, charW * 1.4);
+            const baseFont = block.font_size || idealFont;
+            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.35, 200));
+
+            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+            p.style.lineHeight = `${Math.max(lH, usedFont * 1.05).toFixed(1)}px`;
+
+            if (charW > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+              const extraSpace = (lW - (numChars * usedFont)) / (numChars - 1);
+              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+            }
+          }
+        } else {
+          // Distribución uniforme de columnas/filas si no hay lines_coords
+          const numLines = Math.max(1, lines.length);
+          const cleanText = lineText.trim();
+          const numChars = Math.max(1, cleanText.length);
+
+          p.style.position = 'absolute';
+          if (block.vertical) {
+            p.style.writingMode = 'vertical-rl';
+            const colW = w / numLines;
+            const leftPct = ((numLines - 1 - lIdx) / numLines) * 100;
+            const widthPct = (1 / numLines) * 100;
+
+            p.style.left = `${leftPct}%`;
+            p.style.top = '0%';
+            p.style.width = `${widthPct}%`;
+            p.style.height = '100%';
+
+            const charH = h / numChars;
+            const idealFont = Math.min(colW * 0.92, charH);
+            const baseFont = block.font_size || idealFont;
+            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.25, 200));
+
+            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+            p.style.lineHeight = `${Math.max(colW, usedFont * 1.05).toFixed(1)}px`;
+
+            if (charH > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+              const extraSpace = (h - (numChars * usedFont)) / (numChars - 1);
+              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+            }
+          } else {
+            p.style.writingMode = 'horizontal-tb';
+            const rowH = h / numLines;
+            const topPct = (lIdx / numLines) * 100;
+            const heightPct = (1 / numLines) * 100;
+
+            p.style.left = '0%';
+            p.style.top = `${topPct}%`;
+            p.style.width = '100%';
+            p.style.height = `${heightPct}%`;
+
+            const charW = w / numChars;
+            const idealFont = Math.min(rowH * 0.92, charW * 1.4);
+            const baseFont = block.font_size || idealFont;
+            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.25, 200));
+
+            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+            p.style.lineHeight = `${Math.max(rowH, usedFont * 1.05).toFixed(1)}px`;
+
+            if (charW > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+              const extraSpace = (w - (numChars * finalFont)) / (numChars - 1);
+              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+            }
+          }
+        }
+
         boxDiv.appendChild(p);
       });
 
-      // Clic izquierdo: abrir popup de minado (solo si el modo editable está inactivo)
-      boxDiv.addEventListener('click', (e) => {
-        if (mokuroState.editableText) return; // Permitir edición nativa con clic izquierdo
-        e.preventDefault();
-        e.stopPropagation();
-        const fullText = lines.join(' ');
-        openToriiMiningPopup(fullText, e.clientX, e.clientY);
-      });
-
-      // Clic derecho: abrir popup de minado siempre (incluso en modo editable)
+      // Evento de clic derecho: Abrir menú Torii de minado rápido (quick popup)
       boxDiv.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1546,6 +1654,7 @@
       wrapper.classList.add('active');
       document.body.classList.add('mokuro-reading-active');
       document.body.style.overflow = 'hidden';
+      syncUIWithState();
       if (container) container.innerHTML = '';
       currentMangaKey = null;           // Forzar reconstrucción de páginas
       mokuroState.zoomMode = 'fit-screen'; // Reiniciar modo de zoom al abrir un nuevo manga
@@ -2007,14 +2116,11 @@
       selectFontSize.addEventListener('change', (e) => {
         mokuroState.fontSize = e.target.value;
         savePreferences();
-        const boxes = document.querySelectorAll('.textBox');
-        boxes.forEach(b => {
-          if (mokuroState.fontSize !== 'auto') {
-            b.style.fontSize = `${mokuroState.fontSize}px`;
-          } else {
-            b.style.fontSize = ''; // Restaurar tamaño original calculado por Mokuro
-          }
-        });
+        // Limpiar el contenedor de páginas para forzar el re-renderizado inmediato con el nuevo tamaño
+        const container = document.getElementById('mokuro-pages-container');
+        if (container) container.innerHTML = '';
+        currentMangaKey = null;
+        renderCurrentPages();
       });
     }
 
@@ -2066,7 +2172,7 @@
       const popup = document.getElementById('torii-quick-popup');
       if (!popup || popup.style.display === 'none') return;
       // Si el clic fue dentro del popup o en una caja de diálogo de Mokuro, no cerrar aquí
-      if (popup.contains(e.target) || e.target.closest('.torii-quick-popup') || e.target.closest('.mokuro-text-box')) {
+      if (popup.contains(e.target) || e.target.closest('.torii-quick-popup') || e.target.closest('.textBox') || e.target.closest('.mokuro-text-box')) {
         return;
       }
       closeToriiMiningPopup();

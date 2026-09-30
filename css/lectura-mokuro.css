@@ -969,73 +969,307 @@ html.dark-mode .page-nav-control {
   display: inline-block;
 }
 
+/* Menú Desplegable de Ajustes Estético adaptado al Tema Activo */
 .mokuro-dropdown-menu {
-  display: none;
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.97);
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 8px;
-  background: var(--mokuro-toolbar-bg);
-  border: 1px solid var(--mokuro-border);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  padding: 12px;
-  width: 260px;
-  z-index: 1010;
+  margin-top: 10px;
+  background: var(--card-bg, var(--blanco, #ffffff));
+  background: color-mix(in srgb, var(--card-bg, var(--blanco, #ffffff)) 94%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color, var(--mokuro-border, rgba(0, 0, 0, 0.12)));
+  border-radius: 14px;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.28), 0 0 0 1px color-mix(in srgb, var(--accent, #13a2ce) 25%, transparent);
+  padding: 8px;
+  width: 310px;
+  z-index: 100060;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s;
+  color: var(--texto-principal, inherit);
+}
+
+/* Adaptación a Modo Oscuro del Menú */
+html.dark-mode .mokuro-dropdown-menu,
+body.dark-mode .mokuro-dropdown-menu {
+  background: var(--card-bg, var(--blanco, #1a212e));
+  background: color-mix(in srgb, var(--card-bg, var(--blanco, #1a212e)) 95%, transparent);
+  border-color: var(--border-color, rgba(255, 255, 255, 0.15));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px color-mix(in srgb, var(--accent, #38bdf8) 20%, transparent);
+  color: var(--texto-principal, #f1f5f9);
 }
 
 .mokuro-dropdown.open .mokuro-dropdown-menu {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 
+/* Cabecera del Menú */
+.mokuro-dropdown-header {
+  padding: 6px 10px 8px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-color, var(--mokuro-border));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dropdown-header-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--accent, var(--azulNa, #13a2ce));
+  text-transform: uppercase;
+}
+
+/* Filas de opciones */
 .dropdown-item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 6px;
-  font-size: 0.88rem;
-  border-bottom: 1px solid var(--mokuro-border);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  transition: background 0.15s ease;
+  margin-bottom: 2px;
 }
 
-.dropdown-item-row:last-child {
-  border-bottom: none;
+.dropdown-item-row:hover {
+  background: color-mix(in srgb, var(--accent, var(--azulNa, #13a2ce)) 12%, transparent);
 }
 
-.dropdown-item-row label {
+html.dark-mode .dropdown-item-row:hover,
+body.dark-mode .dropdown-item-row:hover {
+  background: color-mix(in srgb, var(--accent, var(--azulNa, #38bdf8)) 16%, transparent);
+}
+
+.dropdown-item-label-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   cursor: pointer;
+  color: var(--texto-principal, inherit);
+  user-select: none;
+  flex: 1;
 }
 
-.dropdown-item-row input[type="checkbox"] {
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
+.dropdown-item-icon {
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  flex-shrink: 0;
 }
 
-.dropdown-item-row select {
-  background: var(--mokuro-toolbar-bg, #ffffff);
-  color: var(--texto-principal, #222);
-  border: 1px solid var(--mokuro-border);
-  padding: 5px 10px;
-  border-radius: 6px;
+.dropdown-item-text {
+  font-weight: 500;
   font-size: 0.85rem;
+  color: inherit;
+}
+
+/* Switch Toggle Moderno (Estilo iOS / Material) */
+.torii-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  margin-left: 10px;
+}
+
+.torii-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+  margin: 0;
+}
+
+.torii-switch-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--blanco2, #cbd5e1);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  border-radius: 22px;
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.torii-switch-slider::before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+/* Switch Activado: adopta el gradiente con el color de acento y primario del tema */
+.torii-switch input:checked + .torii-switch-slider {
+  background: linear-gradient(135deg, var(--accent, #13a2ce), var(--azulNa, var(--primary, #0284c7)));
+  border-color: transparent;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent, #13a2ce) 45%, transparent);
+}
+
+.torii-switch input:checked + .torii-switch-slider::before {
+  transform: translateX(16px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.torii-switch:hover .torii-switch-slider {
+  filter: brightness(1.06);
+}
+
+.torii-switch input:focus-visible + .torii-switch-slider {
+  outline: 2px solid var(--accent, var(--azulNa, #13a2ce));
+  outline-offset: 2px;
+}
+
+/* Switch en Modo Oscuro */
+html.dark-mode .torii-switch-slider,
+body.dark-mode .torii-switch-slider {
+  background-color: var(--blanco3, #334155);
+  border-color: var(--border-color, rgba(255, 255, 255, 0.1));
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+html.dark-mode .torii-switch input:checked + .torii-switch-slider,
+body.dark-mode .torii-switch input:checked + .torii-switch-slider {
+  background: linear-gradient(135deg, var(--accent, #38bdf8), var(--azulNa, var(--primary, #0284c7)));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent, #38bdf8) 45%, transparent);
+}
+
+/* Fila de Selector de Tamaño de Fuente */
+.dropdown-select-row {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color, var(--mokuro-border));
+}
+
+.dropdown-select-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-select-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--blanco2, rgba(0, 0, 0, 0.05));
+  color: var(--texto-principal, #222);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.15));
+  padding: 4px 24px 4px 10px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
   cursor: pointer;
   outline: none;
+  transition: all 0.2s ease;
 }
 
-.dropdown-item-row select option {
-  background: #ffffff;
-  color: #222;
+.dropdown-select-wrapper select:hover {
+  background: color-mix(in srgb, var(--accent, #13a2ce) 12%, var(--blanco2, #fff));
+  border-color: var(--accent, #13a2ce);
 }
 
-html.dark-mode .dropdown-item-row select {
-  background: #1c2331;
-  color: #f1f5f9;
-  border-color: rgba(255, 255, 255, 0.15);
+.dropdown-select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 0.72rem;
+  color: var(--accent, var(--azulNa, #13a2ce));
 }
 
-html.dark-mode .dropdown-item-row select option {
-  background: #1c2331;
-  color: #f1f5f9;
+.dropdown-select-wrapper select option {
+  background: var(--blanco, #ffffff);
+  color: var(--texto-principal, #222);
+}
+
+html.dark-mode .dropdown-select-wrapper select,
+body.dark-mode .dropdown-select-wrapper select {
+  background: var(--blanco2, #1c2433);
+  color: var(--texto-principal, #f1f5f9);
+  border-color: var(--border-color, rgba(255, 255, 255, 0.18));
+}
+
+html.dark-mode .dropdown-select-wrapper select:hover,
+body.dark-mode .dropdown-select-wrapper select:hover {
+  background: color-mix(in srgb, var(--accent, #38bdf8) 18%, var(--blanco2, #1c2433));
+  border-color: var(--accent, var(--azulNa, #13a2ce));
+}
+
+html.dark-mode .dropdown-select-wrapper select option,
+body.dark-mode .dropdown-select-wrapper select option {
+  background: var(--blanco, #1c2433);
+  color: var(--texto-principal, #f1f5f9);
+}
+
+/* Modo Tinta Electrónica (E-Ink): B&W de alto contraste */
+.e-ink-mode .mokuro-dropdown-menu {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+}
+
+.e-ink-mode .dropdown-header-title {
+  color: #000000 !important;
+}
+
+.e-ink-mode .dropdown-item-label-group {
+  color: #000000 !important;
+}
+
+.e-ink-mode .dropdown-item-row:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+.e-ink-mode .torii-switch-slider {
+  background-color: #e5e5e5 !important;
+  border: 1.5px solid #000000 !important;
+  box-shadow: none !important;
+}
+
+.e-ink-mode .torii-switch input:checked + .torii-switch-slider {
+  background: #000000 !important;
+  box-shadow: none !important;
+}
+
+.e-ink-mode .torii-switch-slider::before {
+  background-color: #000000 !important;
+}
+
+.e-ink-mode .torii-switch input:checked + .torii-switch-slider::before {
+  background-color: #ffffff !important;
+}
+
+.e-ink-mode .dropdown-select-wrapper select {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1.5px solid #000000 !important;
+}
+
+.e-ink-mode .dropdown-select-wrapper::after {
+  color: #000000 !important;
 }
 
 /* Menú Desplegable de Anki en Mokuro Toolbar */
@@ -1142,21 +1376,24 @@ html.dark-mode .anki-manga-dropdown-menu select {
 .textBox {
   position: absolute;
   padding: 0;
-  line-height: 1.1em;
-  font-size: 16px;
-  white-space: nowrap;
+  margin: 0;
   border: 1px solid transparent;
   pointer-events: auto;
   cursor: text;
   box-sizing: border-box;
   font-family: 'Noto Sans JP', 'Meiryo', 'MS Gothic', sans-serif;
   color: transparent; /* Por defecto transparente sobre la viñeta para lectura Yomitan */
+  overflow: visible;
 }
 
 /* Mostrar bordes si el usuario lo activa */
 .show-ocr-borders .textBox {
   border: 1.5px solid var(--mokuro-text-box-border);
   background: rgba(229, 57, 53, 0.05);
+}
+
+.show-ocr-borders .textBox p {
+  outline: 1px dashed rgba(19, 162, 206, 0.45);
 }
 
 .textBox:hover, .textBox.active-box {
@@ -1170,15 +1407,19 @@ html.dark-mode .anki-manga-dropdown-menu select {
 
 .textBox p {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   white-space: pre;
-  letter-spacing: 0.05em;
-  line-height: 1.15em;
-  opacity: 0;
-  transition: opacity 0.15s;
+  color: transparent;
+  opacity: 1;
+  text-align: center;
+  user-select: text;
+  -webkit-user-select: text;
+  transition: color 0.15s;
 }
 
 .textBox:hover p, .textBox.active-box p {
-  opacity: 1;
+  color: var(--mokuro-text-color) !important;
 }
 
 /* Si el usuario elige modo visible permanente */
@@ -1189,7 +1430,7 @@ html.dark-mode .anki-manga-dropdown-menu select {
 }
 
 .ocr-always-visible .textBox p {
-  opacity: 1;
+  color: #111 !important;
 }
 
 /* Si se desactiva el OCR */
@@ -1198,7 +1439,14 @@ html.dark-mode .anki-manga-dropdown-menu select {
 }
 
 /* Modo OCR editable activo */
-body.ocr-edit-mode .textBox[contenteditable="true"] {
+body.ocr-edit-mode .textBox {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1.5px solid var(--azulNa, #13a2ce) !important;
+  box-shadow: 0 2px 8px rgba(19, 162, 206, 0.25);
+}
+
+body.ocr-edit-mode .textBox p {
+  color: #111 !important;
   user-select: text !important;
   -webkit-user-select: text !important;
   cursor: text !important;
@@ -1210,7 +1458,7 @@ body.ocr-edit-mode .textBox[contenteditable="true"] {
   position: fixed;
   top: 52px;
   height: calc(100vh - 52px);
-  width: 7vw;
+  width: 3vw;
   min-width: 50px;
   z-index: 50;
   cursor: pointer;
