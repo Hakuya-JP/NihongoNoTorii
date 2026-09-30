@@ -287,6 +287,7 @@ html.dark-mode .manga-card {
   height: calc(100% - 20px);
   object-fit: fill;
   border-radius: 6px;
+  background-color: #1e222d;
   box-shadow: -4px 4px 14px rgba(0, 0, 0, 0.45), 0 0 2px rgba(255, 255, 255, 0.15);
   transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.4s ease, filter 0.4s ease;
   transform-origin: bottom left;
@@ -403,6 +404,7 @@ html.dark-mode .volume-card-item {
   width: 100%;
   height: 100%;
   object-fit: fill;
+  background-color: #1e222d;
 }
 
 .volume-body {

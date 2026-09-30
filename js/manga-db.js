@@ -6,12 +6,158 @@
   'use strict';
 
   const DB_NAME = 'ToriiMangaLibraryDB';
-  const DB_VERSION = 1;
+  const DB_VERSION = 2;
   const STORE_NAME = 'mangas';
+  const META_STORE_NAME = 'mangas_meta';
+  const CACHE_KEY = 'torii_manga_library_cache';
 
   let dbInstance = null;
 
-  // Inicializar IndexedDB
+  // Placeholder transparente / invisible mientras se procesan las portadas reales
+  const COVER_PLACEHOLDER = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+  // Limpieza inicial proactiva de cualquier caché previa que contenga logotipos o placeholders
+  try {
+    const rawCache = localStorage.getItem(CACHE_KEY);
+    if (rawCache && (rawCache.includes('logonnt.png') || rawCache.includes('%3Csvg') || rawCache.includes('pgrad'))) {
+      const parsed = JSON.parse(rawCache);
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.map(m => (m && m.coverDataUrl && (m.coverDataUrl.includes('logonnt.png') || m.coverDataUrl.includes('%3Csvg') || m.coverDataUrl.includes('pgrad'))) ? { ...m, coverDataUrl: '' } : m);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cleaned));
+      }
+    }
+  } catch (e) {}
+
+  // Extrae únicamente los metadatos necesarios para la interfaz visual
+  function extractMangaMetadata(m) {
+    if (!m) return null;
+    let cover = m.coverDataUrl || '';
+    if (cover.includes('logonnt.png') || cover.includes('%3Csvg') || cover.includes('pgrad')) cover = '';
+    return {
+      id: m.id,
+      title: m.title || '',
+      volume: m.volume || '',
+      addedAt: m.addedAt || Date.now(),
+      lastReadAt: m.lastReadAt || m.addedAt || Date.now(),
+      lastPageRead: m.lastPageRead || 0,
+      totalPages: m.totalPages || (m.pages ? m.pages.length : 0),
+      hasMokuro: !!(m.hasMokuro || (m.pages && m.pages.some(p => p.blocks && p.blocks.length > 0))),
+      hasOcr: !!(m.hasOcr || m.hasMokuro || (m.pages && m.pages.some(p => p.blocks && p.blocks.length > 0))),
+      coverDataUrl: cover
+    };
+  }
+
+  // Comprime un DataURL grande a miniatura JPEG (~15KB) para que quepa holgadamente en localStorage
+  function compressDataUrl(dataUrl, maxWidth = 260, quality = 0.78) {
+    return new Promise((resolve) => {
+      if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
+        return resolve(dataUrl || '');
+      }
+      if (dataUrl.length < 35000) {
+        return resolve(dataUrl);
+      }
+      const img = new Image();
+      img.onload = () => {
+        const w = img.width || maxWidth;
+        const h = img.height || 390;
+        const scale = Math.min(1, maxWidth / w);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(w * scale);
+        canvas.height = Math.round(h * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+  }
+
+  // Caché síncrona en localStorage para carga instantánea a 0ms (sanitizada)
+  function getCachedLibrary() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map(m => {
+            if (m && m.coverDataUrl && (m.coverDataUrl.includes('logonnt.png') || m.coverDataUrl.includes('%3Csvg') || m.coverDataUrl.includes('pgrad'))) {
+              return { ...m, coverDataUrl: '' };
+            }
+            return m;
+          });
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  async function saveLibraryCache(mangasMeta) {
+    if (!Array.isArray(mangasMeta)) return;
+    try {
+      // 1. Filtrar cualquier residuo de logonnt.png o SVG placeholders
+      const cleanList = mangasMeta.map(m => {
+        let url = m.coverDataUrl || '';
+        if (url.includes('logonnt.png') || url.includes('%3Csvg') || url.includes('pgrad')) url = '';
+        return { ...m, coverDataUrl: url };
+      });
+
+      // 2. Intentar guardar directamente
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cleanList));
+        return;
+      } catch (quotaErr) {
+        // 3. Si excede cuota, comprimir portadas a miniaturas JPEG ligeras (~15KB)
+        const compressedList = await Promise.all(cleanList.map(async m => {
+          if (m.coverDataUrl && m.coverDataUrl.length > 35000) {
+            const thumb = await compressDataUrl(m.coverDataUrl, 240, 0.75);
+            return { ...m, coverDataUrl: thumb };
+          }
+          return m;
+        }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify(compressedList));
+      }
+    } catch (err) {
+      console.warn('Aviso: no se pudo guardar en torii_manga_library_cache:', err);
+    }
+  }
+
+  async function updateCachedManga(meta) {
+    if (!meta || !meta.id) return;
+    let cleanMeta = { ...meta };
+    if (cleanMeta.coverDataUrl && (cleanMeta.coverDataUrl.includes('logonnt.png') || cleanMeta.coverDataUrl.includes('%3Csvg') || cleanMeta.coverDataUrl.includes('pgrad'))) {
+      cleanMeta.coverDataUrl = '';
+    }
+    if (cleanMeta.coverDataUrl && cleanMeta.coverDataUrl.length > 35000) {
+      cleanMeta.coverDataUrl = await compressDataUrl(cleanMeta.coverDataUrl, 240, 0.75);
+    }
+    const list = getCachedLibrary() || [];
+    const idx = list.findIndex(m => m.id === cleanMeta.id);
+    if (idx >= 0) {
+      list[idx] = { ...list[idx], ...cleanMeta };
+    } else {
+      list.push(cleanMeta);
+    }
+    saveLibraryCache(list);
+  }
+
+  function updateCachedProgress(id, pageIndex) {
+    const list = getCachedLibrary() || [];
+    const item = list.find(m => m.id === id);
+    if (item) {
+      item.lastPageRead = pageIndex;
+      item.lastReadAt = Date.now();
+      saveLibraryCache(list);
+    }
+  }
+
+  function removeCachedManga(id) {
+    const list = getCachedLibrary() || [];
+    const filtered = list.filter(m => m.id !== id);
+    saveLibraryCache(filtered);
+  }
+
+  // Inicializar IndexedDB con soporte para almacén de metadatos ligero
   function openDB() {
     return new Promise((resolve, reject) => {
       if (dbInstance) return resolve(dbInstance);
@@ -25,10 +171,20 @@
           store.createIndex('title', 'title', { unique: false });
           store.createIndex('addedAt', 'addedAt', { unique: false });
         }
+        if (!db.objectStoreNames.contains(META_STORE_NAME)) {
+          const metaStore = db.createObjectStore(META_STORE_NAME, { keyPath: 'id' });
+          metaStore.createIndex('title', 'title', { unique: false });
+          metaStore.createIndex('addedAt', 'addedAt', { unique: false });
+        }
       };
 
       request.onsuccess = function(e) {
         dbInstance = e.target.result;
+        try {
+          if (dbInstance.objectStoreNames.contains(META_STORE_NAME)) {
+            syncMetaStoreIfNeeded(dbInstance);
+          }
+        } catch(err) {}
         resolve(dbInstance);
       };
 
@@ -39,31 +195,85 @@
     });
   }
 
-  // Guardar un manga en IndexedDB
+  // Migración transparente: sincroniza mangas_meta si está vacío pero existen mangas en STORE_NAME
+  function syncMetaStoreIfNeeded(db) {
+    if (!db.objectStoreNames.contains(META_STORE_NAME) || !db.objectStoreNames.contains(STORE_NAME)) return;
+    try {
+      const tx = db.transaction([META_STORE_NAME], 'readonly');
+      const metaReq = tx.objectStore(META_STORE_NAME).count();
+      metaReq.onsuccess = () => {
+        if (metaReq.result === 0) {
+          const readTx = db.transaction([STORE_NAME], 'readonly');
+          const getAllReq = readTx.objectStore(STORE_NAME).getAll();
+          getAllReq.onsuccess = () => {
+            const all = getAllReq.result || [];
+            if (all.length > 0) {
+              const writeTx = db.transaction([META_STORE_NAME], 'readwrite');
+              const metaStore = writeTx.objectStore(META_STORE_NAME);
+              const metaList = [];
+              all.forEach(m => {
+                const meta = extractMangaMetadata(m);
+                metaStore.put(meta);
+                metaList.push(meta);
+              });
+              writeTx.oncomplete = () => {
+                saveLibraryCache(metaList);
+                renderMyMangasGrid();
+              };
+            }
+          };
+        }
+      };
+    } catch(e) {}
+  }
+
+  // Guardar un manga en IndexedDB (guarda el binario en STORE_NAME y la metadata en META_STORE_NAME)
   function saveMangaToDB(mangaData) {
     return openDB().then(db => {
       return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readwrite');
+        const storeNames = db.objectStoreNames.contains(META_STORE_NAME)
+          ? [STORE_NAME, META_STORE_NAME]
+          : [STORE_NAME];
+        const tx = db.transaction(storeNames, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
-        const req = store.put(mangaData);
+        store.put(mangaData);
 
-        req.onsuccess = () => resolve(mangaData);
-        req.onerror = (e) => reject(e);
+        const meta = extractMangaMetadata(mangaData);
+        if (db.objectStoreNames.contains(META_STORE_NAME)) {
+          const metaStore = tx.objectStore(META_STORE_NAME);
+          metaStore.put(meta);
+        }
+
+        tx.oncomplete = () => {
+          updateCachedManga(meta);
+          resolve(mangaData);
+        };
+        tx.onerror = (e) => reject(e);
       });
     });
   }
 
-  // Obtener todos los mangas guardados
+  // Obtener metadata de todos los mangas (ultra-rápido, sin cargar los Gigabytes de fileBlobs)
   function getAllMangasFromDB() {
     return openDB().then(db => {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readonly');
-        const store = tx.objectStore(STORE_NAME);
+      return new Promise((resolve) => {
+        const targetStore = db.objectStoreNames.contains(META_STORE_NAME) ? META_STORE_NAME : STORE_NAME;
+        const tx = db.transaction([targetStore], 'readonly');
+        const store = tx.objectStore(targetStore);
         const req = store.getAll();
 
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = (e) => reject(e);
+        req.onsuccess = () => {
+          const list = (req.result || []).map(extractMangaMetadata);
+          saveLibraryCache(list);
+          resolve(list);
+        };
+        req.onerror = () => {
+          const cached = getCachedLibrary();
+          resolve(cached || []);
+        };
       });
+    }).catch(() => {
+      return getCachedLibrary() || [];
     });
   }
 
@@ -83,9 +293,14 @@
 
   // Actualizar progreso de lectura
   function updateMangaProgress(id, pageIndex) {
+    updateCachedProgress(id, pageIndex);
+
     return openDB().then(db => {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readwrite');
+      return new Promise((resolve) => {
+        const storeNames = db.objectStoreNames.contains(META_STORE_NAME)
+          ? [STORE_NAME, META_STORE_NAME]
+          : [STORE_NAME];
+        const tx = db.transaction(storeNames, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
         const getReq = store.get(id);
 
@@ -95,26 +310,37 @@
             item.lastPageRead = pageIndex;
             item.lastReadAt = Date.now();
             store.put(item);
+
+            if (db.objectStoreNames.contains(META_STORE_NAME)) {
+              const metaStore = tx.objectStore(META_STORE_NAME);
+              metaStore.put(extractMangaMetadata(item));
+            }
             resolve(item);
           } else {
             resolve(null);
           }
         };
-        getReq.onerror = (e) => reject(e);
+        getReq.onerror = () => resolve(null);
       });
     });
   }
 
   // Eliminar un manga
   function deleteMangaFromDB(id) {
+    removeCachedManga(id);
+
     return openDB().then(db => {
       return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        const req = store.delete(id);
-
-        req.onsuccess = () => resolve(true);
-        req.onerror = (e) => reject(e);
+        const storeNames = db.objectStoreNames.contains(META_STORE_NAME)
+          ? [STORE_NAME, META_STORE_NAME]
+          : [STORE_NAME];
+        const tx = db.transaction(storeNames, 'readwrite');
+        tx.objectStore(STORE_NAME).delete(id);
+        if (db.objectStoreNames.contains(META_STORE_NAME)) {
+          tx.objectStore(META_STORE_NAME).delete(id);
+        }
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = (e) => reject(e);
       });
     });
   }
@@ -123,7 +349,10 @@
   function updateMangaCover(id, coverDataUrl) {
     return openDB().then(db => {
       return new Promise((resolve, reject) => {
-        const tx = db.transaction([STORE_NAME], 'readwrite');
+        const storeNames = db.objectStoreNames.contains(META_STORE_NAME)
+          ? [STORE_NAME, META_STORE_NAME]
+          : [STORE_NAME];
+        const tx = db.transaction(storeNames, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
         const getReq = store.get(id);
 
@@ -132,6 +361,12 @@
           if (item) {
             item.coverDataUrl = coverDataUrl;
             store.put(item);
+            const meta = extractMangaMetadata(item);
+            if (db.objectStoreNames.contains(META_STORE_NAME)) {
+              const metaStore = tx.objectStore(META_STORE_NAME);
+              metaStore.put(meta);
+            }
+            updateCachedManga(meta);
             resolve(item);
           } else {
             resolve(null);
@@ -383,12 +618,31 @@
     return mangaRecord;
   }
 
-  // Convertir Blob a DataURL (para portadas en miniaturas)
-  function blobToDataUrl(blob) {
+  // Convertir Blob a DataURL (optimizando portadas a miniaturas nítidas y ligeras)
+  function blobToDataUrl(blob, maxWidth = 380) {
     return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
+      if (!blob) return resolve('');
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const w = img.width || maxWidth;
+        const h = img.height || 540;
+        const scale = Math.min(1, maxWidth / w);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(w * scale);
+        canvas.height = Math.round(h * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.84));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result || '');
+        reader.readAsDataURL(blob);
+      };
+      img.src = url;
     });
   }
 
@@ -872,23 +1126,35 @@
   // ========================================================================
   // RENDERIZADO DE LA BIBLIOTECA PERSONAL EN LA PÁGINA (AGRUPADA POR SERIE)
   // ========================================================================
-  async function renderMyMangasGrid() {
+  let lastRenderedSignature = null;
+
+  function getLibrarySignature(mangas) {
+    if (!mangas || mangas.length === 0) return 'empty';
+    return mangas
+      .map(m => `${m.id}_${m.lastReadAt || 0}_${m.lastPageRead || 0}_${m.totalPages || 0}_${(m.coverDataUrl || '').slice(0, 30)}`)
+      .sort()
+      .join('|');
+  }
+
+  function renderMangasIntoDOM(mangas, force = false) {
     const grid = document.getElementById('my-mangas-grid');
     const emptyNotice = document.getElementById('empty-mangas-notice');
     if (!grid) return;
 
-    const mangas = await getAllMangasFromDB();
-
-    // Limpiar cuadrícula
-    const existingCards = grid.querySelectorAll('.manga-card-user');
-    existingCards.forEach(c => c.remove());
-
-    if (mangas.length === 0) {
+    if (!mangas || mangas.length === 0) {
+      grid.querySelectorAll('.manga-card-user').forEach(c => c.remove());
       if (emptyNotice) emptyNotice.style.display = 'block';
+      lastRenderedSignature = 'empty';
       return;
-    } else {
-      if (emptyNotice) emptyNotice.style.display = 'none';
     }
+
+    const signature = getLibrarySignature(mangas);
+    if (!force && lastRenderedSignature === signature && grid.children.length > 0) {
+      return; // El DOM ya muestra exactamente este estado, no reconstruir
+    }
+    lastRenderedSignature = signature;
+
+    if (emptyNotice) emptyNotice.style.display = 'none';
 
     // Agrupar mangas por serie (clave insensible a mayúsculas y espacios duplicados)
     const seriesMap = new Map();
@@ -926,6 +1192,9 @@
 
     seriesList.sort((a, b) => b.latestActivity - a.latestActivity);
 
+    // DocumentFragment para inserción limpia y sin parpadeos
+    const fragment = document.createDocumentFragment();
+
     // Renderizar cada serie
     seriesList.forEach(series => {
       const { seriesTitle, volumes } = series;
@@ -945,7 +1214,7 @@
 
       // Los demás tomos van detrás, en orden de volumen pero sin el actual
       const otherVols = volumes.filter(v => v.id !== currentVol.id);
-      const fallback = 'image/logonnt.png';
+      const fallback = COVER_PLACEHOLDER;
 
       // Generar capas para la presentación en pila / abanico
       let stackHtml = '';
@@ -1037,14 +1306,36 @@
             for (const v of volumes) {
               await deleteMangaFromDB(v.id);
             }
-            renderMyMangasGrid();
+            renderMyMangasGrid(true);
             if (typeof mostrarToast === 'function') mostrarToast('🗑️ Manga eliminado de la biblioteca');
           }
         });
       }
 
-      grid.appendChild(card);
+      fragment.appendChild(card);
     });
+
+    grid.innerHTML = '';
+    grid.appendChild(fragment);
+  }
+
+  async function renderMyMangasGrid(force = false) {
+    const grid = document.getElementById('my-mangas-grid');
+    if (!grid) return;
+
+    // 1. PASO INSTANTÁNEO (0 ms): Solo renderizar de inmediato si la caché contiene portadas reales válidas
+    const cached = getCachedLibrary();
+    if (cached && cached.length > 0 && cached.every(m => m.coverDataUrl && m.coverDataUrl.startsWith('data:image/'))) {
+      renderMangasIntoDOM(cached, force);
+    }
+
+    // 2. PASO EN SEGUNDO PLANO (Ultra-rápido): Sincronizar con IndexedDB (mangas_meta)
+    try {
+      const mangas = await getAllMangasFromDB();
+      renderMangasIntoDOM(mangas, force);
+    } catch (err) {
+      console.warn('Error al actualizar biblioteca desde IndexedDB:', err);
+    }
   }
 
   // ========================================================================
@@ -1074,7 +1365,7 @@
 
       volCard.innerHTML = `
         <div class="volume-thumb-wrap" title="Cambiar portada de este volumen">
-          <img src="${vol.coverDataUrl || 'image/logonnt.png'}" alt="${escapeHtml(extractVolumeLabel(vol))}" class="volume-thumb">
+          <img src="${vol.coverDataUrl || COVER_PLACEHOLDER}" alt="${escapeHtml(extractVolumeLabel(vol))}" class="volume-thumb">
           <button class="btn-cover-thumb-overlay" title="Cambiar portada">📷</button>
         </div>
         <div class="volume-body">
@@ -1207,8 +1498,20 @@
   // ========================================================================
   // INICIALIZACIÓN DE MODAL DE CARGA UNIFICADO (CBZ, ZIP, CARPETA)
   // ========================================================================
-  document.addEventListener('DOMContentLoaded', () => {
-    renderMyMangasGrid();
+  let initialRenderTriggered = false;
+  function triggerInitialRender() {
+    if (initialRenderTriggered) return;
+    if (document.getElementById('my-mangas-grid')) {
+      initialRenderTriggered = true;
+      renderMyMangasGrid();
+    }
+  }
+
+  // Renderizado instantáneo (0ms) en cuanto el script es cargado
+  triggerInitialRender();
+
+  function initMangaUI() {
+    triggerInitialRender();
 
     // Sincronizar progreso cuando se cambia de página en el visor
     window.addEventListener('beforeunload', () => {
@@ -1402,7 +1705,14 @@
         }
       });
     }
-  });
+  }
+
+  // Inicializar listeners de UI
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMangaUI);
+  } else {
+    initMangaUI();
+  }
 
   // Exponer API global
   window.ToriiMangaDB = {
@@ -1421,6 +1731,7 @@
     renderGrid: renderMyMangasGrid,
     updateCover: updateMangaCover,
     promptChangeCover: promptChangeCover,
+    COVER_PLACEHOLDER: COVER_PLACEHOLDER,
     // Usado por el lector para continuar al siguiente tomo (preserva el contexto de serie)
     launch: function(mangaId) {
       const state = window.MokuroReader ? window.MokuroReader.getState() : null;

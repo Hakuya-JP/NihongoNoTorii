@@ -92,7 +92,7 @@
     </div>
 
     <!-- Mensaje si la biblioteca está vacía -->
-    <div id="empty-mangas-notice" style="text-align:center; padding:35px 20px; background:rgba(0,0,0,0.02); border-radius:16px; border:2px dashed var(--mokuro-border); margin-top:15px;">
+    <div id="empty-mangas-notice" style="text-align:center; padding:35px 20px; background:rgba(0,0,0,0.02); border-radius:16px; border:2px dashed var(--mokuro-border); margin-top:15px; display: none;">
       <div style="font-size:2.8rem; margin-bottom:10px;">📚</div>
       <h3 style="margin:0 0 8px; font-size:1.25rem;">Tu biblioteca de mangas está vacía</h3>
       <p style="color:#777; font-size:0.95rem; margin:0 0 18px; max-width:560px; margin-left:auto; margin-right:auto; line-height:1.5;">
@@ -108,6 +108,9 @@
       <!-- Se inyecta dinámicamente desde js/manga-db.js -->
     </div>
   </section>
+
+  <!-- Base de datos de mangas y renderizado instantáneo (0ms) -->
+  <script src="js/manga-db.js"></script>
 
   <!-- Input oculto para subir archivo .mokuro a un manga existente -->
   <input type="file" id="input-attach-mokuro" accept=".mokuro,.json" style="display:none;" />
@@ -204,20 +207,20 @@
     </div>
 
     <!-- Grupo Central: Navegación de Páginas -->
-    <div class="toolbar-group">
-      <button id="btn-prev-page" class="toolbar-btn" title="Página Anterior">◀</button>
+    <div class="toolbar-group" id="toolbar-page-nav">
+      <button id="btn-next-page" class="toolbar-btn" title="Página Siguiente">◀</button>
       <div class="page-nav-control">
         <input type="number" id="page-current-input" class="page-input-box" min="1" value="1" />
         <span id="page-total-display" class="page-total-label">/ 1</span>
       </div>
-      <button id="btn-next-page" class="toolbar-btn" title="Página Siguiente">▶</button>
+      <button id="btn-prev-page" class="toolbar-btn" title="Página Anterior">▶</button>
     </div>
 
     <!-- Grupo Derecho: Zoom, Vistas y Ajustes -->
     <div class="toolbar-group">
-      <button id="btn-zoom-fit-screen" class="toolbar-btn" title="Ajustar a Pantalla">Ajuste Automatico</button>
-      <button id="btn-zoom-fit-width" class="toolbar-btn" title="Ajustar a Ancho">↔ Ancho</button>
-      <button id="btn-zoom-original" class="toolbar-btn" title="Tamaño 1:1">1:1</button>
+      <button id="btn-zoom-toggle" class="toolbar-btn" title="Ajuste actual: Largo (Clic para alternar a Ancho)">
+        <span id="zoom-toggle-icon">↕</span> <span id="zoom-toggle-text">Largo</span>
+      </button>
       <button id="btn-toggle-double-page" class="toolbar-btn" title="Alternar Vista Doble Página (2 Páginas)">
         <span>📖</span> <span id="double-page-btn-text">Doble Página</span>
       </button>
@@ -551,7 +554,6 @@
 <script src="scripts.js"></script>
 <script src="js/anki-connect.js"></script>
 <script src="js/tarjetas-minadas.js"></script>
-<script src="js/manga-db.js"></script>
 <script src="js/mokuro-reader.js"></script>
 
 <script>

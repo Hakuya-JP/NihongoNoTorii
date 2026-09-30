@@ -21,12 +21,15 @@
     imageUrls: new Map(),    // Mapa: filename -> Object URL o ruta relativa
     activeTextBoxText: '',   // Texto de la caja seleccionada actualmente
     zoomMode: 'fit-screen',  // Modo de zoom activo: 'fit-screen' | 'fit-width' | 'original'
+    isManualZoom: false,     // True si el usuario realizó un zoom manual con rueda o gesto
+    manualScale: null,       // Escala personalizada para preservar entre páginas
     seriesVolumes: [],       // Lista ordenada de tomos de la serie activa (para pasar al siguiente)
     currentVolumeIndex: -1   // Índice del tomo actual dentro de seriesVolumes
   };
 
   let pzInstance = null;        // Instancia de panzoom
   let stageWheelHandler = null; // Referencia al listener de scroll del stage (para limpieza)
+  let _isProgrammaticZoom = false; // Bandera para distinguir ajustes automáticos de zoom manual del usuario
 
   // Cargar preferencias guardadas
   function loadSavedPreferences() {
@@ -78,7 +81,61 @@
     if (checkEInk) checkEInk.checked = mokuroState.eInkMode;
 
     updateDoublePageToolbarBtn();
+    updateZoomToggleBtn();
     updateContainerClasses();
+    syncNavDirectionUI();
+  }
+
+  function syncNavDirectionUI() {
+    const isR2L = mokuroState.isR2L;
+    const btnNext = document.getElementById('btn-next-page');
+    const btnPrev = document.getElementById('btn-prev-page');
+    const btnScrubberNext = document.getElementById('btn-scrubber-next');
+    const btnScrubberPrev = document.getElementById('btn-scrubber-prev');
+    const scrubberInner = document.querySelector('.scrubber-inner');
+    const toolbarNav = document.getElementById('toolbar-page-nav');
+
+    if (isR2L) {
+      // Modo Manga / R2L: avance hacia la izquierda
+      if (toolbarNav) toolbarNav.style.flexDirection = 'row';
+      if (btnNext) {
+        btnNext.textContent = '◀';
+        btnNext.title = 'Página Siguiente';
+      }
+      if (btnPrev) {
+        btnPrev.textContent = '▶';
+        btnPrev.title = 'Página Anterior';
+      }
+      if (scrubberInner) scrubberInner.style.direction = 'rtl';
+      if (btnScrubberNext) {
+        btnScrubberNext.textContent = '◀';
+        btnScrubberNext.title = 'Página Siguiente';
+      }
+      if (btnScrubberPrev) {
+        btnScrubberPrev.textContent = '▶';
+        btnScrubberPrev.title = 'Página Anterior';
+      }
+    } else {
+      // Modo Occidental / LTR: avance hacia la derecha
+      if (toolbarNav) toolbarNav.style.flexDirection = 'row-reverse';
+      if (btnNext) {
+        btnNext.textContent = '▶';
+        btnNext.title = 'Página Siguiente';
+      }
+      if (btnPrev) {
+        btnPrev.textContent = '◀';
+        btnPrev.title = 'Página Anterior';
+      }
+      if (scrubberInner) scrubberInner.style.direction = 'ltr';
+      if (btnScrubberNext) {
+        btnScrubberNext.textContent = '▶';
+        btnScrubberNext.title = 'Página Siguiente';
+      }
+      if (btnScrubberPrev) {
+        btnScrubberPrev.textContent = '◀';
+        btnScrubberPrev.title = 'Página Anterior';
+      }
+    }
   }
 
   function updateDoublePageToolbarBtn() {
@@ -210,8 +267,21 @@
         stage.classList.toggle('is-zoomed', t.scale > minZ + 0.005);
       }
 
+      if (!_isProgrammaticZoom) {
+        // Zoom realizado manualmente por el usuario (Ctrl+rueda, gestos táctiles, etc.)
+        if (t.scale > minZ + 0.005) {
+          mokuroState.isManualZoom = true;
+          mokuroState.manualScale = t.scale;
+        } else {
+          mokuroState.isManualZoom = false;
+          mokuroState.manualScale = null;
+        }
+      }
+
       if (t.scale <= minZ + 0.002) {
         _autocentering = true;
+        mokuroState.isManualZoom = false;
+        mokuroState.manualScale = null;
         applyCurrentZoomMode();
         requestAnimationFrame(() => { _autocentering = false; });
       }
@@ -356,6 +426,10 @@
 
   // Aplica el modo de zoom actualmente guardado (se llama al cambiar de página)
   function applyCurrentZoomMode() {
+    if (mokuroState.isManualZoom && mokuroState.manualScale) {
+      _applyManualZoom(mokuroState.manualScale);
+      return;
+    }
     switch (mokuroState.zoomMode) {
       case 'fit-width': _applyFitToWidth(); break;
       case 'original':  _applyOriginal();   break;
@@ -365,21 +439,105 @@
 
   // ── Funciones públicas (guardan el modo) ──────────────────────────────────
   function zoomFitToScreen() {
+    mokuroState.isManualZoom = false;
+    mokuroState.manualScale = null;
     mokuroState.zoomMode = 'fit-screen';
     _applyFitToScreen();
+    updateZoomToggleBtn();
   }
 
   function zoomFitToWidth() {
+    mokuroState.isManualZoom = false;
+    mokuroState.manualScale = null;
     mokuroState.zoomMode = 'fit-width';
     _applyFitToWidth();
+    updateZoomToggleBtn();
+  }
+
+  function toggleZoomFit() {
+    if (mokuroState.zoomMode === 'fit-width') {
+      zoomFitToScreen();
+    } else {
+      zoomFitToWidth();
+    }
+  }
+
+  function updateZoomToggleBtn() {
+    const btn = document.getElementById('btn-zoom-toggle') || document.getElementById('btn-zoom-fit-screen');
+    const iconEl = document.getElementById('zoom-toggle-icon');
+    const textEl = document.getElementById('zoom-toggle-text');
+    if (!btn) return;
+
+    if (mokuroState.zoomMode === 'fit-width') {
+      btn.title = 'Ajuste actual: Ancho (Clic para alternar a Largo)';
+      if (iconEl) iconEl.textContent = '↔';
+      if (textEl) textEl.textContent = 'Ancho';
+      btn.classList.add('active');
+    } else {
+      btn.title = 'Ajuste actual: Largo (Clic para alternar a Ancho)';
+      if (iconEl) iconEl.textContent = '↕';
+      if (textEl) textEl.textContent = 'Largo';
+      btn.classList.remove('active');
+    }
   }
 
   function zoomOriginal() {
+    mokuroState.isManualZoom = false;
+    mokuroState.manualScale = null;
     mokuroState.zoomMode = 'original';
     _applyOriginal();
   }
 
   // ── Implementaciones internas ─────────────────────────────────────────────
+  function _applyManualZoom(scale) {
+    const stage = document.getElementById('mokuro-stage');
+    const pc = document.getElementById('mokuro-pages-container');
+    if (!stage || !pc || !pzInstance) return;
+
+    const visiblePages = pc.querySelectorAll('.mokuro-page.visible-page');
+    if (visiblePages.length === 0) return;
+
+    let totalW = 0;
+    let maxH = 0;
+    visiblePages.forEach(p => {
+      const w = p.offsetWidth || parseInt(p.style.width, 10) || 800;
+      const h = p.offsetHeight || parseInt(p.style.height, 10) || 1200;
+      totalW += w;
+      maxH = Math.max(maxH, h);
+    });
+    if (totalW === 0 || maxH === 0) return;
+
+    const minZ = pzInstance.getMinZoom ? pzInstance.getMinZoom() : 0.05;
+    const finalScale = Math.max(minZ, Math.min(6, scale));
+
+    const scaledW = totalW * finalScale;
+    const scaledH = maxH * finalScale;
+    const stageW = stage.clientWidth;
+    const stageH = stage.clientHeight;
+
+    let x = 0;
+    if (scaledW <= stageW) {
+      x = (stageW - scaledW) / 2;
+    } else {
+      // En lectura japonesa (R2L) comenzar en esquina superior derecha
+      x = mokuroState.isR2L ? (stageW - scaledW) : 0;
+    }
+
+    let y = 0;
+    if (scaledH <= stageH) {
+      y = (stageH - scaledH) / 2;
+    } else {
+      y = 0;
+    }
+
+    _isProgrammaticZoom = true;
+    pzInstance.zoomAbs(0, 0, finalScale);
+    pzInstance.moveTo(x, y);
+    _isProgrammaticZoom = false;
+
+    stage.classList.toggle('is-zoomed', finalScale > minZ + 0.005);
+  }
+
   function _applyFitToScreen() {
     const stage = document.getElementById('mokuro-stage');
     const pc = document.getElementById('mokuro-pages-container');
@@ -415,8 +573,10 @@
     const x = Math.max(0, (stage.clientWidth - scaledW) / 2);
     const y = Math.max(0, (stage.clientHeight - scaledH) / 2);
 
+    _isProgrammaticZoom = true;
     pzInstance.zoomAbs(0, 0, scale);
     pzInstance.moveTo(x, y);
+    _isProgrammaticZoom = false;
     stage.classList.remove('is-zoomed');
   }
 
@@ -448,8 +608,10 @@
       ? Math.max(0, (stage.clientHeight - scaledH) / 2)
       : 0;
 
+    _isProgrammaticZoom = true;
     pzInstance.zoomAbs(0, 0, scale);
     pzInstance.moveTo(x, y);
+    _isProgrammaticZoom = false;
     stage.classList.add('is-zoomed');
   }
 
@@ -470,8 +632,10 @@
     const x = Math.max(0, (stage.clientWidth - totalW) / 2);
     const y = Math.max(0, (stage.clientHeight - maxH) / 2);
 
+    _isProgrammaticZoom = true;
     pzInstance.zoomAbs(0, 0, 1);
     pzInstance.moveTo(x, y);
+    _isProgrammaticZoom = false;
     stage.classList.add('is-zoomed');
   }
 
@@ -545,7 +709,9 @@
       sliderTooltip.textContent = `Pág. ${mokuroState.currentPageIdx + 1}`;
       if (pageSlider) {
         // En modo RTL el thumb está invertido: página 1 = derecha (100%), última = izquierda (0%)
-        const pct = 100 - ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100;
+        const pct = mokuroState.isR2L
+          ? 100 - ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100
+          : ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100;
         sliderTooltip.style.left = `${pct}%`;
       }
     }
@@ -894,7 +1060,7 @@
     overlay.innerHTML = `
       <div class="next-vol-card">
         <div class="next-vol-cover-wrap">
-          <img src="${nextVol.coverDataUrl || 'image/logonnt.png'}" alt="Portada siguiente tomo" class="next-vol-cover">
+          <img src="${nextVol.coverDataUrl || (window.ToriiMangaDB && window.ToriiMangaDB.COVER_PLACEHOLDER) || ''}" alt="Portada siguiente tomo" class="next-vol-cover">
         </div>
         <div class="next-vol-info">
           <span class="next-vol-badge">✅ Tomo terminado</span>
@@ -1658,6 +1824,9 @@
       if (container) container.innerHTML = '';
       currentMangaKey = null;           // Forzar reconstrucción de páginas
       mokuroState.zoomMode = 'fit-screen'; // Reiniciar modo de zoom al abrir un nuevo manga
+      mokuroState.isManualZoom = false;
+      mokuroState.manualScale = null;
+      updateZoomToggleBtn();
       initPanzoom();
       renderCurrentPages();
     }
@@ -1898,8 +2067,9 @@
         if (sliderTooltip) {
           sliderTooltip.textContent = `Pág. ${val}`;
           const max = parseInt(pageSlider.max, 10) || 1;
-          // En modo RTL: invertir el porcentaje de posición del tooltip
-          const pct = 100 - ((val - 1) / Math.max(1, max - 1)) * 100;
+          const pct = mokuroState.isR2L
+            ? 100 - ((val - 1) / Math.max(1, max - 1)) * 100
+            : ((val - 1) / Math.max(1, max - 1)) * 100;
           sliderTooltip.style.left = `${pct}%`;
         }
       });
@@ -1941,18 +2111,22 @@
     });
 
     // Botones de Zoom
+    const btnZoomToggle = document.getElementById('btn-zoom-toggle') || document.getElementById('btn-zoom-fit-screen');
     const btnFitScreen = document.getElementById('btn-zoom-fit-screen');
     const btnFitWidth = document.getElementById('btn-zoom-fit-width');
     const btnZoomOriginal = document.getElementById('btn-zoom-original');
     const btnDoublePage = document.getElementById('btn-toggle-double-page');
     const btnFullscreen = document.getElementById('btn-toggle-fullscreen');
 
-    if (btnFitScreen) btnFitScreen.addEventListener('click', zoomFitToScreen);
-    if (btnFitWidth) btnFitWidth.addEventListener('click', zoomFitToWidth);
+    if (btnZoomToggle) btnZoomToggle.addEventListener('click', toggleZoomFit);
+    if (btnFitScreen && btnFitScreen !== btnZoomToggle) btnFitScreen.addEventListener('click', zoomFitToScreen);
+    if (btnFitWidth && btnFitWidth !== btnZoomToggle) btnFitWidth.addEventListener('click', zoomFitToWidth);
     if (btnZoomOriginal) btnZoomOriginal.addEventListener('click', zoomOriginal);
     if (btnDoublePage) {
       btnDoublePage.addEventListener('click', () => {
         mokuroState.isDoublePage = !mokuroState.isDoublePage;
+        mokuroState.isManualZoom = false;
+        mokuroState.manualScale = null;
         savePreferences();
         syncUIWithState();
         renderCurrentPages();
@@ -2067,6 +2241,7 @@
         mokuroState.isR2L = e.target.checked;
         savePreferences();
         updateContainerClasses();
+        syncNavDirectionUI();
         renderCurrentPages();
       });
     }
@@ -2213,7 +2388,7 @@
           zoomFitToScreen();
           break;
         case '1':
-          zoomOriginal();
+          zoomFitToWidth();
           break;
       }
     });
