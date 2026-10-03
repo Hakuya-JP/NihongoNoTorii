@@ -12,8 +12,25 @@
   <div class="header-brand"><a href="../../index.html" class="nav-logo"><img src="../../image/logonnt.png" alt="Logo"></a><h1 class="logo-text">Nihongo no Torii</h1></div>
   <button class="hamburger" onclick="toggleMenu()">☰</button>
   <nav id="menu" class="top-nav">
-    <a href="../../index.html">Inicio</a><a href="../../lecciones.html" class="active">Lecciones</a><a href="../../videos.html">Videos</a><a href="../../biblioteca.html">Biblioteca</a><a href="../../jlpt-simulador.html">Simulador JLPT</a>
-    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <a href="../../index.html">Inicio</a><a href="../../lecciones.html" class="active">Lecciones</a><a href="../../videos.html">Videos</a><a href="../../biblioteca.html">Biblioteca</a><a href="../../lectura.html">Lectura</a><a href="../../ToriiTV.html">ToriiTV</a><a href="../../jlpt-simulador.html">Simulador JLPT</a>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Alternar modo claro y oscuro" title="Lámpara Chochin (明 / 暗)">
+      <!-- Interruptor Lámpara Japonesa (Chochin) -->
+      <div id="lantern-assembly" class="lantern-assembly is-lit idle-sway">
+        <!-- Tapa Superior (Kubi) -->
+        <div class="wood-cap top"></div>
+
+        <!-- Cuerpo de Papel -->
+        <div id="lantern-body" class="lantern-body">
+          <div class="bamboo-ribs"></div>
+          <div class="flame-core"></div>
+          <span id="lantern-kanji" class="lantern-kanji">明</span>
+        </div>
+
+        <!-- Tapa Inferior y Borlón (Tassel) -->
+        <div class="wood-cap bottom"></div>
+        <div class="tassel-skirt"></div>
+      </div>
+    </button>
   </nav>
 </header>
 
@@ -87,7 +104,6 @@
   function aplicarFiltros(){let v=0;document.querySelectorAll('.blog-card').forEach(c=>{const pass=(activeCat==='todos'||c.dataset.categoria===activeCat)&&(activeStatus==='todos'||c.dataset.status===activeStatus);c.classList.toggle('hidden',!pass);if(!c.classList.contains('hidden'))v++;});document.getElementById('blog-empty-msg').style.display=(v===0&&LECCIONES_IDS.length>0)?'block':'none';}
   document.addEventListener('DOMContentLoaded',cargarProgreso);
   function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
-  function toggleDarkMode(){document.body.classList.toggle('dark-mode');document.documentElement.classList.toggle('dark-mode');const d=document.body.classList.contains('dark-mode');localStorage.setItem('theme',d?'dark':'light');const b=document.getElementById('dark-mode-toggle');if(b)b.innerText=d?'☀️':'🌙';}
 </script>
 </body>
 </html>

@@ -82,6 +82,7 @@
 
     updateDoublePageToolbarBtn();
     updateZoomToggleBtn();
+    updateFullscreenToolbarBtn();
     updateContainerClasses();
     syncNavDirectionUI();
   }
@@ -153,6 +154,30 @@
     }
   }
 
+  function updateFullscreenToolbarBtn() {
+    const btn = document.getElementById('btn-toggle-fullscreen');
+    const wrapper = document.getElementById('mokuro-reader-wrapper');
+    const isFs = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement ||
+      (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
+      (window.innerHeight === screen.height && window.innerWidth === screen.width)
+    );
+
+    if (wrapper) {
+      wrapper.classList.toggle('is-fullscreen', isFs);
+    }
+
+    if (btn) {
+      btn.classList.toggle('active', isFs);
+      btn.title = isFs ? 'Salir de Pantalla Completa (F11)' : 'Pantalla Completa (F11)';
+      btn.setAttribute('aria-label', isFs ? 'Salir de Pantalla Completa (F11)' : 'Pantalla Completa (F11)');
+      btn.innerHTML = isFs ? '🗗' : '⛶';
+    }
+  }
+
   function updateContainerClasses() {
     const container = document.getElementById('mokuro-pages-container');
     const wrapper = document.getElementById('mokuro-reader-wrapper');
@@ -216,6 +241,7 @@
       zoomDoubleClickSpeed: 1, // Desactivar zoom con doble clic
       enableTextSelection: false, // Evita que la selección de texto interfiera y congele el arrastre
       smoothScroll: false,     // Detener arrastre inmediatamente sin deslizamiento inercial fuera de bordes
+      filterKey: () => true,  // Desactivar manejo de teclas de panzoom; lo gestionamos nosotros (flechas = navegar página)
       beforeMouseDown: function(e) {
         // Bloquear arrastre con clic derecho o central (el derecho abre el popup Torii)
         if (e.button !== 0) {
@@ -641,19 +667,33 @@
 
   function toggleFullScreen() {
     const wrapper = document.getElementById('mokuro-reader-wrapper');
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      if (wrapper.requestFullscreen) {
-        wrapper.requestFullscreen().catch(err => console.warn(err));
-      } else if (wrapper.webkitRequestFullscreen) {
-        wrapper.webkitRequestFullscreen();
+    const isFs = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    );
+
+    if (!isFs) {
+      if (wrapper) {
+        const req = wrapper.requestFullscreen ||
+                    wrapper.webkitRequestFullscreen ||
+                    wrapper.mozRequestFullScreen ||
+                    wrapper.msRequestFullscreen;
+        if (req) {
+          req.call(wrapper).catch(err => console.warn('Error al activar pantalla completa:', err));
+        }
       }
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(err => console.warn(err));
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
+      const exit = document.exitFullscreen ||
+                   document.webkitExitFullscreen ||
+                   document.mozCancelFullScreen ||
+                   document.msExitFullscreen;
+      if (exit) {
+        exit.call(document).catch(err => console.warn('Error al salir de pantalla completa:', err));
       }
     }
+    setTimeout(updateFullscreenToolbarBtn, 60);
   }
 
   // ========================================================================
@@ -1835,6 +1875,10 @@
   function closeReaderModal() {
     const wrapper = document.getElementById('mokuro-reader-wrapper');
     const stage = document.getElementById('mokuro-stage');
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+      if (exit) exit.call(document).catch(() => {});
+    }
     if (wrapper) {
       wrapper.classList.remove('active');
       document.body.classList.remove('mokuro-reading-active');
@@ -2091,11 +2135,7 @@
 
     // Sincronizar estado de pantalla completa y reajustar visualización del manga
     const handleFullscreenChange = () => {
-      const wrapper = document.getElementById('mokuro-reader-wrapper');
-      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
-      if (wrapper) {
-        wrapper.classList.toggle('is-fullscreen', isFs);
-      }
+      updateFullscreenToolbarBtn();
       setTimeout(() => {
         applyCurrentZoomMode();
       }, 70);
@@ -2103,7 +2143,10 @@
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
     window.addEventListener('resize', () => {
+      updateFullscreenToolbarBtn();
       const wrapper = document.getElementById('mokuro-reader-wrapper');
       if (wrapper && wrapper.classList.contains('active')) {
         clampPan();
@@ -2358,27 +2401,41 @@
       const wrapper = document.getElementById('mokuro-reader-wrapper');
       if (!wrapper || !wrapper.classList.contains('active')) return;
 
-      // Si el foco está en un input o editable, no interferir
+      // F11: Sincronización con el botón de pantalla completa
+      if (e.key === 'F11' || e.keyCode === 122) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFullScreen();
+        return;
+      }
+
+      // Si el foco está en un input o editable, no interferir con las demás teclas
       if (e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
 
       switch (e.key) {
         case 'ArrowLeft':
+          e.preventDefault();
           mokuroState.isR2L ? nextPage() : prevPage();
           break;
         case 'ArrowRight':
+          e.preventDefault();
           mokuroState.isR2L ? prevPage() : nextPage();
           break;
         case 'PageDown':
         case ' ':
+          e.preventDefault();
           nextPage();
           break;
         case 'PageUp':
+          e.preventDefault();
           prevPage();
           break;
         case 'Home':
+          e.preventDefault();
           firstPage();
           break;
         case 'End':
+          e.preventDefault();
           lastPage();
           break;
         case 'Escape':

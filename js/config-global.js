@@ -33,7 +33,72 @@ window.aplicarTemaGlobal = aplicarTemaGlobal;
   }
   if (!temaGuardado || temaGuardado === "custom") temaGuardado = "torii-sunset";
   document.documentElement.setAttribute("data-theme", temaGuardado);
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark-mode');
+  }
 })();
+
+// ==========================================================================
+// SECCIÓN 0.1: SINCRONIZACIÓN Y CONTROL DE LÁMPARA CHOCHIN Y MODO OSCURO
+// ==========================================================================
+function syncLanternUI(isDark, animate = false) {
+  const assembly = document.getElementById('lantern-assembly');
+  const kanji = document.getElementById('lantern-kanji');
+  
+  if (assembly) {
+    if (animate) {
+      assembly.classList.remove('lantern-pulled');
+      void assembly.offsetWidth; // Forzar reflow para reiniciar animación
+      assembly.classList.add('lantern-pulled');
+    }
+
+    if (isDark) {
+      assembly.classList.remove('is-lit');
+      assembly.classList.add('is-unlit');
+    } else {
+      assembly.classList.remove('is-unlit');
+      assembly.classList.add('is-lit');
+    }
+  }
+
+  if (kanji) {
+    // 明 (Luz / Modo Claro) vs 暗 (Oscuridad / Modo Oscuro)
+    kanji.textContent = isDark ? '暗' : '明';
+  }
+
+  // Fallback seguro solo si NO tiene el ensamblaje de la lámpara
+  const btnDark = document.getElementById('dark-mode-toggle');
+  if (btnDark && !assembly && !btnDark.querySelector('.lantern-assembly')) {
+    btnDark.innerText = isDark ? "☀️" : "🌙";
+  }
+}
+window.syncLanternUI = syncLanternUI;
+
+function toggleDarkMode(animate = true) {
+  const body = document.body;
+  const html = document.documentElement;
+  
+  body.classList.toggle('dark-mode');
+  html.classList.toggle('dark-mode');
+  
+  const isDark = body.classList.contains('dark-mode');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+  // Actualizar Lámpara Chochin
+  syncLanternUI(isDark, animate);
+
+  // Sincronizar modal de temas si está abierto o cargado
+  if (typeof actualizarBarraModoTemaModal === "function") {
+    actualizarBarraModoTemaModal();
+  }
+  if (typeof renderThemesCatalogGrid === "function") {
+    renderThemesCatalogGrid();
+  }
+}
+window.toggleDarkMode = toggleDarkMode;
+window.toggleLantern = toggleDarkMode;
 
 // ==========================================================================
 // SECCIÓN 1: CONFIGURACIÓN GLOBAL Y PERSISTENCIA (ANKI)
@@ -74,12 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Sincronizar Chochin (Lámpara Japonesa)
-  if (typeof syncLanternUI === "function") {
-    syncLanternUI(isDark, false);
-  } else {
-    const btnDark = document.getElementById('dark-mode-toggle');
-    if (btnDark) btnDark.innerText = isDark ? "☀️" : "🌙";
-  }
+  syncLanternUI(isDark, false);
 
   // --- 2.3 HIGHLIGHT MENÚ NAVEGACIÓN ---
   const paginaActual = window.location.pathname.split("/").pop();

@@ -32,8 +32,27 @@
     <a href="../../lecciones.html" class="active">Lecciones</a>
     <a href="../../videos.html">Videos</a>
     <a href="../../biblioteca.html">Biblioteca</a>
+    <a href="../../lectura.html">Lectura</a>
+    <a href="../../ToriiTV.html">ToriiTV</a>
     <a href="../../jlpt-simulador.html">Simulador JLPT</a>
-    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Alternar modo claro y oscuro" title="Lámpara Chochin (明 / 暗)">
+      <!-- Interruptor Lámpara Japonesa (Chochin) -->
+      <div id="lantern-assembly" class="lantern-assembly is-lit idle-sway">
+        <!-- Tapa Superior (Kubi) -->
+        <div class="wood-cap top"></div>
+
+        <!-- Cuerpo de Papel -->
+        <div id="lantern-body" class="lantern-body">
+          <div class="bamboo-ribs"></div>
+          <div class="flame-core"></div>
+          <span id="lantern-kanji" class="lantern-kanji">明</span>
+        </div>
+
+        <!-- Tapa Inferior y Borlón (Tassel) -->
+        <div class="wood-cap bottom"></div>
+        <div class="tassel-skirt"></div>
+      </div>
+    </button>
   </nav>
 </header>
 
@@ -44,7 +63,7 @@
   <a href="index.html">KANA — Silabarios</a>
   <span class="sep">›</span>
   <!-- TODO: Cambia el nombre de la lección -->
-  <span>Introduccion al Japonés</span>
+  <span>Introduccion al KANA</span>
 </nav>
 
 <!-- HERO DE LA LECCIÓN -->
@@ -59,12 +78,12 @@
       <div class="leccion-hero-badges">
         <span class="blog-meta-tag nivel">KANA</span>
         <!-- TODO: cat-intro | cat-escritura | cat-gramatica | cat-vocabulario | cat-practica -->
-        <span class="blog-meta-tag cat-intro">Introduccion al Japonés</span>
+        <span class="blog-meta-tag cat-intro">Introduccion al KANA</span>
         <!-- TODO: Tiempo estimado de lectura -->
         <span class="blog-meta-tag tiempo">⏱ 10 min</span>
       </div>
       <!-- TODO: Título completo de la lección -->
-      <h2 class="leccion-hero-title">Introduccion al Japonés</h2>
+      <h2 class="leccion-hero-title">Introduccion al KANA</h2>
       <div class="leccion-progress-row">
         <div class="leccion-progress-track">
           <!-- TODO: width = (número_leccion / total_lecciones) * 100 % -->
@@ -117,10 +136,11 @@
             <div id="tema-introduccion" class="explanation-card-item">
               <h3>📌 ¿Que es el KANA?</h3>
               <p>
-                El idioma japones esta compuesto por <strong>2 sistemas de escritura Kanji y KANA.</strong>
-                El KANA esta compesto por 2 silabarios que se escriben de forma distinta pero suenan igual y tienen la misma cantidad de silabas son como las minusculas y las mayusculas en el español.<br>
-                Estos silabarios tienen como nombre Hiragana y Katakana. El Hiragana consta de <strong>46 Silabas principales</strong>. de las cuales 5 son vocales y los demas estan compuesto por 
-                una consonante y una vocal a exepccion de<strong>ん</strong>. Tambien hay alteraciones y combinaciones de estos pero de momento aprenderemos las 46 silabas principales del hiragana.
+                El idioma japones esta compuesto por <strong>2 sistemas de escritura Kanji y KANA.</strong><br>
+                El KANA son 2 silabarios que se escriben de forma distinta pero suenan igual y tienen la misma cantidad de silabas son como las minusculas y las mayusculas en el español.<br>
+                Estos silabarios tienen como nombre Hiragana y Katakana. 
+                <br>El Hiragana consta de <strong>46 Silabas principales</strong>. de las cuales 5 son vocales y los demas estan compuesto por 
+                una consonante y una vocal a exepccion de<strong> ん </strong>. Tambien hay alteraciones y combinaciones de estos pero de momento aprenderemos las 46 silabas principales del hiragana.
               </p>
               <p>
               </p>
@@ -152,6 +172,7 @@
            luego a tu izquierda de forma vertical o de columna estan las consonantes　<strong>か (Ka), さ (sa), た (ta), な (na), は (ha) ま (ma), や (ya), ら (ra), わ (wo)</strong>
           <br> pero esto de filas  y columnas a veces puede resultar algo enredozo por lo que vamos agruparlos en <strong>Familias</strong>
           <br>Una familia es la combinacion de una consonante con las 5 vocales y la familia resivira el nombre de su primer silaba. 
+          <br>
           <br>Por ejemplo: Si combinamos la 5 vocales con la consonante K-, eso nos daria か (Ka), き (ka), く (ku), け (ke), こ (ko) y se le denominaria <strong>Familia か (Ka)</strong>.
           Sin embargo, vijense bien en la tabla y algunas posiciones quedan vacías porque esos sonidos ya no se utilizan en el japonés cotidiano). El único kana que no incluye un sonido vocálico, <strong>ん (n)</strong>, normalmente se muestra por separado.
         </p>
@@ -256,14 +277,6 @@
     btn.classList.toggle('done',done);
   }
   function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
-  function toggleDarkMode(){
-    document.body.classList.toggle('dark-mode');
-    document.documentElement.classList.toggle('dark-mode');
-    const d=document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme',d?'dark':'light');
-    const b=document.getElementById('dark-mode-toggle');
-    if(b)b.innerText=d?'☀️':'🌙';
-  }
   document.addEventListener('DOMContentLoaded',()=>{
     if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado')
       localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,'en-progreso');

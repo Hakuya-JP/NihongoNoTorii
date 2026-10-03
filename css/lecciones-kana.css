@@ -34,7 +34,7 @@
 }
 
 .grid-lecciones {
-  width: 90%;
+  width: 96%;
   margin: 40px auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

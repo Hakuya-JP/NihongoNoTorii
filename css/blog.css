@@ -22,19 +22,26 @@
   --blog-practica-grad:   linear-gradient(110deg, rgba(192,57,43,0.08) 0%, rgba(192,57,43,0.02) 100%);
 }
 
-body.dark-mode {
-  --blog-intro-grad:      linear-gradient(110deg, rgba(92,107,192,0.15) 0%, rgba(92,107,192,0.04) 100%);
-  --blog-escritura-grad:  linear-gradient(110deg, rgba(20,100,130,0.2)  0%, rgba(20,100,130,0.05) 100%);
-  --blog-gramatica-grad:  linear-gradient(110deg, rgba(255,148,71,0.15) 0%, rgba(255,148,71,0.04) 100%);
-  --blog-vocabulario-grad:linear-gradient(110deg, rgba(46,125,50,0.15)  0%, rgba(46,125,50,0.04) 100%);
-  --blog-practica-grad:   linear-gradient(110deg, rgba(192,57,43,0.15)  0%, rgba(192,57,43,0.04) 100%);
+body.dark-mode,
+html.dark-mode {
+  --blog-intro:      #9fa8da;
+  --blog-escritura:  #38bdf8;
+  --blog-gramatica:  #ffb74d;
+  --blog-vocabulario:#81c784;
+  --blog-practica:   #ef5350;
+
+  --blog-intro-grad:      linear-gradient(110deg, rgba(159,168,218,0.14) 0%, rgba(159,168,218,0.03) 100%);
+  --blog-escritura-grad:  linear-gradient(110deg, rgba(56,189,248,0.16)  0%, rgba(56,189,248,0.03) 100%);
+  --blog-gramatica-grad:  linear-gradient(110deg, rgba(255,183,77,0.16)  0%, rgba(255,183,77,0.03) 100%);
+  --blog-vocabulario-grad:linear-gradient(110deg, rgba(129,199,132,0.14) 0%, rgba(129,199,132,0.03) 100%);
+  --blog-practica-grad:   linear-gradient(110deg, rgba(239,83,80,0.14)  0%, rgba(239,83,80,0.03) 100%);
 }
 
 /* ==========================================================================
    HERO DEL BLOG (Índice)
    ========================================================================== */
 .blog-hero {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 30px auto 0;
   padding: 0 24px;
 }
@@ -108,11 +115,11 @@ body.dark-mode {
    LAYOUT PRINCIPAL: SIDEBAR + LISTA
    ========================================================================== */
 .blog-layout {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 30px auto 60px;
   padding: 0 24px;
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 28px;
   align-items: flex-start;
 }
@@ -221,6 +228,7 @@ body.dark-mode {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  zoom: 1.25; /* Zoom del 25% para mejor visibilidad de las tarjetas */
 }
 
 /* Tarjeta individual */
@@ -370,7 +378,107 @@ body.dark-mode {
 .blog-meta-tag.cat-vocabulario { background: rgba(46,125,50,0.12);   color: var(--blog-vocabulario); }
 .blog-meta-tag.cat-practica    { background: rgba(192,57,43,0.12);   color: var(--blog-practica); }
 
-body.dark-mode .blog-meta-tag.cat-gramatica { color: var(--naranja); }
+body.dark-mode .blog-meta-tag.cat-intro,
+html.dark-mode .blog-meta-tag.cat-intro       { background: rgba(159,168,218,0.2); color: var(--blog-intro); }
+body.dark-mode .blog-meta-tag.cat-escritura,
+html.dark-mode .blog-meta-tag.cat-escritura   { background: rgba(56,189,248,0.2);  color: var(--blog-escritura); }
+body.dark-mode .blog-meta-tag.cat-gramatica,
+html.dark-mode .blog-meta-tag.cat-gramatica   { background: rgba(255,183,77,0.22); color: var(--blog-gramatica); }
+body.dark-mode .blog-meta-tag.cat-vocabulario,
+html.dark-mode .blog-meta-tag.cat-vocabulario { background: rgba(129,199,132,0.2); color: var(--blog-vocabulario); }
+body.dark-mode .blog-meta-tag.cat-practica,
+html.dark-mode .blog-meta-tag.cat-practica    { background: rgba(239,83,80,0.2);   color: var(--blog-practica); }
+
+body.dark-mode .blog-hero-inner,
+html.dark-mode .blog-hero-inner {
+  background: var(--blanco);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 6px solid var(--naranja);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .blog-progress-track,
+html.dark-mode .blog-progress-track {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .blog-sidebar,
+html.dark-mode .blog-sidebar {
+  background: var(--blanco);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .blog-sidebar-section-title,
+html.dark-mode .blog-sidebar-section-title {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-h3);
+}
+
+body.dark-mode .blog-sidebar-divider,
+html.dark-mode .blog-sidebar-divider {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .blog-filter-item,
+html.dark-mode .blog-filter-item {
+  color: var(--texto-principal);
+}
+
+body.dark-mode .blog-filter-item:hover,
+html.dark-mode .blog-filter-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .blog-filter-item.active,
+html.dark-mode .blog-filter-item.active {
+  background: var(--naranja);
+  border-color: var(--naranja);
+  color: #ffffff;
+}
+
+body.dark-mode .blog-filter-count,
+html.dark-mode .blog-filter-count {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--texto-principal);
+}
+
+body.dark-mode .blog-filter-item.active .blog-filter-count,
+html.dark-mode .blog-filter-item.active .blog-filter-count {
+  background: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+}
+
+body.dark-mode .blog-card,
+html.dark-mode .blog-card {
+  background-color: var(--blanco);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .blog-card:hover,
+html.dark-mode .blog-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5);
+  transform: translateY(-3px);
+}
+
+body.dark-mode .blog-card-number,
+html.dark-mode .blog-card-number {
+  color: var(--color-h2);
+  opacity: 0.65;
+}
+
+body.dark-mode .blog-card-title,
+html.dark-mode .blog-card-title {
+  color: var(--color-h1);
+}
+
+body.dark-mode .blog-card-desc,
+html.dark-mode .blog-card-desc {
+  color: var(--texto-principal);
+  opacity: 0.88;
+}
 
 /* Lado derecho: estado + flecha */
 .blog-card-right {
@@ -404,11 +512,28 @@ body.dark-mode .blog-meta-tag.cat-gramatica { color: var(--naranja); }
   background: rgba(255,148,71,0.15);
   color: #c05a00;
 }
-body.dark-mode .blog-status-badge.en-progreso { color: var(--naranja); }
 
 .blog-status-badge.completado {
   background: rgba(46,125,50,0.12);
   color: #2e7d32;
+}
+
+body.dark-mode .blog-status-badge.pendiente,
+html.dark-mode .blog-status-badge.pendiente {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--texto-principal);
+}
+
+body.dark-mode .blog-status-badge.en-progreso,
+html.dark-mode .blog-status-badge.en-progreso {
+  background: rgba(255, 148, 71, 0.22);
+  color: #ffb74d;
+}
+
+body.dark-mode .blog-status-badge.completado,
+html.dark-mode .blog-status-badge.completado {
+  background: rgba(76, 175, 80, 0.22);
+  color: #81c784;
 }
 
 .blog-card-arrow {
@@ -443,7 +568,7 @@ body.dark-mode .blog-status-badge.en-progreso { color: var(--naranja); }
    PÁGINAS DE LECCIÓN — HERO
    ========================================================================== */
 .leccion-breadcrumb {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 20px auto 0;
   padding: 0 24px;
   font-size: 0.88rem;
@@ -466,7 +591,7 @@ body.dark-mode .blog-status-badge.en-progreso { color: var(--naranja); }
 
 /* Hero de lección */
 .leccion-hero {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 14px auto 0;
   padding: 0 24px;
 }
@@ -571,7 +696,7 @@ body.dark-mode .leccion-hero-inner[data-cat="practica"]    { background: linear-
    CONTENIDO DE LECCIÓN
    ========================================================================== */
 .leccion-content {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 30px auto;
   padding: 0 24px;
 }
@@ -592,7 +717,7 @@ body.dark-mode .leccion-hero-inner[data-cat="practica"]    { background: linear-
    NAVEGACIÓN PIE DE LECCIÓN
    ========================================================================== */
 .leccion-nav {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 50px auto 60px;
   padding: 0 24px;
 }
@@ -678,8 +803,75 @@ body.dark-mode .leccion-hero-inner[data-cat="practica"]    { background: linear-
   border-color: #2e7d32;
 }
 
-body.dark-mode .btn-completar.done {
-  background: rgba(46,125,50,0.2);
+body.dark-mode .leccion-section-title,
+html.dark-mode .leccion-section-title {
+  color: var(--color-h2);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .leccion-hero-inner,
+html.dark-mode .leccion-hero-inner {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .leccion-progress-track,
+html.dark-mode .leccion-progress-track {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .leccion-nav-inner,
+html.dark-mode .leccion-nav-inner {
+  background: var(--blanco);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .leccion-nav-prev,
+html.dark-mode .leccion-nav-prev {
+  background: transparent;
+  border-color: var(--naranja2, var(--color-h3));
+  color: var(--texto-principal);
+}
+
+body.dark-mode .leccion-nav-prev:hover,
+html.dark-mode .leccion-nav-prev:hover {
+  background: var(--azulNa, var(--azul));
+  color: #ffffff;
+}
+
+body.dark-mode .leccion-nav-next,
+html.dark-mode .leccion-nav-next {
+  background: transparent;
+  border-color: var(--naranja);
+  color: var(--texto-principal);
+}
+
+body.dark-mode .leccion-nav-next:hover,
+html.dark-mode .leccion-nav-next:hover {
+  background: var(--naranja);
+  color: #ffffff;
+}
+
+body.dark-mode .btn-completar,
+html.dark-mode .btn-completar {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--naranja);
+  color: var(--texto-principal);
+}
+
+body.dark-mode .btn-completar:hover,
+html.dark-mode .btn-completar:hover {
+  background: #2e7d32;
+  border-color: #2e7d32;
+  color: #ffffff;
+}
+
+body.dark-mode .btn-completar.done,
+html.dark-mode .btn-completar.done {
+  background: rgba(46, 125, 50, 0.25);
+  border-color: #4caf50;
+  color: #81c784;
 }
 
 .leccion-nav-no-prev,

@@ -1044,7 +1044,7 @@ body.dark-mode .btn-clear-mined:hover {
 
 .video-responsive-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
   margin: auto;
   background: var(--blanco2);
   padding: 10px;

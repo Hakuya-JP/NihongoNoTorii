@@ -1516,19 +1516,7 @@
     if (menu) menu.classList.toggle("menu-open");
   }
 
-  // Modo Oscuro
-  function toggleDarkMode() {
-    const body = document.body;
-    const html = document.documentElement;
-    const btn = document.getElementById("dark-mode-toggle");
-    
-    body.classList.toggle("dark-mode");
-    html.classList.toggle("dark-mode");
-
-    const isDark = body.classList.contains("dark-mode");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    if (btn) btn.innerText = isDark ? "☀️" : "🌙";
-  }
+  // Modo Oscuro es gestionado globalmente por scripts.js
 </script>
 </body>
 </html>
