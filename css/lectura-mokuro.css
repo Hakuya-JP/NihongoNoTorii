@@ -1766,6 +1766,37 @@ html.dark-mode .torii-quick-popup {
   line-height: 1.4;
   margin-bottom: 12px;
   word-break: break-all;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  outline: none;
+  transition: all 0.2s ease;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Modo edición activo (al pulsar el botón editable-popup-label) */
+.quick-popup-text.is-editable {
+  border: 1.5px dashed var(--azulNa, #13a2ce);
+  background: rgba(19, 162, 206, 0.08);
+  box-shadow: 0 0 0 2px rgba(19, 162, 206, 0.15);
+  cursor: text;
+}
+
+.quick-popup-text.is-editable:focus {
+  border-style: solid;
+  border-color: var(--azulNa, #13a2ce);
+  background: rgba(19, 162, 206, 0.12);
+  box-shadow: 0 0 0 3px rgba(19, 162, 206, 0.25);
+}
+
+html.dark-mode .quick-popup-text.is-editable {
+  background: rgba(19, 162, 206, 0.15);
+  border-color: var(--azulNa, #13a2ce);
+}
+
+html.dark-mode .quick-popup-text.is-editable:focus {
+  background: rgba(19, 162, 206, 0.22);
 }
 
 .quick-popup-actions {
@@ -1869,7 +1900,7 @@ html.dark-mode .btn-quick-action:hover {
 .modal-content-manga {
   background: var(--card-bg, #ffffff);
   border-radius: 20px;
-  width: min(540px, 92vw);
+  width: min(640px, 94vw);
   padding: 30px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
   border: 1px solid var(--mokuro-border);
@@ -2227,4 +2258,131 @@ html.dark-mode .progress-status-text {
   color: #ffffff;
   border-color: var(--azulNa, #13a2ce);
   transform: scale(1.1);
+}
+
+/* ======================================================
+   RENAME INLINE UI — Manga card & Volume card
+   ====================================================== */
+
+/* Row that holds the title h3 + pencil button */
+.manga-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.manga-title-row .manga-card-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.volume-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.volume-title-row .volume-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Pencil / edit button on title rows */
+.btn-rename-series,
+.btn-rename-volume {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  opacity: 0;
+  border-radius: 6px;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  line-height: 1;
+}
+
+.manga-card:hover .btn-rename-series,
+.volume-card-item:hover .btn-rename-volume {
+  opacity: 0.6;
+}
+
+.btn-rename-series:hover,
+.btn-rename-volume:hover {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.07);
+}
+
+html.dark-mode .btn-rename-series:hover,
+html.dark-mode .btn-rename-volume:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Inline rename container (flex row: input + ✔ + ✖) */
+.manga-rename-inline,
+.volume-rename-inline {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.manga-rename-input {
+  flex: 1;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--azulNa, #13a2ce);
+  background: var(--card-bg, #fff);
+  color: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  outline: none;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+html.dark-mode .manga-rename-input {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.manga-rename-confirm,
+.volume-rename-confirm {
+  flex-shrink: 0;
+  background: var(--azulNa, #13a2ce);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.manga-rename-confirm:hover,
+.volume-rename-confirm:hover {
+  opacity: 0.85;
+}
+
+.manga-rename-cancel,
+.volume-rename-cancel {
+  flex-shrink: 0;
+  background: rgba(200, 50, 50, 0.12);
+  color: #c82828;
+  border: 1px solid rgba(200, 50, 50, 0.25);
+  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.manga-rename-cancel:hover,
+.volume-rename-cancel:hover {
+  opacity: 0.8;
 }

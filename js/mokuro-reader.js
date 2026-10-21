@@ -42,6 +42,7 @@
         if (p.hasCover !== undefined) mokuroState.hasCover = p.hasCover;
         if (p.showBorders !== undefined) mokuroState.showBorders = p.showBorders;
         if (p.alwaysVisibleOcr !== undefined) mokuroState.alwaysVisibleOcr = p.alwaysVisibleOcr;
+        if (p.editableText !== undefined) mokuroState.editableText = p.editableText;
         if (p.fontSize !== undefined) mokuroState.fontSize = p.fontSize;
       } catch (e) {
         console.warn('Error al cargar preferencias de Mokuro:', e);
@@ -56,6 +57,7 @@
       hasCover: mokuroState.hasCover,
       showBorders: mokuroState.showBorders,
       alwaysVisibleOcr: mokuroState.alwaysVisibleOcr,
+      editableText: mokuroState.editableText,
       fontSize: mokuroState.fontSize
     }));
   }
@@ -212,6 +214,10 @@
     } else {
       wrapper.classList.remove('e-ink-mode');
     }
+
+    document.body.classList.toggle('ocr-edit-mode', !!mokuroState.editableText);
+    const boxes = document.querySelectorAll('.textBox');
+    boxes.forEach(b => b.contentEditable = mokuroState.editableText ? 'true' : 'false');
   }
 
   // ========================================================================
@@ -1014,12 +1020,30 @@
         boxDiv.appendChild(p);
       });
 
+      // Sincronización y persistencia de texto editado por el usuario
+      boxDiv.addEventListener('input', () => {
+        syncBoxContentToBlock(boxDiv, block, pageData);
+        scheduleSaveMangaPages();
+      });
+
+      boxDiv.addEventListener('blur', () => {
+        syncBoxContentToBlock(boxDiv, block, pageData);
+        flushSaveMangaPages(true);
+      });
+
+      boxDiv.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        document.execCommand('insertText', false, text);
+      });
+
       // Evento de clic derecho: Abrir menú Torii de minado rápido (quick popup)
       boxDiv.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const fullText = lines.join(' ');
-        openToriiMiningPopup(fullText, e.clientX, e.clientY);
+        const currentLines = block.lines || [];
+        const fullText = currentLines.join(' ');
+        openToriiMiningPopup(fullText, e.clientX, e.clientY, block, pageData, boxDiv);
       });
 
       ocrLayer.appendChild(boxDiv);
@@ -1036,9 +1060,100 @@
   }
 
   // ========================================================================
+  // PERSISTENCIA Y SINCRONIZACIÓN DE MODIFICACIONES DE .MOKURO / OCR
+  // ========================================================================
+  let _savePagesTimeout = null;
+
+  function syncBoxContentToBlock(boxDiv, block, pageData) {
+    if (!block) return;
+    const pList = Array.from(boxDiv.querySelectorAll('p'));
+    let lines = [];
+    if (pList.length > 0) {
+      lines = pList.map(p => p.textContent.replace(/[\r\n]+/g, '')).filter(t => t.trim().length > 0);
+    }
+    if (lines.length === 0) {
+      const raw = (boxDiv.innerText || boxDiv.textContent || '').trim();
+      if (raw) {
+        lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      }
+    }
+    block.lines = lines;
+
+    // Si el popup rápido está abierto y muestra este bloque, sincronizarlo
+    if (activePopupContext && activePopupContext.block === block) {
+      const fullText = lines.join(' ');
+      mokuroState.activeTextBoxText = fullText;
+      const textEl = document.getElementById('quick-popup-text-content');
+      if (textEl && document.activeElement !== textEl) {
+        textEl.textContent = fullText;
+      }
+    }
+  }
+
+  function scheduleSaveMangaPages() {
+    if (_savePagesTimeout) clearTimeout(_savePagesTimeout);
+    _savePagesTimeout = setTimeout(() => {
+      flushSaveMangaPages(false);
+    }, 700);
+  }
+
+  function flushSaveMangaPages(showToast = false) {
+    if (_savePagesTimeout) {
+      clearTimeout(_savePagesTimeout);
+      _savePagesTimeout = null;
+    }
+    if (!mokuroState.manga || !mokuroState.manga.id) return;
+    if (!window.ToriiMangaDB || typeof window.ToriiMangaDB.updateMangaPages !== 'function') return;
+
+    window.ToriiMangaDB.updateMangaPages(mokuroState.manga.id, mokuroState.manga.pages)
+      .then(() => {
+        if (showToast && typeof mostrarToast === 'function') {
+          mostrarToast('💾 Modificación de .mokuro guardada');
+        }
+      })
+      .catch(err => {
+        console.warn('Error al guardar páginas en BD:', err);
+      });
+  }
+
+  function exportCurrentMokuroJson() {
+    if (!mokuroState.manga || !mokuroState.manga.pages) {
+      alert('No hay ningún manga con OCR cargado actualmente.');
+      return;
+    }
+    flushSaveMangaPages(false);
+    const mokuroData = {
+      version: "0.1.0",
+      title: mokuroState.manga.title || "Manga",
+      volume: mokuroState.manga.volume || "Tomo 1",
+      pages: (mokuroState.manga.pages || []).map(p => ({
+        img_path: p.img_path || "",
+        img_width: p.img_width || 800,
+        img_height: p.img_height || 1200,
+        blocks: p.blocks || []
+      }))
+    };
+    const blob = new Blob([JSON.stringify(mokuroData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeTitle = (mokuroState.manga.title || 'manga').replace(/[/\\?%*:|"<>]/g, '_');
+    const safeVol = (mokuroState.manga.volume || '').replace(/[/\\?%*:|"<>]/g, '_');
+    a.download = `${safeTitle}${safeVol ? '_' + safeVol : ''}.mokuro`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    if (typeof mostrarToast === 'function') {
+      mostrarToast('📥 Archivo .mokuro descargado con éxito');
+    }
+  }
+
+  // ========================================================================
   // NAVEGACIÓN ENTRE PÁGINAS
   // ========================================================================
   function nextPage() {
+    flushSaveMangaPages();
     if (!mokuroState.manga) return;
     const step = mokuroState.isDoublePage ? 2 : 1;
     const total = mokuroState.manga.pages.length;
@@ -1061,6 +1176,7 @@
   }
 
   function prevPage() {
+    flushSaveMangaPages();
     if (!mokuroState.manga) return;
     const step = mokuroState.isDoublePage ? 2 : 1;
     if (mokuroState.currentPageIdx - step >= 0) {
@@ -1072,11 +1188,13 @@
   }
 
   function firstPage() {
+    flushSaveMangaPages();
     mokuroState.currentPageIdx = 0;
     renderCurrentPages();
   }
 
   function lastPage() {
+    flushSaveMangaPages();
     if (!mokuroState.manga) return;
     mokuroState.currentPageIdx = mokuroState.manga.pages.length - 1;
     renderCurrentPages();
@@ -1133,6 +1251,7 @@
   }
 
   function loadNextVolume(nextVol, nextIdx) {
+    flushSaveMangaPages();
     mokuroState.currentVolumeIndex = nextIdx;
     mokuroState.currentPageIdx = 0;
     if (window.ToriiMangaDB && nextVol.id) {
@@ -1141,6 +1260,7 @@
   }
 
   function goToPage(idx1Based) {
+    flushSaveMangaPages();
     if (!mokuroState.manga) return;
     const idx = parseInt(idx1Based, 10) - 1;
     if (!isNaN(idx) && idx >= 0 && idx < mokuroState.manga.pages.length) {
@@ -1171,10 +1291,14 @@
   // ========================================================================
   // POPUP DE MINADO TORII & ACCIONES RÁPIDAS
   // ========================================================================
-  function openToriiMiningPopup(text, clientX, clientY) {
+  let activePopupContext = null;
+
+  function openToriiMiningPopup(text, clientX, clientY, block = null, pageData = null, boxDiv = null) {
     const popup = document.getElementById('torii-quick-popup');
     const textEl = document.getElementById('quick-popup-text-content');
     if (!popup || !textEl) return;
+
+    activePopupContext = { block, pageData, boxDiv };
 
     mokuroState.activeTextBoxText = text.trim();
     textEl.textContent = mokuroState.activeTextBoxText;
@@ -1194,21 +1318,51 @@
     popup.style.top = `${posY}px`;
     popup.style.display = 'block';
 
-    // Refrescar estado del botón toggle de OCR editable
-    const btnEd = document.getElementById('btn-toggle-editable-popup');
-    const lblEd = document.getElementById('editable-popup-label');
-    if (btnEd) {
+    // Refrescar estado del botón toggle y activación de edición en el popup
+    updateEditablePopupBtn(false);
+  }
+
+  function updateEditablePopupBtn(autoFocus = false) {
+    const btnToggleEditablePopup = document.getElementById('btn-toggle-editable-popup');
+    const labelEl = document.getElementById('editable-popup-label');
+    const textEl = document.getElementById('quick-popup-text-content');
+
+    if (textEl) {
+      textEl.contentEditable = mokuroState.editableText ? 'true' : 'false';
+      textEl.classList.toggle('is-editable', !!mokuroState.editableText);
+      textEl.title = mokuroState.editableText
+        ? 'Edición activa: escribe para corregir el texto OCR'
+        : 'Haz clic en "OCR Editable" para modificar este texto';
+
+      if (autoFocus && mokuroState.editableText) {
+        textEl.focus();
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(textEl);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } catch(e) {}
+      }
+    }
+
+    if (btnToggleEditablePopup) {
       if (mokuroState.editableText) {
-        btnEd.classList.add('active');
-        if (lblEd) lblEd.textContent = 'OCR: ON';
+        btnToggleEditablePopup.classList.add('active');
+        btnToggleEditablePopup.title = 'Texto OCR editable: ACTIVO (clic para desactivar)';
+        if (labelEl) labelEl.textContent = 'OCR: ON';
       } else {
-        btnEd.classList.remove('active');
-        if (lblEd) lblEd.textContent = 'OCR OFF';
+        btnToggleEditablePopup.classList.remove('active');
+        btnToggleEditablePopup.title = 'Texto OCR editable: INACTIVO (clic para activar)';
+        if (labelEl) labelEl.textContent = 'OCR OFF';
       }
     }
   }
 
   function closeToriiMiningPopup() {
+    flushSaveMangaPages();
+    activePopupContext = null;
     const popup = document.getElementById('torii-quick-popup');
     if (popup) popup.style.display = 'none';
   }
@@ -1873,6 +2027,7 @@
   }
 
   function closeReaderModal() {
+    flushSaveMangaPages();
     const wrapper = document.getElementById('mokuro-reader-wrapper');
     const stage = document.getElementById('mokuro-stage');
     if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
@@ -2324,9 +2479,9 @@
     if (chkEditable) {
       chkEditable.addEventListener('change', (e) => {
         mokuroState.editableText = e.target.checked;
-        const boxes = document.querySelectorAll('.textBox');
-        boxes.forEach(b => b.contentEditable = mokuroState.editableText ? 'true' : 'false');
-        document.body.classList.toggle('ocr-edit-mode', mokuroState.editableText);
+        savePreferences();
+        updateContainerClasses();
+        updateEditablePopupBtn();
       });
     }
 
@@ -2355,35 +2510,67 @@
     const btnToggleEditablePopup = document.getElementById('btn-toggle-editable-popup');
     const btnMinePopup = document.getElementById('btn-mine-quick-text');
 
-    function updateEditablePopupBtn() {
-      if (!btnToggleEditablePopup) return;
-      const labelEl = document.getElementById('editable-popup-label');
-      if (mokuroState.editableText) {
-        btnToggleEditablePopup.classList.add('active');
-        btnToggleEditablePopup.title = 'Texto OCR editable: ACTIVO (clic para desactivar)';
-        if (labelEl) labelEl.textContent = 'OCR: ON';
-      } else {
-        btnToggleEditablePopup.classList.remove('active');
-        btnToggleEditablePopup.title = 'Texto OCR editable: INACTIVO (clic para activar)';
-        if (labelEl) labelEl.textContent = 'OCR OFF';
-      }
-    }
-
     if (btnClosePopup) btnClosePopup.addEventListener('click', closeToriiMiningPopup);
     if (btnCopyPopup) btnCopyPopup.addEventListener('click', copyCurrentMokuroText);
     if (btnToggleEditablePopup) {
       btnToggleEditablePopup.addEventListener('click', () => {
         mokuroState.editableText = !mokuroState.editableText;
-        const boxes = document.querySelectorAll('.textBox');
-        boxes.forEach(b => b.contentEditable = mokuroState.editableText ? 'true' : 'false');
-        document.body.classList.toggle('ocr-edit-mode', mokuroState.editableText);
+        savePreferences();
+        updateContainerClasses();
         // Sync with the dropdown checkbox if still present
         const chkEd = document.getElementById('chk-editable-text');
         if (chkEd) chkEd.checked = mokuroState.editableText;
-        updateEditablePopupBtn();
+        updateEditablePopupBtn(true);
+        if (!mokuroState.editableText) {
+          flushSaveMangaPages(true);
+        }
       });
     }
     if (btnMinePopup) btnMinePopup.addEventListener('click', mineCurrentMokuroText);
+
+    // Edición interactiva dentro del quick popup de diálogo
+    const textContentEl = document.getElementById('quick-popup-text-content');
+    if (textContentEl) {
+      textContentEl.addEventListener('input', () => {
+        if (!mokuroState.editableText) return;
+        const val = textContentEl.textContent;
+        mokuroState.activeTextBoxText = val.trim();
+        if (activePopupContext && activePopupContext.block) {
+          const lines = val.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+          activePopupContext.block.lines = lines.length > 0 ? lines : (val.trim() ? [val.trim()] : []);
+          
+          if (activePopupContext.boxDiv) {
+            const pList = activePopupContext.boxDiv.querySelectorAll('p');
+            if (pList.length > 0) {
+              pList[0].textContent = lines.join(' ');
+              for (let i = 1; i < pList.length; i++) {
+                pList[i].textContent = '';
+              }
+            } else {
+              activePopupContext.boxDiv.textContent = lines.join(' ');
+            }
+          }
+          scheduleSaveMangaPages();
+        }
+      });
+
+      textContentEl.addEventListener('blur', () => {
+        flushSaveMangaPages(true);
+      });
+    }
+
+    // Botón para descargar archivo .mokuro modificado desde el menú de opciones
+    const btnExportMokuro = document.getElementById('btn-export-mokuro');
+    if (btnExportMokuro) {
+      btnExportMokuro.addEventListener('click', () => {
+        exportCurrentMokuroJson();
+      });
+    }
+
+    // Guardar cambios pendientes al cerrar o recargar la pestaña del navegador
+    window.addEventListener('beforeunload', () => {
+      flushSaveMangaPages();
+    });
 
     // Cerrar torii-quick-popup al hacer clic o toque fuera de él
     document.addEventListener('pointerdown', (e) => {
@@ -2503,6 +2690,8 @@
     nextPage: nextPage,
     prevPage: prevPage,
     goToPage: goToPage,
+    exportMokuro: exportCurrentMokuroJson,
+    flushSave: flushSaveMangaPages,
     getState: () => mokuroState
   };
 

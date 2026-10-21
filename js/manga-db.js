@@ -377,6 +377,108 @@
     });
   }
 
+  // Renombrar un manga: actualiza title y/o volume en ambos almacenes + caché
+  function renameMangaInDB(id, newTitle, newVolume) {
+    return openDB().then(db => {
+      return new Promise((resolve, reject) => {
+        const storeNames = db.objectStoreNames.contains(META_STORE_NAME)
+          ? [STORE_NAME, META_STORE_NAME]
+          : [STORE_NAME];
+        const tx = db.transaction(storeNames, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const getReq = store.get(id);
+
+        getReq.onsuccess = () => {
+          const item = getReq.result;
+          if (item) {
+            if (newTitle !== undefined && newTitle !== null) item.title = newTitle;
+            if (newVolume !== undefined && newVolume !== null) item.volume = newVolume;
+            store.put(item);
+            const meta = extractMangaMetadata(item);
+            if (db.objectStoreNames.contains(META_STORE_NAME)) {
+              const metaStore = tx.objectStore(META_STORE_NAME);
+              metaStore.put(meta);
+            }
+            updateCachedManga(meta);
+            resolve(item);
+          } else {
+            resolve(null);
+          }
+        };
+        getReq.onerror = (e) => reject(e);
+      });
+    });
+  }
+
+  // Actualizar las páginas y bloques OCR de un manga en IndexedDB (guarda modificaciones de .mokuro)
+  function updateMangaPages(id, pages) {
+    if (!id || !pages) return Promise.resolve(null);
+    return openDB().then(db => {
+      return new Promise((resolve, reject) => {
+        const storeNames = db.objectStoreNames.contains(META_STORE_NAME)
+          ? [STORE_NAME, META_STORE_NAME]
+          : [STORE_NAME];
+        const tx = db.transaction(storeNames, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const getReq = store.get(id);
+
+        getReq.onsuccess = () => {
+          const item = getReq.result;
+          if (item) {
+            item.pages = pages;
+            item.hasOcr = pages.some(p => p.blocks && p.blocks.length > 0);
+            item.hasMokuro = item.hasOcr;
+            store.put(item);
+            const meta = extractMangaMetadata(item);
+            if (db.objectStoreNames.contains(META_STORE_NAME)) {
+              const metaStore = tx.objectStore(META_STORE_NAME);
+              metaStore.put(meta);
+            }
+            updateCachedManga(meta);
+            resolve(item);
+          } else {
+            resolve(null);
+          }
+        };
+        getReq.onerror = (e) => reject(e);
+      });
+    });
+  }
+
+  // Descargar el archivo .mokuro actual (con todas las correcciones y modificaciones guardadas)
+  async function downloadMangaMokuro(id) {
+    const manga = await getMangaById(id);
+    if (!manga || !manga.pages) {
+      alert('No se encontraron páginas con OCR para este manga.');
+      return;
+    }
+    const mokuroData = {
+      version: "0.1.0",
+      title: manga.title || "Manga",
+      volume: manga.volume || "Tomo 1",
+      pages: (manga.pages || []).map(p => ({
+        img_path: p.img_path || "",
+        img_width: p.img_width || 800,
+        img_height: p.img_height || 1200,
+        blocks: p.blocks || []
+      }))
+    };
+    const blob = new Blob([JSON.stringify(mokuroData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeTitle = (manga.title || 'manga').replace(/[/\\?%*:|"<>]/g, '_');
+    const safeVol = (manga.volume || '').replace(/[/\\?%*:|"<>]/g, '_');
+    a.download = `${safeTitle}${safeVol ? '_' + safeVol : ''}.mokuro`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    if (typeof mostrarToast === 'function') {
+      mostrarToast('📥 Archivo .mokuro descargado con éxito');
+    }
+  }
+
   // ========================================================================
   // PROCESAMIENTO DE ARCHIVOS CBZ Y ZIP CON JSZIP
   // ========================================================================
@@ -1253,7 +1355,15 @@
         </div>
 
         <div class="manga-body">
-          <h3 class="manga-card-title">${escapeHtml(seriesTitle)}</h3>
+          <div class="manga-title-row">
+            <h3 class="manga-card-title">${escapeHtml(seriesTitle)}</h3>
+            <button class="btn-rename-series" title="Editar nombre de la serie" aria-label="Editar nombre">✏️</button>
+          </div>
+          <div class="manga-rename-inline" style="display:none;">
+            <input class="manga-rename-input" type="text" value="${escapeHtml(seriesTitle)}" placeholder="Nombre de la serie..." />
+            <button class="manga-rename-confirm" title="Guardar">✔</button>
+            <button class="manga-rename-cancel" title="Cancelar">✖</button>
+          </div>
           <span class="manga-card-jp-title btn-trigger-series" style="${volCount > 1 ? 'cursor:pointer; text-decoration:underline;' : ''}" title="${volCount > 1 ? 'Ver todos los tomos' : ''}">${volCount > 1 ? `📚 ${volCount} tomos guardados (ver lista)` : escapeHtml(targetVolLabel)}</span>
 
           <div style="margin: 6px 0 12px;">
@@ -1283,6 +1393,48 @@
       const handleOpenSeries = () => openSeriesVolumesModal(seriesTitle, volumes);
       if (stackCover) stackCover.addEventListener('click', handleOpenSeries);
       if (seriesTrigger && volCount > 1) seriesTrigger.addEventListener('click', handleOpenSeries);
+
+      // Renombrar la serie (actualiza todos sus volúmenes)
+      const btnRename = card.querySelector('.btn-rename-series');
+      const renameRow = card.querySelector('.manga-rename-inline');
+      const renameInput = card.querySelector('.manga-rename-input');
+      const renameConfirm = card.querySelector('.manga-rename-confirm');
+      const renameCancel = card.querySelector('.manga-rename-cancel');
+      const titleH3 = card.querySelector('.manga-card-title');
+
+      const openRenameUI = (e) => {
+        e.stopPropagation();
+        renameInput.value = titleH3.textContent;
+        renameRow.style.display = 'flex';
+        titleH3.parentElement.style.display = 'none';
+        renameInput.focus();
+        renameInput.select();
+      };
+      const closeRenameUI = () => {
+        renameRow.style.display = 'none';
+        titleH3.parentElement.style.display = 'flex';
+      };
+      const applyRename = async () => {
+        const newName = renameInput.value.trim();
+        if (!newName || newName === titleH3.textContent) { closeRenameUI(); return; }
+        // Actualizar todos los tomos de la serie en DB
+        await Promise.all(volumes.map(v => renameMangaInDB(v.id, newName, v.volume)));
+        closeRenameUI();
+        renderMyMangasGrid(true);
+        if (typeof mostrarToast === 'function') mostrarToast('✏️ Serie renombrada');
+      };
+
+      if (btnRename) btnRename.addEventListener('click', openRenameUI);
+      if (renameConfirm) renameConfirm.addEventListener('click', (e) => { e.stopPropagation(); applyRename(); });
+      if (renameCancel) renameCancel.addEventListener('click', (e) => { e.stopPropagation(); closeRenameUI(); });
+      if (renameInput) {
+        renameInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); applyRename(); }
+          if (e.key === 'Escape') { e.preventDefault(); closeRenameUI(); }
+          e.stopPropagation();
+        });
+        renameInput.addEventListener('blur', () => setTimeout(closeRenameUI, 150));
+      }
 
       // Botón principal: abre directamente el último manga leído para continuar la lectura
       const btnContinue = card.querySelector('.btn-continue-manga');
@@ -1369,7 +1521,15 @@
           <button class="btn-cover-thumb-overlay" title="Cambiar portada">📷</button>
         </div>
         <div class="volume-body">
-          <h4 class="volume-title">${escapeHtml(extractVolumeLabel(vol))}</h4>
+          <div class="volume-title-row">
+            <h4 class="volume-title">${escapeHtml(extractVolumeLabel(vol))}</h4>
+            <button class="btn-rename-volume" title="Editar nombre del tomo" aria-label="Editar nombre">✏️</button>
+          </div>
+          <div class="volume-rename-inline" style="display:none;">
+            <input class="manga-rename-input" type="text" value="${escapeHtml(vol.volume || vol.title || '')}" placeholder="Nombre del tomo..." />
+            <button class="volume-rename-confirm" title="Guardar">✔</button>
+            <button class="volume-rename-cancel" title="Cancelar">✖</button>
+          </div>
           <span class="volume-meta">Progreso: Pág. ${vol.lastPageRead + 1} de ${vol.totalPages} (${readPct}%)</span>
 
           <div style="height:5px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden; margin-bottom:12px;">
@@ -1385,7 +1545,16 @@
                 ⚡ Guía
               </button>
             </div>
-          ` : ''}
+          ` : `
+            <div style="display:flex; gap:6px; margin-bottom:10px;">
+              <button class="btn-download-mokuro-vol" data-id="${vol.id}" title="Descargar archivo .mokuro con las modificaciones guardadas" style="flex:1; padding:5px 8px; font-size:0.78rem; background:rgba(46,125,50,0.1); border:1px solid rgba(46,125,50,0.3); border-radius:6px; cursor:pointer; color:#2e7d32; font-weight:700;">
+                📥 .mokuro
+              </button>
+              <button class="btn-attach-mokuro-vol" data-id="${vol.id}" title="Reemplazar archivo .mokuro" style="padding:5px 8px; font-size:0.78rem; background:rgba(19,162,206,0.1); border:1px solid rgba(19,162,206,0.3); border-radius:6px; cursor:pointer; color:var(--azulNa, #13a2ce); font-weight:700;">
+                📎 Reemplazar
+              </button>
+            </div>
+          `}
 
           <div style="display:flex; gap:6px; margin-top:auto;">
             <button class="manga-btn-read btn-read-volume" style="flex:1; padding:8px 12px; font-size:0.88rem;">
@@ -1425,12 +1594,65 @@
         });
       }
 
+      // Renombrar este tomo
+      const btnRenameVol = volCard.querySelector('.btn-rename-volume');
+      const volRenameRow = volCard.querySelector('.volume-rename-inline');
+      const volRenameInput = volCard.querySelector('.manga-rename-input');
+      const volRenameConfirm = volCard.querySelector('.volume-rename-confirm');
+      const volRenameCancel = volCard.querySelector('.volume-rename-cancel');
+      const volTitleEl = volCard.querySelector('.volume-title');
+      const volTitleRow = volCard.querySelector('.volume-title-row');
+
+      const openVolRenameUI = (e) => {
+        e.stopPropagation();
+        volRenameInput.value = vol.volume || vol.title || '';
+        volRenameRow.style.display = 'flex';
+        volTitleRow.style.display = 'none';
+        volRenameInput.focus();
+        volRenameInput.select();
+      };
+      const closeVolRenameUI = () => {
+        volRenameRow.style.display = 'none';
+        volTitleRow.style.display = 'flex';
+      };
+      const applyVolRename = async () => {
+        const newVolName = volRenameInput.value.trim();
+        if (!newVolName) { closeVolRenameUI(); return; }
+        await renameMangaInDB(vol.id, vol.title, newVolName);
+        vol.volume = newVolName;
+        if (volTitleEl) volTitleEl.textContent = newVolName;
+        closeVolRenameUI();
+        renderMyMangasGrid(true);
+        if (typeof mostrarToast === 'function') mostrarToast('✏️ Tomo renombrado');
+      };
+
+      if (btnRenameVol) btnRenameVol.addEventListener('click', openVolRenameUI);
+      if (volRenameConfirm) volRenameConfirm.addEventListener('click', (e) => { e.stopPropagation(); applyVolRename(); });
+      if (volRenameCancel) volRenameCancel.addEventListener('click', (e) => { e.stopPropagation(); closeVolRenameUI(); });
+      if (volRenameInput) {
+        volRenameInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); applyVolRename(); }
+          if (e.key === 'Escape') { e.preventDefault(); closeVolRenameUI(); }
+          e.stopPropagation();
+        });
+        volRenameInput.addEventListener('blur', () => setTimeout(closeVolRenameUI, 150));
+      }
+
       // Evento leer este volumen específico
       const btnRead = volCard.querySelector('.btn-read-volume');
       btnRead.addEventListener('click', () => {
         modal.classList.remove('active');
         launchMangaFromDB(vol.id, { volumes });
       });
+
+      // Evento descargar mokuro modificado de este tomo
+      const btnDownMokuro = volCard.querySelector('.btn-download-mokuro-vol');
+      if (btnDownMokuro) {
+        btnDownMokuro.addEventListener('click', (e) => {
+          e.stopPropagation();
+          downloadMangaMokuro(vol.id);
+        });
+      }
 
       // Evento vincular mokuro a este tomo
       const btnAttach = volCard.querySelector('.btn-attach-mokuro-vol');
@@ -1730,6 +1952,9 @@
     launchManga: launchMangaFromDB,
     renderGrid: renderMyMangasGrid,
     updateCover: updateMangaCover,
+    renameManga: renameMangaInDB,
+    updateMangaPages: updateMangaPages,
+    downloadMokuro: downloadMangaMokuro,
     promptChangeCover: promptChangeCover,
     COVER_PLACEHOLDER: COVER_PLACEHOLDER,
     // Usado por el lector para continuar al siguiente tomo (preserva el contexto de serie)

@@ -174,9 +174,10 @@ body.dark-mode .written-explanation-card {
   background: rgb(255 235 201 / 60%);
   border-left: 5px solid var(--azul, #146482);
   border-radius: 14px;
-  padding: 20px 24px;
-  margin-bottom: 20px;
-  line-height: 1.7;
+  padding: 22px 28px;
+  margin-bottom: 22px;
+  font-size: 1.18rem;
+  line-height: 1.8;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -188,8 +189,32 @@ body.dark-mode .explanation-card-item {
 
 .explanation-card-item h3 {
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
+  font-size: 1.45rem;
+  line-height: 1.35;
   color: var(--color-h2);
+}
+
+.explanation-card-item p {
+  font-size: 1.18rem;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.explanation-card-item p:last-child {
+  margin-bottom: 0;
+}
+
+.explanation-card-item ul,
+.explanation-card-item ol {
+  font-size: 1.18rem;
+  line-height: 1.8;
+  padding-left: 24px;
+  margin-bottom: 12px;
+}
+
+.explanation-card-item li {
+  margin-bottom: 6px;
 }
 
 /* BARRA LATERAL DE NAVEGACIÓN DE TEMAS Y BOTÓN EXCLUSIVO DE IMAGEN */

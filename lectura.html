@@ -381,6 +381,12 @@
             </label>
           </div>
 
+          <div class="dropdown-item-row" style="margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--mokuro-border);">
+            <button type="button" id="btn-export-mokuro" class="btn-save-anki" style="width: 100%; padding: 8px 10px; font-size: 0.84rem; background: var(--azulNa, #13a2ce); border: none; border-radius: 8px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700;">
+              <span>💾</span> Descargar .mokuro actualizado
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -422,7 +428,7 @@
       <span class="quick-popup-badge">⛩️ Diálogo Seleccionado</span>
       <button id="btn-close-quick-popup" class="quick-popup-close" title="Cerrar">&times;</button>
     </div>
-    <div id="quick-popup-text-content" class="quick-popup-text"></div>
+    <div id="quick-popup-text-content" class="quick-popup-text" contenteditable="false" spellcheck="false" title="Haz clic en 'OCR Editable' para modificar este texto"></div>
     <div class="quick-popup-actions">
       <button id="btn-mine-quick-text" class="btn-quick-action btn-mine-anki" title="Guardar tarjeta en Anki y Torii">
         <span>⚡</span> Minar a Anki
@@ -523,7 +529,7 @@
 
 <!-- MODAL PARA ESCOGER VOLUMEN/TOMO DE UNA SERIE -->
 <div id="modal-select-volume" class="modal-overlay-manga">
-  <div class="modal-content-manga" style="width: min(780px, 94vw); max-width: 780px;">
+  <div class="modal-content-manga" style="width: min(900px, 96vw); max-width: 900px;">
     <div class="modal-header-manga">
       <div>
         <h3 id="modal-series-title" style="margin:0 0 4px;"><span>📚</span> Seleccionar Volumen</h3>
