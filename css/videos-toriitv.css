@@ -817,24 +817,70 @@ body.sin-furigana .sub-line rt {
 /* ==========================================================================
    16. PANTALLA COMPLETA Y BOTÓN FLOTANTE
    ========================================================================== */
-#video-wrapper:fullscreen {
+#video-wrapper:fullscreen,
+#video-wrapper:-webkit-full-screen,
+#video-wrapper.is-fullscreen {
   width: 100vw !important;
   height: 100vh !important;
-  background: #000 !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #000000 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  overflow: hidden !important;
+  z-index: 2147483640 !important;
 }
 
-#video-wrapper:fullscreen #main-video {
+#video-wrapper:fullscreen #main-video,
+#video-wrapper:-webkit-full-screen #main-video,
+#video-wrapper.is-fullscreen #main-video {
   width: 100% !important;
   height: 100% !important;
-  object-fit: contain;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 }
 
-#video-wrapper:fullscreen .overlay-subtitles {
+#video-wrapper:fullscreen .video-placeholder-cover,
+#video-wrapper:-webkit-full-screen .video-placeholder-cover,
+#video-wrapper.is-fullscreen .video-placeholder-cover {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+}
+
+#video-wrapper:fullscreen .overlay-subtitles,
+#video-wrapper:-webkit-full-screen .overlay-subtitles,
+#video-wrapper.is-fullscreen .overlay-subtitles {
   position: absolute !important;
   z-index: 2147483647 !important;
+}
+
+#main-video:fullscreen,
+#main-video:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
 }
 
 .btn-player-fs {
@@ -871,7 +917,9 @@ body.dark-mode .btn-player-fs:hover {
   transform: scale(1.1);
 }
 
-#video-wrapper:fullscreen .btn-player-fs {
+#video-wrapper:fullscreen .btn-player-fs,
+#video-wrapper:-webkit-full-screen .btn-player-fs,
+#video-wrapper.is-fullscreen .btn-player-fs {
   top: 25px;
   right: 25px;
   bottom: auto;
@@ -958,14 +1006,18 @@ body.dark-mode .video-overlay-config {
 }
 
 /* Ajustes en Pantalla Completa */
-#video-wrapper:fullscreen .btn-toggle-config {
+#video-wrapper:fullscreen .btn-toggle-config,
+#video-wrapper:-webkit-full-screen .btn-toggle-config,
+#video-wrapper.is-fullscreen .btn-toggle-config {
   top: 25px;
   right: 75px;
   bottom: auto;
   z-index: 2147483647 !important;
 }
 
-#video-wrapper:fullscreen .video-overlay-config {
+#video-wrapper:fullscreen .video-overlay-config,
+#video-wrapper:-webkit-full-screen .video-overlay-config,
+#video-wrapper.is-fullscreen .video-overlay-config {
   top: 75px;
   right: 25px;
   bottom: auto;
