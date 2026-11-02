@@ -975,18 +975,6 @@ function renderHeaderRPG_HUD() {
             <span class="torii-menu-arrow">›</span>
           </button>
 
-          <!-- BOTÓN TEMAS Y PERSONALIZACIÓN -->
-          <button type="button" class="torii-menu-item torii-menu-item-theme" onclick="abrirModalTemasDesdePopout()">
-            <span class="torii-menu-icon">🎨</span>
-            <div class="torii-menu-text">
-              <span class="torii-menu-title">Temas y colores</span>
-              <span class="torii-menu-subtitle">Personalizar paleta y modo de color</span>
-            </div>
-            <span class="torii-menu-arrow">›</span>
-          </button>
-          <!-- INPUT OCULTO PARA SUBIR IMAGEN DESDE EL PC -->
-          <input type="file" id="torii-hud-bg-file" accept="image/*" style="display:none;" onchange="cargarImagenFondoHUD(event)">
-
           <!-- ENLACE A PERFIL COMPLETO -->
           <a href="${perfilUrl}" class="torii-menu-item">
             <span class="torii-menu-icon">⛩️</span>
@@ -1353,7 +1341,7 @@ function renderDailyQuestsUI() {
 
   if (!container) return;
 
-  const hudTheme = (typeof userProfile !== "undefined" && userProfile.hudTheme) ? userProfile.hudTheme : "floral-navy";
+  const hudTheme = (typeof userProfile !== "undefined" && userProfile.hudTheme) ? userProfile.hudTheme : "torii-sunset";
   const hudCustomBg = (typeof userProfile !== "undefined" && userProfile.hudCustomBg) ? userProfile.hudCustomBg : "";
   const isExpanded = container.classList.contains("expanded");
 

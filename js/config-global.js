@@ -50,8 +50,10 @@ function syncLanternUI(isDark, animate = false) {
   if (assembly) {
     if (animate) {
       assembly.classList.remove('lantern-pulled');
-      void assembly.offsetWidth; // Forzar reflow para reiniciar animación
-      assembly.classList.add('lantern-pulled');
+      // Uso de requestAnimationFrame para reiniciar la animación sin forzar reflow sincrónico (Layout Thrashing)
+      requestAnimationFrame(() => {
+        assembly.classList.add('lantern-pulled');
+      });
     }
 
     if (isDark) {
@@ -89,12 +91,16 @@ function toggleDarkMode(animate = true) {
   // Actualizar Lámpara Chochin
   syncLanternUI(isDark, animate);
 
-  // Sincronizar modal de temas si está abierto o cargado
-  if (typeof actualizarBarraModoTemaModal === "function") {
-    actualizarBarraModoTemaModal();
-  }
-  if (typeof renderThemesCatalogGrid === "function") {
-    renderThemesCatalogGrid();
+  // Sincronizar modal de temas ÚNICAMENTE si está abierto y visible
+  const modalTemas = document.getElementById("themes-modal");
+  const modalAbierto = modalTemas && modalTemas.classList.contains("active");
+  if (modalAbierto) {
+    if (typeof actualizarBarraModoTemaModal === "function") {
+      actualizarBarraModoTemaModal();
+    }
+    if (typeof renderThemesCatalogGrid === "function") {
+      renderThemesCatalogGrid();
+    }
   }
 }
 window.toggleDarkMode = toggleDarkMode;

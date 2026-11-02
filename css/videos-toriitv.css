@@ -733,7 +733,7 @@ body.sin-furigana .sub-line rt {
 .sub-line {
   padding: 12px 14px;
   border-radius: 10px;
-  background: var(--blanco);
+  background: var(--blanco3);
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
   font-size: 1.15rem;

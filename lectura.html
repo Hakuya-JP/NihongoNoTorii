@@ -35,7 +35,6 @@
     <a href="lectura.html" class="active">Lectura</a>
     <a href="ToriiTV.html">ToriiTV</a>
     <a href="jlpt-simulador.html">Simulador JLPT</a>
-    <a href="perfil.html" class="nav-profile-item"></a>
     
     <!-- Interruptor Lámpara Japonesa (Chochin) -->
     <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Alternar modo claro y oscuro" title="Lámpara Chochin (明 / 暗)">
@@ -83,11 +82,13 @@
       <h2 class="lectura-section-title">
         <span>📖</span> Mi Biblioteca de Mangas
       </h2>
-      <div style="display:flex; gap:10px; align-items:center;">
+      <div class="library-header-actions">
+        <div class="library-search-wrap">
+          <span class="library-search-icon">🔍</span>
+          <input type="text" id="input-search-library" class="library-search-input" placeholder="Buscar en biblioteca..." autocomplete="off" />
+          <button type="button" id="btn-clear-library-search" class="library-search-clear" style="display:none;" title="Limpiar búsqueda">✕</button>
+        </div>
         <span class="lectura-section-tag">Almacenamiento Local (IndexedDB)</span>
-        <button id="btn-open-add-manga-modal" class="btn-hero-lectura btn-hero-mokuro" style="padding: 9px 18px; font-size: 0.95rem;">
-          <span>📂</span> Cargar Manga
-        </button>
       </div>
     </div>
 
@@ -351,25 +352,6 @@
             </label>
           </div>
 
-          <div class="dropdown-item-row dropdown-select-row">
-            <label for="select-font-size" class="dropdown-item-label-group">
-              <span class="dropdown-item-icon">🔤</span>
-              <span class="dropdown-item-text">Fuente:</span>
-            </label>
-            <div class="dropdown-select-wrapper">
-              <select id="select-font-size" title="Seleccionar tamaño de fuente">
-                <option value="auto">Automático</option>
-                <option value="12">12px</option>
-                <option value="14">14px</option>
-                <option value="18">18px</option>
-                <option value="22">22px</option>
-                <option value="28">28px</option>
-                <option value="34">34px</option>
-                <option value="42">42px</option>
-              </select>
-            </div>
-          </div>
-
           <div class="dropdown-item-row">
             <label for="chk-eink-mode" class="dropdown-item-label-group">
               <span class="dropdown-item-icon">🖤</span>
@@ -558,8 +540,6 @@
 <script src="js/jszip.min.js"></script>
 <script src="js/panzoom.min.js"></script>
 <script src="scripts.js"></script>
-<script src="js/anki-connect.js"></script>
-<script src="js/tarjetas-minadas.js"></script>
 <script src="js/mokuro-reader.js"></script>
 
 <script>

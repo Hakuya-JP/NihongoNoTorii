@@ -142,18 +142,6 @@ function asegurarModalEditarPerfilEnDOM() {
             <label for="select-profile-hud-theme" class="form-label">🎨 Tema y Colores del Sitio (Estilo Windows)</label>
             <select id="select-profile-hud-theme" class="form-control">
               <option value="torii-sunset" selected>⛩️ Noche Torii (Torii Sunset - Por defecto)</option>
-              <option value="sakura-night">🌸 Sakura Blossom (Cerezos en Flor)</option>
-              <option value="emerald-bamboo">🍃 Bosque Esmeralda (Bambú Teal)</option>
-              <option value="cyber-tokyo">🌌 Cyber Tokio (Neon Glow)</option>
-              <option value="floral-navy">🌸 Follaje Nocturno (Floral Navy)</option>
-              <option value="fuji-dawn">🗻 Monte Fuji (Dawn Mist)</option>
-              <option value="matcha-zen">🍵 Matcha Zen (Té Verde)</option>
-              <option value="kyoto-autumn">🍁 Otoño Momiji (Kioto Carmesí)</option>
-              <option value="amethyst-magic">🔮 Amatista Púrpura (Mystic)</option>
-              <option value="golden-shrine">✨ Santuario Dorado (Kinkaku-ji)</option>
-              <option value="ocean-breeze">🌊 Océano Kanagawa (Gran Ola)</option>
-              <option value="torii-classic">🖤 Torii Oscuro (Dark Slate)</option>
-              <option value="custom">📁 Imagen Personalizada (Solo Barra)</option>
             </select>
           </div>
 
@@ -551,116 +539,6 @@ const TORII_THEMES_CATALOG = [
     accentColor: "#ff9447",
     surfaceLight: "#ffeedb",
     surfaceDark: "#0a425d"
-  },
-  {
-    id: "sakura-night",
-    nombre: "Sakura Blossom",
-    emoji: "🌸",
-    desc: "Flor de cerezo rosada y ciruela nocturna",
-    primaryColor: "#b83264",
-    accentColor: "#e8437a",
-    surfaceLight: "#fae8ee",
-    surfaceDark: "#2e1226"
-  },
-  {
-    id: "emerald-bamboo",
-    nombre: "Bosque Esmeralda",
-    emoji: "🍃",
-    desc: "Jade de bambú japonés y menta brillante",
-    primaryColor: "#1b5e4b",
-    accentColor: "#10b981",
-    surfaceLight: "#e5f4ec",
-    surfaceDark: "#0b3328"
-  },
-  {
-    id: "cyber-tokyo",
-    nombre: "Cyber Tokio",
-    emoji: "🌌",
-    desc: "Violeta de neón y destellos cian de Shinjuku",
-    primaryColor: "#5b21b6",
-    accentColor: "#06b6d4",
-    surfaceLight: "#f3e8ff",
-    surfaceDark: "#161130"
-  },
-  {
-    id: "floral-navy",
-    nombre: "Follaje Nocturno",
-    emoji: "🌸",
-    desc: "Azul marino real con acentos ámbar dorado",
-    primaryColor: "#1e3a8a",
-    accentColor: "#f59e0b",
-    surfaceLight: "#e2e8f0",
-    surfaceDark: "#0b1c36"
-  },
-  {
-    id: "fuji-dawn",
-    nombre: "Monte Fuji",
-    emoji: "🗻",
-    desc: "Neblina azul matinal y amanecer coral",
-    primaryColor: "#2563eb",
-    accentColor: "#f43f5e",
-    surfaceLight: "#e0e7ff",
-    surfaceDark: "#172033"
-  },
-  {
-    id: "matcha-zen",
-    nombre: "Matcha Zen",
-    emoji: "🍵",
-    desc: "Verde matcha natural y corteza de cedro",
-    primaryColor: "#4d7c0f",
-    accentColor: "#84cc16",
-    surfaceLight: "#ecfccb",
-    surfaceDark: "#1d2a13"
-  },
-  {
-    id: "kyoto-autumn",
-    nombre: "Otoño Momiji",
-    emoji: "🍁",
-    desc: "Carmesí de arce otoñal y brasas doradas",
-    primaryColor: "#991b1b",
-    accentColor: "#ea580c",
-    surfaceLight: "#fee2e2",
-    surfaceDark: "#2e1010"
-  },
-  {
-    id: "amethyst-magic",
-    nombre: "Amatista Púrpura",
-    emoji: "🔮",
-    desc: "Amatista noble y brillo estelar místico",
-    primaryColor: "#6b21a8",
-    accentColor: "#a855f7",
-    surfaceLight: "#e9d5ff",
-    surfaceDark: "#22103a"
-  },
-  {
-    id: "golden-shrine",
-    nombre: "Santuario Dorado",
-    emoji: "✨",
-    desc: "Ocre Kinkaku-ji y resplandor solar ámbar",
-    primaryColor: "#854d0e",
-    accentColor: "#d97706",
-    surfaceLight: "#fef9c3",
-    surfaceDark: "#291f0a"
-  },
-  {
-    id: "ocean-breeze",
-    nombre: "Océano Kanagawa",
-    emoji: "🌊",
-    desc: "Azul oleaje y turquesa de la Gran Ola",
-    primaryColor: "#0369a1",
-    accentColor: "#0284c7",
-    surfaceLight: "#bae6fd",
-    surfaceDark: "#0a2942"
-  },
-  {
-    id: "torii-classic",
-    nombre: "Torii Oscuro",
-    emoji: "🖤",
-    desc: "Pizarra carbón minimalista con chispa carmesí",
-    primaryColor: "#343a40",
-    accentColor: "#e03131",
-    surfaceLight: "#dee2e6",
-    surfaceDark: "#1f2226"
   }
 ];
 

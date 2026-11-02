@@ -67,15 +67,19 @@ html:not(.dark-mode) {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(229, 57, 53, 0.25);
-  border: 1px solid rgba(229, 57, 53, 0.5);
-  color: #ff8a80;
-  padding: 6px 16px;
+  background: rgba(229, 57, 53, 0.32);
+  border: 1px solid rgba(255, 120, 110, 0.65);
+  color: #ffffff;
+  padding: 6px 18px;
   border-radius: 999px;
   font-size: 0.95rem;
   font-weight: 700;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
   letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .lectura-title {
@@ -184,6 +188,77 @@ html.dark-mode .lectura-section-title {
   background: rgba(19, 162, 206, 0.15);
   color: var(--azulNa, #13a2ce);
   font-weight: 700;
+}
+
+.library-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.library-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.library-search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 0.85rem;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.library-search-input {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--mokuro-border, rgba(0, 0, 0, 0.15));
+  border-radius: 999px;
+  padding: 6px 28px 6px 30px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--color-h1, #1e293b);
+  width: 175px;
+  outline: none;
+  transition: width 0.25s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.library-search-input:focus {
+  width: 225px;
+  border-color: var(--azulNa, #13a2ce);
+  background: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 0 0 3px rgba(19, 162, 206, 0.15);
+}
+
+.library-search-clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: #888;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.library-search-clear:hover {
+  color: #e53935;
+}
+
+html.dark-mode .library-search-input {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+}
+
+html.dark-mode .library-search-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--azulNa, #13a2ce);
+  box-shadow: 0 0 0 3px rgba(19, 162, 206, 0.25);
 }
 
 /* Cuadrícula de Mangas */
@@ -1386,6 +1461,7 @@ html.dark-mode .anki-manga-dropdown-menu select {
   font-family: 'Noto Sans JP', 'Meiryo', 'MS Gothic', sans-serif;
   color: transparent; /* Por defecto transparente sobre la viñeta para lectura Yomitan */
   overflow: visible;
+  white-space: nowrap;
 }
 
 /* Mostrar bordes si el usuario lo activa */
@@ -1411,10 +1487,12 @@ html.dark-mode .anki-manga-dropdown-menu select {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  white-space: pre;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
   color: transparent;
   opacity: 1;
-  text-align: center;
+  text-align: start;
   user-select: text;
   -webkit-user-select: text;
   transition: color 0.15s;
@@ -1440,19 +1518,168 @@ html.dark-mode .anki-manga-dropdown-menu select {
   display: none !important;
 }
 
-/* Modo OCR editable activo */
-body.ocr-edit-mode .textBox {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border: 1.5px solid var(--azulNa, #13a2ce) !important;
-  box-shadow: 0 2px 8px rgba(19, 162, 206, 0.25);
+/* Eliminar marcos negros de foco nativos del navegador */
+.textBox,
+.textBox *,
+.textBox:focus,
+.textBox:focus-visible,
+.textBox p:focus,
+.textBox p:focus-visible {
+  outline: none !important;
 }
 
-body.ocr-edit-mode .textBox p {
+/* Cuadros modificados: durante la lectura normal permanecen transparentes para no estorbar el arte del manga, revelándose al posar el cursor (hover), en modo edición o con OCR siempre visible */
+.textBox.is-modified {
+  border-radius: 4px;
+}
+
+/* Modo OCR editable activo: cajas movibles */
+body.ocr-edit-mode .textBox,
+.ocr-edit-mode .textBox {
+  background: #ffffff !important;
+  border: 1.5px dashed var(--azulNa, #13a2ce) !important;
+  box-shadow: none !important;
+  cursor: grab;
+  overflow: visible !important;
+}
+
+body.ocr-edit-mode .textBox:hover,
+.ocr-edit-mode .textBox:hover {
+  border: 2px solid var(--azulNa, #13a2ce) !important;
+  box-shadow: 0 0 10px rgba(19, 162, 206, 0.35) !important;
+  z-index: 10000 !important;
+}
+
+body.ocr-edit-mode .textBox.is-dragging,
+.ocr-edit-mode .textBox.is-dragging {
+  border: 2px solid var(--mokuro-accent, #e53935) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 12px rgba(229, 57, 53, 0.45) !important;
+  opacity: 1 !important;
+  cursor: grabbing !important;
+  z-index: 10005 !important;
+}
+
+body.ocr-edit-mode .textBox p,
+.ocr-edit-mode .textBox p {
   color: #111 !important;
   user-select: text !important;
   -webkit-user-select: text !important;
   cursor: text !important;
   pointer-events: auto !important;
+}
+
+/* Manija de arrastre para mover cuadro de Mokuro */
+.box-drag-handle {
+  display: none;
+  position: absolute;
+  top: -24px;
+  right: -1px;
+  background: var(--azulNa, #13a2ce);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 4px 4px 0 0;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: auto;
+  z-index: 10002;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s, background 0.12s;
+  touch-action: none;
+}
+
+.box-drag-handle:hover {
+  background: #0288d1;
+  transform: scale(1.12);
+}
+
+.box-drag-handle:active,
+.textBox.is-dragging .box-drag-handle {
+  cursor: grabbing !important;
+  background: var(--mokuro-accent, #e53935);
+  transform: scale(1.05);
+}
+
+body.ocr-edit-mode .textBox .box-drag-handle,
+.ocr-edit-mode .textBox .box-drag-handle {
+  display: flex;
+}
+
+/* Manijas de redimensionamiento de esquinas */
+.box-resize-handle {
+  display: none;
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border: 2px solid var(--azulNa, #13a2ce);
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  z-index: 10003;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  box-sizing: border-box;
+  transition: transform 0.1s, background-color 0.1s;
+}
+
+/* Área táctil extendida invisible para facilitar el agarre */
+.box-resize-handle::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+}
+
+.box-resize-handle:hover {
+  background: var(--azulNa, #13a2ce);
+  transform: scale(1.35);
+}
+
+.box-resize-handle.handle-nw {
+  top: -5px;
+  left: -5px;
+  cursor: nwse-resize;
+}
+
+.box-resize-handle.handle-ne {
+  top: -5px;
+  right: -5px;
+  cursor: nesw-resize;
+}
+
+.box-resize-handle.handle-sw {
+  bottom: -5px;
+  left: -5px;
+  cursor: nesw-resize;
+}
+
+.box-resize-handle.handle-se {
+  bottom: -5px;
+  right: -5px;
+  cursor: nwse-resize;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border-color: var(--mokuro-accent, #e53935);
+}
+
+.box-resize-handle.handle-se:hover {
+  background: var(--mokuro-accent, #e53935);
+}
+
+body.ocr-edit-mode .textBox .box-resize-handle,
+.ocr-edit-mode .textBox .box-resize-handle {
+  display: block;
 }
 
 /* Zonas Clicables Flotantes de Navegación */
@@ -1763,9 +1990,13 @@ html.dark-mode .torii-quick-popup {
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.45;
   margin-bottom: 12px;
   word-break: break-all;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  max-height: 220px;
+  overflow-y: auto;
   padding: 6px 10px;
   border-radius: 8px;
   border: 1.5px solid transparent;
@@ -2268,14 +2499,22 @@ html.dark-mode .progress-status-text {
 .manga-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 2px;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  position: relative;
 }
 
 .manga-title-row .manga-card-title {
   margin: 0;
   flex: 1;
   min-width: 0;
+  word-break: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.35;
 }
 
 .volume-title-row {
@@ -2385,4 +2624,195 @@ html.dark-mode .manga-rename-input {
 .manga-rename-cancel:hover,
 .volume-rename-cancel:hover {
   opacity: 0.8;
+}
+
+/* ==========================================================================
+   MENÚ DESPLEGABLE (⋮) EN TARJETAS DE MANGA Y METADATOS MEJORADOS
+   ========================================================================== */
+.manga-card-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.btn-card-menu-trigger {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #64748b;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-card-menu-trigger:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #0f172a;
+}
+
+html.dark-mode .btn-card-menu-trigger {
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+html.dark-mode .btn-card-menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.manga-card-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  min-width: 150px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: fadeInDownMenu 0.15s ease-out;
+}
+
+html.dark-mode .manga-card-dropdown {
+  background: #1e2536;
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes fadeInDownMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.manga-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #1e293b;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.manga-dropdown-item span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.manga-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+}
+
+html.dark-mode .manga-dropdown-item {
+  color: #e2e8f0;
+}
+
+html.dark-mode .manga-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+}
+
+.manga-dropdown-item-danger {
+  color: #ef4444;
+}
+
+.manga-dropdown-item-danger:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #f87171 !important;
+}
+
+html.dark-mode .manga-dropdown-item-danger {
+  color: #f87171;
+}
+
+html.dark-mode .manga-dropdown-item-danger:hover {
+  background: rgba(239, 68, 68, 0.22) !important;
+  color: #fca5a5 !important;
+}
+
+/* Sección de progreso y metadatos con contraste mejorado */
+.manga-progress-section {
+  margin: 10px 0 14px;
+}
+
+.manga-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+html.dark-mode .manga-meta-row {
+  color: #cbd5e1;
+}
+
+.manga-meta-label {
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.manga-meta-pct {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+html.dark-mode .manga-meta-pct {
+  color: #f8fafc;
+}
+
+.manga-progress-track {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+html.dark-mode .manga-progress-track {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.manga-progress-fill {
+  height: 100%;
+  background: var(--azulNa, #13a2ce);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.manga-card-actions {
+  display: flex;
+  width: 100%;
+  margin-top: auto;
 }

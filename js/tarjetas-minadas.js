@@ -1,10 +1,10 @@
 // ==========================================================================
 // SECCIÓN 7: MÓDULO DE TARJETAS MINADAS Y EXPORTADOR ANKI
 // ==========================================================================
-let minedCardsList = [];
+var minedCardsList = window.minedCardsList || [];
 
-let minedSortRecentFirst = true;
-let minedExpanded = false;
+var minedSortRecentFirst = typeof minedSortRecentFirst !== "undefined" ? minedSortRecentFirst : true;
+var minedExpanded = typeof minedExpanded !== "undefined" ? minedExpanded : false;
 
 function initMinedCardsModule() {
   const guardado = localStorage.getItem("torii_mined_cards");

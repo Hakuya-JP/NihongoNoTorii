@@ -115,10 +115,23 @@
           }
           return m;
         }));
-        localStorage.setItem(CACHE_KEY, JSON.stringify(compressedList));
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(compressedList));
+          return;
+        } catch (compressedQuotaErr) {
+          // 4. Si aún excede cuota, guardar metadatos completos sin las imágenes base64 (~5-10KB total)
+          const metaOnlyList = cleanList.map(m => ({ ...m, coverDataUrl: '' }));
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(metaOnlyList));
+            return;
+          } catch (metaErr) {
+            // 5. Si localStorage está totalmente saturado por otros datos, purgar la clave limpiamente
+            try { localStorage.removeItem(CACHE_KEY); } catch (e) {}
+          }
+        }
       }
     } catch (err) {
-      console.warn('Aviso: no se pudo guardar en torii_manga_library_cache:', err);
+      // Silenciar para no alarmar en consola; la biblioteca real reside segura en IndexedDB
     }
   }
 
@@ -1337,17 +1350,13 @@
         `;
       }
 
-      // Tomo objetivo para continuar y texto del botón
+      // Tomo objetivo para continuar
       const targetVol = currentVol || firstVol;
       const targetVolLabel = extractVolumeLabel(targetVol);
-      const isStarted = (targetVol.lastPageRead || 0) > 0;
-      const btnIcon = isStarted ? '▶️' : '📖';
-      const btnText = isStarted 
-        ? (volCount > 1 ? `Continuar ${escapeHtml(targetVolLabel)}` : 'Continuar leyendo')
-        : (volCount > 1 ? `Leer ${escapeHtml(targetVolLabel)}` : 'Leer manga');
 
       const card = document.createElement('div');
       card.className = 'manga-card manga-card-user';
+      card.setAttribute('data-title', seriesTitle.toLowerCase());
 
       card.innerHTML = `
         <div class="manga-stack-container" title="Haz clic en la portada para ver los tomos de ${escapeHtml(seriesTitle)}">
@@ -1356,46 +1365,60 @@
 
         <div class="manga-body">
           <div class="manga-title-row">
-            <h3 class="manga-card-title">${escapeHtml(seriesTitle)}</h3>
-            <button class="btn-rename-series" title="Editar nombre de la serie" aria-label="Editar nombre">✏️</button>
+            <h3 class="manga-card-title" title="${escapeHtml(seriesTitle)}">${escapeHtml(seriesTitle)}</h3>
+            <div class="manga-card-menu-wrap">
+              <button type="button" class="btn-card-menu-trigger" title="Opciones" aria-label="Opciones">⋮</button>
+              <div class="manga-card-dropdown" style="display:none;">
+                <button type="button" class="manga-dropdown-item btn-menu-rename"><span>✏️</span> Renombrar</button>
+                <button type="button" class="manga-dropdown-item manga-dropdown-item-danger btn-menu-delete"><span>🗑️</span> Eliminar</button>
+              </div>
+            </div>
           </div>
           <div class="manga-rename-inline" style="display:none;">
             <input class="manga-rename-input" type="text" value="${escapeHtml(seriesTitle)}" placeholder="Nombre de la serie..." />
-            <button class="manga-rename-confirm" title="Guardar">✔</button>
-            <button class="manga-rename-cancel" title="Cancelar">✖</button>
-          </div>
-          <span class="manga-card-jp-title btn-trigger-series" style="${volCount > 1 ? 'cursor:pointer; text-decoration:underline;' : ''}" title="${volCount > 1 ? 'Ver todos los tomos' : ''}">${volCount > 1 ? `📚 ${volCount} tomos guardados (ver lista)` : escapeHtml(targetVolLabel)}</span>
-
-          <div style="margin: 6px 0 12px;">
-            <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:#777; margin-bottom:4px;">
-              <span>${volCount > 1 ? 'Lectura total de la serie' : `Pág. ${firstVol.lastPageRead + 1} de ${firstVol.totalPages}`}</span>
-              <span><strong>${readPct}%</strong></span>
-            </div>
-            <div style="height:6px; background:rgba(0,0,0,0.1); border-radius:3px; overflow:hidden;">
-              <div style="height:100%; width:${readPct}%; background:var(--azulNa, #13a2ce); border-radius:3px;"></div>
-            </div>
+            <button type="button" class="manga-rename-confirm" title="Guardar">✔</button>
+            <button type="button" class="manga-rename-cancel" title="Cancelar">✖</button>
           </div>
 
-          <div style="display:flex; gap:8px; margin-top:auto;">
-            <button class="manga-btn-read btn-continue-manga" style="flex:1;" title="Abrir y continuar leyendo">
-              <span>${btnIcon} ${btnText}</span>
-            </button>
-            <button class="btn-delete-manga btn-delete-series" title="Eliminar serie completa" aria-label="Eliminar serie">
-              🗑️
+          <div class="manga-progress-section">
+            <div class="manga-meta-row">
+              <span class="manga-meta-label">${volCount > 1 ? 'Progreso' : `Pág. ${firstVol.lastPageRead + 1} de ${firstVol.totalPages}`}</span>
+              <span class="manga-meta-pct">${readPct}%</span>
+            </div>
+            <div class="manga-progress-track">
+              <div class="manga-progress-fill" style="width:${readPct}%;"></div>
+            </div>
+          </div>
+
+          <div class="manga-card-actions">
+            <button type="button" class="manga-btn-read btn-continue-manga" style="width:100%;" title="Continuar lectura">
+              <span>▶️ Continuar</span>
             </button>
           </div>
         </div>
       `;
 
-      // Clic en la portada apilada o en el texto de tomos abre el modal de volúmenes
+      // Clic en la portada apilada abre el modal de volúmenes
       const stackCover = card.querySelector('.manga-stack-container');
-      const seriesTrigger = card.querySelector('.btn-trigger-series');
       const handleOpenSeries = () => openSeriesVolumesModal(seriesTitle, volumes);
-      if (stackCover) stackCover.addEventListener('click', handleOpenSeries);
-      if (seriesTrigger && volCount > 1) seriesTrigger.addEventListener('click', handleOpenSeries);
+      if (stackCover) {
+        stackCover.addEventListener('click', handleOpenSeries);
+      }
+
+      // Menú desplegable de opciones (⋮)
+      const menuTrigger = card.querySelector('.btn-card-menu-trigger');
+      const menuDropdown = card.querySelector('.manga-card-dropdown');
+      if (menuTrigger && menuDropdown) {
+        menuTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isVisible = menuDropdown.style.display === 'flex';
+          document.querySelectorAll('.manga-card-dropdown').forEach(d => d.style.display = 'none');
+          menuDropdown.style.display = isVisible ? 'none' : 'flex';
+        });
+      }
 
       // Renombrar la serie (actualiza todos sus volúmenes)
-      const btnRename = card.querySelector('.btn-rename-series');
+      const btnMenuRename = card.querySelector('.btn-menu-rename');
       const renameRow = card.querySelector('.manga-rename-inline');
       const renameInput = card.querySelector('.manga-rename-input');
       const renameConfirm = card.querySelector('.manga-rename-confirm');
@@ -1403,7 +1426,8 @@
       const titleH3 = card.querySelector('.manga-card-title');
 
       const openRenameUI = (e) => {
-        e.stopPropagation();
+        if (e && e.stopPropagation) e.stopPropagation();
+        if (menuDropdown) menuDropdown.style.display = 'none';
         renameInput.value = titleH3.textContent;
         renameRow.style.display = 'flex';
         titleH3.parentElement.style.display = 'none';
@@ -1424,7 +1448,7 @@
         if (typeof mostrarToast === 'function') mostrarToast('✏️ Serie renombrada');
       };
 
-      if (btnRename) btnRename.addEventListener('click', openRenameUI);
+      if (btnMenuRename) btnMenuRename.addEventListener('click', openRenameUI);
       if (renameConfirm) renameConfirm.addEventListener('click', (e) => { e.stopPropagation(); applyRename(); });
       if (renameCancel) renameCancel.addEventListener('click', (e) => { e.stopPropagation(); closeRenameUI(); });
       if (renameInput) {
@@ -1436,20 +1460,12 @@
         renameInput.addEventListener('blur', () => setTimeout(closeRenameUI, 150));
       }
 
-      // Botón principal: abre directamente el último manga leído para continuar la lectura
-      const btnContinue = card.querySelector('.btn-continue-manga');
-      if (btnContinue) {
-        btnContinue.addEventListener('click', (e) => {
+      // Eliminar toda la serie o sus tomos desde el menú desplegable
+      const btnMenuDelete = card.querySelector('.btn-menu-delete');
+      if (btnMenuDelete) {
+        btnMenuDelete.addEventListener('click', async (e) => {
           e.stopPropagation();
-          launchMangaFromDB(targetVol.id, { volumes });
-        });
-      }
-
-      // Eliminar toda la serie o sus tomos
-      const btnDeleteSeries = card.querySelector('.btn-delete-series');
-      if (btnDeleteSeries) {
-        btnDeleteSeries.addEventListener('click', async (e) => {
-          e.stopPropagation();
+          if (menuDropdown) menuDropdown.style.display = 'none';
           const confirmMsg = volCount > 1 
             ? `¿Eliminar la serie "${seriesTitle}" y sus ${volCount} volúmenes de tu biblioteca?`
             : `¿Eliminar "${seriesTitle}" de tu biblioteca?`;
@@ -1464,11 +1480,30 @@
         });
       }
 
+      // Botón principal: abre directamente el último manga leído para continuar la lectura
+      const btnContinue = card.querySelector('.btn-continue-manga');
+      if (btnContinue) {
+        btnContinue.addEventListener('click', (e) => {
+          e.stopPropagation();
+          launchMangaFromDB(targetVol.id, { volumes });
+        });
+      }
+
       fragment.appendChild(card);
     });
 
     grid.innerHTML = '';
     grid.appendChild(fragment);
+
+    // Re-aplicar filtro si hay búsqueda activa
+    const searchInput = document.getElementById('input-search-library');
+    if (searchInput && searchInput.value.trim()) {
+      const term = searchInput.value.trim().toLowerCase();
+      grid.querySelectorAll('.manga-card-user').forEach(c => {
+        const title = (c.getAttribute('data-title') || '').toLowerCase();
+        c.style.display = (!term || title.includes(term)) ? 'flex' : 'none';
+      });
+    }
   }
 
   async function renderMyMangasGrid(force = false) {
@@ -1558,7 +1593,7 @@
 
           <div style="display:flex; gap:6px; margin-top:auto;">
             <button class="manga-btn-read btn-read-volume" style="flex:1; padding:8px 12px; font-size:0.88rem;">
-              <span>${vol.lastPageRead > 0 ? '▶️ Continuar' : '📖 Leer'}</span>
+              <span>▶️ Continuar</span>
             </button>
             <button class="btn-delete-manga btn-delete-single-vol" data-id="${vol.id}" title="Eliminar este volumen" style="width:34px; height:34px;">
               🗑️
@@ -1780,6 +1815,44 @@
     if (btnCloseAdd && modalAdd) {
       btnCloseAdd.addEventListener('click', () => modalAdd.classList.remove('active'));
     }
+
+    // Buscador secundario de mangas en la biblioteca (filtro en tiempo real)
+    const searchInput = document.getElementById('input-search-library');
+    const clearSearchBtn = document.getElementById('btn-clear-library-search');
+
+    const filterLibraryCards = (query) => {
+      const term = (query || '').trim().toLowerCase();
+      const cards = document.querySelectorAll('#my-mangas-grid .manga-card-user');
+      cards.forEach(c => {
+        const title = (c.getAttribute('data-title') || '').toLowerCase();
+        c.style.display = (!term || title.includes(term)) ? 'flex' : 'none';
+      });
+      if (clearSearchBtn) {
+        clearSearchBtn.style.display = term ? 'inline-flex' : 'none';
+      }
+    };
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => filterLibraryCards(e.target.value));
+    }
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          filterLibraryCards('');
+          searchInput.focus();
+        }
+      });
+    }
+
+    // Cerrar cualquier menú de 3 puntos (⋮) al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.manga-card-menu-wrap')) {
+        document.querySelectorAll('.manga-card-dropdown').forEach(d => {
+          d.style.display = 'none';
+        });
+      }
+    });
 
     // Actualizar indicador al elegir archivos de manga (CBZ, ZIP o Imágenes)
     if (inputMedia) {

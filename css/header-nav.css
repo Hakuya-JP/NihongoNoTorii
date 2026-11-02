@@ -3,31 +3,82 @@
    ========================================================================== */
 .main-header {
   width: 100%;
-  background: var(--azul);
+  background-color: var(--azul);
+  background-image: var(--nav-gradient, linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(20, 100, 130, 0.05) 50%,
+    rgba(10, 50, 68, 0.25) 100%
+  ));
   color: var(--color-h1);
-  padding: 15px 25px;
+  padding: 12px 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 20000 !important;
+
+  /* Efecto Bisel y Relieve: luz superior sutil y sombra inferior */
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+
+  /* Sombras preestablecidas del tema (evita saturación blanca) */
+  box-shadow: 
+    var(--shadow-primary),
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+
+  /* Desenfoque de cristal translúcido Aero */
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.nav-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .nav-logo img {
-  height: 60px;
-  width: 60px;
+  height: 56px;
+  width: 56px;
   border-radius: 50%;
   object-fit: cover;
-  border: 0px solid white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6),
+    0 0 10px rgba(255, 255, 255, 0.25);
   background: white;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.nav-logo img:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 4px 14px rgba(0, 0, 0, 0.35),
+    0 0 14px rgba(255, 255, 255, 0.45);
 }
 
 .logo-text {
   color: white; 
-  font-size: 2rem;
+  font-size: 1.85rem;
   font-weight: 800; 
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
+  user-select: none;
 }
 
 .logo {
@@ -38,22 +89,146 @@
 .top-nav {
   display: flex;
   align-items: center;
+  gap: 4px;
 }
 
+/* Enlaces del Menú (Base estilo Aero Glossy) */
 .top-nav a {
   color: white; 
   text-decoration: none;
-  margin-left: 20px;
-  font-size: 1.5rem;
-  transition: 0.3s;
-  
-  /* NUEVO: Forzamos la tipografía redondeada para el menú */
+  font-size: 1.2rem;
+  padding: 7px 14px;
+  margin: 0 2px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-weight: 700; 
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
 }
 
-.top-nav a:hover {
+/* Efecto Glossy Aero en Hover usando colores y degradados preestablecidos */
+.top-nav a:not(.nav-profile-item):hover {
   color: var(--crema2);
+  background: var(--nav-item-hover-bg, linear-gradient(
+    180deg,
+    rgba(255, 238, 219, 0.20) 0%,
+    rgba(255, 238, 219, 0.08) 50%,
+    rgba(20, 100, 130, 0.25) 100%
+  ));
+  border: 1px solid var(--nav-item-hover-border, rgba(255, 222, 189, 0.40));
+  box-shadow: 
+    var(--shadow-sm),
+    var(--shadow-primary),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.7),
+    0 0 8px rgba(255, 238, 219, 0.4);
+  transform: translateY(-1px);
+}
+
+.top-nav a:not(.nav-profile-item):active {
+  transform: translateY(1px);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Pestaña Activa (ej: "Lectura") con indicador naranja y sombras preestablecidas */
+.top-nav a.active:not(.nav-profile-item) {
+  color: var(--naranja);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 148, 71, 0.22) 0%,
+    rgba(255, 148, 71, 0.08) 50%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  border: 1px solid rgba(255, 148, 71, 0.45);
+  border-bottom: 3px solid var(--naranja);
+  padding-bottom: 5px;
+  box-shadow: 
+    var(--shadow-accent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 0 10px rgba(255, 148, 71, 0.2);
+  text-shadow: 
+    0 0 10px rgba(255, 148, 71, 0.7),
+    0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.top-nav a.active:not(.nav-profile-item):hover {
+  color: #ffb885;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 148, 71, 0.30) 0%,
+    rgba(255, 148, 71, 0.14) 50%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+  border-color: rgba(255, 148, 71, 0.65);
+  border-bottom: 3px solid var(--naranja);
+  box-shadow: 
+    var(--shadow-accent),
+    0 0 16px rgba(255, 148, 71, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  text-shadow: 
+    0 0 12px rgba(255, 148, 71, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.7);
+  transform: translateY(-1px);
+}
+
+/* Modo oscuro para pestaña activa */
+body.dark-mode .top-nav a.active:not(.nav-profile-item) {
+  color: var(--naranja);
+  border-bottom-color: var(--naranja);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 148, 71, 0.25) 0%,
+    rgba(255, 148, 71, 0.10) 50%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
+  box-shadow: 
+    var(--shadow-accent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 14px rgba(255, 148, 71, 0.25);
+}
+
+/* Ocultar remanentes de enlaces vacíos en el menú para evitar espacios o separaciones fantasmas */
+.top-nav a:empty,
+.top-nav a.nav-profile-item:empty,
+.top-nav a.nav-profile-item:not(:has(.nav-avatar-box)) {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.top-nav a.nav-profile-item {
+  padding: 0;
+  margin: 0 4px 0 8px;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.top-nav a.nav-profile-item:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.top-nav a.nav-profile-item:hover .nav-avatar-box {
+  transform: scale(1.06);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.top-nav a.nav-profile-item.active .nav-avatar-box {
+  border-color: var(--naranja);
+  box-shadow: 0 0 14px var(--naranja), 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .nav-profile-item {
@@ -63,8 +238,8 @@
 }
 
 .nav-avatar-box {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--naranja, #ff9800);
   display: inline-flex;
@@ -72,9 +247,10 @@
   justify-content: center;
   font-size: 1.1rem;
   overflow: hidden;
-  border: 2px solid var(--azulNa, #0d5d7b);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255, 255, 255, 0.4);
   vertical-align: middle;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .nav-avatar-img {
@@ -92,14 +268,21 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
-  margin-left: 15px;
+  padding: 2px;
+  margin-left: 12px;
   outline: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+  border-radius: 8px;
+  transition: transform 0.25s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.05);
 }
 
 /* Ensamblaje General de la Lámpara (Chochin) */
@@ -295,11 +478,22 @@
    ========================================================================== */
 .hamburger {
   display: none;
-  font-size: 2rem;
-  background: none;
+  font-size: 1.8rem;
+  background: rgba(255, 255, 255, 0.12);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 4px 12px;
   cursor: pointer;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+}
+
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 900px) {
@@ -314,25 +508,35 @@
   }
 
   .top-nav {
-    position: fixed; /* CORREGIDO: Cambiado de absolute a fixed para que acompañe el scroll */
+    position: fixed;
     top: 75px;
     right: 0;
     z-index: 20001 !important;
-    background: var(--azul);
+    background-color: var(--azul);
+    background-image: var(--nav-gradient, linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(20, 100, 130, 0.05) 50%,
+      rgba(10, 50, 68, 0.25) 100%
+    ));
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(16px) saturate(130%);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
     width: 100%;
     text-align: center;
     padding: 20px 0;
     display: none;
     flex-direction: column;
-    gap: 18px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    gap: 12px;
+    box-shadow: var(--shadow-lg), var(--shadow-primary);
   }
 
   .top-nav a {
     font-size: 1.2rem;
-    margin: 0;
+    margin: 3px 24px;
     display: block;
-    padding: 10px 0;
+    padding: 10px 16px;
   }
 
   .theme-toggle-btn {

@@ -1,0 +1,540 @@
+diff --git a/js/mokuro-reader.js b/js/mokuro-reader.js
+index 168d53b..7a4cf58 100644
+--- a/js/mokuro-reader.js
++++ b/js/mokuro-reader.js
+@@ -16,7 +16,6 @@
+     showBorders: false,      // Mostrar bordes en cajas de texto
+     alwaysVisibleOcr: false, // Texto OCR siempre visible
+     editableText: false,     // Texto editable para corregir OCR
+-    fontSize: 'auto',        // 'auto' o tamaño en px
+     eInkMode: false,         // Modo tinta electrónica
+     imageUrls: new Map(),    // Mapa: filename -> Object URL o ruta relativa
+     activeTextBoxText: '',   // Texto de la caja seleccionada actualmente
+@@ -43,7 +42,6 @@
+         if (p.showBorders !== undefined) mokuroState.showBorders = p.showBorders;
+         if (p.alwaysVisibleOcr !== undefined) mokuroState.alwaysVisibleOcr = p.alwaysVisibleOcr;
+         if (p.editableText !== undefined) mokuroState.editableText = p.editableText;
+-        if (p.fontSize !== undefined) mokuroState.fontSize = p.fontSize;
+       } catch (e) {
+         console.warn('Error al cargar preferencias de Mokuro:', e);
+       }
+@@ -57,8 +55,7 @@
+       hasCover: mokuroState.hasCover,
+       showBorders: mokuroState.showBorders,
+       alwaysVisibleOcr: mokuroState.alwaysVisibleOcr,
+-      editableText: mokuroState.editableText,
+-      fontSize: mokuroState.fontSize
++      editableText: mokuroState.editableText
+     }));
+   }
+ 
+@@ -70,7 +67,6 @@
+     const checkBorders = document.getElementById('chk-show-borders');
+     const checkAlwaysOcr = document.getElementById('chk-always-ocr');
+     const checkEditable = document.getElementById('chk-editable-text');
+-    const selectFontSize = document.getElementById('select-font-size');
+     const checkEInk = document.getElementById('chk-eink-mode');
+ 
+     if (checkR2l) checkR2l.checked = mokuroState.isR2L;
+@@ -79,7 +75,6 @@
+     if (checkBorders) checkBorders.checked = mokuroState.showBorders;
+     if (checkAlwaysOcr) checkAlwaysOcr.checked = mokuroState.alwaysVisibleOcr;
+     if (checkEditable) checkEditable.checked = mokuroState.editableText;
+-    if (selectFontSize) selectFontSize.value = mokuroState.fontSize;
+     if (checkEInk) checkEInk.checked = mokuroState.eInkMode;
+ 
+     updateDoublePageToolbarBtn();
+@@ -820,6 +815,215 @@
+     setTimeout(applyCurrentZoomMode, 30);
+   }
+ 
++  // ========================================================================
++  // MOTOR DE MAQUETACIÓN Y DISTRIBUCIÓN PROPORCIONAL DE TEXTO MOKURO
++  // ========================================================================
++  // Helper para dividir texto japonés/mixto respetando signos de puntuación y sin desbordar columnas
++  function wrapJapaneseText(text, maxChars) {
++    if (!text) return [];
++    if (text.length <= maxChars) return [text];
++
++    const chunks = [];
++    let remaining = text;
++    const punctRegex = /[。！？!?、…,\s:;~～\)]/;
++
++    while (remaining.length > maxChars) {
++      let breakIdx = -1;
++      const searchStart = Math.max(1, maxChars - 4);
++      for (let i = maxChars; i >= searchStart; i--) {
++        if (punctRegex.test(remaining[i - 1])) {
++          breakIdx = i;
++          break;
++        }
++      }
++      if (breakIdx === -1) {
++        breakIdx = maxChars;
++      }
++      chunks.push(remaining.slice(0, breakIdx));
++      remaining = remaining.slice(breakIdx);
++    }
++    if (remaining.length > 0) {
++      chunks.push(remaining);
++    }
++    return chunks;
++  }
++
++  // Motor de renderizado y balanceo proporcional de bloques de texto (OCR / modificaciones)
++  function renderBlockLines(boxDiv, block, w, h) {
++    if (!boxDiv || !block) return;
++    boxDiv.innerHTML = '';
++
++    const isVertical = block.vertical !== false;
++    const rawLines = Array.isArray(block.lines) ? block.lines : [String(block.lines || '')];
++    
++    // Normalizar líneas y conservar saltos explícitos
++    let inputLines = [];
++    rawLines.forEach(l => {
++      const parts = String(l).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
++      if (parts.length > 0) inputLines.push(...parts);
++    });
++    if (inputLines.length === 0) inputLines = [''];
++
++    let chosenFont = 18;
++    let finalColumnsOrRows = [];
++
++    // Tamaño de fuente automático adaptado a las letras del manga (block.font_size)
++    const baseFont = Math.max(12, Math.round(block.font_size || 22));
++    const minFont = 11;
++    const maxFont = Math.max(minFont, Math.min(baseFont, isVertical ? Math.round(w * 0.88) : Math.round(h * 0.88)));
++
++    let bestFont = minFont;
++    let bestColsOrRows = [];
++    let foundFit = false;
++
++    // Probar desde el tamaño exacto de letra del manga (baseFont) hacia abajo
++    for (let f = maxFont; f >= minFont; f--) {
++      if (isVertical) {
++        const colW = f * 1.25;
++        const maxCharsPerCol = Math.max(1, Math.floor(h / (f * 1.05)));
++        const wrapped = [];
++        inputLines.forEach(line => {
++          wrapped.push(...wrapJapaneseText(line, maxCharsPerCol));
++        });
++        const totalW = wrapped.length * colW;
++        if (totalW <= w * 1.05 && maxCharsPerCol >= 1) {
++          bestFont = f;
++          bestColsOrRows = wrapped;
++          foundFit = true;
++          break;
++        }
++      } else {
++        const rowH = f * 1.35;
++        const maxCharsPerRow = Math.max(1, Math.floor(w / (f * 0.95)));
++        const wrapped = [];
++        inputLines.forEach(line => {
++          wrapped.push(...wrapJapaneseText(line, maxCharsPerRow));
++        });
++        const totalH = wrapped.length * rowH;
++        if (totalH <= h * 1.05) {
++          bestFont = f;
++          bestColsOrRows = wrapped;
++          foundFit = true;
++          break;
++        }
++      }
++    }
++
++    if (!foundFit) {
++      bestFont = minFont;
++      bestColsOrRows = [];
++      if (isVertical) {
++        const maxCharsPerCol = Math.max(1, Math.floor(h / (minFont * 1.05)));
++        inputLines.forEach(line => {
++          bestColsOrRows.push(...wrapJapaneseText(line, maxCharsPerCol));
++        });
++      } else {
++        const maxCharsPerRow = Math.max(1, Math.floor(w / (minFont * 0.95)));
++        inputLines.forEach(line => {
++          bestColsOrRows.push(...wrapJapaneseText(line, maxCharsPerRow));
++        });
++      }
++    }
++
++    let chosenFont = bestFont;
++    let finalColumnsOrRows = bestColsOrRows;
++
++    if (finalColumnsOrRows.length === 0) finalColumnsOrRows = [''];
++    const numLines = finalColumnsOrRows.length;
++
++    if (isVertical) {
++      boxDiv.style.writingMode = 'vertical-rl';
++      boxDiv.style.position = 'absolute';
++      boxDiv.style.display = 'block';
++      boxDiv.style.whiteSpace = 'nowrap';
++      boxDiv.style.overflow = 'visible';
++
++      const colW = Math.max(chosenFont * 1.05, Math.min(chosenFont * 1.45, w / numLines));
++      const totalW = numLines * colW;
++      const marginOffset = Math.max(0, (w - totalW) / 2);
++
++      boxDiv.style.paddingRight = `${marginOffset.toFixed(1)}px`;
++      boxDiv.style.paddingLeft = `${marginOffset.toFixed(1)}px`;
++      boxDiv.style.paddingTop = '0px';
++      boxDiv.style.paddingBottom = '0px';
++
++      finalColumnsOrRows.forEach((lineText, lIdx) => {
++        const p = document.createElement('p');
++        p.textContent = lineText;
++        p.style.writingMode = 'vertical-rl';
++        p.style.whiteSpace = 'nowrap';
++        p.style.wordBreak = 'keep-all';
++        p.style.overflowWrap = 'normal';
++        p.style.display = 'block';
++        p.style.position = 'static';
++        p.style.height = '100%';
++        p.style.width = `${colW.toFixed(1)}px`;
++        p.style.fontSize = `${chosenFont.toFixed(1)}px`;
++        p.style.lineHeight = `${colW.toFixed(1)}px`;
++        p.style.textAlign = 'center';
++        p.style.margin = '0';
++        p.style.padding = '0';
++
++        const clean = lineText.trim();
++        const numChars = Math.max(1, clean.length);
++        const charH = h / numChars;
++        if (charH > chosenFont && numChars > 1 && mokuroState.fontSize === 'auto') {
++          const extraSpace = (h - (numChars * chosenFont)) / (numChars - 1);
++          p.style.letterSpacing = `${Math.max(0, Math.min(extraSpace * 0.7, chosenFont * 0.35)).toFixed(1)}px`;
++        } else {
++          p.style.letterSpacing = '0px';
++        }
++
++        boxDiv.appendChild(p);
++      });
++    } else {
++      boxDiv.style.writingMode = 'horizontal-tb';
++      boxDiv.style.position = 'absolute';
++      boxDiv.style.display = 'block';
++      boxDiv.style.whiteSpace = 'nowrap';
++      boxDiv.style.overflow = 'visible';
++
++      const rowH = Math.max(chosenFont * 1.1, Math.min(chosenFont * 1.5, h / numLines));
++      const totalH = numLines * rowH;
++      const marginOffset = Math.max(0, (h - totalH) / 2);
++
++      boxDiv.style.paddingTop = `${marginOffset.toFixed(1)}px`;
++      boxDiv.style.paddingBottom = `${marginOffset.toFixed(1)}px`;
++      boxDiv.style.paddingLeft = '0px';
++      boxDiv.style.paddingRight = '0px';
++
++      finalColumnsOrRows.forEach((lineText, lIdx) => {
++        const p = document.createElement('p');
++        p.textContent = lineText;
++        p.style.writingMode = 'horizontal-tb';
++        p.style.whiteSpace = 'nowrap';
++        p.style.wordBreak = 'keep-all';
++        p.style.overflowWrap = 'normal';
++        p.style.display = 'block';
++        p.style.position = 'static';
++        p.style.width = '100%';
++        p.style.height = `${rowH.toFixed(1)}px`;
++        p.style.fontSize = `${chosenFont.toFixed(1)}px`;
++        p.style.lineHeight = `${rowH.toFixed(1)}px`;
++        p.style.textAlign = 'center';
++        p.style.margin = '0';
++        p.style.padding = '0';
++
++        const clean = lineText.trim();
++        const numChars = Math.max(1, clean.length);
++        const charW = w / numChars;
++        if (charW > chosenFont && numChars > 1 && mokuroState.fontSize === 'auto') {
++          const extraSpace = (w - (numChars * chosenFont)) / (numChars - 1);
++          p.style.letterSpacing = `${Math.max(0, Math.min(extraSpace * 0.7, chosenFont * 0.35)).toFixed(1)}px`;
++        } else {
++          p.style.letterSpacing = '0px';
++        }
++
++        boxDiv.appendChild(p);
++      });
++    }
++  }
++
+   // Construir nodo DOM para una página
+   function buildPageElement(pageData, pageIdx) {
+     const pageDiv = document.createElement('div');
+@@ -885,23 +1089,25 @@
+       boxDiv.style.width = `${(w / baseW) * 100}%`;
+       boxDiv.style.height = `${(h / baseH) * 100}%`;
+       boxDiv.style.zIndex = 10 + bIdx;
+-      boxDiv.style.fontSize = (mokuroState.fontSize !== 'auto') ? `${mokuroState.fontSize}px` : `${block.font_size || 18}px`;
++      boxDiv.style.fontSize = `${block.font_size || 18}px`;
+ 
+       if (block.vertical) {
+         boxDiv.style.writingMode = 'vertical-rl';
+       } else {
+         boxDiv.style.writingMode = 'horizontal-tb';
+       }
++      boxDiv.style.whiteSpace = 'nowrap';
++      boxDiv.style.overflow = 'visible';
+ 
+       // Líneas de texto y adaptación precisa a las letras del manga
+       const lines = block.lines || [];
+-      const hasLineCoords = Array.isArray(block.lines_coords) && block.lines_coords.length === lines.length;
++      const hasLineCoords = !block._modified && Array.isArray(block.lines_coords) && block.lines_coords.length === lines.length;
+ 
+-      lines.forEach((lineText, lIdx) => {
+-        const p = document.createElement('p');
+-        p.textContent = lineText;
++      if (hasLineCoords) {
++        lines.forEach((lineText, lIdx) => {
++          const p = document.createElement('p');
++          p.textContent = lineText;
+ 
+-        if (hasLineCoords) {
+           // Coordenadas exactas de cada línea detectadas por Mokuro
+           const coords = block.lines_coords[lIdx];
+           const xs = coords.map(pt => pt[0]);
+@@ -924,6 +1130,9 @@
+           p.style.top = `${relTop}%`;
+           p.style.width = `${relWidth}%`;
+           p.style.height = `${relHeight}%`;
++          p.style.whiteSpace = 'nowrap';
++          p.style.wordBreak = 'keep-all';
++          p.style.overflowWrap = 'normal';
+ 
+           const cleanText = lineText.trim();
+           const numChars = Math.max(1, cleanText.length);
+@@ -935,13 +1144,14 @@
+             const baseFont = block.font_size || idealFont;
+             const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.35, 200));
+ 
+-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+-            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+-            p.style.lineHeight = `${Math.max(lW, usedFont * 1.05).toFixed(1)}px`;
++            p.style.fontSize = `${finalFont.toFixed(1)}px`;
++            p.style.lineHeight = `${Math.max(lW, finalFont * 1.05).toFixed(1)}px`;
+ 
+-            if (charH > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+-              const extraSpace = (lH - (numChars * usedFont)) / (numChars - 1);
+-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
++            if (charH > finalFont && numChars > 1) {
++              const extraSpace = (lH - (numChars * finalFont)) / (numChars - 1);
++              p.style.letterSpacing = `${Math.max(0, Math.min(extraSpace * 0.7, finalFont * 0.35)).toFixed(1)}px`;
++            } else {
++              p.style.letterSpacing = '0px';
+             }
+           } else {
+             p.style.writingMode = 'horizontal-tb';
+@@ -950,84 +1160,35 @@
+             const baseFont = block.font_size || idealFont;
+             const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.35, 200));
+ 
+-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+-            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+-            p.style.lineHeight = `${Math.max(lH, usedFont * 1.05).toFixed(1)}px`;
++            p.style.fontSize = `${finalFont.toFixed(1)}px`;
++            p.style.lineHeight = `${Math.max(lH, finalFont * 1.05).toFixed(1)}px`;
+ 
+-            if (charW > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+-              const extraSpace = (lW - (numChars * usedFont)) / (numChars - 1);
+-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+-            }
+-          }
+-        } else {
+-          // Distribución uniforme de columnas/filas si no hay lines_coords
+-          const numLines = Math.max(1, lines.length);
+-          const cleanText = lineText.trim();
+-          const numChars = Math.max(1, cleanText.length);
+-
+-          p.style.position = 'absolute';
+-          if (block.vertical) {
+-            p.style.writingMode = 'vertical-rl';
+-            const colW = w / numLines;
+-            const leftPct = ((numLines - 1 - lIdx) / numLines) * 100;
+-            const widthPct = (1 / numLines) * 100;
+-
+-            p.style.left = `${leftPct}%`;
+-            p.style.top = '0%';
+-            p.style.width = `${widthPct}%`;
+-            p.style.height = '100%';
+-
+-            const charH = h / numChars;
+-            const idealFont = Math.min(colW * 0.92, charH);
+-            const baseFont = block.font_size || idealFont;
+-            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.25, 200));
+-
+-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+-            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+-            p.style.lineHeight = `${Math.max(colW, usedFont * 1.05).toFixed(1)}px`;
+-
+-            if (charH > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+-              const extraSpace = (h - (numChars * usedFont)) / (numChars - 1);
+-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+-            }
+-          } else {
+-            p.style.writingMode = 'horizontal-tb';
+-            const rowH = h / numLines;
+-            const topPct = (lIdx / numLines) * 100;
+-            const heightPct = (1 / numLines) * 100;
+-
+-            p.style.left = '0%';
+-            p.style.top = `${topPct}%`;
+-            p.style.width = '100%';
+-            p.style.height = `${heightPct}%`;
+-
+-            const charW = w / numChars;
+-            const idealFont = Math.min(rowH * 0.92, charW * 1.4);
+-            const baseFont = block.font_size || idealFont;
+-            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.25, 200));
+-
+-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+-            p.style.fontSize = `${usedFont.toFixed(1)}px`;
+-            p.style.lineHeight = `${Math.max(rowH, usedFont * 1.05).toFixed(1)}px`;
+-
+-            if (charW > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+-              const extraSpace = (w - (numChars * finalFont)) / (numChars - 1);
+-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
++            if (charW > finalFont && numChars > 1) {
++              const extraSpace = (lW - (numChars * finalFont)) / (numChars - 1);
++              p.style.letterSpacing = `${Math.max(0, Math.min(extraSpace * 0.7, finalFont * 0.35)).toFixed(1)}px`;
++            } else {
++              p.style.letterSpacing = '0px';
+             }
+           }
+-        }
+ 
+-        boxDiv.appendChild(p);
+-      });
++          boxDiv.appendChild(p);
++        });
++      } else {
++        // Maquetación inteligente para bloques modificados o sin coordenadas exactas
++        renderBlockLines(boxDiv, block, w, h);
++      }
+ 
+-      // Sincronización y persistencia de texto editado por el usuario
++      // Sincronización y persistencia de texto editado directamente en la viñeta
+       boxDiv.addEventListener('input', () => {
++        block._modified = true;
+         syncBoxContentToBlock(boxDiv, block, pageData);
+         scheduleSaveMangaPages();
+       });
+ 
+       boxDiv.addEventListener('blur', () => {
++        block._modified = true;
+         syncBoxContentToBlock(boxDiv, block, pageData);
++        renderBlockLines(boxDiv, block, w, h);
+         flushSaveMangaPages(true);
+       });
+ 
+@@ -1042,7 +1203,7 @@
+         e.preventDefault();
+         e.stopPropagation();
+         const currentLines = block.lines || [];
+-        const fullText = currentLines.join(' ');
++        const fullText = currentLines.join('\n');
+         openToriiMiningPopup(fullText, e.clientX, e.clientY, block, pageData, boxDiv);
+       });
+ 
+@@ -1081,7 +1242,7 @@
+ 
+     // Si el popup rápido está abierto y muestra este bloque, sincronizarlo
+     if (activePopupContext && activePopupContext.block === block) {
+-      const fullText = lines.join(' ');
++      const fullText = lines.join('\n');
+       mokuroState.activeTextBoxText = fullText;
+       const textEl = document.getElementById('quick-popup-text-content');
+       if (textEl && document.activeElement !== textEl) {
+@@ -1367,9 +1528,19 @@
+     if (popup) popup.style.display = 'none';
+   }
+ 
++  function getCleanSentenceForMining(text) {
++    if (!text) return '';
++    const hasJapanese = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text);
++    if (hasJapanese) {
++      return text.replace(/[\r\n]+/g, '').trim();
++    }
++    return text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
++  }
++
+   function playPronunciation(text) {
+     if (!('speechSynthesis' in window)) return;
+-    const utterance = new SpeechSynthesisUtterance(text);
++    const cleanText = getCleanSentenceForMining(text);
++    const utterance = new SpeechSynthesisUtterance(cleanText);
+     utterance.lang = 'ja-JP';
+     utterance.rate = 0.9;
+     window.speechSynthesis.speak(utterance);
+@@ -1377,11 +1548,12 @@
+ 
+   function copyCurrentMokuroText() {
+     if (!mokuroState.activeTextBoxText) return;
+-    navigator.clipboard.writeText(mokuroState.activeTextBoxText).then(() => {
++    const cleanText = getCleanSentenceForMining(mokuroState.activeTextBoxText);
++    navigator.clipboard.writeText(cleanText).then(() => {
+       if (typeof mostrarToast === 'function') {
+         mostrarToast('📋 Texto copiado al portapapeles');
+       } else {
+-        alert('Texto copiado: ' + mokuroState.activeTextBoxText);
++        alert('Texto copiado: ' + cleanText);
+       }
+     });
+   }
+@@ -1393,7 +1565,8 @@
+     const text = mokuroState.activeTextBoxText;
+     if (!text) return;
+     closeToriiMiningPopup();
+-    startMangaAnkiMiningFlow(text);
++    const cleanText = getCleanSentenceForMining(text);
++    startMangaAnkiMiningFlow(cleanText);
+   }
+ 
+   function startMangaAnkiMiningFlow(sentence) {
+@@ -2431,7 +2604,6 @@
+     const chkBorders = document.getElementById('chk-show-borders');
+     const chkAlwaysOcr = document.getElementById('chk-always-ocr');
+     const chkEditable = document.getElementById('chk-editable-text');
+-    const selectFontSize = document.getElementById('select-font-size');
+     const chkEInk = document.getElementById('chk-eink-mode');
+ 
+     if (chkR2l) {
+@@ -2485,17 +2657,6 @@
+       });
+     }
+ 
+-    if (selectFontSize) {
+-      selectFontSize.addEventListener('change', (e) => {
+-        mokuroState.fontSize = e.target.value;
+-        savePreferences();
+-        // Limpiar el contenedor de páginas para forzar el re-renderizado inmediato con el nuevo tamaño
+-        const container = document.getElementById('mokuro-pages-container');
+-        if (container) container.innerHTML = '';
+-        currentMangaKey = null;
+-        renderCurrentPages();
+-      });
+-    }
+ 
+     if (chkEInk) {
+       chkEInk.addEventListener('change', (e) => {
+@@ -2538,17 +2699,13 @@
+         if (activePopupContext && activePopupContext.block) {
+           const lines = val.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+           activePopupContext.block.lines = lines.length > 0 ? lines : (val.trim() ? [val.trim()] : []);
++          activePopupContext.block._modified = true;
+           
+           if (activePopupContext.boxDiv) {
+-            const pList = activePopupContext.boxDiv.querySelectorAll('p');
+-            if (pList.length > 0) {
+-              pList[0].textContent = lines.join(' ');
+-              for (let i = 1; i < pList.length; i++) {
+-                pList[i].textContent = '';
+-              }
+-            } else {
+-              activePopupContext.boxDiv.textContent = lines.join(' ');
+-            }
++            const [xmin = 0, ymin = 0, xmax = 100, ymax = 100] = activePopupContext.block.box || [];
++            const w = Math.max(1, xmax - xmin);
++            const h = Math.max(1, ymax - ymin);
++            renderBlockLines(activePopupContext.boxDiv, activePopupContext.block, w, h);
+           }
+           scheduleSaveMangaPages();
+         }

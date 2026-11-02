@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css" />
+  <!-- Precarga de textura modo oscuro para transición instantánea sin tirones -->
+  <link rel="prefetch" href="image/olafondo2.png" as="image" />
   <!-- Librería html2pdf para descargas directas de certificados en PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -36,9 +38,6 @@
     <a href="lectura.html">Lectura</a>
     <a href="ToriiTV.html">ToriiTV</a>
     <a href="jlpt-simulador.html">Simulador JLPT</a>
-    <a href="perfil.html" class="nav-profile-item active">
-     <!-- <span class="nav-avatar-box" id="nav-avatar-box">⛩️</span>-->
-    </a>
     <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Alternar modo claro y oscuro" title="Lámpara Chochin (明 / 暗)">
       <!-- Interruptor Lámpara Japonesa (Chochin) -->
       <div id="lantern-assembly" class="lantern-assembly is-lit idle-sway">
@@ -386,18 +385,6 @@
         <label for="select-profile-hud-theme" class="form-label">🎨 Tema y Colores del Sitio (Estilo Windows)</label>
         <select id="select-profile-hud-theme" class="form-control">
           <option value="torii-sunset" selected>⛩️ Noche Torii (Torii Sunset - Por defecto)</option>
-          <option value="sakura-night">🌸 Sakura Blossom (Cerezos en Flor)</option>
-          <option value="emerald-bamboo">🍃 Bosque Esmeralda (Bambú Teal)</option>
-          <option value="cyber-tokyo">🌌 Cyber Tokio (Neon Glow)</option>
-          <option value="floral-navy">🌸 Follaje Nocturno (Floral Navy)</option>
-          <option value="fuji-dawn">🗻 Monte Fuji (Dawn Mist)</option>
-          <option value="matcha-zen">🍵 Matcha Zen (Té Verde)</option>
-          <option value="kyoto-autumn">🍁 Otoño Momiji (Kioto Carmesí)</option>
-          <option value="amethyst-magic">🔮 Amatista Púrpura (Mystic)</option>
-          <option value="golden-shrine">✨ Santuario Dorado (Kinkaku-ji)</option>
-          <option value="ocean-breeze">🌊 Océano Kanagawa (Gran Ola)</option>
-          <option value="torii-classic">🖤 Torii Oscuro (Dark Slate)</option>
-          <option value="custom">📁 Imagen Personalizada (Solo Barra)</option>
         </select>
       </div>
 

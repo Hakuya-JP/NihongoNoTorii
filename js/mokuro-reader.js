@@ -43,11 +43,11 @@
         if (p.showBorders !== undefined) mokuroState.showBorders = p.showBorders;
         if (p.alwaysVisibleOcr !== undefined) mokuroState.alwaysVisibleOcr = p.alwaysVisibleOcr;
         if (p.editableText !== undefined) mokuroState.editableText = p.editableText;
-        if (p.fontSize !== undefined) mokuroState.fontSize = p.fontSize;
       } catch (e) {
         console.warn('Error al cargar preferencias de Mokuro:', e);
       }
     }
+    mokuroState.fontSize = 'auto';
   }
 
   function savePreferences() {
@@ -58,7 +58,7 @@
       showBorders: mokuroState.showBorders,
       alwaysVisibleOcr: mokuroState.alwaysVisibleOcr,
       editableText: mokuroState.editableText,
-      fontSize: mokuroState.fontSize
+      fontSize: 'auto'
     }));
   }
 
@@ -70,7 +70,6 @@
     const checkBorders = document.getElementById('chk-show-borders');
     const checkAlwaysOcr = document.getElementById('chk-always-ocr');
     const checkEditable = document.getElementById('chk-editable-text');
-    const selectFontSize = document.getElementById('select-font-size');
     const checkEInk = document.getElementById('chk-eink-mode');
 
     if (checkR2l) checkR2l.checked = mokuroState.isR2L;
@@ -79,7 +78,6 @@
     if (checkBorders) checkBorders.checked = mokuroState.showBorders;
     if (checkAlwaysOcr) checkAlwaysOcr.checked = mokuroState.alwaysVisibleOcr;
     if (checkEditable) checkEditable.checked = mokuroState.editableText;
-    if (selectFontSize) selectFontSize.value = mokuroState.fontSize;
     if (checkEInk) checkEInk.checked = mokuroState.eInkMode;
 
     updateDoublePageToolbarBtn();
@@ -216,6 +214,7 @@
     }
 
     document.body.classList.toggle('ocr-edit-mode', !!mokuroState.editableText);
+    container.classList.toggle('ocr-edit-mode', !!mokuroState.editableText);
     const boxes = document.querySelectorAll('.textBox');
     boxes.forEach(b => b.contentEditable = mokuroState.editableText ? 'true' : 'false');
   }
@@ -820,6 +819,508 @@
     setTimeout(applyCurrentZoomMode, 30);
   }
 
+  // ========================================================================
+  // MOTOR DE MAQUETACIÓN Y DISTRIBUCIÓN PROPORCIONAL DE TEXTO MOKURO
+  // ========================================================================
+  // Helper para dividir texto japonés/mixto respetando signos de puntuación y sin desbordar columnas
+  function wrapJapaneseText(text, maxChars) {
+    if (!text) return [];
+    if (text.length <= maxChars) return [text];
+
+    const chunks = [];
+    let remaining = text;
+    const punctRegex = /[。！？!?、…,\s:;~～\)]/;
+
+    while (remaining.length > maxChars) {
+      let breakIdx = -1;
+      const searchStart = Math.max(1, maxChars - 4);
+      for (let i = maxChars; i >= searchStart; i--) {
+        if (punctRegex.test(remaining[i - 1])) {
+          breakIdx = i;
+          break;
+        }
+      }
+      if (breakIdx === -1) {
+        breakIdx = maxChars;
+      }
+      chunks.push(remaining.slice(0, breakIdx));
+      remaining = remaining.slice(breakIdx);
+    }
+    if (remaining.length > 0) {
+      chunks.push(remaining);
+    }
+    return chunks;
+  }
+
+  // Motor de renderizado y balanceo proporcional de bloques de texto (OCR / modificaciones)
+  function renderBlockLines(boxDiv, block, w, h) {
+    if (!boxDiv || !block) return;
+    const existingHandles = Array.from(boxDiv.querySelectorAll('.box-drag-handle, .box-resize-handle'));
+    boxDiv.innerHTML = '';
+
+    const isVertical = block.vertical !== false;
+    const rawLines = Array.isArray(block.lines) ? block.lines : [String(block.lines || '')];
+    
+    // Normalizar líneas y conservar saltos explícitos
+    let inputLines = [];
+    rawLines.forEach(l => {
+      const parts = String(l).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      if (parts.length > 0) inputLines.push(...parts);
+    });
+    if (inputLines.length === 0) inputLines = [''];
+
+    // Dimensiones internas seguras dentro del cuadro de diálogo (descontando bordes para que nunca sobresalga)
+    const wInner = Math.max(8, w - 2);
+    const hInner = Math.max(8, h - 2);
+
+    // Búsqueda del tamaño de fuente óptimo:
+    // Capped al tamaño original del manga (block.font_size) para no agrandarlo ni desproporcionarlo,
+    // y ajustándose hacia abajo hasta que encaje 100% dentro del cuadro de diálogo.
+    const minFont = Math.max(8, Math.min(10, Math.floor(wInner), Math.floor(hInner)));
+    const originalFont = Math.max(minFont, block.font_size || 22);
+    const startFont = Math.max(minFont, Math.min(originalFont, Math.floor(wInner), Math.floor(hInner)));
+
+    let bestFont = minFont;
+    let bestColsOrRows = [];
+    let foundFit = false;
+
+    for (let f = startFont; f >= minFont; f--) {
+      if (isVertical) {
+        // En texto vertical, cada carácter mide f de alto dentro del cuadro
+        const maxCharsPerCol = Math.floor(hInner / f);
+        if (maxCharsPerCol >= 1) {
+          const wrapped = [];
+          inputLines.forEach(line => {
+            wrapped.push(...wrapJapaneseText(line, maxCharsPerCol));
+          });
+          const numCols = Math.max(1, wrapped.length);
+          // Verificar que todas las columnas quepan estrictamente dentro del ancho interior
+          if (numCols * f <= wInner) {
+            bestFont = f;
+            bestColsOrRows = wrapped;
+            foundFit = true;
+            break;
+          }
+        }
+      } else {
+        // En texto horizontal, cada fila mide f de ancho dentro del cuadro
+        const maxCharsPerRow = Math.floor(wInner / f);
+        if (maxCharsPerRow >= 1) {
+          const wrapped = [];
+          inputLines.forEach(line => {
+            wrapped.push(...wrapJapaneseText(line, maxCharsPerRow));
+          });
+          const numRows = Math.max(1, wrapped.length);
+          // Verificar que todas las filas quepan estrictamente dentro de la altura interior
+          if (numRows * f <= hInner) {
+            bestFont = f;
+            bestColsOrRows = wrapped;
+            foundFit = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!foundFit) {
+      bestFont = minFont;
+      bestColsOrRows = [];
+      if (isVertical) {
+        const maxCharsPerCol = Math.max(1, Math.floor(hInner / minFont));
+        inputLines.forEach(line => {
+          bestColsOrRows.push(...wrapJapaneseText(line, maxCharsPerCol));
+        });
+      } else {
+        const maxCharsPerRow = Math.max(1, Math.floor(wInner / minFont));
+        inputLines.forEach(line => {
+          bestColsOrRows.push(...wrapJapaneseText(line, maxCharsPerRow));
+        });
+      }
+    }
+
+    const chosenFont = bestFont;
+    let finalColumnsOrRows = bestColsOrRows;
+    if (finalColumnsOrRows.length === 0) finalColumnsOrRows = [''];
+    const numLines = finalColumnsOrRows.length;
+
+    boxDiv.style.fontSize = `${chosenFont.toFixed(1)}px`;
+    boxDiv.style.boxSizing = 'border-box';
+    boxDiv.style.overflow = 'hidden';
+
+    if (isVertical) {
+      boxDiv.style.writingMode = 'vertical-rl';
+      boxDiv.style.position = 'absolute';
+      boxDiv.style.display = 'block';
+      boxDiv.style.whiteSpace = 'nowrap';
+
+      const colW = Math.max(1, Math.min(wInner / numLines, chosenFont * 1.15));
+      const totalW = numLines * colW;
+      const marginOffset = Math.max(0, (wInner - totalW) / 2);
+
+      boxDiv.style.paddingRight = `${marginOffset.toFixed(1)}px`;
+      boxDiv.style.paddingLeft = `${marginOffset.toFixed(1)}px`;
+      boxDiv.style.paddingTop = '0px';
+      boxDiv.style.paddingBottom = '0px';
+
+      finalColumnsOrRows.forEach((lineText) => {
+        const p = document.createElement('p');
+        p.textContent = lineText;
+        p.style.writingMode = 'vertical-rl';
+        p.style.whiteSpace = 'nowrap';
+        p.style.wordBreak = 'keep-all';
+        p.style.overflowWrap = 'normal';
+        p.style.display = 'block';
+        p.style.position = 'static';
+        p.style.height = '100%';
+        p.style.width = `${colW.toFixed(1)}px`;
+        p.style.fontSize = `${chosenFont.toFixed(1)}px`;
+        p.style.lineHeight = `${colW.toFixed(1)}px`;
+        p.style.textAlign = 'start';
+        p.style.margin = '0';
+        p.style.padding = '0';
+        p.style.letterSpacing = '0px';
+
+        boxDiv.appendChild(p);
+      });
+    } else {
+      boxDiv.style.writingMode = 'horizontal-tb';
+      boxDiv.style.position = 'absolute';
+      boxDiv.style.display = 'block';
+      boxDiv.style.whiteSpace = 'nowrap';
+
+      const rowH = Math.max(1, Math.min(hInner / numLines, chosenFont * 1.2));
+      const totalH = numLines * rowH;
+      const marginOffsetY = Math.max(0, (hInner - totalH) / 2);
+
+      boxDiv.style.paddingTop = `${marginOffsetY.toFixed(1)}px`;
+      boxDiv.style.paddingBottom = `${marginOffsetY.toFixed(1)}px`;
+      boxDiv.style.paddingLeft = '0px';
+      boxDiv.style.paddingRight = '0px';
+
+      finalColumnsOrRows.forEach((lineText) => {
+        const p = document.createElement('p');
+        p.textContent = lineText;
+        p.style.writingMode = 'horizontal-tb';
+        p.style.whiteSpace = 'nowrap';
+        p.style.wordBreak = 'keep-all';
+        p.style.overflowWrap = 'normal';
+        p.style.display = 'block';
+        p.style.position = 'static';
+        p.style.width = '100%';
+        p.style.height = `${rowH.toFixed(1)}px`;
+        p.style.fontSize = `${chosenFont.toFixed(1)}px`;
+        p.style.lineHeight = `${rowH.toFixed(1)}px`;
+        p.style.textAlign = 'start';
+        p.style.margin = '0';
+        p.style.padding = '0';
+        p.style.letterSpacing = '0px';
+
+        boxDiv.appendChild(p);
+      });
+    }
+
+    if (existingHandles && existingHandles.length > 0) {
+      existingHandles.forEach(h => boxDiv.appendChild(h));
+    }
+  }
+
+  // ========================================================================
+  // ARRASTRE Y REPOSICIONAMIENTO DE CUADROS .MOKURO EN MODO EDICIÓN
+  // ========================================================================
+  function attachBoxDragListeners(boxDiv, handle, block, pageData, pageDiv, baseW, baseH) {
+    let isDragging = false;
+    let startClientX = 0;
+    let startClientY = 0;
+    let startBox = null;
+    let boxW = 0;
+    let boxH = 0;
+    let scaleX = 1;
+    let scaleY = 1;
+    let hasMoved = false;
+
+    const onPointerDown = (e) => {
+      // Solo clic izquierdo y en modo de edición OCR
+      if (e.button !== 0 || !mokuroState.editableText) return;
+
+      const isHandle = e.target.closest('.box-drag-handle');
+      const isBorder = e.target === boxDiv;
+      const isAltDrag = e.altKey;
+
+      if (!isHandle && !isBorder && !isAltDrag) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      isDragging = true;
+      hasMoved = false;
+      startClientX = e.clientX;
+      startClientY = e.clientY;
+
+      const [xmin = 0, ymin = 0, xmax = 50, ymax = 50] = block.box || [];
+      startBox = [xmin, ymin, xmax, ymax];
+      boxW = Math.max(1, xmax - xmin);
+      boxH = Math.max(1, ymax - ymin);
+
+      const pageRect = pageDiv.getBoundingClientRect();
+      scaleX = pageRect.width > 0 ? baseW / pageRect.width : 1;
+      scaleY = pageRect.height > 0 ? baseH / pageRect.height : 1;
+
+      boxDiv.classList.add('is-dragging');
+      document.body.style.userSelect = 'none';
+
+      try {
+        if (handle && handle.setPointerCapture) {
+          handle.setPointerCapture(e.pointerId);
+        }
+      } catch(err) {}
+
+      const onPointerMove = (ev) => {
+        if (!isDragging) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        const dx = (ev.clientX - startClientX) * scaleX;
+        const dy = (ev.clientY - startClientY) * scaleY;
+
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+          hasMoved = true;
+        }
+
+        const newXmin = Math.round(Math.max(0, Math.min(baseW - boxW, startBox[0] + dx)));
+        const newYmin = Math.round(Math.max(0, Math.min(baseH - boxH, startBox[1] + dy)));
+
+        boxDiv.style.left = `${(newXmin / baseW) * 100}%`;
+        boxDiv.style.top = `${(newYmin / baseH) * 100}%`;
+
+        if (handle) {
+          if (newYmin < 25) {
+            handle.style.top = '0px';
+            handle.style.borderRadius = '0 0 0 4px';
+          } else {
+            handle.style.top = '-24px';
+            handle.style.borderRadius = '4px 4px 0 0';
+          }
+        }
+      };
+
+      const onPointerUp = (ev) => {
+        if (!isDragging) return;
+        isDragging = false;
+        boxDiv.classList.remove('is-dragging');
+        document.body.style.userSelect = '';
+
+        window.removeEventListener('pointermove', onPointerMove, true);
+        window.removeEventListener('pointerup', onPointerUp, true);
+        window.removeEventListener('pointercancel', onPointerUp, true);
+
+        try {
+          if (handle && handle.releasePointerCapture) {
+            handle.releasePointerCapture(e.pointerId);
+          }
+        } catch(err) {}
+
+        if (hasMoved) {
+          ev.preventDefault();
+          ev.stopPropagation();
+
+          const dx = (ev.clientX - startClientX) * scaleX;
+          const dy = (ev.clientY - startClientY) * scaleY;
+
+          const newXmin = Math.round(Math.max(0, Math.min(baseW - boxW, startBox[0] + dx)));
+          const newYmin = Math.round(Math.max(0, Math.min(baseH - boxH, startBox[1] + dy)));
+          const newXmax = newXmin + boxW;
+          const newYmax = newYmin + boxH;
+
+          const shiftX = newXmin - startBox[0];
+          const shiftY = newYmin - startBox[1];
+
+          if (shiftX !== 0 || shiftY !== 0) {
+            block.box = [newXmin, newYmin, newXmax, newYmax];
+            block._modified = true;
+            boxDiv.classList.add('is-modified');
+
+            // Trasladar polígonos de líneas de Mokuro si existen
+            if (Array.isArray(block.lines_coords)) {
+              block.lines_coords = block.lines_coords.map(poly => {
+                if (!Array.isArray(poly)) return poly;
+                return poly.map(pt => [Math.round(pt[0] + shiftX), Math.round(pt[1] + shiftY)]);
+              });
+            }
+
+            scheduleSaveMangaPages();
+            flushSaveMangaPages(true);
+            if (typeof mostrarToast === 'function') {
+              mostrarToast('📍 Posición de cuadro actualizada');
+            }
+          }
+        }
+      };
+
+      window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
+      window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
+      window.addEventListener('pointercancel', onPointerUp, { capture: true, passive: false });
+    };
+
+    handle.addEventListener('pointerdown', onPointerDown);
+    boxDiv.addEventListener('pointerdown', (e) => {
+      if (e.target === boxDiv || e.altKey) {
+        onPointerDown(e);
+      }
+    });
+  }
+
+  // ========================================================================
+  // REDIMENSIONAMIENTO DE CUADROS .MOKURO EN MODO EDICIÓN
+  // ========================================================================
+  function attachBoxResizeListeners(boxDiv, block, pageData, pageDiv, baseW, baseH) {
+    const handles = boxDiv.querySelectorAll('.box-resize-handle');
+    if (!handles || handles.length === 0) return;
+
+    handles.forEach(handle => {
+      const dir = handle.dataset.dir;
+
+      const onPointerDown = (e) => {
+        if (e.button !== 0 || !mokuroState.editableText) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        let isResizing = true;
+        let hasResized = false;
+        const startClientX = e.clientX;
+        const startClientY = e.clientY;
+
+        const [xmin = 0, ymin = 0, xmax = 50, ymax = 50] = block.box || [];
+        const startBox = [xmin, ymin, xmax, ymax];
+        const startW = Math.max(1, xmax - xmin);
+        const startH = Math.max(1, ymax - ymin);
+
+        const pageRect = pageDiv.getBoundingClientRect();
+        const scaleX = pageRect.width > 0 ? baseW / pageRect.width : 1;
+        const scaleY = pageRect.height > 0 ? baseH / pageRect.height : 1;
+
+        boxDiv.classList.add('is-dragging');
+        document.body.style.userSelect = 'none';
+
+        try {
+          if (handle.setPointerCapture) handle.setPointerCapture(e.pointerId);
+        } catch(err) {}
+
+        let curXmin = startBox[0];
+        let curYmin = startBox[1];
+        let curXmax = startBox[2];
+        let curYmax = startBox[3];
+        let curW = startW;
+        let curH = startH;
+
+        const onPointerMove = (ev) => {
+          if (!isResizing) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+
+          const dx = (ev.clientX - startClientX) * scaleX;
+          const dy = (ev.clientY - startClientY) * scaleY;
+
+          if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+            hasResized = true;
+          }
+
+          if (dir === 'se') {
+            curW = Math.max(16, Math.min(baseW - startBox[0], startW + dx));
+            curH = Math.max(16, Math.min(baseH - startBox[1], startH + dy));
+            curXmin = startBox[0];
+            curYmin = startBox[1];
+            curXmax = curXmin + curW;
+            curYmax = curYmin + curH;
+          } else if (dir === 'sw') {
+            curW = Math.max(16, Math.min(startBox[2], startW - dx));
+            curH = Math.max(16, Math.min(baseH - startBox[1], startH + dy));
+            curXmin = startBox[2] - curW;
+            curYmin = startBox[1];
+            curXmax = startBox[2];
+            curYmax = curYmin + curH;
+          } else if (dir === 'ne') {
+            curW = Math.max(16, Math.min(baseW - startBox[0], startW + dx));
+            curH = Math.max(16, Math.min(startBox[3], startH - dy));
+            curXmin = startBox[0];
+            curYmin = startBox[3] - curH;
+            curXmax = curXmin + curW;
+            curYmax = startBox[3];
+          } else if (dir === 'nw') {
+            curW = Math.max(16, Math.min(startBox[2], startW - dx));
+            curH = Math.max(16, Math.min(startBox[3], startH - dy));
+            curXmin = startBox[2] - curW;
+            curYmin = startBox[3] - curH;
+            curXmax = startBox[2];
+            curYmax = startBox[3];
+          }
+
+          boxDiv.style.left = `${(curXmin / baseW) * 100}%`;
+          boxDiv.style.top = `${(curYmin / baseH) * 100}%`;
+          boxDiv.style.width = `${(curW / baseW) * 100}%`;
+          boxDiv.style.height = `${(curH / baseH) * 100}%`;
+
+          const moveHandle = boxDiv.querySelector('.box-drag-handle');
+          if (moveHandle) {
+            if (curYmin < 25) {
+              moveHandle.style.top = '0px';
+              moveHandle.style.borderRadius = '0 0 0 4px';
+            } else {
+              moveHandle.style.top = '-24px';
+              moveHandle.style.borderRadius = '4px 4px 0 0';
+            }
+          }
+        };
+
+        const onPointerUp = (ev) => {
+          if (!isResizing) return;
+          isResizing = false;
+          boxDiv.classList.remove('is-dragging');
+          document.body.style.userSelect = '';
+
+          window.removeEventListener('pointermove', onPointerMove, true);
+          window.removeEventListener('pointerup', onPointerUp, true);
+          window.removeEventListener('pointercancel', onPointerUp, true);
+
+          try {
+            if (handle.releasePointerCapture) handle.releasePointerCapture(e.pointerId);
+          } catch(err) {}
+
+          if (hasResized) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            const finalXmin = Math.round(curXmin);
+            const finalYmin = Math.round(curYmin);
+            const finalXmax = Math.round(curXmax);
+            const finalYmax = Math.round(curYmax);
+            const finalW = Math.max(1, finalXmax - finalXmin);
+            const finalH = Math.max(1, finalYmax - finalYmin);
+
+            block.box = [finalXmin, finalYmin, finalXmax, finalYmax];
+            block._modified = true;
+            boxDiv.classList.add('is-modified');
+
+            // Re-renderizar las líneas del bloque con las nuevas dimensiones para que el texto se adapte
+            renderBlockLines(boxDiv, block, finalW, finalH);
+
+            scheduleSaveMangaPages();
+            flushSaveMangaPages(true);
+            if (typeof mostrarToast === 'function') {
+              mostrarToast('📐 Tamaño de cuadro actualizado');
+            }
+          }
+        };
+
+        window.addEventListener('pointermove', onPointerMove, { capture: true, passive: false });
+        window.addEventListener('pointerup', onPointerUp, { capture: true, passive: false });
+        window.addEventListener('pointercancel', onPointerUp, { capture: true, passive: false });
+      };
+
+      handle.addEventListener('pointerdown', onPointerDown);
+    });
+  }
+
   // Construir nodo DOM para una página
   function buildPageElement(pageData, pageIdx) {
     const pageDiv = document.createElement('div');
@@ -873,6 +1374,7 @@
     blocks.forEach((block, bIdx) => {
       const boxDiv = document.createElement('div');
       boxDiv.className = 'textBox';
+      if (block._modified) boxDiv.classList.add('is-modified');
       if (mokuroState.editableText) boxDiv.contentEditable = 'true';
 
       const [xmin, ymin, xmax, ymax] = block.box;
@@ -885,23 +1387,25 @@
       boxDiv.style.width = `${(w / baseW) * 100}%`;
       boxDiv.style.height = `${(h / baseH) * 100}%`;
       boxDiv.style.zIndex = 10 + bIdx;
-      boxDiv.style.fontSize = (mokuroState.fontSize !== 'auto') ? `${mokuroState.fontSize}px` : `${block.font_size || 18}px`;
+      boxDiv.style.fontSize = `${block.font_size || 18}px`;
 
       if (block.vertical) {
         boxDiv.style.writingMode = 'vertical-rl';
       } else {
         boxDiv.style.writingMode = 'horizontal-tb';
       }
+      boxDiv.style.whiteSpace = 'nowrap';
+      boxDiv.style.overflow = 'visible';
 
       // Líneas de texto y adaptación precisa a las letras del manga
       const lines = block.lines || [];
-      const hasLineCoords = Array.isArray(block.lines_coords) && block.lines_coords.length === lines.length;
+      const hasLineCoords = !block._modified && Array.isArray(block.lines_coords) && block.lines_coords.length === lines.length;
 
-      lines.forEach((lineText, lIdx) => {
-        const p = document.createElement('p');
-        p.textContent = lineText;
+      if (hasLineCoords) {
+        lines.forEach((lineText, lIdx) => {
+          const p = document.createElement('p');
+          p.textContent = lineText;
 
-        if (hasLineCoords) {
           // Coordenadas exactas de cada línea detectadas por Mokuro
           const coords = block.lines_coords[lIdx];
           const xs = coords.map(pt => pt[0]);
@@ -924,6 +1428,10 @@
           p.style.top = `${relTop}%`;
           p.style.width = `${relWidth}%`;
           p.style.height = `${relHeight}%`;
+          p.style.whiteSpace = 'nowrap';
+          p.style.wordBreak = 'keep-all';
+          p.style.overflowWrap = 'normal';
+          p.style.textAlign = 'start';
 
           const cleanText = lineText.trim();
           const numChars = Math.max(1, cleanText.length);
@@ -935,13 +1443,15 @@
             const baseFont = block.font_size || idealFont;
             const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.35, 200));
 
-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+            const usedFont = finalFont;
             p.style.fontSize = `${usedFont.toFixed(1)}px`;
             p.style.lineHeight = `${Math.max(lW, usedFont * 1.05).toFixed(1)}px`;
 
-            if (charH > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+            if (charH > usedFont && numChars > 1) {
               const extraSpace = (lH - (numChars * usedFont)) / (numChars - 1);
-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+              p.style.letterSpacing = `${Math.max(0, Math.min(extraSpace * 0.7, usedFont * 0.35)).toFixed(1)}px`;
+            } else {
+              p.style.letterSpacing = '0px';
             }
           } else {
             p.style.writingMode = 'horizontal-tb';
@@ -950,84 +1460,41 @@
             const baseFont = block.font_size || idealFont;
             const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.35, 200));
 
-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
+            const usedFont = finalFont;
             p.style.fontSize = `${usedFont.toFixed(1)}px`;
             p.style.lineHeight = `${Math.max(lH, usedFont * 1.05).toFixed(1)}px`;
 
-            if (charW > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
+            if (charW > usedFont && numChars > 1) {
               const extraSpace = (lW - (numChars * usedFont)) / (numChars - 1);
-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
+              p.style.letterSpacing = `${Math.max(0, Math.min(extraSpace * 0.7, usedFont * 0.35)).toFixed(1)}px`;
+            } else {
+              p.style.letterSpacing = '0px';
             }
           }
-        } else {
-          // Distribución uniforme de columnas/filas si no hay lines_coords
-          const numLines = Math.max(1, lines.length);
-          const cleanText = lineText.trim();
-          const numChars = Math.max(1, cleanText.length);
 
-          p.style.position = 'absolute';
-          if (block.vertical) {
-            p.style.writingMode = 'vertical-rl';
-            const colW = w / numLines;
-            const leftPct = ((numLines - 1 - lIdx) / numLines) * 100;
-            const widthPct = (1 / numLines) * 100;
+          boxDiv.appendChild(p);
+        });
+      } else {
+        // Maquetación inteligente para bloques modificados o sin coordenadas exactas
+        renderBlockLines(boxDiv, block, w, h);
+      }
 
-            p.style.left = `${leftPct}%`;
-            p.style.top = '0%';
-            p.style.width = `${widthPct}%`;
-            p.style.height = '100%';
-
-            const charH = h / numChars;
-            const idealFont = Math.min(colW * 0.92, charH);
-            const baseFont = block.font_size || idealFont;
-            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.25, 200));
-
-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
-            p.style.fontSize = `${usedFont.toFixed(1)}px`;
-            p.style.lineHeight = `${Math.max(colW, usedFont * 1.05).toFixed(1)}px`;
-
-            if (charH > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
-              const extraSpace = (h - (numChars * usedFont)) / (numChars - 1);
-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
-            }
-          } else {
-            p.style.writingMode = 'horizontal-tb';
-            const rowH = h / numLines;
-            const topPct = (lIdx / numLines) * 100;
-            const heightPct = (1 / numLines) * 100;
-
-            p.style.left = '0%';
-            p.style.top = `${topPct}%`;
-            p.style.width = '100%';
-            p.style.height = `${heightPct}%`;
-
-            const charW = w / numChars;
-            const idealFont = Math.min(rowH * 0.92, charW * 1.4);
-            const baseFont = block.font_size || idealFont;
-            const finalFont = Math.max(8, Math.min(idealFont, baseFont * 1.25, 200));
-
-            const usedFont = (mokuroState.fontSize !== 'auto') ? parseFloat(mokuroState.fontSize) : finalFont;
-            p.style.fontSize = `${usedFont.toFixed(1)}px`;
-            p.style.lineHeight = `${Math.max(rowH, usedFont * 1.05).toFixed(1)}px`;
-
-            if (charW > usedFont && numChars > 1 && mokuroState.fontSize === 'auto') {
-              const extraSpace = (w - (numChars * finalFont)) / (numChars - 1);
-              p.style.letterSpacing = `${Math.max(0, extraSpace * 0.85).toFixed(1)}px`;
-            }
-          }
-        }
-
-        boxDiv.appendChild(p);
-      });
-
-      // Sincronización y persistencia de texto editado por el usuario
+      // Sincronización y persistencia de texto editado directamente en la viñeta
       boxDiv.addEventListener('input', () => {
+        block._modified = true;
+        boxDiv.classList.add('is-modified');
         syncBoxContentToBlock(boxDiv, block, pageData);
         scheduleSaveMangaPages();
       });
 
       boxDiv.addEventListener('blur', () => {
+        block._modified = true;
+        boxDiv.classList.add('is-modified');
         syncBoxContentToBlock(boxDiv, block, pageData);
+        const [bx1 = 0, by1 = 0, bx2 = 100, by2 = 100] = block.box || [];
+        const curBoxW = Math.max(1, bx2 - bx1);
+        const curBoxH = Math.max(1, by2 - by1);
+        renderBlockLines(boxDiv, block, curBoxW, curBoxH);
         flushSaveMangaPages(true);
       });
 
@@ -1042,9 +1509,38 @@
         e.preventDefault();
         e.stopPropagation();
         const currentLines = block.lines || [];
-        const fullText = currentLines.join(' ');
+        const fullText = currentLines.join('\n');
         openToriiMiningPopup(fullText, e.clientX, e.clientY, block, pageData, boxDiv);
       });
+
+      // Manija de arrastre y reposicionamiento en modo de edición OCR
+      const handle = document.createElement('div');
+      handle.className = 'box-drag-handle';
+      handle.contentEditable = 'false';
+      handle.title = 'Arrastra para mover este cuadro de diálogo';
+      handle.innerHTML = '<span>✥</span>';
+      if (ymin < 25) {
+        handle.style.top = '0px';
+        handle.style.borderRadius = '0 0 0 4px';
+      } else {
+        handle.style.top = '-24px';
+        handle.style.borderRadius = '4px 4px 0 0';
+      }
+      boxDiv.appendChild(handle);
+
+      attachBoxDragListeners(boxDiv, handle, block, pageData, pageDiv, baseW, baseH);
+
+      // Manijas de redimensionamiento en las 4 esquinas del cuadro
+      ['nw', 'ne', 'sw', 'se'].forEach(dir => {
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = `box-resize-handle handle-${dir}`;
+        resizeHandle.dataset.dir = dir;
+        resizeHandle.contentEditable = 'false';
+        resizeHandle.setAttribute('aria-label', `Redimensionar cuadro (${dir})`);
+        boxDiv.appendChild(resizeHandle);
+      });
+
+      attachBoxResizeListeners(boxDiv, block, pageData, pageDiv, baseW, baseH);
 
       ocrLayer.appendChild(boxDiv);
     });
@@ -1072,7 +1568,9 @@
       lines = pList.map(p => p.textContent.replace(/[\r\n]+/g, '')).filter(t => t.trim().length > 0);
     }
     if (lines.length === 0) {
-      const raw = (boxDiv.innerText || boxDiv.textContent || '').trim();
+      const clone = boxDiv.cloneNode(true);
+      clone.querySelectorAll('.box-drag-handle, .box-resize-handle').forEach(el => el.remove());
+      const raw = (clone.innerText || clone.textContent || '').trim();
       if (raw) {
         lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       }
@@ -1081,7 +1579,7 @@
 
     // Si el popup rápido está abierto y muestra este bloque, sincronizarlo
     if (activePopupContext && activePopupContext.block === block) {
-      const fullText = lines.join(' ');
+      const fullText = lines.join('\n');
       mokuroState.activeTextBoxText = fullText;
       const textEl = document.getElementById('quick-popup-text-content');
       if (textEl && document.activeElement !== textEl) {
@@ -1367,9 +1865,19 @@
     if (popup) popup.style.display = 'none';
   }
 
+  function getCleanSentenceForMining(text) {
+    if (!text) return '';
+    const hasJapanese = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(text);
+    if (hasJapanese) {
+      return text.replace(/[\r\n]+/g, '').trim();
+    }
+    return text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
   function playPronunciation(text) {
     if (!('speechSynthesis' in window)) return;
-    const utterance = new SpeechSynthesisUtterance(text);
+    const cleanText = getCleanSentenceForMining(text);
+    const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'ja-JP';
     utterance.rate = 0.9;
     window.speechSynthesis.speak(utterance);
@@ -1377,11 +1885,12 @@
 
   function copyCurrentMokuroText() {
     if (!mokuroState.activeTextBoxText) return;
-    navigator.clipboard.writeText(mokuroState.activeTextBoxText).then(() => {
+    const cleanText = getCleanSentenceForMining(mokuroState.activeTextBoxText);
+    navigator.clipboard.writeText(cleanText).then(() => {
       if (typeof mostrarToast === 'function') {
         mostrarToast('📋 Texto copiado al portapapeles');
       } else {
-        alert('Texto copiado: ' + mokuroState.activeTextBoxText);
+        alert('Texto copiado: ' + cleanText);
       }
     });
   }
@@ -1393,7 +1902,8 @@
     const text = mokuroState.activeTextBoxText;
     if (!text) return;
     closeToriiMiningPopup();
-    startMangaAnkiMiningFlow(text);
+    const cleanText = getCleanSentenceForMining(text);
+    startMangaAnkiMiningFlow(cleanText);
   }
 
   function startMangaAnkiMiningFlow(sentence) {
@@ -2431,7 +2941,6 @@
     const chkBorders = document.getElementById('chk-show-borders');
     const chkAlwaysOcr = document.getElementById('chk-always-ocr');
     const chkEditable = document.getElementById('chk-editable-text');
-    const selectFontSize = document.getElementById('select-font-size');
     const chkEInk = document.getElementById('chk-eink-mode');
 
     if (chkR2l) {
@@ -2485,18 +2994,6 @@
       });
     }
 
-    if (selectFontSize) {
-      selectFontSize.addEventListener('change', (e) => {
-        mokuroState.fontSize = e.target.value;
-        savePreferences();
-        // Limpiar el contenedor de páginas para forzar el re-renderizado inmediato con el nuevo tamaño
-        const container = document.getElementById('mokuro-pages-container');
-        if (container) container.innerHTML = '';
-        currentMangaKey = null;
-        renderCurrentPages();
-      });
-    }
-
     if (chkEInk) {
       chkEInk.addEventListener('change', (e) => {
         mokuroState.eInkMode = e.target.checked;
@@ -2538,17 +3035,13 @@
         if (activePopupContext && activePopupContext.block) {
           const lines = val.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
           activePopupContext.block.lines = lines.length > 0 ? lines : (val.trim() ? [val.trim()] : []);
+          activePopupContext.block._modified = true;
           
           if (activePopupContext.boxDiv) {
-            const pList = activePopupContext.boxDiv.querySelectorAll('p');
-            if (pList.length > 0) {
-              pList[0].textContent = lines.join(' ');
-              for (let i = 1; i < pList.length; i++) {
-                pList[i].textContent = '';
-              }
-            } else {
-              activePopupContext.boxDiv.textContent = lines.join(' ');
-            }
+            const [xmin = 0, ymin = 0, xmax = 100, ymax = 100] = activePopupContext.block.box || [];
+            const w = Math.max(1, xmax - xmin);
+            const h = Math.max(1, ymax - ymin);
+            renderBlockLines(activePopupContext.boxDiv, activePopupContext.block, w, h);
           }
           scheduleSaveMangaPages();
         }

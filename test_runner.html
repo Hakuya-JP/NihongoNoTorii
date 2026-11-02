@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+window.errors = [];
+window.onerror = function(msg, url, line, col, error) {
+    window.errors.push({msg: msg, line: line, col: col, error: String(error)});
+    console.error("PAGE_ERROR:", msg, "at line", line, col);
+};
+</script>
+</head>
+<body>
+<div id="mokuro-reader-wrapper"></div>
+<div id="mokuro-pages-container"></div>
+<script src="js/mokuro-reader.js"></script>
+<script>
+console.log("MokuroReader exists:", typeof window.MokuroReader);
+if (typeof window.MokuroReader === 'undefined') {
+    console.error("CRITICAL: MokuroReader is undefined!");
+} else {
+    console.log("MokuroReader loaded successfully!");
+}
+</script>
+</body>
+</html>
