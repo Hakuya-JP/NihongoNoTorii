@@ -136,13 +136,14 @@
 <script src="../../scripts.js"></script>
 <script>
   // ─── AGREGA IDs AQUÍ cuando crees nuevas lecciones ───────────────
-  const LECCIONES_IDS = []; // Ejemplo: ['01','02','03']
+  const LECCIONES_IDS = ['01']; // Lecciones activas
   const NIVEL_KEY = 'kana';
   // ─────────────────────────────────────────────────────────────────
 
   function cargarProgreso(){
     if(LECCIONES_IDS.length===0)return;
-    document.getElementById('proximamente').style.display='none';
+    const prox = document.getElementById('proximamente');
+    if(prox) prox.style.display='none';
     let completadas=0;
     LECCIONES_IDS.forEach(id=>{
       const s=localStorage.getItem(`blog_${NIVEL_KEY}_${id}`)||'pendiente';

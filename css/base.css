@@ -89,8 +89,8 @@ html.dark-mode,
 html.dark-mode[data-theme="torii-sunset"],
 body.dark-mode[data-theme="torii-sunset"] {
   /* ── 1. MARCA, CABECERA Y ACENTOS ── */
-  --primary: #152e3f;           /* Azul noche profundo: Navbar y bordes oscuros */
-  --azul: #152e3f;              /* Fondo de Navbar oscuro con acabado Aero */
+  --primary: #0d334d;           /* Azul noche profundo: Navbar y bordes oscuros */
+  --azul: #0d334d;              /* Fondo de Navbar oscuro con acabado Aero */
   --azulNa: #f2af7f;            /* Acento melocotón para contraste en modo noche */
   --accent: #ff9447;            /* Naranja brillante: Resaltes en fondos oscuros */
   --naranja: #ff9447;           /* Naranja luminoso para llamadas a la acción */

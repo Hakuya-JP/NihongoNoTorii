@@ -1321,6 +1321,12 @@
       const totalPagesRead = volumes.reduce((acc, v) => acc + (v.lastPageRead || 0), 0);
       const readPct = totalPagesAll > 0 ? Math.round((totalPagesRead / totalPagesAll) * 100) : 0;
 
+      // Texto y estado del botón según progreso
+      const isAtStart = totalPagesRead === 0;
+      const isComplete = readPct >= 100;
+      const btnLabel = isComplete ? 'Leer de nuevo' : (isAtStart ? 'Empezar' : 'Continuar');
+      const btnClass = isComplete ? 'manga-btn-read btn-continue-manga btn-completed-glow' : 'manga-btn-read btn-continue-manga';
+
       // Portada al frente = el tomo más recientemente leído (lastReadAt)
       // Si ninguno se ha leído aún, usar el primero de la lista
       const currentVol = volumes.reduce((best, v) =>
@@ -1391,8 +1397,8 @@
           </div>
 
           <div class="manga-card-actions">
-            <button type="button" class="manga-btn-read btn-continue-manga" style="width:100%;" title="Continuar lectura">
-              <span>▶️ Continuar</span>
+            <button type="button" class="${btnClass}" style="width:100%;" title="${btnLabel}">
+              <span>${btnLabel}</span>
             </button>
           </div>
         </div>
@@ -1413,7 +1419,15 @@
           e.stopPropagation();
           const isVisible = menuDropdown.style.display === 'flex';
           document.querySelectorAll('.manga-card-dropdown').forEach(d => d.style.display = 'none');
-          menuDropdown.style.display = isVisible ? 'none' : 'flex';
+          document.querySelectorAll('.volume-card-item, .manga-card').forEach(c => {
+            c.classList.remove('has-open-menu');
+            c.style.zIndex = '';
+          });
+          if (!isVisible) {
+            menuDropdown.style.display = 'flex';
+            card.classList.add('has-open-menu');
+            card.style.zIndex = '100';
+          }
         });
       }
 
@@ -1550,6 +1564,12 @@
         ? Math.round(((vol.lastPageRead + 1) / vol.totalPages) * 100) 
         : 0;
 
+      // Texto y estado del botón según progreso del volumen
+      const volIsAtStart = vol.lastPageRead === 0;
+      const volIsComplete = readPct >= 100;
+      const volBtnLabel = volIsComplete ? 'Leer de nuevo' : (volIsAtStart ? 'Empezar' : 'Continuar');
+      const volBtnClass = volIsComplete ? 'manga-btn-read btn-read-volume btn-completed-glow' : 'manga-btn-read btn-read-volume';
+
       volCard.innerHTML = `
         <div class="volume-thumb-wrap" title="Cambiar portada de este volumen">
           <img src="${vol.coverDataUrl || COVER_PLACEHOLDER}" alt="${escapeHtml(extractVolumeLabel(vol))}" class="volume-thumb">
@@ -1557,13 +1577,26 @@
         </div>
         <div class="volume-body">
           <div class="volume-title-row">
-            <h4 class="volume-title">${escapeHtml(extractVolumeLabel(vol))}</h4>
-            <button class="btn-rename-volume" title="Editar nombre del tomo" aria-label="Editar nombre">✏️</button>
+            <h4 class="volume-title" title="${escapeHtml(extractVolumeLabel(vol))}">${escapeHtml(extractVolumeLabel(vol))}</h4>
+            <div class="manga-card-menu-wrap">
+              <button type="button" class="btn-card-menu-trigger" title="Opciones" aria-label="Opciones">⋮</button>
+              <div class="manga-card-dropdown" style="display:none;">
+                <button type="button" class="manga-dropdown-item btn-vol-menu-rename"><span>✏️</span> Renombrar</button>
+                ${vol.hasOcr ? `
+                  <button type="button" class="manga-dropdown-item btn-vol-menu-download-mokuro"><span>📥</span> Descargar .mokuro</button>
+                  <button type="button" class="manga-dropdown-item btn-vol-menu-attach-mokuro"><span>📎</span> Reemplazar .mokuro</button>
+                ` : `
+                  <button type="button" class="manga-dropdown-item btn-vol-menu-attach-mokuro"><span>📎</span> Vincular .mokuro</button>
+                  <button type="button" class="manga-dropdown-item btn-vol-menu-gen-mokuro"><span>⚡</span> Guía OCR</button>
+                `}
+                <button type="button" class="manga-dropdown-item manga-dropdown-item-danger btn-vol-menu-delete"><span>🗑️</span> Eliminar tomo</button>
+              </div>
+            </div>
           </div>
           <div class="volume-rename-inline" style="display:none;">
             <input class="manga-rename-input" type="text" value="${escapeHtml(vol.volume || vol.title || '')}" placeholder="Nombre del tomo..." />
-            <button class="volume-rename-confirm" title="Guardar">✔</button>
-            <button class="volume-rename-cancel" title="Cancelar">✖</button>
+            <button type="button" class="volume-rename-confirm" title="Guardar">✔</button>
+            <button type="button" class="volume-rename-cancel" title="Cancelar">✖</button>
           </div>
           <span class="volume-meta">Progreso: Pág. ${vol.lastPageRead + 1} de ${vol.totalPages} (${readPct}%)</span>
 
@@ -1571,40 +1604,45 @@
             <div style="height:100%; width:${readPct}%; background:var(--azulNa, #13a2ce); border-radius:3px;"></div>
           </div>
 
-          ${!vol.hasOcr ? `
-            <div style="display:flex; gap:6px; margin-bottom:10px;">
-              <button class="btn-attach-mokuro-vol" data-id="${vol.id}" title="Vincular archivo .mokuro" style="flex:1; padding:5px 8px; font-size:0.78rem; background:rgba(19,162,206,0.1); border:1px solid rgba(19,162,206,0.3); border-radius:6px; cursor:pointer; color:var(--azulNa, #13a2ce); font-weight:700;">
-                📎 .mokuro
-              </button>
-              <button class="btn-gen-mokuro-vol" data-title="${escapeHtml(vol.title)}" title="Generar OCR" style="padding:5px 8px; font-size:0.78rem; background:rgba(229,57,53,0.08); border:1px solid rgba(229,57,53,0.25); border-radius:6px; cursor:pointer; color:#e53935; font-weight:700;">
-                ⚡ Guía
-              </button>
-            </div>
-          ` : `
-            <div style="display:flex; gap:6px; margin-bottom:10px;">
-              <button class="btn-download-mokuro-vol" data-id="${vol.id}" title="Descargar archivo .mokuro con las modificaciones guardadas" style="flex:1; padding:5px 8px; font-size:0.78rem; background:rgba(46,125,50,0.1); border:1px solid rgba(46,125,50,0.3); border-radius:6px; cursor:pointer; color:#2e7d32; font-weight:700;">
-                📥 .mokuro
-              </button>
-              <button class="btn-attach-mokuro-vol" data-id="${vol.id}" title="Reemplazar archivo .mokuro" style="padding:5px 8px; font-size:0.78rem; background:rgba(19,162,206,0.1); border:1px solid rgba(19,162,206,0.3); border-radius:6px; cursor:pointer; color:var(--azulNa, #13a2ce); font-weight:700;">
-                📎 Reemplazar
-              </button>
-            </div>
-          `}
-
-          <div style="display:flex; gap:6px; margin-top:auto;">
-            <button class="manga-btn-read btn-read-volume" style="flex:1; padding:8px 12px; font-size:0.88rem;">
-              <span>▶️ Continuar</span>
-            </button>
-            <button class="btn-delete-manga btn-delete-single-vol" data-id="${vol.id}" title="Eliminar este volumen" style="width:34px; height:34px;">
-              🗑️
+          <div style="display:flex; width:100%; margin-top:auto;">
+            <button type="button" class="${volBtnClass}" style="width:100%; padding:8px 12px; font-size:0.88rem;">
+              <span>${volBtnLabel}</span>
             </button>
           </div>
         </div>
       `;
 
-      // Evento cambiar portada de este tomo específico con el botón de cámara
+      // Menú desplegable de opciones (⋮)
+      const menuTrigger = volCard.querySelector('.btn-card-menu-trigger');
+      const menuDropdown = volCard.querySelector('.manga-card-dropdown');
+
+      const closeMenu = () => {
+        if (menuDropdown) menuDropdown.style.display = 'none';
+        volCard.classList.remove('has-open-menu');
+        volCard.style.zIndex = '';
+      };
+
+      if (menuTrigger && menuDropdown) {
+        menuTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isVisible = menuDropdown.style.display === 'flex';
+          document.querySelectorAll('.manga-card-dropdown').forEach(d => d.style.display = 'none');
+          document.querySelectorAll('.volume-card-item, .manga-card').forEach(c => {
+            c.classList.remove('has-open-menu');
+            c.style.zIndex = '';
+          });
+          if (!isVisible) {
+            menuDropdown.style.display = 'flex';
+            volCard.classList.add('has-open-menu');
+            volCard.style.zIndex = '100';
+          }
+        });
+      }
+
+      // Evento cambiar portada de este tomo específico desde el botón de cámara
       const handleVolCoverChange = (e) => {
-        e.stopPropagation();
+        if (e && e.stopPropagation) e.stopPropagation();
+        closeMenu();
         promptChangeCover(vol.id, (newDataUrl) => {
           vol.coverDataUrl = newDataUrl;
           const imgThumb = volCard.querySelector('.volume-thumb');
@@ -1629,8 +1667,8 @@
         });
       }
 
-      // Renombrar este tomo
-      const btnRenameVol = volCard.querySelector('.btn-rename-volume');
+      // Renombrar este tomo desde el menú desplegable
+      const btnRenameVol = volCard.querySelector('.btn-vol-menu-rename');
       const volRenameRow = volCard.querySelector('.volume-rename-inline');
       const volRenameInput = volCard.querySelector('.manga-rename-input');
       const volRenameConfirm = volCard.querySelector('.volume-rename-confirm');
@@ -1639,7 +1677,8 @@
       const volTitleRow = volCard.querySelector('.volume-title-row');
 
       const openVolRenameUI = (e) => {
-        e.stopPropagation();
+        if (e && e.stopPropagation) e.stopPropagation();
+        closeMenu();
         volRenameInput.value = vol.volume || vol.title || '';
         volRenameRow.style.display = 'flex';
         volTitleRow.style.display = 'none';
@@ -1680,20 +1719,22 @@
         launchMangaFromDB(vol.id, { volumes });
       });
 
-      // Evento descargar mokuro modificado de este tomo
-      const btnDownMokuro = volCard.querySelector('.btn-download-mokuro-vol');
+      // Evento descargar mokuro modificado de este tomo (desde el menú)
+      const btnDownMokuro = volCard.querySelector('.btn-vol-menu-download-mokuro');
       if (btnDownMokuro) {
         btnDownMokuro.addEventListener('click', (e) => {
           e.stopPropagation();
+          closeMenu();
           downloadMangaMokuro(vol.id);
         });
       }
 
-      // Evento vincular mokuro a este tomo
-      const btnAttach = volCard.querySelector('.btn-attach-mokuro-vol');
+      // Evento vincular o reemplazar mokuro a este tomo (desde el menú)
+      const btnAttach = volCard.querySelector('.btn-vol-menu-attach-mokuro');
       if (btnAttach) {
         btnAttach.addEventListener('click', (e) => {
           e.stopPropagation();
+          closeMenu();
           const inputAttach = document.getElementById('input-attach-mokuro');
           if (inputAttach) {
             inputAttach.onchange = async (ev) => {
@@ -1710,36 +1751,48 @@
         });
       }
 
-      // Evento de ayuda mokuro
-      const btnGen = volCard.querySelector('.btn-gen-mokuro-vol');
+      // Evento de ayuda mokuro (desde el menú)
+      const btnGen = volCard.querySelector('.btn-vol-menu-gen-mokuro');
       if (btnGen) {
         btnGen.addEventListener('click', (e) => {
           e.stopPropagation();
+          closeMenu();
           showGenerateMokuroModal(vol.title);
         });
       }
 
-      // Evento eliminar tomo individual
-      const btnDelVol = volCard.querySelector('.btn-delete-single-vol');
-      btnDelVol.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (confirm(`¿Eliminar "${vol.volume || vol.title}" de tu biblioteca?`)) {
-          await deleteMangaFromDB(vol.id);
-          const updatedVolumes = volumes.filter(v => v.id !== vol.id);
-          if (updatedVolumes.length > 0) {
-            openSeriesVolumesModal(seriesTitle, updatedVolumes);
-          } else {
-            modal.classList.remove('active');
+      // Evento eliminar tomo individual desde el menú desplegable
+      const btnDelVol = volCard.querySelector('.btn-vol-menu-delete');
+      if (btnDelVol) {
+        btnDelVol.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          closeMenu();
+          if (confirm(`¿Eliminar "${vol.volume || vol.title}" de tu biblioteca?`)) {
+            await deleteMangaFromDB(vol.id);
+            const updatedVolumes = volumes.filter(v => v.id !== vol.id);
+            if (updatedVolumes.length > 0) {
+              openSeriesVolumesModal(seriesTitle, updatedVolumes);
+            } else {
+              modal.classList.remove('active');
+            }
+            renderMyMangasGrid();
+            if (typeof mostrarToast === 'function') mostrarToast('🗑️ Volumen eliminado');
           }
-          renderMyMangasGrid();
-          if (typeof mostrarToast === 'function') mostrarToast('🗑️ Volumen eliminado');
-        }
-      });
+        });
+      }
 
       gridEl.appendChild(volCard);
     });
 
     modal.classList.add('active');
+
+    // Scroll vertical del mouse → scroll horizontal en la fila de volúmenes
+    gridEl.addEventListener('wheel', function(e) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        gridEl.scrollLeft += e.deltaY * 3;
+      }
+    }, { passive: false });
 
     if (btnClose) {
       btnClose.onclick = () => modal.classList.remove('active');
@@ -1850,6 +1903,10 @@
       if (!e.target.closest('.manga-card-menu-wrap')) {
         document.querySelectorAll('.manga-card-dropdown').forEach(d => {
           d.style.display = 'none';
+        });
+        document.querySelectorAll('.volume-card-item, .manga-card').forEach(c => {
+          c.classList.remove('has-open-menu');
+          c.style.zIndex = '';
         });
       }
     });

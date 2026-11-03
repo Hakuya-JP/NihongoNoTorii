@@ -235,35 +235,7 @@ function renderizarGaleriaCertificadosPerfil() {
 }
 
 function guardarCertificadoPDF() {
-  const element = document.getElementById("jlpt-certificate-printable");
-  if (!element) {
-    window.print();
-    return;
-  }
-
-  if (typeof mostrarToast === "function") {
-    mostrarToast("📥 Descargando certificado PDF directamente...");
-  }
-
-  const elLevel = document.getElementById("cert-pdf-level");
-  const elName = document.getElementById("cert-pdf-name");
-  const lvlText = elLevel ? elLevel.innerText.trim() : "JLPT";
-  const nameText = elName ? elName.innerText.trim().replace(/\s+/g, '_') : "Estudiante";
-  const fileName = `Certificado_JLPT_${lvlText}_${nameText}.pdf`;
-
-  if (typeof html2pdf !== "undefined") {
-    const opt = {
-      margin: 0,
-      filename: fileName,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(element).save();
-  } else {
-    window.print();
-  }
+  imprimirCertificado();
 }
 
 // Expuestos globalmente

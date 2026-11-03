@@ -1,21 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
-<!--
-╔══════════════════════════════════════════════════════════════════════╗
-║  PLANTILLA DE LECCIÓN — NIHONGO NO TORII                           ║
-║  Cómo usar:                                                          ║
-║  1. Copia este archivo con el nombre: XX-nombre-leccion.html        ║
-║     (XX = número con cero adelante: 01, 02, 03...)                  ║
-║  2. Busca y reemplaza las variables marcadas con [TODO: ...]         ║
-║  3. Agrega el archivo al index.html de este nivel                   ║
-║  4. Agrega el ID al array LECCIONES_IDS en index.html               ║
-╚══════════════════════════════════════════════════════════════════════╝
--->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- TODO: Cambia el título -->
-  <title>Bienvenido a tu primera leccion de japones — KANA | Nihongo no Torii</title>
+  <title>01. Introducción al KANA — Silabarios | Nihongo no Torii</title>
   <link rel="icon" type="image/x-icon" href="../../ToriiIcon.ico" />
   <link rel="shortcut icon" href="../../ToriiIcon.ico" />
   <link rel="stylesheet" href="../../styles.css">
@@ -32,8 +20,22 @@
     <a href="../../lecciones.html" class="active">Lecciones</a>
     <a href="../../videos.html">Videos</a>
     <a href="../../biblioteca.html">Biblioteca</a>
+    <a href="../../lectura.html">Lectura</a>
+    <a href="../../ToriiTV.html">ToriiTV</a>
     <a href="../../jlpt-simulador.html">Simulador JLPT</a>
-    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Alternar modo claro y oscuro" title="Lámpara Chochin (明 / 暗)">
+      <!-- Interruptor Lámpara Japonesa (Chochin) -->
+      <div id="lantern-assembly" class="lantern-assembly is-lit idle-sway">
+        <div class="wood-cap top"></div>
+        <div id="lantern-body" class="lantern-body">
+          <div class="bamboo-ribs"></div>
+          <div class="flame-core"></div>
+          <span id="lantern-kanji" class="lantern-kanji">明</span>
+        </div>
+        <div class="wood-cap bottom"></div>
+        <div class="tassel-skirt"></div>
+      </div>
+    </button>
   </nav>
 </header>
 
@@ -43,190 +45,138 @@
   <span class="sep">›</span>
   <a href="index.html">KANA — Silabarios</a>
   <span class="sep">›</span>
-  <!-- TODO: Cambia el nombre de la lección -->
-  <span>Introduccion al KANA</span>
+  <span>01. Introducción al KANA</span>
 </nav>
 
 <!-- HERO DE LA LECCIÓN -->
 <section class="leccion-hero">
-  <!-- TODO: data-cat puede ser: intro | escritura | gramatica | vocabulario | practica -->
   <div class="leccion-hero-inner" data-cat="intro">
-    <!-- TODO: Kanji o carácter decorativo -->
     <div class="leccion-hero-kanji">始まる</div>
-    <!-- TODO: Número de la lección (ej: 11) -->
-    <div class="leccion-hero-num">1</div>
+    <div class="leccion-hero-num">01</div>
     <div class="leccion-hero-info">
       <div class="leccion-hero-badges">
         <span class="blog-meta-tag nivel">KANA</span>
-        <!-- TODO: cat-intro | cat-escritura | cat-gramatica | cat-vocabulario | cat-practica -->
-        <span class="blog-meta-tag cat-intro">Introduccion al KANA</span>
-        <!-- TODO: Tiempo estimado de lectura -->
+        <span class="blog-meta-tag cat-intro">🌸 Introducción</span>
         <span class="blog-meta-tag tiempo">⏱ 10 min</span>
       </div>
-      <!-- TODO: Título completo de la lección -->
-      <h2 class="leccion-hero-title">Introduccion al KANA</h2>
+      <h2 class="leccion-hero-title">01. Introducción al KANA</h2>
       <div class="leccion-progress-row">
         <div class="leccion-progress-track">
-          <!-- TODO: width = (número_leccion / total_lecciones) * 100 % -->
-          <div class="leccion-progress-fill" style="width: 10%"></div>
+          <div class="leccion-progress-fill" style="width: 20%"></div>
         </div>
-        <!-- TODO: Actualiza el número -->
         <span class="leccion-progress-label">Lección 1 de 5</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     CONTENIDO DE LA LECCIÓN
-     Usa los bloques de bloques-estudio.css:
-
-     CALLOUTS:      <div class="nnt-callout tip|golden|warning|culture">
-     FÓRMULA:       <div class="nnt-formula-box">
-     FRASES:        <div class="nnt-sentence-card">
-     COMPARACIÓN:   <div class="nnt-vs-grid"> + <div class="nnt-vs-card">
-     TABLA:         <div class="nnt-table-wrapper"> + <table class="nnt-table">
-     KANJI:         <div class="nnt-kanji-box">
-     ÁRBOL:         <div class="nnt-decision-tree">
-     STEPPER:       <div class="nnt-stepper">
-     ACORDEÓN:      <div class="nnt-accordion" onclick="toggleAccordion(this)">
-     QUIZ:          <div class="nnt-quiz-card">
-     ═══════════════════════════════════════════════════════════════════ -->
-
+<!-- CONTENIDO DE LA LECCIÓN -->
 <article class="leccion-content">
 
   <h3 class="leccion-section-title">🌸 Hiragana y Katakana</h3>
 
-  <p style="font-size:1.05rem; line-height:1.75; color:var(--texto-principal); margin:0 0 18px;">
-            <!-- 1. VIDEO EXPLICATIVO (PRIMERO) -->
-          <div id="seccion-video" class="video-card-box">
-            
+  <!-- 1. VIDEO EXPLICATIVO -->
+  <div id="seccion-video" class="video-card-box" style="margin-bottom: 24px;">
+    <div class="video-responsive-container">
+      <iframe 
+        src="https://www.youtube-nocookie.com/embed/uYdEIyaYV40" 
+        title="Video Introductorio de Hiragana" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
 
-            <div class="video-responsive-container">
-              <iframe 
-                src="https://www.youtube-nocookie.com/embed/uYdEIyaYV40" 
-                title="Video Introductorio de Hiragana" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-              </iframe>
-            </div>
-          </div>
-  </p>
+  <!-- BLOQUE 1: INTRODUCCIÓN AL KANA -->
+  <div class="explanation-card-item">
+    <h3>📌 ¿Qué es el KANA?</h3>
+    <p>
+      El idioma japonés está compuesto por <strong>dos pilares principales de escritura: Kanji y KANA.</strong><br>
+      El KANA está formado por <strong>dos silabarios fonéticos</strong> (Hiragana y Katakana) que se escriben de forma distinta pero suenan exactamente igual y comparten la misma estructura silábica, similar a las minúsculas y mayúsculas en el español.<br><br>
+      El <strong>Hiragana</strong> consta de <strong>46 sílabas principales</strong>: 5 vocales puras y el resto combinaciones de consonante con vocal (a excepción de <strong>ん</strong> que es consonante solitaria).
+    </p>
+  </div>
 
-  <!-- BLOQUE 1: INTRODUCCIÓN AL HIRAGANA -->
-            <div id="tema-introduccion" class="explanation-card-item">
-              <h3>📌 ¿Que es el KANA?</h3>
-              <p>
-                El idioma japones esta compuesto por <strong>2 sistemas de escritura Kanji y KANA.</strong><br>
-                El KANA son 2 silabarios que se escriben de forma distinta pero suenan igual y tienen la misma cantidad de silabas son como las minusculas y las mayusculas en el español.<br>
-                Estos silabarios tienen como nombre Hiragana y Katakana. 
-                <br>El Hiragana consta de <strong>46 Silabas principales</strong>. de las cuales 5 son vocales y los demas estan compuesto por 
-                una consonante y una vocal a exepccion de<strong> ん </strong>. Tambien hay alteraciones y combinaciones de estos pero de momento aprenderemos las 46 silabas principales del hiragana.
-11
-              </p>
-              <p>
-              </p>
-            </div>
+  <!-- BLOQUE 2: ORIGEN HISTÓRICO -->
+  <div class="explanation-card-item">
+    <h3>📌 ¿Cómo surgió el Hiragana y el Katakana?</h3>
+    <p>
+      Cuando el sistema de escritura chino llegó a Japón en el siglo VI d.C., no existía ningún alfabeto nativo japonés. Dado que los sonidos del japonés eran distintos al chino, los japoneses emplearon inicialmente caracteres chinos únicamente por su valor fonético (llamados <em>Man'yōgana</em>).<br><br>
+      Con el paso de los siglos, durante el período Heian (794–1185), esos caracteres complejos se simplificaron en trazos rápidos, redondeados y cursivos (<em>hira</em> 平 = plano, simple), dando nacimiento al <strong>Hiragana (平仮名)</strong>. Paralelamente, los monjes budistas tomaron fragmentos rectos de los mismos caracteres para hacer anotaciones rápidas, creando el <strong>Katakana (片仮名)</strong>.
+    </p>
+  </div>
 
-            <div id="tema-introduccion" class="explanation-card-item">
-              <h3>📌 ¿Y como surgio el Hiragana y Katakana?</h3>
-              <p>
-                
-Cuando el sistema de escritura chino fue introducido a Japón en el siglo VI D.C, no existía ningún sistema de escritura nativo con el que fusionarse, y los sonidos del Japones de esa epoca eran
-bastante distintos de las pronunciaciones de los chinos y coreanos que hiban llegando a Japon, por lo que durante muchos siglos, aproximadamente unos 970 caracteres chinos (o kanji) 
-fueron utilizados para representar los fonémas de las 88 sílabas con las que contaba el idioma japonés. <br>
-A mediados del siglo VII algunos de estos kanji fueron transformados y se les dio formas «curvilíneas» o «comunes» (hira 平) basadas en la caligrafía con pincel para servir como «sustitutos» 
-de algunas de las letras chinas más utilizadas de la epoca. <br><br>
-Durante los primeros siglos del período Heian de la historia japonesa periodo que transcurre entre 794-1185 se originó un estilo de escritura que utilizaba exclusivamente dichas formas,
-lo que creó el primer silabarios fonéticos con equivalencia de 1:1 entre sonido y forma escrita. Al principio sólo lo utilizaban las mujeres de ahi el rumor que el hiragana lo crearon las mujeres 
-y que por eso sus trazos son delicados y curvos, pero ralmente es mas una atribucion erronea.
-Dicho eso no fue hasta principios del siglo x se reconoció como un modo oficial de escritura nombrado: hiragana (平仮名).
-              </p>
-              <p>
-              </p>
-            </div>
-    <div id="tema-tabla-gojuon" class="explanation-card-item">
-      <div style="display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-        <div style="flex: 1; min-width: 260px;">
-          <h3>Tabla 五十音 (Gojūon)</h3>
-          <p>
-            La tabla 五十音 (Gojūon) es una tabla que organiza los kana (hiragana y katakana) según sus sonidos base, de los cuales como su nombre lo indica son 50, aunque actualmente solo cuenta con 46. Esta tabla es utilizada con frecuencia para guiarse al aprender kana.
-          </p><br>
-          <p>
-            📌 <em>Si le das clic a la imagen de la derecha podrás ver y practicar todos los hiraganas en la tabla interactiva.</em>
-          </p>
-        </div>
-        <div style="width: 210px; max-width: 100%; flex-shrink: 0; margin: 10px auto;">
-          <!-- BOTÓN EXCLUSIVO CON LA IMAGEN "tablahiragana.png" APUNTANDO A LA PÁGINA INDEPENDIENTE -->
-          <a href="../../tabla-hiragana.html" class="table-image-button-box" title="Ir a la Tabla Completa de Hiragana">
-            <img src="../../image/tablahiragana.png" alt="Tabla Hiragana" class="table-image-btn">
-          </a>
-        </div>
-      </div>
-      <div style="margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 12px;">
+  <!-- BLOQUE 3: TABLA GOJUON -->
+  <div id="tema-tabla-gojuon" class="explanation-card-item">
+    <div style="display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 260px;">
+        <h3>Tabla 五十音 (Gojūon)</h3>
         <p>
-          <strong>Organización de la tabla:</strong><br>
-          La tabla esta compuesta de filas y columnas dependiendo si la tabla esta horizontal o vertical las columnas y las filas cambian
-           si vas a la tabla veras que de forma horizontal o de fila estan las vocales <strong>あ (a), い (i), う (u), え (e), お (o)</strong> las cuales son las mismas que las de idioma español pero en otro orden.
-           luego a tu izquierda de forma vertical o de columna estan las consonantes　<strong>か (Ka), さ (sa), た (ta), な (na), は (ha) ま (ma), や (ya), ら (ra), わ (wo)</strong>
-          <br> pero esto de filas  y columnas a veces puede resultar algo enredozo por lo que vamos agruparlos en <strong>Familias</strong>
-          <br>Una familia es la combinacion de una consonante con las 5 vocales y la familia resivira el nombre de su primer silaba. 
-          <br>
-          <br>Por ejemplo: Si combinamos la 5 vocales con la consonante K-, eso nos daria か (Ka), き (ka), く (ku), け (ke), こ (ko) y se le denominaria <strong>Familia か (Ka)</strong>.
-          Sin embargo, vijense bien en la tabla y algunas posiciones quedan vacías porque esos sonidos ya no se utilizan en el japonés cotidiano). El único kana que no incluye un sonido vocálico, <strong>ん (n)</strong>, normalmente se muestra por separado.
+          La tabla <strong>五十音 (Gojūon)</strong> organiza los kana según sus sonidos base. Como su nombre lo indica originalmente contenía 50 casillas, aunque el japonés contemporáneo utiliza activamente <strong>46 caracteres</strong>.
+        </p>
+        <p style="margin-top: 10px;">
+          📌 <em>Haz clic en la imagen a la derecha para abrir la tabla interactiva y escuchar la pronunciación de cada sonido:</em>
         </p>
       </div>
+      <div style="width: 210px; max-width: 100%; flex-shrink: 0; margin: 10px auto;">
+        <a href="../../tabla-hiragana.html" class="table-image-button-box" title="Ir a la Tabla Completa de Hiragana">
+          <img src="../../image/tablahiragana.png" alt="Tabla Hiragana" class="table-image-btn">
+        </a>
+      </div>
     </div>
+    <div style="margin-top: 15px; border-top: 1px dashed rgba(120,120,120,0.25); padding-top: 12px;">
+      <p>
+        <strong>Organización por familias:</strong><br>
+        En la fila superior están las 5 vocales base: <strong>あ (a), い (i), う (u), え (e), お (o)</strong>.<br>
+        Luego combinamos cada vocal con las consonantes: <strong>K, S, T, N, H, M, Y, R, W</strong>.<br>
+        Por ejemplo, la consonante <strong>K</strong> forma la <em>Familia Ka</em>: <strong>か (ka), き (ki), く (ku), け (ke), こ (ko)</strong>.
+      </p>
+    </div>
+  </div>
 
-          
-  <!-- EJEMPLO DE CALLOUT TIP -->
+  <!-- CONSEJO / CALLOUT TIP -->
   <div class="nnt-callout tip">
     <div class="nnt-callout-icon">💡</div>
     <div class="nnt-callout-content">
-      <div class="nnt-callout-title">[TODO: Título del callout]</div>
-      <div class="nnt-callout-body">[TODO: Contenido del callout]</div>
+      <div class="nnt-callout-title">Consejo de estudio</div>
+      <div class="nnt-callout-body">No intentes memorizar los 46 caracteres en una sola tarde. La clave es dominar una familia a la vez (5 sílabas por día) escribiéndolas con lápiz y papel.</div>
     </div>
   </div>
 
-  <!-- EJEMPLO DE FRASE CON AUDIO -->
+  <!-- FRASE DE EJEMPLO CON AUDIO -->
+  <h3 class="leccion-section-title">🔊 Tu primera frase en japonés</h3>
   <div class="nnt-sentence-card">
     <div class="nnt-sentence-top">
-      <!-- TODO: Escribe la frase en japonés (con ruby/furigana si quieres) -->
-      <div class="nnt-japanese-text">[TODO: フレーズ]</div>
-      <!-- TODO: Cambia el texto del TTS -->
-      <button class="nnt-audio-btn" onclick="playJapaneseTTS('[TODO: フレーズ]')">🔊</button>
+      <div class="nnt-japanese-text">はじめまして</div>
+      <button class="nnt-audio-btn" onclick="playJapaneseTTS('はじめまして')" title="Escuchar audio">🔊</button>
     </div>
-    <div class="nnt-romaji-text">[TODO: Romanización]</div>
-    <div class="nnt-spanish-text">[TODO: Traducción al español]</div>
+    <div class="nnt-romaji-text">Hajimemashite</div>
+    <div class="nnt-spanish-text">Mucho gusto / Encantado de conocerte (Saludo esencial al presentarse por primera vez)</div>
   </div>
 
-  <!-- EJEMPLO DE QUIZ -->
+  <!-- CHECKPOINT QUIZ -->
   <h3 class="leccion-section-title">🎯 Checkpoint</h3>
   <div class="nnt-quiz-card">
     <div class="nnt-quiz-header">
-      <span class="nnt-quiz-badge">Checkpoint N5</span>
-      <span>[TODO: Tema del quiz]</span>
+      <span class="nnt-quiz-badge">Checkpoint KANA</span>
+      <span>Fundamentos de los silabarios</span>
     </div>
-    <div class="nnt-quiz-question">[TODO: Pregunta del quiz]</div>
+    <div class="nnt-quiz-question">¿Cuántos caracteres o sílabas básicas componen actualmente el silabario Hiragana principal?</div>
     <div class="nnt-quiz-options">
-      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'[TODO: Explicación respuesta A]')">A) [TODO: Opción A]</button>
-      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,true,'[TODO: Explicación respuesta B correcta]')">B) [TODO: Opción B ✓]</button>
-      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'[TODO: Explicación respuesta C]')">C) [TODO: Opción C]</button>
-      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'[TODO: Explicación respuesta D]')">D) [TODO: Opción D]</button>
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'El abecedario occidental tiene 26-27 letras, pero el Hiragana japonés tiene muchas más.')">A) 26 caracteres</button>
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,true,'¡Exacto! Aunque históricamente la tabla se llama Gojūon (50 sonidos), hoy en día se utilizan 46 caracteres básicos.')">B) 46 caracteres ✓</button>
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'88 eran las combinaciones históricas de fonemas, pero los caracteres básicos del Hiragana actual son menos.')">C) 88 caracteres</button>
+      <button class="nnt-quiz-option" onclick="checkQuizAnswer(this,false,'100 caracteres es demasiado para el silabario básico.')">D) 100 caracteres</button>
     </div>
     <div class="nnt-quiz-feedback"></div>
   </div>
 
 </article>
 
-<!-- NAVEGACIÓN -->
+<!-- NAVEGACIÓN INFERIOR -->
 <nav class="leccion-nav">
   <div class="leccion-nav-inner">
-    <!-- TODO: Si hay lección anterior, pon el enlace. Si no, deja el span invisible. -->
-    <a class="leccion-nav-no-prev" href="[TODO: XX-leccion-anterior.html]">
-      <span>←</span> [TODO: Número]. [TODO: Nombre anterior]
-    </a>
-    <!-- También puedes usar: <span class="leccion-nav-no-prev"></span> si es la primera -->
+    <span class="leccion-nav-no-prev" style="visibility:hidden">← Anterior</span>
 
     <div class="leccion-nav-center">
       <button class="btn-completar" id="btn-completar" onclick="marcarCompletado()">
@@ -234,62 +184,60 @@ Dicho eso no fue hasta principios del siglo x se reconoció como un modo oficial
       </button>
     </div>
 
-    <!-- TODO: Si hay lección siguiente, pon el enlace. Si es la última usa leccion-nav-no-next -->
-    <a class="leccion-nav-next" href="[TODO: XX-leccion-siguiente.html]">
-      [TODO: Número]. [TODO: Nombre siguiente] <span>→</span>
+    <a class="leccion-nav-next" href="02-vocales-hiragana.html">
+      02. Vocales Hiragana (あいうえお) <span>→</span>
     </a>
   </div>
 </nav>
 
 <script src="../../scripts.js"></script>
 <script>
-  // TODO: Cambia el ID de la lección (debe coincidir con el del index.html)
-  const LECCION_ID = '[TODO: 11]';
-  const NIVEL_KEY  = 'n5'; // ← Cambia si es otro nivel: kana, n4, n3, n2, n1
+  const LECCION_ID = '01';
+  const NIVEL_KEY  = 'kana';
 
-  // ── Funciones estándar (no modificar) ──────────────────────────────
-  function playJapaneseTTS(t){
-    if('speechSynthesis'in window){
+  function playJapaneseTTS(text){
+    if('speechSynthesis' in window){
       window.speechSynthesis.cancel();
-      const u=new SpeechSynthesisUtterance(t);
-      u.lang='ja-JP'; u.rate=0.9;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ja-JP';
+      u.rate = 0.9;
       window.speechSynthesis.speak(u);
     }
   }
-  function checkQuizAnswer(btn,ok,msg){
-    const c=btn.closest('.nnt-quiz-card');
-    c.querySelectorAll('.nnt-quiz-option').forEach(o=>o.disabled=true);
-    btn.classList.add(ok?'correct':'wrong');
-    const f=c.querySelector('.nnt-quiz-feedback');
-    f.style.background=ok?'#e8f5e9':'#ffebee';
-    f.style.color=ok?'#1b5e20':'#b71c1c';
-    f.innerHTML=(ok?'🎉 <strong>¡Correcto!</strong> ':'❌ <strong>Inténtalo de nuevo.</strong> ')+msg;
+
+  function checkQuizAnswer(btn, ok, msg){
+    const c = btn.closest('.nnt-quiz-card');
+    c.querySelectorAll('.nnt-quiz-option').forEach(o => o.disabled = true);
+    btn.classList.add(ok ? 'correct' : 'wrong');
+    const f = c.querySelector('.nnt-quiz-feedback');
+    f.style.background = ok ? '#e8f5e9' : '#ffebee';
+    f.style.color = ok ? '#1b5e20' : '#b71c1c';
+    f.innerHTML = (ok ? '🎉 <strong>¡Correcto!</strong> ' : '❌ <strong>Inténtalo de nuevo.</strong> ') + msg;
     f.classList.add('show');
-    if(!ok)setTimeout(()=>c.querySelectorAll('.nnt-quiz-option').forEach(o=>o.disabled=false),1500);
+    if(!ok) setTimeout(() => c.querySelectorAll('.nnt-quiz-option').forEach(o => o.disabled = false), 1500);
   }
-  function toggleAccordion(el){el.classList.toggle('open');}
+
+  function toggleAccordion(el){ el.classList.toggle('open'); }
+
   function marcarCompletado(){
-    const btn=document.getElementById('btn-completar');
-    const done=localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado';
-    localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,done?'completado':'pendiente');
-    btn.innerHTML=done?'✓ ¡Completado!':'☐ Marcar como completado';
-    btn.classList.toggle('done',done);
+    const btn = document.getElementById('btn-completar');
+    const done = localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`) !== 'completado';
+    localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`, done ? 'completado' : 'pendiente');
+    btn.innerHTML = done ? '✓ ¡Completado!' : '☐ Marcar como completado';
+    btn.classList.toggle('done', done);
   }
-  function toggleMenu(){document.getElementById('menu')?.classList.toggle('menu-open');}
-  function toggleDarkMode(){
-    document.body.classList.toggle('dark-mode');
-    document.documentElement.classList.toggle('dark-mode');
-    const d=document.body.classList.contains('dark-mode');
-    localStorage.setItem('theme',d?'dark':'light');
-    const b=document.getElementById('dark-mode-toggle');
-    if(b)b.innerText=d?'☀️':'🌙';
+
+  function toggleMenu(){
+    document.getElementById('menu')?.classList.toggle('menu-open');
   }
-  document.addEventListener('DOMContentLoaded',()=>{
-    if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)!=='completado')
-      localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`,'en-progreso');
-    const btn=document.getElementById('btn-completar');
-    if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`)=='completado'){
-      btn.innerHTML='✓ ¡Completado!';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`) !== 'completado') {
+      localStorage.setItem(`blog_${NIVEL_KEY}_${LECCION_ID}`, 'en-progreso');
+    }
+    const btn = document.getElementById('btn-completar');
+    if(localStorage.getItem(`blog_${NIVEL_KEY}_${LECCION_ID}`) === 'completado'){
+      btn.innerHTML = '✓ ¡Completado!';
       btn.classList.add('done');
     }
   });

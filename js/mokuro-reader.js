@@ -1723,7 +1723,7 @@
           <h3 class="next-vol-title">${nextVol.title || ''}</h3>
           <p class="next-vol-subtitle">${nextVol.volume || 'Siguiente tomo'}</p>
           <button id="btn-continue-next-vol" class="btn-continue-next-vol">
-            <span>▶</span> Continuar al siguiente tomo
+            <span></span> Continuar al siguiente tomo
           </button>
           <button id="btn-dismiss-next-vol" class="btn-dismiss-next-vol">
             Quedarme aquí
