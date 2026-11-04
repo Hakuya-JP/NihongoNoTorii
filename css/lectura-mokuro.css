@@ -2237,6 +2237,12 @@ html.dark-mode .torii-quick-popup {
   margin-bottom: 8px;
   border-bottom: 1px solid var(--mokuro-border);
   padding-bottom: 6px;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.quick-popup-header:active {
+  cursor: grabbing;
 }
 
 .quick-popup-badge {

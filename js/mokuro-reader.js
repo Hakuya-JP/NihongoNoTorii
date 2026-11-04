@@ -3008,6 +3008,39 @@
     const btnMinePopup = document.getElementById('btn-mine-quick-text');
 
     if (btnClosePopup) btnClosePopup.addEventListener('click', closeToriiMiningPopup);
+
+        // Hacer el popup arrastrable desde el header
+    {
+      const popupEl = document.getElementById('torii-quick-popup');
+      const headerEl = popupEl ? popupEl.querySelector('.quick-popup-header') : null;
+      if (popupEl && headerEl) {
+        let dragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
+        
+        headerEl.addEventListener('pointerdown', (e) => {
+          // No arrastrar si el clic fue en el botón de cerrar
+          if (e.target.closest('.quick-popup-close')) return;
+          dragging = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          origX = popupEl.offsetLeft;
+          origY = popupEl.offsetTop;
+          headerEl.setPointerCapture(e.pointerId);
+          e.preventDefault();
+        });
+
+        headerEl.addEventListener('pointermove', (e) => {
+          if (!dragging) return;
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          popupEl.style.left = `${origX + dx}px`;
+          popupEl.style.top = `${origY + dy}px`;
+        });
+
+        headerEl.addEventListener('pointerup', () => { dragging = false; });
+        headerEl.addEventListener('pointercancel', () => { dragging = false; });
+      }
+    }
+
     if (btnCopyPopup) btnCopyPopup.addEventListener('click', copyCurrentMokuroText);
     if (btnToggleEditablePopup) {
       btnToggleEditablePopup.addEventListener('click', () => {
