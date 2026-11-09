@@ -76,7 +76,7 @@ html:not(.dark-mode) {
   font-weight: 700;
   margin-bottom: 16px;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
@@ -109,81 +109,94 @@ html:not(.dark-mode) {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: var(--azulNa, #13a2ce);
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.88) 0%, rgba(10, 95, 124, 0.92) 100%);
   color: #fff;
-  padding: 12px 24px;
-  border-radius: 12px;
+  padding: 12px 28px;
+  border-radius: 9999px;
   font-weight: 700;
   font-size: 1.05rem;
   text-decoration: none;
   cursor: pointer;
   position: relative;
-  /* Bisel y volumen Aero sutil sin linear-gradient */
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  border: 1.5px solid rgba(56, 189, 248, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-hero-lectura:hover {
-  transform: translateY(-2px);
-  background: var(--primary, #0f8db3);
-  box-shadow: 
-    0 5px 16px rgba(19, 162, 206, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(-1.5px);
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.94) 0%, rgba(12, 115, 150, 0.96) 100%);
+  border-color: rgba(125, 211, 252, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
   color: #fff;
 }
 
 .btn-hero-lectura:active {
   transform: translateY(1px);
-  box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.3),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Modo Claro: Cargar Manga es Azul Torii */
 .btn-hero-mokuro {
-  background: var(--accent, #e53935);
-  box-shadow: 
-    0 3px 10px rgba(229, 57, 53, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.88) 0%, rgba(10, 95, 124, 0.92) 100%);
+  border-color: rgba(56, 189, 248, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .btn-hero-mokuro:hover {
-  background: var(--primary, #d32f2f);
-  box-shadow: 
-    0 5px 16px rgba(229, 57, 53, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.94) 0%, rgba(12, 115, 150, 0.96) 100%);
+  border-color: rgba(125, 211, 252, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+/* Modo Oscuro: Cargar Manga es Naranja Torii */
+html.dark-mode .btn-hero-lectura,
+html.dark-mode .btn-hero-mokuro {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%);
+  border-color: rgba(255, 180, 115, 0.90);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+html.dark-mode .btn-hero-lectura:hover,
+html.dark-mode .btn-hero-mokuro:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%);
+  border-color: rgba(255, 215, 175, 0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
 .btn-hero-outline {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(20, 100, 130, 0.08);
+  color: var(--primary, #146482);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  border-left: 1px solid rgba(255, 255, 255, 0.18);
-  border-right: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  border: 1.5px solid rgba(20, 100, 130, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  text-shadow: none;
 }
 
 .btn-hero-outline:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-top-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 5px 14px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: rgba(20, 100, 130, 0.14);
+  border-color: rgba(20, 100, 130, 0.45);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  color: var(--primary, #146482);
+}
+
+html.dark-mode .btn-hero-outline {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+html.dark-mode .btn-hero-outline:hover {
+  background: rgba(255, 148, 71, 0.15);
+  border-color: rgba(255, 180, 115, 0.55);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
 }
 
 /* --------------------------------------------------------------------------
@@ -612,100 +625,109 @@ html.dark-mode .manga-desc {
   color: #aaa;
 }
 
+/* ── Botones de portadas estilo Cápsula (Modo Claro = Azul, Modo Oscuro = Naranja) ── */
 .manga-btn-read {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--azulNa, #13a2ce);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(19, 162, 206, 0.90) 0%, rgba(12, 120, 155, 0.94) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 9999px;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(56, 189, 248, 0.85);
   font-size: 0.95rem;
-  box-shadow: 
-    0 2px 7px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .manga-btn-read:hover {
   transform: translateY(-1.5px);
-  background: var(--primary, #0e87ad);
-  box-shadow: 
-    0 4px 14px rgba(19, 162, 206, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  color: #fff;
+  background: linear-gradient(180deg, rgba(28, 175, 222, 0.95) 0%, rgba(14, 138, 178, 0.98) 100%);
+  border-color: rgba(125, 211, 252, 0.98);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  color: #ffffff;
 }
 
 .manga-btn-read:active {
   transform: translateY(1px);
-  box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.3),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+  background: rgba(12, 120, 155, 0.98);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* Modo Oscuro: Portadas en Naranja Torii */
+html.dark-mode .manga-btn-read {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%);
+  border-color: rgba(255, 180, 115, 0.90);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+html.dark-mode .manga-btn-read:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%);
+  border-color: rgba(255, 215, 175, 0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  color: #ffffff;
+}
+
+html.dark-mode .manga-btn-read:active {
+  background: rgba(210, 95, 24, 0.96);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 .manga-btn-read.demo-btn {
-  background: var(--accent, #e53935);
-  box-shadow: 
-    0 2px 7px rgba(229, 57, 53, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  background: linear-gradient(180deg, rgba(19, 162, 206, 0.90) 0%, rgba(12, 120, 155, 0.94) 100%);
+  border-color: rgba(56, 189, 248, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.manga-btn-read.demo-btn:hover {
-  transform: translateY(-1.5px);
-  background: var(--primary, #c62828);
-  box-shadow: 
-    0 4px 14px rgba(229, 57, 53, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+html.dark-mode .manga-btn-read.demo-btn {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%);
+  border-color: rgba(255, 180, 115, 0.90);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* ── Botón completado (100%) – aura verde ── */
-.manga-btn-read.btn-completed-glow {
-  background: #2e7d32;
+/* ── Botón completado (100%) – aura verde con mismo estilo cápsula ── */
+.manga-btn-read.btn-completed-glow,
+html.dark-mode .manga-btn-read.btn-completed-glow {
+  background: linear-gradient(180deg, rgba(38, 125, 52, 0.88) 0%, rgba(24, 90, 38, 0.92) 100%) !important;
+  border: 1.5px solid rgba(74, 222, 128, 0.85) !important;
   box-shadow:
-    0 0 8px rgba(46, 125, 50, 0.5),
-    0 0 20px rgba(46, 125, 50, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-  animation: greenGlow 2s ease-in-out infinite alternate;
+    0 0 8px rgba(46, 125, 50, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  animation: greenGlow 2.2s ease-in-out infinite alternate;
 }
 
-.manga-btn-read.btn-completed-glow:hover {
-  background: #388e3c;
+.manga-btn-read.btn-completed-glow:hover,
+html.dark-mode .manga-btn-read.btn-completed-glow:hover {
+  background: linear-gradient(180deg, rgba(48, 150, 65, 0.94) 0%, rgba(30, 110, 48, 0.96) 100%) !important;
+  border-color: rgba(134, 239, 172, 0.98) !important;
   box-shadow:
-    0 0 12px rgba(46, 125, 50, 0.6),
-    0 0 28px rgba(46, 125, 50, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    0 3px 10px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 @keyframes greenGlow {
-  from { box-shadow: 0 0 6px rgba(46, 125, 50, 0.4), 0 0 16px rgba(46, 125, 50, 0.15), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.15); }
-  to   { box-shadow: 0 0 10px rgba(46, 125, 50, 0.6), 0 0 25px rgba(46, 125, 50, 0.3), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.15); }
+  from { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.15); }
+  to   { box-shadow: 0 3px 8px rgba(46, 125, 50, 0.25), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.15); }
 }
 
 .btn-delete-manga {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(229, 57, 53, 0.1);
+  background: rgba(220, 38, 38, 0.12);
   color: var(--accent, #e53935);
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(229, 57, 53, 0.25);
-  border-right: 1px solid rgba(229, 57, 53, 0.25);
-  border-radius: 10px;
+  border: 1.5px solid rgba(248, 113, 113, 0.45);
+  border-radius: 9999px;
   padding: 0 14px;
   font-size: 1.1rem;
   cursor: pointer;
@@ -868,31 +890,26 @@ html.dark-mode .dropzone-subtitle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
+  padding: 10px 22px;
+  border-radius: 9999px;
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
-  background: var(--azulNa, #13a2ce);
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.88) 0%, rgba(10, 95, 124, 0.92) 100%);
   color: #fff;
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 2px 7px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  border: 1.5px solid rgba(56, 189, 248, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-upload-choice:hover {
   transform: translateY(-1.5px);
-  background: var(--primary, #0e87ad);
-  box-shadow: 
-    0 4px 14px rgba(19, 162, 206, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.94) 0%, rgba(12, 115, 150, 0.96) 100%);
+  border-color: rgba(125, 211, 252, 0.95);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
   color: #fff;
 }
 
@@ -901,60 +918,68 @@ html.dark-mode .dropzone-subtitle {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Botón Guardar Manga en biblioteca (Rojo bermellón Aero sutil) */
+/* Modo Claro: Guardar Manga en biblioteca es Azul */
 #btn-submit-add-manga {
-  background: var(--accent, #e53935) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 
-    0 2px 7px rgba(229, 57, 53, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.90) 0%, rgba(10, 95, 124, 0.94) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.85) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
 #btn-submit-add-manga:hover {
-  background: var(--primary, #d32f2f) !important;
-  box-shadow: 
-    0 4px 14px rgba(229, 57, 53, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.95) 0%, rgba(12, 115, 150, 0.98) 100%) !important;
+  border-color: rgba(125, 211, 252, 0.98) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
+/* Modo Oscuro: Botones de subida y guardar en Naranja Torii */
+html.dark-mode .btn-upload-choice,
+html.dark-mode #btn-submit-add-manga {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%) !important;
+  border-color: rgba(255, 180, 115, 0.90) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+
+html.dark-mode .btn-upload-choice:hover,
+html.dark-mode #btn-submit-add-manga:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%) !important;
+  border-color: rgba(255, 215, 175, 0.98) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 .btn-upload-choice.btn-secondary-choice {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: inherit;
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border-radius: 9999px !important;
+  background: rgba(20, 100, 130, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: var(--primary, #146482) !important;
+  border: 1.5px solid rgba(20, 100, 130, 0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
   text-shadow: none;
-}
-
-html.dark-mode .btn-upload-choice.btn-secondary-choice {
-  background: rgba(255, 255, 255, 0.07);
-  border-top-color: rgba(255, 255, 255, 0.2);
-  border-bottom-color: rgba(0, 0, 0, 0.3);
-  color: var(--crema2, #e2e8f0);
 }
 
 .btn-upload-choice.btn-secondary-choice:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 3px 8px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: rgba(20, 100, 130, 0.14) !important;
+  border-color: rgba(20, 100, 130, 0.45) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1) !important;
+  color: var(--primary, #146482) !important;
+}
+
+html.dark-mode .btn-upload-choice.btn-secondary-choice {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: var(--crema2, #e2e8f0) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
 }
 
 html.dark-mode .btn-upload-choice.btn-secondary-choice:hover {
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  background: rgba(255, 148, 71, 0.15) !important;
+  border-color: rgba(255, 180, 115, 0.55) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+  color: #ffffff !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -1064,24 +1089,25 @@ html.dark-mode .guia-paso p {
 
 .terminal-copy-btn {
   background: rgba(255, 255, 255, 0.12);
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
   color: #fff;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
 }
 
 .terminal-copy-btn:hover {
-  background: rgba(255, 255, 255, 0.22);
-  border-top-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transform: translateY(-1px);
 }
 
@@ -1165,34 +1191,31 @@ body:has(#mokuro-reader-wrapper.active) .rpg-hud-bar {
 }
 
 .toolbar-btn {
-  background: rgba(255, 255, 255, 0.05);
-  color: inherit;
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px 13px;
-  border-radius: 8px;
+  background: rgba(20, 100, 130, 0.08);
+  color: var(--primary, #146482);
+  border: 1.5px solid rgba(20, 100, 130, 0.22);
+  padding: 6px 15px;
+  border-radius: 9999px;
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .toolbar-btn:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.14);
-  border-top-color: rgba(255, 255, 255, 0.4);
-  border-bottom-color: rgba(0, 0, 0, 0.3);
+  background: rgba(20, 100, 130, 0.15);
+  border-color: rgba(20, 100, 130, 0.45);
   box-shadow: 
-    0 2px 7px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+    0 3px 10px rgba(20, 100, 130, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: var(--primary, #146482);
 }
 
 .toolbar-btn:active {
@@ -1201,59 +1224,73 @@ body:has(#mokuro-reader-wrapper.active) .rpg-hud-bar {
 }
 
 html.dark-mode .toolbar-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border-top-color: rgba(255, 255, 255, 0.18);
-  border-bottom-color: rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 html.dark-mode .toolbar-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-top-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  background: rgba(255, 148, 71, 0.16);
+  border-color: rgba(255, 180, 115, 0.55);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.28);
+  color: #ffffff;
 }
 
-/* Botón Volver con acento bermellón Aero sutil */
+/* Botón Volver (Modo Claro = Azul, Modo Oscuro = Naranja) */
 .toolbar-btn.btn-accent {
-  background: var(--accent, #e53935);
-  color: #fff;
-  border-top: 1px solid rgba(255, 255, 255, 0.4);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.35);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  border-radius: 9999px !important;
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.90) 0%, rgba(10, 95, 124, 0.94) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.85) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
 .toolbar-btn.btn-accent:hover {
   transform: translateY(-1.5px);
-  background: var(--primary, #c62828);
-  box-shadow: 
-    0 3px 10px rgba(229, 57, 53, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.95) 0%, rgba(12, 115, 150, 0.98) 100%) !important;
+  border-color: rgba(125, 211, 252, 0.98) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
+html.dark-mode .toolbar-btn.btn-accent {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%) !important;
+  border: 1.5px solid rgba(255, 180, 115, 0.90) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark-mode .toolbar-btn.btn-accent:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%) !important;
+  border-color: rgba(255, 215, 175, 0.98) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 .toolbar-btn.active {
-  background: var(--azulNa, #13a2ce) !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.92) 0%, rgba(10, 95, 124, 0.96) 100%) !important;
   color: #ffffff !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.45) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 
-    0 2px 8px rgba(19, 162, 206, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  border: 1.5px solid rgba(56, 189, 248, 0.9) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .toolbar-btn.active:hover {
-  background: #0ea5e9 !important;
-  box-shadow: 
-    0 3px 12px rgba(14, 165, 233, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.96) 0%, rgba(12, 115, 150, 0.98) 100%) !important;
+  border-color: rgba(125, 211, 252, 0.98) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
+html.dark-mode .toolbar-btn.active {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.92) 0%, rgba(220, 102, 28, 0.96) 100%) !important;
+  border-color: rgba(255, 195, 135, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark-mode .toolbar-btn.active:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%) !important;
+  border-color: rgba(255, 225, 185, 0.98) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 .reader-title-label {
@@ -2442,48 +2479,33 @@ html.dark-mode .quick-popup-text.is-editable:focus {
 }
 
 .btn-quick-action {
-  background: rgba(0, 0, 0, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  color: inherit;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  background: rgba(20, 100, 130, 0.08);
+  border: 1.5px solid rgba(20, 100, 130, 0.22);
+  color: var(--primary, #146482);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   box-shadow: 
-    0 1px 4px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-html.dark-mode .btn-quick-action {
-  background: rgba(255, 255, 255, 0.08);
-  border-top-color: rgba(255, 255, 255, 0.2);
-  border-bottom-color: rgba(0, 0, 0, 0.3);
-  color: #fff;
 }
 
 .btn-quick-action:hover {
   transform: translateY(-1px);
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(20, 100, 130, 0.16);
+  border-color: rgba(20, 100, 130, 0.45);
   box-shadow: 
-    0 3px 8px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-
-html.dark-mode .btn-quick-action:hover {
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow: 
-    0 3px 8px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    0 3px 8px rgba(20, 100, 130, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: var(--primary, #146482);
 }
 
 .btn-quick-action:active {
@@ -2491,25 +2513,48 @@ html.dark-mode .btn-quick-action:hover {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
-.btn-quick-action.btn-mine-anki {
-  background: var(--accent, #e53935);
+html.dark-mode .btn-quick-action {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
   color: #fff;
-  border-top: 1px solid rgba(255, 255, 255, 0.4);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.35);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 
-    0 2px 6px rgba(229, 57, 53, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+html.dark-mode .btn-quick-action:hover {
+  background: rgba(255, 148, 71, 0.18);
+  border-color: rgba(255, 180, 115, 0.55);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.28);
+  color: #fff;
+}
+
+/* Botón Minar a Anki (Modo Claro = Azul, Modo Oscuro = Naranja) */
+.btn-quick-action.btn-mine-anki {
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.90) 0%, rgba(10, 95, 124, 0.94) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.85);
+  color: #fff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .btn-quick-action.btn-mine-anki:hover {
   transform: translateY(-1.5px);
-  background: var(--primary, #c62828);
-  box-shadow: 
-    0 3px 10px rgba(229, 57, 53, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.95) 0%, rgba(12, 115, 150, 0.98) 100%);
+  border-color: rgba(125, 211, 252, 0.98);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+html.dark-mode .btn-quick-action.btn-mine-anki {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%);
+  border-color: rgba(255, 180, 115, 0.90);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+html.dark-mode .btn-quick-action.btn-mine-anki:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%);
+  border-color: rgba(255, 215, 175, 0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
 .anki-btn-icon {
@@ -3326,29 +3371,29 @@ html.dark-mode .manga-progress-track {
 }
 
 /* ==========================================================================
-   BOTONES AERO SUTILES (SIN LINEAR-GRADIENT) DE LA SALA DE LECTURA Y VISOR
+   BOTONES ESTILO CÁPSULA (MODO CLARO = AZUL, MODO OSCURO = NARANJA)
    ========================================================================== */
 
 /* Botón Conectar con AnkiConnect (Lector Mokuro) */
 #btn-manga-connect-anki {
-  background: #0284c7 !important;
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.90) 0%, rgba(10, 95, 124, 0.94) 100%) !important;
   color: #fff !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.85) !important;
+  border-radius: 9999px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 #btn-manga-connect-anki:hover {
-  transform: translateY(-1px) !important;
-  background: #0369a1 !important;
-  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+  transform: translateY(-1.5px) !important;
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.95) 0%, rgba(12, 115, 150, 0.98) 100%) !important;
+  border-color: rgba(125, 211, 252, 0.98) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 #btn-manga-connect-anki:active {
@@ -3358,24 +3403,24 @@ html.dark-mode .manga-progress-track {
 
 /* Botón Guardar Mazo Anki (Lector Mokuro) */
 #btn-manga-save-anki {
-  background: var(--naranja, #ff9800) !important;
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.90) 0%, rgba(10, 95, 124, 0.94) 100%) !important;
   color: #fff !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.85) !important;
+  border-radius: 9999px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 #btn-manga-save-anki:hover {
-  transform: translateY(-1px) !important;
-  background: #f57c00 !important;
-  box-shadow: 0 3px 10px rgba(255, 152, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+  transform: translateY(-1.5px) !important;
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.95) 0%, rgba(12, 115, 150, 0.98) 100%) !important;
+  border-color: rgba(125, 211, 252, 0.98) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 #btn-manga-save-anki:active {
@@ -3385,21 +3430,21 @@ html.dark-mode .manga-progress-track {
 
 /* Botón Descargar .mokuro actualizado */
 #btn-export-mokuro {
-  background: var(--azulNa, #13a2ce) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.90) 0%, rgba(10, 95, 124, 0.94) 100%) !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.85) !important;
+  border-radius: 9999px !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 #btn-export-mokuro:hover {
-  transform: translateY(-1px) !important;
-  background: var(--primary, #0e87ad) !important;
-  box-shadow: 0 3px 10px rgba(19, 162, 206, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+  transform: translateY(-1.5px) !important;
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.95) 0%, rgba(12, 115, 150, 0.98) 100%) !important;
+  border-color: rgba(125, 211, 252, 0.98) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
 }
 
 #btn-export-mokuro:active {
@@ -3407,23 +3452,39 @@ html.dark-mode .manga-progress-track {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
 
+/* Modo Oscuro: Acciones Anki y Exportación en Naranja Torii */
+html.dark-mode #btn-manga-connect-anki,
+html.dark-mode #btn-manga-save-anki,
+html.dark-mode #btn-export-mokuro {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%) !important;
+  border-color: rgba(255, 180, 115, 0.90) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+
+html.dark-mode #btn-manga-connect-anki:hover,
+html.dark-mode #btn-manga-save-anki:hover,
+html.dark-mode #btn-export-mokuro:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%) !important;
+  border-color: rgba(255, 215, 175, 0.98) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
 /* Botón Actualizar Mazos de Anki */
 #btn-manga-refresh-decks {
-  background: rgba(0, 0, 0, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
-  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  padding: 3px 6px;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 #btn-manga-refresh-decks:hover {
-  transform: scale(1.08);
-  background: rgba(0, 0, 0, 0.1);
+  transform: scale(1.12);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(56, 189, 248, 0.7);
 }
 
 #btn-manga-refresh-decks:active {

@@ -1605,7 +1605,7 @@
           </div>
 
           <div style="display:flex; width:100%; margin-top:auto;">
-            <button type="button" class="${volBtnClass}" style="width:100%; padding:8px 12px; font-size:0.88rem;">
+            <button type="button" class="${volBtnClass}" style="width:100%;" title="${volBtnLabel}">
               <span>${volBtnLabel}</span>
             </button>
           </div>
