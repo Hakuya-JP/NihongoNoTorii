@@ -11,6 +11,7 @@
     currentPageIdx: 0,       // Índice de página actual (0-indexed)
     isR2L: true,             // Lectura tradicional de derecha a izquierda
     isDoublePage: false,     // Modo doble página (spread)
+    isCascade: false,        // Modo cascada (lectura vertical continua)
     hasCover: true,          // La primera página es portada individual
     showOcr: true,           // Capa de texto OCR activa
     showBorders: false,      // Mostrar bordes en cajas de texto
@@ -30,6 +31,7 @@
   let pzInstance = null;        // Instancia de panzoom
   let stageWheelHandler = null; // Referencia al listener de scroll del stage (para limpieza)
   let _isProgrammaticZoom = false; // Bandera para distinguir ajustes automáticos de zoom manual del usuario
+  let _isSwitchingReadingMode = false; // Bandera para bloquear scroll listener durante cambio horizontal/vertical
 
   // Cargar preferencias guardadas
   function loadSavedPreferences() {
@@ -39,6 +41,7 @@
         const p = JSON.parse(saved);
         if (p.isR2L !== undefined) mokuroState.isR2L = p.isR2L;
         if (p.isDoublePage !== undefined) mokuroState.isDoublePage = p.isDoublePage;
+        if (p.isCascade !== undefined) mokuroState.isCascade = p.isCascade;
         if (p.hasCover !== undefined) mokuroState.hasCover = p.hasCover;
         if (p.showBorders !== undefined) mokuroState.showBorders = p.showBorders;
         if (p.alwaysVisibleOcr !== undefined) mokuroState.alwaysVisibleOcr = p.alwaysVisibleOcr;
@@ -54,6 +57,7 @@
     localStorage.setItem('torii_mokuro_prefs', JSON.stringify({
       isR2L: mokuroState.isR2L,
       isDoublePage: mokuroState.isDoublePage,
+      isCascade: mokuroState.isCascade,
       hasCover: mokuroState.hasCover,
       showBorders: mokuroState.showBorders,
       alwaysVisibleOcr: mokuroState.alwaysVisibleOcr,
@@ -65,6 +69,7 @@
   // Sincronizar checkboxes del menú con el estado
   function syncUIWithState() {
     const checkR2l = document.getElementById('chk-r2l');
+    const checkCascade = document.getElementById('chk-cascade');
     const checkCover = document.getElementById('chk-has-cover');
     const checkOcr = document.getElementById('chk-enable-ocr');
     const checkBorders = document.getElementById('chk-show-borders');
@@ -73,6 +78,7 @@
     const checkEInk = document.getElementById('chk-eink-mode');
 
     if (checkR2l) checkR2l.checked = mokuroState.isR2L;
+    if (checkCascade) checkCascade.checked = !!mokuroState.isCascade;
     if (checkCover) checkCover.checked = mokuroState.hasCover;
     if (checkOcr) checkOcr.checked = mokuroState.showOcr;
     if (checkBorders) checkBorders.checked = mokuroState.showBorders;
@@ -81,6 +87,7 @@
     if (checkEInk) checkEInk.checked = mokuroState.eInkMode;
 
     updateDoublePageToolbarBtn();
+    updateCascadeToolbarBtn();
     updateZoomToggleBtn();
     updateFullscreenToolbarBtn();
     updateContainerClasses();
@@ -151,6 +158,21 @@
       btn.classList.remove('active');
       btn.title = 'Modo 1 Página ACTIVO (Clic para Doble Página)';
       if (textEl) textEl.textContent = 'Doble Página';
+    }
+  }
+
+  function updateCascadeToolbarBtn() {
+    const btn = document.getElementById('btn-toggle-cascade');
+    const textEl = document.getElementById('cascade-btn-text');
+    if (!btn) return;
+    if (mokuroState.isCascade) {
+      btn.classList.add('active');
+      btn.title = 'Lectura Vertical ACTIVA (Clic para cambiar a Horizontal)';
+      if (textEl) textEl.textContent = 'Vertical';
+    } else {
+      btn.classList.remove('active');
+      btn.title = 'Lectura Horizontal ACTIVA (Clic para cambiar a Vertical)';
+      if (textEl) textEl.textContent = 'Horizontal';
     }
   }
 
@@ -248,6 +270,10 @@
       smoothScroll: false,     // Detener arrastre inmediatamente sin deslizamiento inercial fuera de bordes
       filterKey: () => true,  // Desactivar manejo de teclas de panzoom; lo gestionamos nosotros (flechas = navegar página)
       beforeMouseDown: function(e) {
+        // En modo cascada, desactivar arrastre de panzoom para permitir selección de texto y scroll
+        if (mokuroState.isCascade) {
+          return true;
+        }
         // Bloquear arrastre con clic derecho o central (el derecho abre el popup Torii)
         if (e.button !== 0) {
           return true;
@@ -272,6 +298,9 @@
         return true;
       },
       beforeWheel: function(e) {
+        if (mokuroState.isCascade) {
+          return true;
+        }
         // Ctrl+scroll → zoom manejado por panzoom
         // Scroll normal → manejado por handleStageScroll (bloqueamos panzoom aquí)
         return !e.ctrlKey;
@@ -372,6 +401,14 @@
   // SCROLL MANUAL DEL STAGE (RUEDA SIN CTRL = DESPLAZARSE POR LA PÁGINA)
   // ========================================================================
   function handleStageScroll(e) {
+    // Si estamos en modo cascada, permitir el scroll vertical nativo o interceptar Ctrl+rueda para zoom
+    if (mokuroState.isCascade) {
+      if (e.ctrlKey) {
+        e.preventDefault();
+        handleCascadeWheelZoom(e);
+      }
+      return;
+    }
     // Ctrl+scroll lo maneja panzoom (zoom) — solo prevenimos el scroll de página
     if (e.ctrlKey) {
       e.preventDefault();
@@ -424,6 +461,168 @@
     pzInstance.moveTo(newX, newY);
   }
 
+  let _cascadeWheelZoomRaf = null;
+  let _accumulatedWheelFactor = 1.0;
+  let _lastWheelClientX = null;
+  let _lastWheelClientY = null;
+
+  // Zoom con rueda de ratón (Ctrl + Wheel) en Modo Cascada suavizado con requestAnimationFrame
+  function handleCascadeWheelZoom(e) {
+    const delta = -Math.sign(e.deltaY);
+    if (delta === 0) return;
+    const factor = delta > 0 ? 1.08 : (1 / 1.08);
+    _accumulatedWheelFactor *= factor;
+    _lastWheelClientX = e.clientX;
+    _lastWheelClientY = e.clientY;
+
+    if (!_cascadeWheelZoomRaf) {
+      _cascadeWheelZoomRaf = requestAnimationFrame(() => {
+        cascadeZoomStep(_accumulatedWheelFactor, _lastWheelClientX, _lastWheelClientY);
+        _accumulatedWheelFactor = 1.0;
+        _cascadeWheelZoomRaf = null;
+      });
+    }
+  }
+
+  // Ajuste de paso de zoom en Modo Cascada
+  function cascadeZoomStep(factor, clientX, clientY) {
+    if (!mokuroState.isCascade) return;
+    let currentScale = (mokuroState.isManualZoom && mokuroState.manualScale) ? mokuroState.manualScale : 1.0;
+    let newScale = currentScale * factor;
+    // Límites de escala (0.5x a 4.0x)
+    newScale = Math.max(0.5, Math.min(4.0, newScale));
+
+    // Si regresa a ~1.0, restablecer zoom manual
+    if (Math.abs(newScale - 1.0) < 0.04 && factor < 1.0) {
+      newScale = 1.0;
+      mokuroState.isManualZoom = false;
+      mokuroState.manualScale = null;
+    } else {
+      mokuroState.isManualZoom = true;
+      mokuroState.manualScale = newScale;
+    }
+
+    applyCascadePageSizing(clientX, clientY, true);
+  }
+
+  // Arrastre con ratón (Pan-by-drag) para Modo Cascada cuando hay zoom activo
+  function initCascadeDragPan() {
+    const stage = document.getElementById('mokuro-stage');
+    if (!stage) return;
+
+    let isDown = false;
+    let startX = 0;
+    let startY = 0;
+    let scrollLeft = 0;
+    let scrollTop = 0;
+    let hasMoved = false;
+
+    stage.addEventListener('mousedown', (e) => {
+      if (!mokuroState.isCascade) return;
+      if (e.button !== 0) return; // Solo botón principal izquierdo
+      // Solo arrastrar si hay zoom activo o el contenido excede el stage
+      if (!stage.classList.contains('is-zoomed') && stage.scrollHeight <= stage.clientHeight && stage.scrollWidth <= stage.clientWidth) {
+        return;
+      }
+      // No iniciar arrastre si el clic es sobre texto OCR (para permitir selección Yomitan), controles o botones
+      if (e.target.closest('.textBox') ||
+          e.target.closest('.mokuro-toolbar') ||
+          e.target.closest('.torii-quick-popup') ||
+          e.target.closest('.reader-bottom-scrubber') ||
+          e.target.closest('button') ||
+          e.target.closest('input')) {
+        return;
+      }
+
+      isDown = true;
+      hasMoved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      scrollLeft = stage.scrollLeft;
+      scrollTop = stage.scrollTop;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDown || !mokuroState.isCascade) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (!hasMoved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+        hasMoved = true;
+        stage.classList.add('is-dragging');
+      }
+      if (hasMoved) {
+        e.preventDefault();
+        stage.scrollLeft = scrollLeft - dx;
+        stage.scrollTop = scrollTop - dy;
+      }
+    });
+
+    const stopDrag = () => {
+      if (!isDown) return;
+      isDown = false;
+      stage.classList.remove('is-dragging');
+    };
+
+    window.addEventListener('mouseup', stopDrag);
+  }
+
+  // Gesto táctil de pellizco (Pinch-to-zoom) en Modo Cascada
+  function initCascadePinchZoom() {
+    const stage = document.getElementById('mokuro-stage');
+    if (!stage) return;
+
+    let initialDist = 0;
+    let initialScale = 1.0;
+    let centerX = 0;
+    let centerY = 0;
+    let isPinching = false;
+
+    stage.addEventListener('touchstart', (e) => {
+      if (!mokuroState.isCascade) return;
+      if (e.touches.length === 2) {
+        isPinching = true;
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        initialDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        centerX = (t1.clientX + t2.clientX) / 2;
+        centerY = (t1.clientY + t2.clientY) / 2;
+        initialScale = (mokuroState.isManualZoom && mokuroState.manualScale) ? mokuroState.manualScale : 1.0;
+      }
+    }, { passive: false });
+
+    stage.addEventListener('touchmove', (e) => {
+      if (!mokuroState.isCascade || !isPinching) return;
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+        const currentDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        if (initialDist > 0) {
+          const factor = currentDist / initialDist;
+          let targetScale = initialScale * factor;
+          targetScale = Math.max(0.5, Math.min(4.0, targetScale));
+          mokuroState.isManualZoom = true;
+          mokuroState.manualScale = targetScale;
+          applyCascadePageSizing(centerX, centerY, true);
+        }
+      }
+    }, { passive: false });
+
+    const endPinch = () => {
+      if (isPinching) {
+        isPinching = false;
+        if (mokuroState.manualScale && Math.abs(mokuroState.manualScale - 1.0) < 0.04) {
+          mokuroState.isManualZoom = false;
+          mokuroState.manualScale = null;
+          applyCascadePageSizing();
+        }
+      }
+    };
+
+    stage.addEventListener('touchend', endPinch);
+    stage.addEventListener('touchcancel', endPinch);
+  }
+
 
 
   let currentMangaKey = null;
@@ -457,6 +656,10 @@
 
   // Aplica el modo de zoom actualmente guardado (se llama al cambiar de página)
   function applyCurrentZoomMode() {
+    if (mokuroState.isCascade) {
+      applyCascadePageSizing();
+      return;
+    }
     if (mokuroState.isManualZoom && mokuroState.manualScale) {
       _applyManualZoom(mokuroState.manualScale);
       return;
@@ -466,6 +669,126 @@
       case 'original':  _applyOriginal();   break;
       default:          _applyFitToScreen(); break;
     }
+  }
+
+  // Ajuste de tamaño de páginas para Modo Cascada (Lectura Vertical) con anclaje visual
+  function applyCascadePageSizing(focalX, focalY, preserveAnchor = true) {
+    const stage = document.getElementById('mokuro-stage');
+    const container = document.getElementById('mokuro-pages-container');
+    if (!stage || !container || !mokuroState.manga) return;
+
+    const pages = container.querySelectorAll('.mokuro-page');
+    if (pages.length === 0) return;
+
+    const stageRect = stage.getBoundingClientRect();
+    const stageW = stage.clientWidth;
+    const stageH = stage.clientHeight;
+
+    // 1. Determinar punto de ancla visual antes de modificar tamaños
+    let targetPage = null;
+    let relX = 0.5;
+    let relY = 0.5;
+    const anchorX = (focalX !== undefined && focalX !== null) ? focalX : (stageRect.left + stageRect.width / 2);
+    const anchorY = (focalY !== undefined && focalY !== null) ? focalY : (stageRect.top + stageRect.height / 2);
+
+    if (preserveAnchor) {
+      // Usar la página activa conocida para evitar iterar sobre cientos de elementos
+      const curEl = document.getElementById(`mokuro-page-${mokuroState.currentPageIdx}`);
+      if (curEl) {
+        const r = curEl.getBoundingClientRect();
+        if (anchorY >= r.top && anchorY <= r.bottom) {
+          targetPage = curEl;
+        }
+      }
+      if (!targetPage) {
+        // Si el ancla no está exactamente en la página activa, probar vecinas inmediatas
+        for (let offset of [-1, 1, -2, 2]) {
+          const neighbor = document.getElementById(`mokuro-page-${mokuroState.currentPageIdx + offset}`);
+          if (neighbor) {
+            const r = neighbor.getBoundingClientRect();
+            if (anchorY >= r.top && anchorY <= r.bottom) {
+              targetPage = neighbor;
+              break;
+            }
+          }
+        }
+      }
+      if (!targetPage && pages.length > 0) {
+        targetPage = curEl || pages[0];
+      }
+      if (targetPage) {
+        const r = targetPage.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) {
+          relX = (anchorX - r.left) / r.width;
+          relY = (anchorY - r.top) / r.height;
+        }
+      }
+    }
+
+    // 2. Aplicar escala a cada página según modo y escala manual
+    // En modo por defecto (fit-screen / Largo), la página se ve por completo (ancho y alto) como en modo horizontal
+    const isDouble = !!mokuroState.isDoublePage;
+    const padding = 32;
+    const availW = Math.max(100, stageW - padding);
+    const availH = Math.max(100, stageH - padding);
+
+    pages.forEach(p => {
+      const origW = parseInt(p.style.width, 10) || 800;
+      const origH = parseInt(p.style.height, 10) || 1200;
+
+      // Dimensiones de la unidad mostrada (1 página o spread de 2 páginas)
+      const unitW = isDouble ? (origW * 2) : origW;
+      const unitH = origH;
+
+      let baseScale;
+      if (mokuroState.zoomMode === 'fit-width') {
+        // Ajustar al ancho completo del visor
+        baseScale = availW / unitW;
+      } else if (mokuroState.zoomMode === 'original') {
+        // Escala 1:1 original
+        baseScale = 1.0;
+      } else {
+        // fit-screen (Largo por defecto): la página (o doble página) se ve por completo en pantalla como en horizontal
+        baseScale = Math.min(availW / unitW, availH / unitH);
+      }
+
+      let finalScale = baseScale;
+      if (mokuroState.isManualZoom && mokuroState.manualScale) {
+        finalScale = baseScale * mokuroState.manualScale;
+      }
+
+      const scaleStr = finalScale.toFixed(4);
+      if (p.style.zoom !== scaleStr) {
+        p.style.zoom = scaleStr;
+      }
+    });
+
+    // 3. Restaurar posición de scroll para mantener el punto de ancla perfectamente estable
+    if (preserveAnchor && targetPage) {
+      const newR = targetPage.getBoundingClientRect();
+      const newScreenX = newR.left + relX * newR.width;
+      const newScreenY = newR.top + relY * newR.height;
+      const deltaX = newScreenX - anchorX;
+      const deltaY = newScreenY - anchorY;
+      stage.scrollLeft += deltaX;
+      stage.scrollTop += deltaY;
+    }
+
+    // 4. Actualizar clase is-zoomed para cursor y drag en el stage
+    const isZoomed = (mokuroState.isManualZoom && (mokuroState.manualScale > 1.03 || mokuroState.manualScale < 0.97)) ||
+                     (mokuroState.zoomMode === 'fit-width') ||
+                     (mokuroState.zoomMode === 'original');
+    stage.classList.toggle('is-zoomed', !!isZoomed);
+  }
+
+  function resetCascadePageSizing() {
+    const container = document.getElementById('mokuro-pages-container');
+    if (!container) return;
+    const pages = container.querySelectorAll('.mokuro-page');
+    pages.forEach(p => {
+      p.style.zoom = '';
+      p.classList.remove('spread-page-left', 'spread-page-right');
+    });
   }
 
   // ── Funciones públicas (guardan el modo) ──────────────────────────────────
@@ -521,6 +844,11 @@
 
   // ── Implementaciones internas ─────────────────────────────────────────────
   function _applyManualZoom(scale) {
+    if (mokuroState.isCascade) {
+      mokuroState.manualScale = scale;
+      applyCascadePageSizing();
+      return;
+    }
     const stage = document.getElementById('mokuro-stage');
     const pc = document.getElementById('mokuro-pages-container');
     if (!stage || !pc || !pzInstance) return;
@@ -570,6 +898,10 @@
   }
 
   function _applyFitToScreen() {
+    if (mokuroState.isCascade) {
+      applyCascadePageSizing();
+      return;
+    }
     const stage = document.getElementById('mokuro-stage');
     const pc = document.getElementById('mokuro-pages-container');
     if (!stage || !pc || !pzInstance) return;
@@ -612,6 +944,10 @@
   }
 
   function _applyFitToWidth() {
+    if (mokuroState.isCascade) {
+      applyCascadePageSizing();
+      return;
+    }
     const stage = document.getElementById('mokuro-stage');
     const pc = document.getElementById('mokuro-pages-container');
     if (!stage || !pc || !pzInstance) return;
@@ -647,6 +983,10 @@
   }
 
   function _applyOriginal() {
+    if (mokuroState.isCascade) {
+      applyCascadePageSizing();
+      return;
+    }
     const stage = document.getElementById('mokuro-stage');
     const pc = document.getElementById('mokuro-pages-container');
     if (!stage || !pc || !pzInstance) return;
@@ -701,11 +1041,69 @@
     setTimeout(updateFullscreenToolbarBtn, 60);
   }
 
+  // Guardar última página leída y actualizar progreso en base de datos
+  function saveReadProgress(pageIdx) {
+    if (!mokuroState.manga) return;
+    try {
+      const key = `torii_read_progress_${mokuroState.manga.title || 'untitled'}`;
+      localStorage.setItem(key, pageIdx);
+      if (mokuroState.manga.id && window.ToriiMangaDB) {
+        window.ToriiMangaDB.updateProgress(mokuroState.manga.id, pageIdx);
+
+        // Refrescar la cuadrícula de la biblioteca de forma diferida para que
+        // la portada frontal refleje el tomo que se está leyendo actualmente.
+        // Usamos debounce para no llamarla en cada cambio de página consecutivo.
+        clearTimeout(window._mokuroGridRefreshTimer);
+        window._mokuroGridRefreshTimer = setTimeout(() => {
+          if (typeof window.ToriiMangaDB.renderGrid === 'function') {
+            window.ToriiMangaDB.renderGrid();
+          }
+        }, 1500);
+      }
+    } catch(e) {}
+  }
+
+  // Helper para agrupar páginas en spreads (filas de 2 páginas) para modo vertical
+  function getCascadeSpreadGroups(total, hasCover) {
+    const groups = [];
+    let i = 0;
+    if (hasCover && total > 0) {
+      groups.push([0]);
+      i = 1;
+    }
+    while (i < total) {
+      if (i + 1 < total) {
+        groups.push([i, i + 1]);
+        i += 2;
+      } else {
+        groups.push([i]);
+        i += 1;
+      }
+    }
+    return groups;
+  }
+
+  // Deshacer filas agrupadas de doble página al regresar a individual o horizontal
+  function cleanupCascadeSpreadRows() {
+    const container = document.getElementById('mokuro-pages-container');
+    if (!container) return;
+    const rows = container.querySelectorAll('.cascade-spread-row');
+    if (rows.length > 0) {
+      rows.forEach(r => {
+        while (r.firstChild) {
+          container.appendChild(r.firstChild);
+        }
+        r.remove();
+      });
+    }
+  }
+
   // ========================================================================
   // RENDERIZADO DE PÁGINAS Y SUPERPOSICIÓN OCR
   // ========================================================================
   function renderCurrentPages() {
     const container = document.getElementById('mokuro-pages-container');
+    const stage = document.getElementById('mokuro-stage');
     const pageInput = document.getElementById('page-current-input');
     const pageTotal = document.getElementById('page-total-display');
     const titleLabel = document.getElementById('reader-manga-title');
@@ -754,12 +1152,101 @@
       sliderTooltip.textContent = `Pág. ${mokuroState.currentPageIdx + 1}`;
       if (pageSlider) {
         // En modo RTL el thumb está invertido: página 1 = derecha (100%), última = izquierda (0%)
-        const pct = mokuroState.isR2L
+        const pct = (!mokuroState.isCascade && mokuroState.isR2L)
           ? 100 - ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100
           : ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100;
         sliderTooltip.style.left = `${pct}%`;
       }
     }
+
+    // Modo Cascada: mostrar todas las páginas de forma vertical continua
+    if (mokuroState.isCascade) {
+      if (stage) {
+        stage.style.setProperty('scroll-behavior', 'auto', 'important');
+        stage.classList.add('cascade-mode');
+      }
+      container.classList.add('cascade-view');
+
+      if (pzInstance) {
+        pzInstance.pause();
+      }
+      container.style.transform = 'none';
+
+      // Reutilizar páginas ya construidas en el DOM para evitar recrearlas
+      const existingPagesMap = new Map();
+      container.querySelectorAll('.mokuro-page').forEach(p => {
+        existingPagesMap.set(p.id, p);
+      });
+      container.innerHTML = '';
+
+      const getOrCreatePage = (idx) => {
+        const id = `mokuro-page-${idx}`;
+        let pageEl = existingPagesMap.get(id);
+        if (!pageEl) {
+          pageEl = buildPageElement(pages[idx], idx);
+        }
+        pageEl.classList.add('visible-page');
+        pageEl.classList.remove('spread-page-left', 'spread-page-right');
+        return pageEl;
+      };
+
+      if (mokuroState.isDoublePage) {
+        container.classList.add('double-cascade');
+        const groups = getCascadeSpreadGroups(total, mokuroState.hasCover);
+        groups.forEach((group, gIdx) => {
+          const rowDiv = document.createElement('div');
+          rowDiv.className = 'cascade-spread-row' + (mokuroState.isR2L ? ' r2l-row' : '');
+          rowDiv.id = `cascade-spread-row-${gIdx}`;
+
+          group.forEach((pIdx, inGroupIdx) => {
+            const pageEl = getOrCreatePage(pIdx);
+            if (group.length === 2) {
+              if (mokuroState.isR2L) {
+                pageEl.classList.add(inGroupIdx === 0 ? 'spread-page-right' : 'spread-page-left');
+              } else {
+                pageEl.classList.add(inGroupIdx === 0 ? 'spread-page-left' : 'spread-page-right');
+              }
+            }
+            rowDiv.appendChild(pageEl);
+          });
+
+          container.appendChild(rowDiv);
+        });
+      } else {
+        container.classList.remove('double-cascade');
+        for (let i = 0; i < total; i++) {
+          const pageEl = getOrCreatePage(i);
+          container.appendChild(pageEl);
+        }
+      }
+
+      applyCascadePageSizing(null, null, false);
+
+      // Posicionar inmediatamente en la página activa sin animación ni scroll desde el inicio
+      const curPageEl = document.getElementById(`mokuro-page-${mokuroState.currentPageIdx}`);
+      if (curPageEl && stage) {
+        const stageRect = stage.getBoundingClientRect();
+        const curRect = curPageEl.getBoundingClientRect();
+        stage.scrollTop = stage.scrollTop + (curRect.top - stageRect.top);
+      }
+
+      saveReadProgress(mokuroState.currentPageIdx);
+      return;
+    }
+
+    // Modo Horizontal: limpiar clases de cascada y reanudar panzoom
+    if (stage) {
+      stage.style.setProperty('scroll-behavior', 'auto', 'important');
+      stage.classList.remove('cascade-mode');
+      stage.scrollTop = 0;
+    }
+    container.classList.remove('cascade-view', 'double-cascade');
+
+    if (pzInstance && pzInstance.isPaused()) {
+      pzInstance.resume();
+    }
+    cleanupCascadeSpreadRows();
+    resetCascadePageSizing();
 
     // Determinar qué páginas mostrar (individual o doble)
     let visibleIndices = [];
@@ -797,23 +1284,7 @@
     });
 
     // Guardar última página leída
-    try {
-      const key = `torii_read_progress_${mokuroState.manga.title || 'untitled'}`;
-      localStorage.setItem(key, mokuroState.currentPageIdx);
-      if (mokuroState.manga.id && window.ToriiMangaDB) {
-        window.ToriiMangaDB.updateProgress(mokuroState.manga.id, mokuroState.currentPageIdx);
-
-        // Refrescar la cuadrícula de la biblioteca de forma diferida para que
-        // la portada frontal refleje el tomo que se está leyendo actualmente.
-        // Usamos debounce para no llamarla en cada cambio de página consecutivo.
-        clearTimeout(window._mokuroGridRefreshTimer);
-        window._mokuroGridRefreshTimer = setTimeout(() => {
-          if (typeof window.ToriiMangaDB.renderGrid === 'function') {
-            window.ToriiMangaDB.renderGrid();
-          }
-        }, 1500);
-      }
-    } catch(e) {}
+    saveReadProgress(mokuroState.currentPageIdx);
 
     // Aplicar el modo de zoom guardado (respeta fit-width, original, etc.)
     setTimeout(applyCurrentZoomMode, 30);
@@ -1337,6 +1808,8 @@
     const img = document.createElement('img');
     img.className = 'page-img';
     img.alt = `Página ${pageIdx + 1}`;
+    img.loading = 'lazy';
+    img.decoding = 'async';
     img.src = imgSrc || '';
 
     // Si la imagen carga, actualizar dimensiones reales y reajustar pantalla
@@ -1350,7 +1823,10 @@
           pageDiv.style.height = `${pageData.img_height}px`;
         }
       }
-      applyCurrentZoomMode(); // Respetar el modo de zoom activo al cargar la imagen
+      // Solo en modo horizontal reajustar al cargar la imagen; en vertical se gestiona en lote
+      if (!mokuroState.isCascade) {
+        applyCurrentZoomMode();
+      }
     };
 
     img.onerror = function() {
@@ -1650,9 +2126,62 @@
   // ========================================================================
   // NAVEGACIÓN ENTRE PÁGINAS
   // ========================================================================
+  function scrollToPageInCascade(idx, smooth = true) {
+    if (!mokuroState.manga) return;
+    const total = mokuroState.manga.pages.length;
+    if (idx < 0) idx = 0;
+    if (idx >= total) idx = total - 1;
+
+    mokuroState.currentPageIdx = idx;
+    const pageEl = document.getElementById(`mokuro-page-${idx}`);
+    const stage = document.getElementById('mokuro-stage');
+    if (pageEl && stage) {
+      if (smooth) {
+        pageEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        const stageRect = stage.getBoundingClientRect();
+        const pageRect = pageEl.getBoundingClientRect();
+        stage.scrollTop = stage.scrollTop + (pageRect.top - stageRect.top);
+      }
+    }
+
+    const pageInput = document.getElementById('page-current-input');
+    const pageSlider = document.getElementById('reader-page-slider');
+    const scrubberInfo = document.getElementById('scrubber-page-info');
+    const sliderTooltip = document.getElementById('slider-tooltip');
+
+    if (pageInput) pageInput.value = idx + 1;
+    if (pageSlider) pageSlider.value = idx + 1;
+    if (scrubberInfo) scrubberInfo.textContent = `${idx + 1} / ${total}`;
+    if (sliderTooltip) {
+      sliderTooltip.textContent = `Pág. ${idx + 1}`;
+      const pct = (idx / Math.max(1, total - 1)) * 100;
+      sliderTooltip.style.left = `${pct}%`;
+    }
+
+    saveReadProgress(idx);
+  }
+
   function nextPage() {
     flushSaveMangaPages();
     if (!mokuroState.manga) return;
+
+    if (mokuroState.isCascade) {
+      const step = mokuroState.isDoublePage ? 2 : 1;
+      const nextIdx = mokuroState.currentPageIdx + step;
+      const total = mokuroState.manga.pages.length;
+      if (nextIdx < total) {
+        scrollToPageInCascade(nextIdx, true);
+      } else {
+        if (mokuroState.seriesVolumes.length > 0 &&
+            mokuroState.currentVolumeIndex >= 0 &&
+            mokuroState.currentVolumeIndex < mokuroState.seriesVolumes.length - 1) {
+          showNextVolumeOverlay();
+        }
+      }
+      return;
+    }
+
     const step = mokuroState.isDoublePage ? 2 : 1;
     const total = mokuroState.manga.pages.length;
     const atLastPage = mokuroState.currentPageIdx + step >= total;
@@ -1676,6 +2205,18 @@
   function prevPage() {
     flushSaveMangaPages();
     if (!mokuroState.manga) return;
+
+    if (mokuroState.isCascade) {
+      const step = mokuroState.isDoublePage ? 2 : 1;
+      const prevIdx = mokuroState.currentPageIdx - step;
+      if (prevIdx >= 0) {
+        scrollToPageInCascade(prevIdx, true);
+      } else {
+        scrollToPageInCascade(0, true);
+      }
+      return;
+    }
+
     const step = mokuroState.isDoublePage ? 2 : 1;
     if (mokuroState.currentPageIdx - step >= 0) {
       mokuroState.currentPageIdx -= step;
@@ -1687,6 +2228,10 @@
 
   function firstPage() {
     flushSaveMangaPages();
+    if (mokuroState.isCascade) {
+      scrollToPageInCascade(0, true);
+      return;
+    }
     mokuroState.currentPageIdx = 0;
     renderCurrentPages();
   }
@@ -1694,6 +2239,10 @@
   function lastPage() {
     flushSaveMangaPages();
     if (!mokuroState.manga) return;
+    if (mokuroState.isCascade) {
+      scrollToPageInCascade(mokuroState.manga.pages.length - 1, true);
+      return;
+    }
     mokuroState.currentPageIdx = mokuroState.manga.pages.length - 1;
     renderCurrentPages();
   }
@@ -1762,8 +2311,12 @@
     if (!mokuroState.manga) return;
     const idx = parseInt(idx1Based, 10) - 1;
     if (!isNaN(idx) && idx >= 0 && idx < mokuroState.manga.pages.length) {
-      mokuroState.currentPageIdx = idx;
-      renderCurrentPages();
+      if (mokuroState.isCascade) {
+        scrollToPageInCascade(idx, true);
+      } else {
+        mokuroState.currentPageIdx = idx;
+        renderCurrentPages();
+      }
     }
   }
 
@@ -1830,7 +2383,7 @@
       textEl.classList.toggle('is-editable', !!mokuroState.editableText);
       textEl.title = mokuroState.editableText
         ? 'Edición activa: escribe para corregir el texto OCR'
-        : 'Haz clic en "OCR Editable" para modificar este texto';
+        : 'Haz clic en "Editar" para modificar este texto';
 
       if (autoFocus && mokuroState.editableText) {
         textEl.focus();
@@ -1848,12 +2401,12 @@
     if (btnToggleEditablePopup) {
       if (mokuroState.editableText) {
         btnToggleEditablePopup.classList.add('active');
-        btnToggleEditablePopup.title = 'Texto OCR editable: ACTIVO (clic para desactivar)';
-        if (labelEl) labelEl.textContent = 'OCR: ON';
+        btnToggleEditablePopup.title = 'Texto editable: ACTIVO (clic para desactivar)';
+        if (labelEl) labelEl.textContent = 'Editar ON';
       } else {
         btnToggleEditablePopup.classList.remove('active');
-        btnToggleEditablePopup.title = 'Texto OCR editable: INACTIVO (clic para activar)';
-        if (labelEl) labelEl.textContent = 'OCR OFF';
+        btnToggleEditablePopup.title = 'Texto editable: INACTIVO (clic para activar)';
+        if (labelEl) labelEl.textContent = 'Editar OFF';
       }
     }
   }
@@ -2187,7 +2740,7 @@
     modal.innerHTML = `
       <div class="modal-content-manga modal-anki-manga" style="max-width: 540px; padding: 24px; border-radius: 20px;">
         <div class="modal-header-manga" style="margin-bottom: 16px;">
-          <h3><span>📇</span> Minar a Anki</h3>
+          <h3 style="display: flex; align-items: center; gap: 8px;"><img src="image/anki-icon.png" alt="Anki" class="anki-btn-icon" style="width: 22px; height: 22px;" /> Minar a Anki</h3>
           <button class="modal-close-btn-manga" id="btn-close-anki-creator">&times;</button>
         </div>
 
@@ -2271,8 +2824,8 @@
           <button type="button" id="btn-anki-cancel-card" class="btn-upload-choice btn-secondary-choice" style="padding: 9px 16px;">
             Cancelar
           </button>
-          <button type="button" id="btn-anki-confirm-save" class="btn-hero-lectura btn-hero-mokuro" style="padding: 9px 20px; font-size: 0.95rem;">
-            <span>⚡</span> Crear Tarjeta en Anki
+          <button type="button" id="btn-anki-confirm-save" class="btn-hero-lectura btn-hero-mokuro" style="padding: 9px 20px; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px;">
+            <img src="image/anki-icon.png" alt="Anki" class="anki-btn-icon" style="width: 18px; height: 18px;" /> Crear Tarjeta en Anki
           </button>
         </div>
       </div>
@@ -2540,6 +3093,7 @@
     flushSaveMangaPages();
     const wrapper = document.getElementById('mokuro-reader-wrapper');
     const stage = document.getElementById('mokuro-stage');
+    const container = document.getElementById('mokuro-pages-container');
     if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
       const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
       if (exit) exit.call(document).catch(() => {});
@@ -2548,6 +3102,14 @@
       wrapper.classList.remove('active');
       document.body.classList.remove('mokuro-reading-active');
       document.body.style.overflow = '';
+      if (stage) {
+        stage.classList.remove('cascade-mode');
+        stage.scrollTop = 0;
+      }
+      if (container) {
+        container.classList.remove('cascade-view');
+        resetCascadePageSizing();
+      }
       if (pzInstance) {
         pzInstance.dispose();
         pzInstance = null;
@@ -2738,6 +3300,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     loadSavedPreferences();
     syncUIWithState();
+    initCascadeDragPan();
+    initCascadePinchZoom();
 
     // Controles de barra del lector
     const btnExit = document.getElementById('btn-exit-reader');
@@ -2814,9 +3378,122 @@
       updateFullscreenToolbarBtn();
       const wrapper = document.getElementById('mokuro-reader-wrapper');
       if (wrapper && wrapper.classList.contains('active')) {
-        clampPan();
+        if (mokuroState.isCascade) {
+          applyCascadePageSizing();
+        } else {
+          clampPan();
+          applyCurrentZoomMode();
+        }
       }
     });
+
+    // Función para alternar modo Vertical / Horizontal
+    function toggleCascadeMode(enable) {
+      if (enable === undefined) {
+        mokuroState.isCascade = !mokuroState.isCascade;
+      } else {
+        mokuroState.isCascade = !!enable;
+      }
+
+      _isSwitchingReadingMode = true;
+
+      // Al cambiar modo de lectura, por defecto ajuste completo a pantalla
+      mokuroState.zoomMode = 'fit-screen';
+      mokuroState.isManualZoom = false;
+      mokuroState.manualScale = null;
+
+      savePreferences();
+      syncUIWithState();
+      renderCurrentPages();
+
+      // Desactivar bandera tras asegurar el renderizado
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          _isSwitchingReadingMode = false;
+        });
+      });
+    }
+
+    // Scroll listener del escenario para rastrear la página actual en Modo Cascada
+    const stageEl = document.getElementById('mokuro-stage');
+    let _cascadeScrollTicking = false;
+    if (stageEl) {
+      stageEl.addEventListener('scroll', () => {
+        if (!mokuroState.isCascade || !mokuroState.manga || _isSwitchingReadingMode) return;
+        if (!_cascadeScrollTicking) {
+          requestAnimationFrame(() => {
+            handleCascadeScroll();
+            _cascadeScrollTicking = false;
+          });
+          _cascadeScrollTicking = true;
+        }
+      }, { passive: true });
+    }
+
+    function handleCascadeScroll() {
+      if (!mokuroState.isCascade || !mokuroState.manga || _isSwitchingReadingMode) return;
+      const stage = document.getElementById('mokuro-stage');
+      if (!stage) return;
+
+      const total = mokuroState.manga.pages.length;
+      if (total === 0) return;
+
+      // Detectar fin de tomo
+      if (stage.scrollHeight - stage.scrollTop - stage.clientHeight < 40) {
+        if (mokuroState.seriesVolumes.length > 0 &&
+            mokuroState.currentVolumeIndex >= 0 &&
+            mokuroState.currentVolumeIndex < mokuroState.seriesVolumes.length - 1) {
+          showNextVolumeOverlay();
+        }
+      }
+
+      const stageRect = stage.getBoundingClientRect();
+      const probeY = stageRect.top + 140;
+
+      // Búsqueda binaria O(log N) para evitar reflows masivos en cientos de páginas durante el scroll
+      let low = 0;
+      let high = total - 1;
+      let activeIdx = 0;
+
+      while (low <= high) {
+        const mid = (low + high) >> 1;
+        const pageEl = document.getElementById(`mokuro-page-${mid}`);
+        if (!pageEl) {
+          low = mid + 1;
+          continue;
+        }
+        const rect = pageEl.getBoundingClientRect();
+        if (rect.top <= probeY && rect.bottom >= probeY) {
+          activeIdx = mid;
+          break;
+        }
+        if (rect.top > probeY) {
+          high = mid - 1;
+        } else {
+          activeIdx = mid;
+          low = mid + 1;
+        }
+      }
+
+      if (activeIdx !== mokuroState.currentPageIdx) {
+        mokuroState.currentPageIdx = activeIdx;
+        const pageInput = document.getElementById('page-current-input');
+        const pageSlider = document.getElementById('reader-page-slider');
+        const scrubberInfo = document.getElementById('scrubber-page-info');
+        const sliderTooltip = document.getElementById('slider-tooltip');
+
+        if (pageInput) pageInput.value = activeIdx + 1;
+        if (pageSlider) pageSlider.value = activeIdx + 1;
+        if (scrubberInfo) scrubberInfo.textContent = `${activeIdx + 1} / ${total}`;
+        if (sliderTooltip) {
+          sliderTooltip.textContent = `Pág. ${activeIdx + 1}`;
+          const pct = (activeIdx / Math.max(1, total - 1)) * 100;
+          sliderTooltip.style.left = `${pct}%`;
+        }
+
+        saveReadProgress(activeIdx);
+      }
+    }
 
     // Botones de Zoom
     const btnZoomToggle = document.getElementById('btn-zoom-toggle') || document.getElementById('btn-zoom-fit-screen');
@@ -2824,6 +3501,7 @@
     const btnFitWidth = document.getElementById('btn-zoom-fit-width');
     const btnZoomOriginal = document.getElementById('btn-zoom-original');
     const btnDoublePage = document.getElementById('btn-toggle-double-page');
+    const btnCascade = document.getElementById('btn-toggle-cascade');
     const btnFullscreen = document.getElementById('btn-toggle-fullscreen');
 
     if (btnZoomToggle) btnZoomToggle.addEventListener('click', toggleZoomFit);
@@ -2832,12 +3510,22 @@
     if (btnZoomOriginal) btnZoomOriginal.addEventListener('click', zoomOriginal);
     if (btnDoublePage) {
       btnDoublePage.addEventListener('click', () => {
+        _isSwitchingReadingMode = true;
         mokuroState.isDoublePage = !mokuroState.isDoublePage;
+        mokuroState.zoomMode = 'fit-screen';
         mokuroState.isManualZoom = false;
         mokuroState.manualScale = null;
         savePreferences();
         syncUIWithState();
         renderCurrentPages();
+        requestAnimationFrame(() => {
+          _isSwitchingReadingMode = false;
+        });
+      });
+    }
+    if (btnCascade) {
+      btnCascade.addEventListener('click', () => {
+        toggleCascadeMode();
       });
     }
     if (btnFullscreen) btnFullscreen.addEventListener('click', toggleFullScreen);
@@ -2936,6 +3624,7 @@
 
     // Opciones de configuración
     const chkR2l = document.getElementById('chk-r2l');
+    const chkCascade = document.getElementById('chk-cascade');
     const chkCover = document.getElementById('chk-has-cover');
     const chkOcr = document.getElementById('chk-enable-ocr');
     const chkBorders = document.getElementById('chk-show-borders');
@@ -2950,6 +3639,12 @@
         updateContainerClasses();
         syncNavDirectionUI();
         renderCurrentPages();
+      });
+    }
+
+    if (chkCascade) {
+      chkCascade.addEventListener('change', (e) => {
+        toggleCascadeMode(e.target.checked);
       });
     }
 
@@ -3126,6 +3821,20 @@
       if (e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
 
       switch (e.key) {
+        case 'ArrowDown':
+          if (mokuroState.isCascade) {
+            e.preventDefault();
+            const stage = document.getElementById('mokuro-stage');
+            if (stage) stage.scrollBy({ top: 180, behavior: 'smooth' });
+          }
+          break;
+        case 'ArrowUp':
+          if (mokuroState.isCascade) {
+            e.preventDefault();
+            const stage = document.getElementById('mokuro-stage');
+            if (stage) stage.scrollBy({ top: -180, behavior: 'smooth' });
+          }
+          break;
         case 'ArrowLeft':
           e.preventDefault();
           mokuroState.isR2L ? nextPage() : prevPage();
@@ -3159,6 +3868,30 @@
           break;
         case '1':
           zoomFitToWidth();
+          break;
+        case '+':
+        case '=':
+          e.preventDefault();
+          if (mokuroState.isCascade) {
+            cascadeZoomStep(1.15);
+          } else if (pzInstance) {
+            const stage = document.getElementById('mokuro-stage');
+            const sW = stage ? stage.clientWidth / 2 : 400;
+            const sH = stage ? stage.clientHeight / 2 : 300;
+            pzInstance.smoothZoom(sW, sH, 1.15);
+          }
+          break;
+        case '-':
+        case '_':
+          e.preventDefault();
+          if (mokuroState.isCascade) {
+            cascadeZoomStep(1 / 1.15);
+          } else if (pzInstance) {
+            const stage = document.getElementById('mokuro-stage');
+            const sW = stage ? stage.clientWidth / 2 : 400;
+            const sH = stage ? stage.clientHeight / 2 : 300;
+            pzInstance.smoothZoom(sW, sH, 1 / 1.15);
+          }
           break;
       }
     });

@@ -49,10 +49,10 @@ html:not(.dark-mode) {
    -------------------------------------------------------------------------- */
 .lectura-hero {
   position: relative;
-  background: linear-gradient(135deg, rgba(20, 26, 40, 0.92), rgba(30, 42, 60, 0.88)), url('../image/Paisaje1.jpg') center/cover no-repeat;
+  background: linear-gradient(135deg, rgba(20, 26, 40, 0.92), rgba(30, 42, 60, 0.88)), url('../image/LecTorii2.png') center/cover no-repeat;
   color: #fff;
   padding: 50px 25px 40px;
-  border-radius: 0 0 24px 24px;
+
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   margin-bottom: 35px;
   text-align: center;
@@ -202,6 +202,8 @@ html:not(.dark-mode) {
   margin: 40px 0 20px;
   border-bottom: 2px solid var(--mokuro-border);
   padding-bottom: 12px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .lectura-section-title {
@@ -256,13 +258,14 @@ html.dark-mode .lectura-section-title {
   font-size: 0.86rem;
   font-weight: 500;
   color: var(--color-h1, #1e293b);
-  width: 175px;
+  width: 260px;
+  max-width: 100%;
   outline: none;
   transition: width 0.25s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .library-search-input:focus {
-  width: 225px;
+  width: 320px;
   border-color: var(--azulNa, #13a2ce);
   background: rgba(0, 0, 0, 0.02);
   box-shadow: 0 0 0 3px rgba(19, 162, 206, 0.15);
@@ -1639,6 +1642,7 @@ html.dark-mode .anki-manga-dropdown-menu select {
   overflow: hidden;
   user-select: text;
   background-color: var(--mokuro-canvas-bg);
+  scroll-behavior: auto !important;
 }
 
 /* Cursor interactivo de mano cuando hay zoom activo para arrastre fluido */
@@ -1668,6 +1672,129 @@ html.dark-mode .anki-manga-dropdown-menu select {
 
 #mokuro-pages-container.r2l-view {
   flex-direction: row-reverse;
+}
+
+/* --------------------------------------------------------------------------
+   MODO CASCADA (LECTURA VERTICAL / WEBTOON CONTINUO)
+   -------------------------------------------------------------------------- */
+#mokuro-stage.cascade-mode {
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto !important;
+  cursor: default !important;
+}
+
+#mokuro-stage.cascade-mode.is-zoomed {
+  cursor: grab !important;
+}
+
+#mokuro-stage.cascade-mode.is-zoomed:active,
+#mokuro-stage.cascade-mode.is-dragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+#mokuro-stage.cascade-mode .textBox,
+#mokuro-stage.cascade-mode .textBox p {
+  cursor: text !important;
+}
+
+#mokuro-stage.cascade-mode #mokuro-pages-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  padding: 20px 0 80px 0 !important;
+  gap: 16px;
+}
+
+#mokuro-stage.cascade-mode .mokuro-page {
+  position: relative !important;
+  margin: 0 auto !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.45);
+  border-radius: 4px;
+  content-visibility: auto;
+  contain-intrinsic-size: 800px 1200px;
+}
+
+/* Filas de Doble Página en Modo Cascada */
+.cascade-spread-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  margin: 0 auto !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.45);
+  border-radius: 4px;
+  content-visibility: auto;
+  contain-intrinsic-size: 1600px 1200px;
+  background: transparent;
+}
+
+.cascade-spread-row.r2l-row {
+  flex-direction: row-reverse !important;
+}
+
+.cascade-spread-row .mokuro-page {
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+.cascade-spread-row .mokuro-page.spread-page-left {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.cascade-spread-row .mokuro-page.spread-page-right {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+#mokuro-stage.cascade-mode .nav-edge-zone {
+  display: none !important;
+}
+
+#mokuro-stage.cascade-mode::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+#mokuro-stage.cascade-mode::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+#mokuro-stage.cascade-mode::-webkit-scrollbar-thumb {
+  background: var(--azulNa, #13a2ce);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+#mokuro-stage.cascade-mode::-webkit-scrollbar-thumb:hover {
+  background: #0ea5e9;
+  background-clip: content-box;
+}
+
+html.dark-mode #mokuro-stage.cascade-mode::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 680px) {
+  #double-page-btn-text,
+  #cascade-btn-text,
+  #zoom-toggle-text {
+    display: none;
+  }
 }
 
 /* Estilo de Página */
@@ -2215,7 +2342,7 @@ html.dark-mode .nav-edge-zone:hover {
   border: 1px solid var(--mokuro-border);
   border-radius: 14px;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
-  padding: 14px 16px;
+  padding: 14px 11px;
   max-width: 360px;
   display: none;
   animation: popIn 0.18s ease-out;
@@ -2241,6 +2368,7 @@ html.dark-mode .torii-quick-popup {
   user-select: none;
   -webkit-user-select: none;
 }
+
 .quick-popup-header:active {
   cursor: grabbing;
 }
@@ -2382,6 +2510,15 @@ html.dark-mode .btn-quick-action:hover {
   box-shadow: 
     0 3px 10px rgba(229, 57, 53, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.anki-btn-icon {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  vertical-align: middle;
+  display: inline-block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
 /* --------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nihongo no Torii - Sala de Lectura & Mokuro</title>
+  <title>Nihongo no Torii - LecTorii & Mokuro</title>
   <link rel="icon" type="image/x-icon" href="ToriiIcon.ico" />
   <link rel="shortcut icon" href="ToriiIcon.ico" />
 
@@ -32,7 +32,7 @@
     <a href="lecciones.html">Lecciones</a>
     <a href="videos.html">Videos</a>
     <a href="biblioteca.html">Biblioteca</a>
-    <a href="lectura.html" class="active">Lectura</a>
+    <a href="lectura.html" class="active">LecTorii</a>
     <a href="ToriiTV.html">ToriiTV</a>
     <a href="jlpt-simulador.html">Simulador JLPT</a>
     
@@ -52,14 +52,14 @@
   </nav>
 </header>
 
-<!-- BANNER DE BIENVENIDA A LA SALA DE LECTURA -->
+<!-- BANNER DE BIENVENIDA A LECTORII -->
 <section class="lectura-hero">
   <div class="lectura-hero-inner">
     <span class="lectura-badge">⛩️ Inmersión y Manga con OCR</span>
-    <h1 class="lectura-title">Sala de Lectura (読書)</h1>
+    <h1 class="lectura-title">LecTorii (読書)</h1>
     <p class="lectura-subtitle">
-      Lee manga auténtico en japonés con texto seleccionable interactivo mediante el sistema <strong>Mokuro</strong>. 
-      Compatible al 100% con <strong>Yomitan</strong>, búsqueda de vocabulario instantánea y minado directo a <strong>Anki</strong>.
+      Bienvenido a LecTorii una seccion donde podras leer todos tus mangas con texto seleccionable e interactivo mediante el sistema <strong>Mokuro</strong>. 
+      el cual permite el uso de diccionarios como <strong>Yomitan</strong>, ademas de un minado directo y personalizado a <strong>Anki</strong>.
     </p>
 
     <div class="lectura-actions-bar">
@@ -88,7 +88,6 @@
           <input type="text" id="input-search-library" class="library-search-input" placeholder="Buscar en biblioteca..." autocomplete="off" />
           <button type="button" id="btn-clear-library-search" class="library-search-clear" style="display:none;" title="Limpiar búsqueda">✕</button>
         </div>
-        <span class="lectura-section-tag">Almacenamiento Local (IndexedDB)</span>
       </div>
     </div>
 
@@ -201,7 +200,7 @@
   <header class="mokuro-toolbar">
     <!-- Grupo Izquierdo: Salir y Título -->
     <div class="toolbar-group">
-      <button id="btn-exit-reader" class="toolbar-btn btn-accent" title="Volver a la Sala de Lectura">
+      <button id="btn-exit-reader" class="toolbar-btn btn-accent" title="Volver a LecTorii">
         <span>←</span> Volver
       </button>
       <span id="reader-manga-title" class="reader-title-label">うちの猫’ず日記 - Volumen 1</span>
@@ -224,6 +223,9 @@
       </button>
       <button id="btn-toggle-double-page" class="toolbar-btn" title="Alternar Vista Doble Página (2 Páginas)">
         <span>📖</span> <span id="double-page-btn-text">Doble Página</span>
+      </button>
+      <button id="btn-toggle-cascade" class="toolbar-btn" title="Lectura Horizontal ACTIVA (Clic para Vertical)">
+        <span>📜</span> <span id="cascade-btn-text">Horizontal</span>
       </button>
       <button id="btn-toggle-fullscreen" class="toolbar-btn" title="Pantalla Completa (F11)">⛶</button>
 
@@ -293,6 +295,17 @@
             </label>
             <label class="torii-switch" for="chk-r2l" title="Lectura Derecha a Izquierda">
               <input type="checkbox" id="chk-r2l" checked />
+              <span class="torii-switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="dropdown-item-row">
+            <label for="chk-cascade" class="dropdown-item-label-group">
+              <span class="dropdown-item-icon">📜</span>
+              <span class="dropdown-item-text">Lectura Vertical</span>
+            </label>
+            <label class="torii-switch" for="chk-cascade" title="Alternar Lectura Vertical / Horizontal">
+              <input type="checkbox" id="chk-cascade" />
               <span class="torii-switch-slider"></span>
             </label>
           </div>
@@ -410,13 +423,13 @@
       <span class="quick-popup-badge">⛩️ Diálogo Seleccionado</span>
       <button id="btn-close-quick-popup" class="quick-popup-close" title="Cerrar">&times;</button>
     </div>
-    <div id="quick-popup-text-content" class="quick-popup-text" contenteditable="false" spellcheck="false" title="Haz clic en 'OCR Editable' para modificar este texto"></div>
+    <div id="quick-popup-text-content" class="quick-popup-text" contenteditable="false" spellcheck="false" title="Haz clic en 'Editar' para modificar este texto"></div>
     <div class="quick-popup-actions">
       <button id="btn-mine-quick-text" class="btn-quick-action btn-mine-anki" title="Guardar tarjeta en Anki y Torii">
-        <span>⚡</span> Minar a Anki
+        <img src="image/anki-icon.png" alt="Anki" class="anki-btn-icon" /> Minar a Anki
       </button>
-      <button id="btn-toggle-editable-popup" class="btn-quick-action" title="Activar/desactivar texto OCR editable">
-        <span>✏️</span> <span id="editable-popup-label">OCR Editable</span>
+      <button id="btn-toggle-editable-popup" class="btn-quick-action" title="Activar/desactivar modo de edición">
+        <span>✏️</span> <span id="editable-popup-label">Editar OFF</span>
       </button>
       <button id="btn-copy-quick-text" class="btn-quick-action" title="Copiar texto al portapapeles">
         <span>📋</span> Copiar
