@@ -870,22 +870,231 @@
   50% { transform: scale(1.06); }
 }
 
-/* RESPONSIVE EN MÃ“VILES */
-@media (max-width: 600px) {
-  .rpg-hud-bar {
-    bottom: 12px;
-    left: 12px;
-    width: calc(100vw - 24px);
-    max-width: calc(100vw - 24px);
+/* ==========================================================================
+   ESTRUCTURA DE HUD ESCRITORIO (PC) vs BARRA MOVIL ESTILO YOUTUBE
+   ========================================================================== */
+.torii-desktop-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.torii-yt-bottom-nav {
+  display: none !important;
+}
+
+/* RESPONSIVE EN MOVILES (FORMATO ESTILO YOUTUBE BOTTOM NAVIGATION) */
+@media (max-width: 768px) {
+  .torii-desktop-hud {
+    display: none !important;
   }
-  .collapsible-quests-panel.torii-floating-quests,
-  .torii-profile-popout {
-    bottom: 70px;
-    left: 12px;
-    width: calc(100vw - 24px);
-    max-width: calc(100vw - 24px);
+
+  .torii-yt-bottom-nav {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    padding: 0 4px;
+    box-sizing: border-box;
+  }
+
+  .rpg-hud-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    margin: 0 !important;
+    padding: 0 2px calc(env(safe-area-inset-bottom, 0px)) !important;
+    border-radius: 0 !important;
+    background: #0d2836 !important;
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.45) !important;
+    border: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    z-index: 15000 !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    justify-content: stretch !important;
+    align-items: center !important;
+    gap: 0 !important;
+  }
+
+  /* Fondo único consistente para la barra móvil */
+  .rpg-hud-bar,
+  .rpg-hud-bar.theme-torii-sunset {
+    background: #0d2836 !important;
+  }
+
+  /* Espacio inferior en el body para no tapar contenido */
+  body:not(.mokuro-reading-active) {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Pestañas de navegación vertical estilo YouTube */
+  .torii-yt-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.15s ease, transform 0.15s ease;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+
+  .torii-yt-tab:active {
+    transform: scale(0.92);
+  }
+
+  .torii-yt-tab.active {
+    color: var(--naranja, #ff9447) !important;
+    font-weight: 700;
+  }
+
+  .torii-yt-tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2.5px;
+    border-radius: 0 0 3px 3px;
+    background: var(--naranja, #ff9447);
+    box-shadow: 0 0 8px rgba(255, 148, 71, 0.85);
+  }
+
+  .torii-yt-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    position: relative;
+  }
+
+  .torii-yt-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    transition: transform 0.15s ease;
+  }
+
+  .torii-yt-tab.active .torii-yt-icon svg {
+    transform: scale(1.08);
+    fill: var(--naranja, #ff9447);
+  }
+
+  .torii-yt-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    white-space: nowrap;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+  }
+
+  .torii-yt-tab.active .torii-yt-label {
+    color: var(--naranja, #ff9447) !important;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255, 148, 71, 0.5);
+  }
+
+  /* Avatar circular para la pestaña "Tú" */
+  .torii-yt-avatar-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.8px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .torii-yt-tab.active .torii-yt-avatar-circle {
+    border-color: var(--naranja, #ff9447) !important;
+    box-shadow: 0 0 8px rgba(255, 148, 71, 0.6);
+    transform: scale(1.08);
+  }
+
+  .torii-yt-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .torii-yt-avatar-text {
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+
+  /* Punto indicador de notificación en Misiones */
+  .torii-yt-badge-dot {
+    position: absolute;
+    top: 0;
+    right: -2px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--naranja, #ff9447);
+    border: 1.5px solid #0d2836;
+    animation: pulseDot 1.4s infinite ease-in-out;
+  }
+
+  /* Indicador en Música cuando está reproduciendo */
+  .torii-yt-eq-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -4px;
+    font-size: 0.65rem;
+    animation: bounceEq 1.2s infinite ease-in-out;
+  }
+
+    @keyframes bounceEq {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  /* Popouts posicionados sobre la barra móvil */
+  .torii-bgm-popout,
+  .torii-profile-popout,
+  .collapsible-quests-panel.torii-floating-quests {
+    bottom: calc(56px + 10px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    position: fixed !important;
+    border-radius: 18px !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
   }
 }
+
 
 /* SISTEMA DE TARJETAS BLOQUEADAS (LEVEL UNLOCKING) */
 .card.card-locked,

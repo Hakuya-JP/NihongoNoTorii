@@ -923,7 +923,7 @@ body.dark-mode .option-chip.selected {
   }
 
   body.dark-mode .top-nav {
-    background: var(--gris-oscuro, #0f172a);
+    background: var(--azul, #003459);
   }
 
   .top-nav.active {

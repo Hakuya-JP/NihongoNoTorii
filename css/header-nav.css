@@ -564,10 +564,6 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
 }
 
 @media (max-width: 600px) {
-  .top-nav a {
-    margin-left: 10px;
-    font-size: 0.9rem;
-  }
   .grid-contenido {
     grid-template-columns: 1fr;
   }

@@ -25,7 +25,9 @@
     isManualZoom: false,     // True si el usuario realizó un zoom manual con rueda o gesto
     manualScale: null,       // Escala personalizada para preservar entre páginas
     seriesVolumes: [],       // Lista ordenada de tomos de la serie activa (para pasar al siguiente)
-    currentVolumeIndex: -1   // Índice del tomo actual dentro de seriesVolumes
+    currentVolumeIndex: -1,  // Índice del tomo actual dentro de seriesVolumes
+    mobileImmersive: true,   // Ocultar barras al leer en teléfono (tap central para mostrar/ocultar)
+    mobileSwipeNav: true     // Navegación por swipe táctil izquierda/derecha
   };
 
   let pzInstance = null;        // Instancia de panzoom
@@ -33,37 +35,111 @@
   let _isProgrammaticZoom = false; // Bandera para distinguir ajustes automáticos de zoom manual del usuario
   let _isSwitchingReadingMode = false; // Bandera para bloquear scroll listener durante cambio horizontal/vertical
 
-  // Cargar preferencias guardadas
+  // ========================================================================
+  // CONFIGURACIÓN INDEPENDIENTE PARA TELÉFONO vs PC
+  // ========================================================================
+  const PREFS_KEY_DESKTOP = 'torii_mokuro_prefs';
+  const PREFS_KEY_MOBILE = 'torii_mokuro_prefs_mobile';
+
+  function isMobileDeviceDetected() {
+    return (window.innerWidth <= 768) || ('ontouchstart' in window && window.innerWidth <= 1024);
+  }
+
+  function getActiveProfile() {
+    return isMobileDeviceDetected() ? 'mobile' : 'desktop';
+  }
+
+  // Cargar preferencias guardadas según el dispositivo (Móvil usa su propia clave, PC la suya)
   function loadSavedPreferences() {
-    const saved = localStorage.getItem('torii_mokuro_prefs');
+    const isMobile = (getActiveProfile() === 'mobile');
+    const storageKey = isMobile ? PREFS_KEY_MOBILE : PREFS_KEY_DESKTOP;
+
+    // Valores por defecto diferenciados: en móvil jamás forzar doble página
+    const defaults = isMobile ? {
+      isR2L: true,
+      isDoublePage: false,
+      isCascade: false,
+      hasCover: false,
+      showBorders: false,
+      alwaysVisibleOcr: false,
+      editableText: false,
+      zoomMode: 'fit-width',
+      mobileImmersive: true,
+      mobileSwipeNav: true
+    } : {
+      isR2L: true,
+      isDoublePage: false,
+      isCascade: false,
+      hasCover: true,
+      showBorders: false,
+      alwaysVisibleOcr: false,
+      editableText: false,
+      zoomMode: 'fit-screen',
+      mobileImmersive: false,
+      mobileSwipeNav: false
+    };
+
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const p = JSON.parse(saved);
         if (p.isR2L !== undefined) mokuroState.isR2L = p.isR2L;
-        if (p.isDoublePage !== undefined) mokuroState.isDoublePage = p.isDoublePage;
+        if (p.isDoublePage !== undefined) mokuroState.isDoublePage = isMobile ? false : p.isDoublePage;
         if (p.isCascade !== undefined) mokuroState.isCascade = p.isCascade;
         if (p.hasCover !== undefined) mokuroState.hasCover = p.hasCover;
         if (p.showBorders !== undefined) mokuroState.showBorders = p.showBorders;
         if (p.alwaysVisibleOcr !== undefined) mokuroState.alwaysVisibleOcr = p.alwaysVisibleOcr;
         if (p.editableText !== undefined) mokuroState.editableText = p.editableText;
+        if (p.zoomMode !== undefined) mokuroState.zoomMode = p.zoomMode;
+        if (p.mobileImmersive !== undefined) mokuroState.mobileImmersive = p.mobileImmersive;
+        if (p.mobileSwipeNav !== undefined) mokuroState.mobileSwipeNav = p.mobileSwipeNav;
       } catch (e) {
         console.warn('Error al cargar preferencias de Mokuro:', e);
       }
+    } else {
+      mokuroState.isR2L = defaults.isR2L;
+      mokuroState.isDoublePage = defaults.isDoublePage;
+      mokuroState.isCascade = defaults.isCascade;
+      mokuroState.hasCover = defaults.hasCover;
+      mokuroState.showBorders = defaults.showBorders;
+      mokuroState.alwaysVisibleOcr = defaults.alwaysVisibleOcr;
+      mokuroState.editableText = defaults.editableText;
+      mokuroState.zoomMode = defaults.zoomMode;
+      mokuroState.mobileImmersive = defaults.mobileImmersive;
+      mokuroState.mobileSwipeNav = defaults.mobileSwipeNav;
     }
+
+    // En pantallas de ancho móvil, asegurar que no se quede activa doble página
+    if (isMobile && window.innerWidth <= 768) {
+      mokuroState.isDoublePage = false;
+    }
+
     mokuroState.fontSize = 'auto';
   }
 
+  // Guardar preferencias en la clave que corresponda según perfil activo
   function savePreferences() {
-    localStorage.setItem('torii_mokuro_prefs', JSON.stringify({
+    const isMobile = (getActiveProfile() === 'mobile');
+    const storageKey = isMobile ? PREFS_KEY_MOBILE : PREFS_KEY_DESKTOP;
+
+    const dataToSave = {
       isR2L: mokuroState.isR2L,
-      isDoublePage: mokuroState.isDoublePage,
+      isDoublePage: isMobile ? false : mokuroState.isDoublePage,
       isCascade: mokuroState.isCascade,
       hasCover: mokuroState.hasCover,
       showBorders: mokuroState.showBorders,
       alwaysVisibleOcr: mokuroState.alwaysVisibleOcr,
       editableText: mokuroState.editableText,
+      zoomMode: mokuroState.zoomMode,
       fontSize: 'auto'
-    }));
+    };
+
+    if (isMobile) {
+      dataToSave.mobileImmersive = !!mokuroState.mobileImmersive;
+      dataToSave.mobileSwipeNav = !!mokuroState.mobileSwipeNav;
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(dataToSave));
   }
 
   // Sincronizar checkboxes del menú con el estado
@@ -621,6 +697,113 @@
 
     stage.addEventListener('touchend', endPinch);
     stage.addEventListener('touchcancel', endPinch);
+  }
+
+  // ========================================================================
+  // GESTOS TÁCTILES MÓVILES (SWIPE Y MODO INMERSIVO TAP)
+  // ========================================================================
+  function toggleImmersiveBars(forceState) {
+    const wrapper = document.getElementById('mokuro-reader-wrapper');
+    if (!wrapper) return;
+    if (typeof forceState === 'boolean') {
+      wrapper.classList.toggle('immersive-ui-hidden', forceState);
+    } else {
+      wrapper.classList.toggle('immersive-ui-hidden');
+    }
+  }
+
+  function initMobileGestures() {
+    const stage = document.getElementById('mokuro-stage');
+    if (!stage) return;
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let touchMoved = false;
+
+    stage.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+      touchStartTime = Date.now();
+      touchMoved = false;
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - touchStartX);
+      const dy = Math.abs(t.clientY - touchStartY);
+      if (dx > 10 || dy > 10) {
+        touchMoved = true;
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length !== 1) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+      const duration = Date.now() - touchStartTime;
+
+      // 1. Detectar Tap en zona central para modo inmersivo (ocultar/mostrar barras de herramientas)
+      if (!touchMoved && duration < 320) {
+        const target = e.target;
+        if (target.closest('.textBox') ||
+            target.closest('.mokuro-toolbar') ||
+            target.closest('.torii-quick-popup') ||
+            target.closest('.reader-bottom-scrubber') ||
+            target.closest('.modal-overlay-manga') ||
+            target.closest('button') ||
+            target.closest('input') ||
+            target.closest('select')) {
+          return;
+        }
+
+        const relX = t.clientX / window.innerWidth;
+        const relY = t.clientY / window.innerHeight;
+        // Zona central segura (alejada de bordes izquierdo y derecho donde están las nav-edge-zones)
+        if (relX > 0.22 && relX < 0.78 && relY > 0.15 && relY < 0.85) {
+          if (mokuroState.mobileImmersive) {
+            toggleImmersiveBars();
+            return;
+          }
+        }
+      }
+
+      // 2. Detectar Swipe Horizontal para cambiar de página (solo en modo horizontal / no cascada)
+      if (mokuroState.mobileSwipeNav && !mokuroState.isCascade && touchMoved) {
+        // Si hay zoom activo en panzoom, no pasar página para permitir explorar la viñeta
+        if (pzInstance) {
+          const currentScale = pzInstance.getTransform ? pzInstance.getTransform().scale : 1.0;
+          const minZ = pzInstance.getMinZoom ? pzInstance.getMinZoom() : 0.05;
+          if (currentScale > minZ + 0.08) {
+            return;
+          }
+        }
+
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+        if (absX > 40 && absX > absY * 1.3 && duration < 550) {
+          if (mokuroState.isR2L) {
+            // Lectura japonesa derecha a izquierda: swipe hacia la izquierda avanza página
+            if (dx < 0) {
+              nextPage();
+            } else {
+              prevPage();
+            }
+          } else {
+            // Lectura occidental izquierda a derecha
+            if (dx > 0) {
+              nextPage();
+            } else {
+              prevPage();
+            }
+          }
+        }
+      }
+    }, { passive: true });
   }
 
 
@@ -2354,19 +2537,31 @@
     mokuroState.activeTextBoxText = text.trim();
     textEl.textContent = mokuroState.activeTextBoxText;
 
-    // Posicionar el popup cerca del cursor sin desbordar la pantalla
-    const popupW = 340;
-    const popupH = 180;
-    let posX = clientX + 15;
-    let posY = clientY + 15;
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      // En móvil, se abre como Bottom Sheet limpio anclado a la parte inferior
+      popup.classList.add('mobile-bottom-sheet');
+      popup.style.left = '';
+      popup.style.top = '';
+      popup.style.right = '';
+      popup.style.bottom = '';
+    } else {
+      popup.classList.remove('mobile-bottom-sheet');
+      // Posicionar el popup cerca del cursor sin desbordar la pantalla en PC
+      const popupW = 340;
+      const popupH = 180;
+      let posX = clientX + 15;
+      let posY = clientY + 15;
 
-    if (posX + popupW > window.innerWidth) posX = window.innerWidth - popupW - 20;
-    if (posY + popupH > window.innerHeight) posY = window.innerHeight - popupH - 20;
-    if (posX < 10) posX = 10;
-    if (posY < 10) posY = 10;
+      if (posX + popupW > window.innerWidth) posX = window.innerWidth - popupW - 20;
+      if (posY + popupH > window.innerHeight) posY = window.innerHeight - popupH - 20;
+      if (posX < 10) posX = 10;
+      if (posY < 10) posY = 10;
 
-    popup.style.left = `${posX}px`;
-    popup.style.top = `${posY}px`;
+      popup.style.left = `${posX}px`;
+      popup.style.top = `${posY}px`;
+    }
+
     popup.style.display = 'block';
 
     // Refrescar estado del botón toggle y activación de edición en el popup
@@ -2415,7 +2610,10 @@
     flushSaveMangaPages();
     activePopupContext = null;
     const popup = document.getElementById('torii-quick-popup');
-    if (popup) popup.style.display = 'none';
+    if (popup) {
+      popup.style.display = 'none';
+      popup.classList.remove('mobile-bottom-sheet');
+    }
   }
 
   function getCleanSentenceForMining(text) {
@@ -3075,12 +3273,18 @@
     const container = document.getElementById('mokuro-pages-container');
     if (wrapper) {
       wrapper.classList.add('active');
+      wrapper.classList.remove('immersive-ui-hidden');
       document.body.classList.add('mokuro-reading-active');
       document.body.style.overflow = 'hidden';
       syncUIWithState();
       if (container) container.innerHTML = '';
       currentMangaKey = null;           // Forzar reconstrucción de páginas
-      mokuroState.zoomMode = 'fit-screen'; // Reiniciar modo de zoom al abrir un nuevo manga
+      if (getActiveProfile() === 'mobile') {
+        mokuroState.zoomMode = 'fit-width';
+        mokuroState.isDoublePage = false;
+      } else {
+        mokuroState.zoomMode = 'fit-screen';
+      }
       mokuroState.isManualZoom = false;
       mokuroState.manualScale = null;
       updateZoomToggleBtn();
@@ -3100,6 +3304,7 @@
     }
     if (wrapper) {
       wrapper.classList.remove('active');
+      wrapper.classList.remove('immersive-ui-hidden');
       document.body.classList.remove('mokuro-reading-active');
       document.body.style.overflow = '';
       if (stage) {
@@ -3302,6 +3507,7 @@
     syncUIWithState();
     initCascadeDragPan();
     initCascadePinchZoom();
+    initMobileGestures();
 
     // Controles de barra del lector
     const btnExit = document.getElementById('btn-exit-reader');
@@ -3704,7 +3910,7 @@
 
     if (btnClosePopup) btnClosePopup.addEventListener('click', closeToriiMiningPopup);
 
-        // Hacer el popup arrastrable desde el header
+        // Hacer el popup arrastrable desde el header (solo en desktop)
     {
       const popupEl = document.getElementById('torii-quick-popup');
       const headerEl = popupEl ? popupEl.querySelector('.quick-popup-header') : null;
@@ -3712,6 +3918,8 @@
         let dragging = false, startX = 0, startY = 0, origX = 0, origY = 0;
         
         headerEl.addEventListener('pointerdown', (e) => {
+          // En móvil el popup actúa como Bottom Sheet fijo en la parte inferior
+          if (window.innerWidth <= 768) return;
           // No arrastrar si el clic fue en el botón de cerrar
           if (e.target.closest('.quick-popup-close')) return;
           dragging = true;

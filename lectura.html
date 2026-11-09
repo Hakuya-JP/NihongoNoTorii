@@ -201,7 +201,7 @@
     <!-- Grupo Izquierdo: Salir y Título -->
     <div class="toolbar-group">
       <button id="btn-exit-reader" class="toolbar-btn btn-accent" title="Volver a LecTorii">
-        <span>←</span> Volver
+        <span>←</span> <span class="btn-exit-text">Volver</span>
       </button>
       <span id="reader-manga-title" class="reader-title-label">うちの猫’ず日記 - Volumen 1</span>
     </div>
@@ -232,7 +232,7 @@
       <!-- Configuración de AnkiConnect con Menú Flotante estilo ToriiTV -->
       <div class="mokuro-dropdown" id="mokuro-anki-dropdown">
         <button id="btn-mokuro-anki" class="toolbar-btn" title="Configurar AnkiConnect y Mazo">
-          <span>📇</span> Anki
+          <span>📇</span> <span class="btn-anki-text">Anki</span>
         </button>
         <div class="mokuro-dropdown-menu anki-manga-dropdown-menu" style="min-width: 290px; padding: 16px; text-align: left;">
           <div class="anki-config-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -282,12 +282,14 @@
 
       <!-- Menú Desplegable de Configuración -->
       <div class="mokuro-dropdown" id="mokuro-settings-dropdown">
-        <button id="btn-settings-dropdown" class="toolbar-btn" title="Opciones de Lectura">⚙️ Opciones</button>
+        <button id="btn-settings-dropdown" class="toolbar-btn" title="Opciones de Lectura">
+          <span>⚙️</span> <span class="btn-settings-text">Opciones</span>
+        </button>
         <div class="mokuro-dropdown-menu">
           <div class="mokuro-dropdown-header">
             <span class="dropdown-header-title">⚙️ Ajustes de Lectura</span>
           </div>
-          
+
           <div class="dropdown-item-row">
             <label for="chk-r2l" class="dropdown-item-label-group">
               <span class="dropdown-item-icon">📖</span>

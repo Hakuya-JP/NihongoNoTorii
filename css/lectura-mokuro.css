@@ -2566,37 +2566,263 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
+/* ==========================================================================
+   MODO INMERSIVO EN MÓVIL (TAP AL CENTRO PARA OCULTAR/MOSTRAR BARRAS)
+   ========================================================================== */
+.mokuro-toolbar {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease !important;
+}
+
+.reader-bottom-scrubber {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease !important;
+}
+
+#mokuro-reader-wrapper.immersive-ui-hidden .mokuro-toolbar {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#mokuro-reader-wrapper.immersive-ui-hidden .reader-bottom-scrubber {
+  transform: translateY(100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#mokuro-reader-wrapper.immersive-ui-hidden .nav-edge-zone {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* --------------------------------------------------------------------------
-   RESPONSIVIDAD & MÓVILES
+   RESPONSIVIDAD & MÓVILES (LECTORII Y VISOR MOKURO)
    -------------------------------------------------------------------------- */
 @media (max-width: 768px) {
+  /* Catálogo & Hero */
+  .lectura-hero {
+    padding: 35px 18px 28px !important;
+  }
+
   .lectura-title {
-    font-size: 2rem;
+    font-size: 1.85rem !important;
+    line-height: 1.2 !important;
   }
   
   .lectura-subtitle {
-    font-size: 1rem;
+    font-size: 0.92rem !important;
+    line-height: 1.5 !important;
   }
 
+  .lectura-actions-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  .btn-hero-lectura {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .lectura-section-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .library-header-actions,
+  .library-search-wrap {
+    width: 100% !important;
+  }
+
+  /* Grid de mangas en 2 columnas proporcionadas en pantallas móviles */
   .manga-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
   }
   
   .manga-thumb-wrap {
-    height: 260px;
+    height: 200px !important;
   }
-  
+
+  .manga-card-content {
+    padding: 10px 12px !important;
+  }
+
+  .manga-card-title {
+    font-size: 0.92rem !important;
+  }
+
+  .manga-card-subtitle {
+    font-size: 0.78rem !important;
+  }
+
+  .manga-card-actions {
+    gap: 6px !important;
+  }
+
+  /* Visor Mokuro en Móviles */
   .reader-title-label {
-    display: none;
+    display: none !important;
   }
   
   .mokuro-toolbar {
-    padding: 0 8px;
+    height: 48px !important;
+    padding: 0 6px !important;
+    gap: 4px !important;
+  }
+
+  .toolbar-group {
+    gap: 4px !important;
+  }
+
+  /* En móviles, la doble página es ilegible en pantallas verticales; se oculta */
+  #btn-toggle-double-page {
+    display: none !important;
+  }
+
+  /* Compactar textos de botones en móvil para evitar que desborden */
+  .btn-exit-text,
+  .btn-anki-text,
+  .btn-settings-text,
+  #double-page-btn-text,
+  #cascade-btn-text,
+  #zoom-toggle-text {
+    display: none !important;
+  }
+
+  .toolbar-btn {
+    padding: 6px 10px !important;
+    font-size: 0.88rem !important;
+    min-height: 38px !important;
+    min-width: 38px !important;
+    justify-content: center !important;
+    gap: 4px !important;
+  }
+
+  .page-nav-control {
+    padding: 2px 4px !important;
+    gap: 3px !important;
+  }
+
+  .page-input-box {
+    width: 38px !important;
+    height: 28px !important;
+    font-size: 0.84rem !important;
+  }
+
+  .page-total-label {
+    font-size: 0.8rem !important;
   }
 
   .nav-edge-zone {
-    width: 12vw;
+    width: 16vw !important;
+  }
+
+  /* Popup de diálogo estilo Bottom Sheet en móvil */
+  .torii-quick-popup,
+  .torii-quick-popup.mobile-bottom-sheet {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 20px 20px 0 0 !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5) !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-sizing: border-box !important;
+    padding: 16px 18px 24px !important;
+    animation: slideUpSheet 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transform: translateY(0) !important;
+    z-index: 100060 !important;
+  }
+
+  @keyframes slideUpSheet {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .quick-popup-header {
+    margin-bottom: 10px !important;
+  }
+
+  .quick-popup-text {
+    max-height: 120px !important;
+    overflow-y: auto !important;
+    font-size: 1.15rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 14px !important;
+    padding: 8px 10px !important;
+  }
+
+  .quick-popup-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .quick-popup-actions .btn-quick-action {
+    flex: 1 1 calc(50% - 6px) !important;
+    justify-content: center !important;
+    padding: 10px 8px !important;
+    font-size: 0.88rem !important;
+    min-height: 42px !important;
+  }
+
+  .quick-popup-actions .btn-mine-anki {
+    flex: 1 1 100% !important;
+    order: -1 !important;
+    min-height: 44px !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Menús desplegables en móvil */
+  .mokuro-dropdown-menu {
+    width: min(320px, 94vw) !important;
+    right: -8px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+  }
+
+  .anki-manga-dropdown-menu {
+    right: -30px !important;
+    width: min(310px, 94vw) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #btn-toggle-fullscreen {
+    display: none !important;
+  }
+
+  .toolbar-btn {
+    padding: 5px 8px !important;
+    font-size: 0.82rem !important;
+    min-width: 34px !important;
+    min-height: 36px !important;
+  }
+
+  .page-input-box {
+    width: 32px !important;
+    height: 26px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .manga-thumb-wrap {
+    height: 170px !important;
+  }
+
+  .modal-content-manga {
+    padding: 20px 14px !important;
+    border-radius: 16px !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
   }
 }
 

@@ -284,6 +284,24 @@ function actualizarEstadoVisualBGM() {
     soundBtn.title = isMuted ? 'Reproducir música de fondo' : 'Pausar música de fondo';
   }
 
+  // 1.1 Sincronizar pestaña de Música en la barra móvil estilo YouTube
+  const ytBgmTab = document.getElementById("torii-yt-tab-bgm");
+  if (ytBgmTab) {
+    ytBgmTab.classList.toggle("is-playing", isPlaying);
+    let eqDot = ytBgmTab.querySelector(".torii-yt-eq-dot");
+    if (isPlaying && !eqDot) {
+      const iconWrap = ytBgmTab.querySelector(".torii-yt-icon");
+      if (iconWrap) {
+        eqDot = document.createElement("span");
+        eqDot.className = "torii-yt-eq-dot";
+        eqDot.textContent = "🎵";
+        iconWrap.appendChild(eqDot);
+      }
+    } else if (!isPlaying && eqDot) {
+      eqDot.remove();
+    }
+  }
+
   // 2. Información en el popout de música
   const playIcon = document.querySelector(".torii-bgm-playing-icon");
   if (playIcon) {
@@ -833,109 +851,173 @@ function renderHeaderRPG_HUD() {
     hasClaimableQuest = userProfile.misionesDiarias.some(m => m.completada && !m.reclamada);
   }
 
+  // Detectar página actual para marcar pestaña activa en barra móvil estilo YouTube
+  const currentPath = (window.location.pathname || '').toLowerCase();
+  const isInicio = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/') || (!currentPath.includes('.html') && !currentPath.includes('torii'));
+  const isLectura = currentPath.includes('lectura.html') || currentPath.includes('manga.html');
+  const isPerfil = currentPath.includes('perfil.html');
+  const basePath = window.TORII_BASE_PATH || '';
+
   hud.innerHTML = `
     <!-- DECORACIÓN DE FONDO SEGÚN EL TEMA -->
     <div class="torii-hud-bg-decor"></div>
 
-    <!-- SECCIÓN IZQUIERDA: PERFIL (AVATAR + NOMBRE + NIVEL/XP) - CLIC ABRE POPOUT -->
-    <div class="torii-user-pill" id="torii-user-pill-btn" onclick="toggleToriiProfilePopout(event)" title="Ver opciones de perfil (${userName})">
-      <div class="torii-avatar-container">
-        <div class="torii-avatar">
-          ${isAvatarUrl ? `<img src="${userAvatar}" alt="Avatar">` : `<span>${userAvatar}</span>`}
+    <!-- ====================================================================
+         VISTA ESCRITORIO (PC) - DOCK CLÁSICO ORIGINAL DE NIHONGO NO TORII
+         ==================================================================== -->
+    <div class="torii-desktop-hud">
+      <!-- SECCIÓN IZQUIERDA: PERFIL (AVATAR + NOMBRE + NIVEL/XP) -->
+      <div class="torii-user-pill" id="torii-user-pill-btn" onclick="toggleToriiProfilePopout(event)" title="Ver opciones de perfil (${userName})">
+        <div class="torii-avatar-container">
+          <div class="torii-avatar">
+            ${isAvatarUrl ? `<img src="${userAvatar}" alt="Avatar">` : `<span>${userAvatar}</span>`}
+          </div>
+        </div>
+
+        <div class="torii-user-details">
+          <div class="torii-username">${userName}</div>
+          <div class="torii-user-status">
+            <span class="torii-lvl-tag">Lv.${info.level}</span>
+            <span class="torii-xp-text">${info.siguienteNivel ? `${info.xpEnEsteNivel}/${info.xpRequeridaNivel} XP` : 'MAX XP'}</span>
+          </div>
+          <div class="torii-mini-xp-track" title="Progreso hacia el siguiente nivel: ${info.porcentaje}%">
+            <div class="torii-mini-xp-fill" style="width: ${info.porcentaje}%;"></div>
+          </div>
         </div>
       </div>
 
-      <div class="torii-user-details">
-        <div class="torii-username">${userName}</div>
-        <div class="torii-user-status">
-          <span class="torii-lvl-tag">Lv.${info.level}</span>
-          <span class="torii-xp-text">${info.siguienteNivel ? `${info.xpEnEsteNivel}/${info.xpRequeridaNivel} XP` : 'MAX XP'}</span>
+      <!-- SECCIÓN DERECHA: BOTONES DE ACCIÓN (AUDIO / MISIONES / PERFIL) -->
+      <div class="torii-actions-group">
+        <!-- BOTÓN BGM / AUDIO -->
+        <div class="torii-audio-btn-wrapper">
+          <button id="btn-toggle-rpg-sound" class="torii-icon-btn ${isMuted ? 'muted' : 'active'}" onclick="reproducirOPausarBGM(event)" title="${isMuted ? 'Reproducir música de fondo' : 'Pausar música de fondo'}">
+            ${isMuted ? '🔇' : '🎧'}
+          </button>
+          <button id="btn-open-bgm-popout" class="torii-arrow-btn" onclick="toggleToriiBgmPopout(event)" title="Abrir lista de canciones">▾</button>
         </div>
-        <div class="torii-mini-xp-track" title="Progreso hacia el siguiente nivel: ${info.porcentaje}%">
-          <div class="torii-mini-xp-fill" style="width: ${info.porcentaje}%;"></div>
-        </div>
+
+        <!-- BOTÓN DE MISIONES DIARIAS -->
+        <button id="btn-hud-quests-toggle" class="torii-icon-btn ${hasClaimableQuest ? 'quest-notify' : ''}" onclick="toggleDailyQuestsPanel(event)" title="Misiones Diarias del Aprendiz 📜">
+          📜
+          ${hasClaimableQuest ? '<span class="torii-quest-dot"></span>' : ''}
+        </button>
+
+        <!-- BOTÓN DE AJUSTES / PERFIL -->
+        <a href="${perfilUrl}" class="torii-icon-btn" title="Configurar Perfil">
+          ⚙️
+        </a>
       </div>
     </div>
 
-    <!-- SECCIÓN DERECHA: BOTONES DE ACCIÓN (AUDIO / MISIONES / PERFIL) -->
-    <div class="torii-actions-group">
-      <!-- BOTÓN BGM / AUDIO (Estilo Music Pill) -->
-      <div class="torii-audio-btn-wrapper">
-        <button id="btn-toggle-rpg-sound" class="torii-icon-btn ${isMuted ? 'muted' : 'active'}" onclick="reproducirOPausarBGM(event)" title="${isMuted ? 'Reproducir música de fondo' : 'Pausar música de fondo'}">
-          ${isMuted ? '🔇' : '🎧'}
-        </button>
-        <button id="btn-open-bgm-popout" class="torii-arrow-btn" onclick="toggleToriiBgmPopout(event)" title="Abrir lista de canciones">▾</button>
-
-        <!-- POPOUT DE AUDIO FLOTANTE COMPLETO -->
-        <div id="torii-bgm-popout" class="torii-bgm-popout theme-${hudTheme} ${wasBgmOpen ? 'open' : ''}" ${hudTheme === 'custom' && hudCustomBg ? `style="background-image: linear-gradient(rgba(10, 16, 28, 0.85), rgba(10, 16, 28, 0.9)), url('${hudCustomBg}'); background-size: cover; background-position: center;"` : ''} onclick="event.stopPropagation()">
-          <div class="torii-popout-header">
-            <span>🎵 Música de Fondo</span>
-            <button type="button" class="torii-popout-close-btn-small" onclick="toggleToriiBgmPopout(event)">&times;</button>
-          </div>
-
-          <div class="torii-bgm-now-playing">
-            <span class="torii-bgm-playing-icon">${isPlaying ? '▶️' : '⏸️'}</span>
-            <div class="torii-bgm-song-info">
-              <span class="torii-bgm-current-title">${(getBgmPlaylist()[currentSongIdx] || {}).title || 'Música'}</span>
-              <span class="torii-bgm-current-status">${isPlaying ? 'Reproduciendo en bucle' : 'En pausa'}</span>
-            </div>
-          </div>
-
-          <!-- CONTROLES DE REPRODUCCIÓN -->
-          <div class="torii-bgm-controls-row">
-            <button type="button" class="torii-ctrl-btn" onclick="anteriorCancionBGM()" title="Canción anterior">⏮️</button>
-            <button type="button" class="torii-ctrl-btn play-btn" onclick="reproducirOPausarBGM(event)" title="${isPlaying ? 'Pausar' : 'Reproducir'}">
-              ${isPlaying ? '⏸️' : '▶️'}
-            </button>
-            <button type="button" class="torii-ctrl-btn" onclick="siguienteCancionBGM(true)" title="Siguiente canción">⏭️</button>
-          </div>
-
-          <!-- CONTROL DE VOLUMEN -->
-          <div class="torii-volume-row" onclick="event.stopPropagation()">
-            <span>🔊</span>
-            <input type="range" id="rpg-volume-slider" class="torii-volume-slider" min="0" max="1" step="0.01" value="${currentVolume}" oninput="cambiarVolumenBGM(this.value)" onclick="event.stopPropagation()">
-            <span id="torii-volume-percent" style="font-size:0.75rem; color:#94a3b8; min-width:32px; text-align:right;">${Math.round(currentVolume * 100)}%</span>
-          </div>
-
-          <div class="torii-popout-divider"></div>
-
-          <!-- LISTA DE CANCIONES (PLAYLIST) -->
-          <div class="torii-playlist-header-row">
-            <div class="torii-playlist-label">📜 Escoge una canción (${getBgmPlaylist().length}):</div>
-            <button type="button" class="torii-add-song-btn" onclick="document.getElementById('torii-bgm-file-input').click()" title="Agregar canción desde tu ordenador">
-              ➕ Agregar
-            </button>
-          </div>
-          <!-- INPUT OCULTO PARA AGREGAR CANCIONES LOCALES -->
-          <input type="file" id="torii-bgm-file-input" accept="audio/*" style="display:none;" onchange="agregarCancionPersonalizada(event)">
-
-          <div class="torii-bgm-playlist-list">
-            ${getBgmPlaylist().map((song, i) => `
-              <div class="torii-playlist-item ${i === currentSongIdx ? 'active' : ''}" onclick="cambiarCancionPorIndice(${i})">
-                <span class="torii-track-num">${i + 1}.</span>
-                <span class="torii-track-name" title="${song.title}">
-                  ${song.title}
-                  ${song.isCustom ? '<span style="font-size:0.62rem; background:rgba(56,189,248,0.2); color:#38bdf8; padding:1px 5px; border-radius:4px; margin-left:4px; font-weight:800;">MÍA</span>' : ''}
-                </span>
-                ${song.isCustom ? `<button type="button" class="torii-del-song-btn" onclick="eliminarCancionPersonalizada(event, '${song.id}')" title="Eliminar de mi lista">🗑️</button>` : ''}
-                ${i === currentSongIdx ? (isPlaying ? '<span class="torii-track-eq">🎵</span>' : '<span>⏸️</span>') : ''}
-              </div>
-            `).join("")}
-          </div>
+    <!-- ====================================================================
+         VISTA MÓVIL ESTILO YOUTUBE (BARRA INFERIOR DOCK CON PESTAÑAS)
+         ==================================================================== -->
+    <nav class="torii-yt-bottom-nav" aria-label="Barra de perfil y navegación móvil">
+      <!-- 1. Inicio -->
+      <a href="${basePath}index.html" class="torii-yt-tab ${isInicio ? 'active' : ''}">
+        <div class="torii-yt-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         </div>
-      </div>
+        <span class="torii-yt-label">Inicio</span>
+      </a>
 
-      <!-- BOTÓN DE MISIONES DIARIAS -->
-      <button id="btn-hud-quests-toggle" class="torii-icon-btn ${hasClaimableQuest ? 'quest-notify' : ''}" onclick="toggleDailyQuestsPanel(event)" title="Misiones Diarias del Aprendiz 📜">
-        📜
-        ${hasClaimableQuest ? '<span class="torii-quest-dot"></span>' : ''}
+      <!-- 2. LecTorii -->
+      <a href="${basePath}lectura.html" class="torii-yt-tab ${isLectura ? 'active' : ''}">
+        <div class="torii-yt-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm-1 13c-1.05-.3-2.3-.5-3.5-.5-1.6 0-3.15.4-4.5 1.15V7.5c1.35-.75 2.9-1.15 4.5-1.15 1.2 0 2.45.2 3.5.5V18z"/></svg>
+        </div>
+        <span class="torii-yt-label">LecTorii</span>
+      </a>
+
+      <!-- 3. Misiones -->
+      <button type="button" class="torii-yt-tab" onclick="toggleDailyQuestsPanel(event)" title="Misiones Diarias">
+        <div class="torii-yt-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+          ${hasClaimableQuest ? '<span class="torii-yt-badge-dot"></span>' : ''}
+        </div>
+        <span class="torii-yt-label">Misiones</span>
       </button>
 
-      <!-- BOTÓN DE AJUSTES / PERFIL -->
-      <a href="${perfilUrl}" class="torii-icon-btn" title="Configurar Perfil">
-        ⚙️
-      </a>
+      <!-- 4. Música -->
+      <button type="button" id="torii-yt-tab-bgm" class="torii-yt-tab ${isPlaying ? 'is-playing' : ''}" onclick="toggleToriiBgmPopout(event)" title="Música BGM">
+        <div class="torii-yt-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h4v-8H5v-1a7 7 0 0 1 14 0v1h-4v8h4c1.1 0 2-.9 2-2v-7a9 9 0 0 0-9-9z"/></svg>
+          ${isPlaying ? '<span class="torii-yt-eq-dot">🎵</span>' : ''}
+        </div>
+        <span class="torii-yt-label">Música</span>
+      </button>
+
+      <!-- 5. Tú (Perfil del usuario estilo YouTube) -->
+      <button type="button" class="torii-yt-tab ${isPerfil ? 'active' : ''}" onclick="toggleToriiProfilePopout(event)" title="Mi Perfil (${userName})">
+        <div class="torii-yt-icon">
+          <div class="torii-yt-avatar-circle">
+            ${isAvatarUrl ? `<img src="${userAvatar}" alt="Avatar" class="torii-yt-avatar-img">` : `<span class="torii-yt-avatar-text">${userAvatar}</span>`}
+          </div>
+        </div>
+        <span class="torii-yt-label">Tú</span>
+      </button>
+    </nav>
+
+    <!-- POPOUTS COMPARTIDOS (ACCESIBLES TANTO DESDE PC COMO DESDE MÓVIL) -->
+    <!-- POPOUT DE AUDIO FLOTANTE COMPLETO -->
+    <div id="torii-bgm-popout" class="torii-bgm-popout theme-${hudTheme} ${wasBgmOpen ? 'open' : ''}" ${hudTheme === 'custom' && hudCustomBg ? `style="background-image: linear-gradient(rgba(10, 16, 28, 0.85), rgba(10, 16, 28, 0.9)), url('${hudCustomBg}'); background-size: cover; background-position: center;"` : ''} onclick="event.stopPropagation()">
+      <div class="torii-popout-header">
+        <span>🎵 Música de Fondo</span>
+        <button type="button" class="torii-popout-close-btn-small" onclick="toggleToriiBgmPopout(event)">&times;</button>
+      </div>
+
+      <div class="torii-bgm-now-playing">
+        <span class="torii-bgm-playing-icon">${isPlaying ? '▶️' : '⏸️'}</span>
+        <div class="torii-bgm-song-info">
+          <span class="torii-bgm-current-title">${(getBgmPlaylist()[currentSongIdx] || {}).title || 'Música'}</span>
+          <span class="torii-bgm-current-status">${isPlaying ? 'Reproduciendo en bucle' : 'En pausa'}</span>
+        </div>
+      </div>
+
+      <!-- CONTROLES DE REPRODUCCIÓN -->
+      <div class="torii-bgm-controls-row">
+        <button type="button" class="torii-ctrl-btn" onclick="anteriorCancionBGM()" title="Canción anterior">⏮️</button>
+        <button type="button" class="torii-ctrl-btn play-btn" onclick="reproducirOPausarBGM(event)" title="${isPlaying ? 'Pausar' : 'Reproducir'}">
+          ${isPlaying ? '⏸️' : '▶️'}
+        </button>
+        <button type="button" class="torii-ctrl-btn" onclick="siguienteCancionBGM(true)" title="Siguiente canción">⏭️</button>
+      </div>
+
+      <!-- CONTROL DE VOLUMEN -->
+      <div class="torii-volume-row" onclick="event.stopPropagation()">
+        <span>🔊</span>
+        <input type="range" id="rpg-volume-slider" class="torii-volume-slider" min="0" max="1" step="0.01" value="${currentVolume}" oninput="cambiarVolumenBGM(this.value)" onclick="event.stopPropagation()">
+        <span id="torii-volume-percent" style="font-size:0.75rem; color:#94a3b8; min-width:32px; text-align:right;">${Math.round(currentVolume * 100)}%</span>
+      </div>
+
+      <div class="torii-popout-divider"></div>
+
+      <!-- LISTA DE CANCIONES (PLAYLIST) -->
+      <div class="torii-playlist-header-row">
+        <div class="torii-playlist-label">📜 Escoge una canción (${getBgmPlaylist().length}):</div>
+        <button type="button" class="torii-add-song-btn" onclick="document.getElementById('torii-bgm-file-input').click()" title="Agregar canción desde tu ordenador">
+          ➕ Agregar
+        </button>
+      </div>
+      <!-- INPUT OCULTO PARA AGREGAR CANCIONES LOCALES -->
+      <input type="file" id="torii-bgm-file-input" accept="audio/*" style="display:none;" onchange="agregarCancionPersonalizada(event)">
+
+      <div class="torii-bgm-playlist-list">
+        ${getBgmPlaylist().map((song, i) => `
+          <div class="torii-playlist-item ${i === currentSongIdx ? 'active' : ''}" onclick="cambiarCancionPorIndice(${i})">
+            <span class="torii-track-num">${i + 1}.</span>
+            <span class="torii-track-name" title="${song.title}">
+              ${song.title}
+              ${song.isCustom ? '<span style="font-size:0.62rem; background:rgba(56,189,248,0.2); color:#38bdf8; padding:1px 5px; border-radius:4px; margin-left:4px; font-weight:800;">MÍA</span>' : ''}
+            </span>
+            ${song.isCustom ? `<button type="button" class="torii-del-song-btn" onclick="eliminarCancionPersonalizada(event, '${song.id}')" title="Eliminar de mi lista">🗑️</button>` : ''}
+            ${i === currentSongIdx ? (isPlaying ? '<span class="torii-track-eq">🎵</span>' : '<span>⏸️</span>') : ''}
+          </div>
+        `).join("")}
+      </div>
     </div>
+
+
 
     <!-- POPOUT COMPLETO DE PERFIL TRANSLÚCIDO -->
     <div id="torii-profile-popout" class="torii-profile-popout theme-${hudTheme} ${wasProfileOpen ? 'open' : ''}" ${hudTheme === 'custom' && hudCustomBg ? `style="background-image: linear-gradient(rgba(10, 16, 28, 0.88), rgba(10, 16, 28, 0.94)), url('${hudCustomBg}'); background-size: cover; background-position: center;"` : ''} onclick="event.stopPropagation()">
