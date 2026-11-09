@@ -205,3 +205,84 @@ body.dark-mode .libro-box {
 .libro-btn:hover {
   background: #ff7b1d;
 }
+
+
+/* ==========================================================================
+   RESPONSIVE MÓVIL Y TABLET (Lecciones y Kana)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .titulo-lecciones {
+    font-size: 1.6rem;
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  .subtitulo-lecciones {
+    font-size: 0.95rem;
+    padding: 0 14px;
+    margin-bottom: 24px;
+  }
+
+  .grid-lecciones {
+    width: 94%;
+    margin: 20px auto;
+    gap: 16px;
+  }
+
+  .kana-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .kana-card {
+    padding: 12px;
+  }
+
+  .kana-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .content {
+    width: 95%;
+    margin: 20px auto;
+  }
+
+  .vocal-item {
+    padding: 12px 14px;
+    margin: 10px 0;
+  }
+
+  .vocal-text, .vocal-item p {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .titulo-lecciones {
+    font-size: 1.4rem;
+  }
+
+  .grid-lecciones {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .kana-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .top-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .libro-box {
+    margin-top: 30px;
+    padding: 16px 12px;
+  }
+
+  .libro-box img {
+    width: 130px;
+  }
+}

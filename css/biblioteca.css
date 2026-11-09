@@ -254,7 +254,7 @@ body.dark-mode .filter-btn.active {
 .grid-libros {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 30px;
   transition: margin-left 0.4s ease;
 }
@@ -277,6 +277,7 @@ body.dark-mode .filter-btn.active {
 .libro-card img {
   width: 100%;
   aspect-ratio: 3/4;
+  height: auto;
   object-fit: fill;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -338,13 +339,14 @@ body.dark-mode .filter-btn.active {
   width: 90%;
   max-width: 260px;
   aspect-ratio: 3/4;
-  height: 340px;       /* Le fuerzas una altura fija estándar */
-  object-fit: fill; /* <-- LA CLAVE: Muestra la imagen COMPLETA sin recortarla */
-  background: #00000010; /* Opcional: Un fondo sutil por si la imagen es delgada */
+  height: auto;
+  max-height: 350px;
+  object-fit: fill;
+  background: #00000010;
   border-radius: 8px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
   margin-bottom: 20px;
-  display: block; /* Asegura que se centre bien junto al margen automático */
+  display: block;
   margin-left: auto;
   margin-right: auto;
 }
@@ -386,4 +388,90 @@ body.dark-mode .download-links h4 {
   display: block;
   margin: 8px auto;
   width: 100%;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE MÓVIL Y TABLET (Biblioteca)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .biblioteca-controles {
+    width: 95%;
+    margin: 20px auto 10px;
+    gap: 12px;
+  }
+
+  .biblioteca-filtros-panel {
+    padding: 10px 12px;
+  }
+
+  .filtros-row-bar {
+    gap: 8px;
+  }
+
+  .filter-group-header {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .btn-reset-filtros {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+  }
+
+  .biblioteca-main {
+    width: 95%;
+    margin: 15px auto 40px;
+    gap: 15px;
+  }
+
+  .grid-libros {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+  }
+
+  .libro-card {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .libro-card h3 {
+    font-size: 0.95rem;
+    margin-top: 8px;
+  }
+
+  .sidebar-libro {
+    top: 70px;
+    width: min(92vw, 360px);
+    height: calc(100vh - 70px);
+    padding: 18px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-libros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .libro-card {
+    padding: 8px;
+  }
+
+  .libro-card img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    height: auto;
+    object-fit: fill;
+  }
+
+  .libro-card h3 {
+    font-size: 0.88rem;
+    line-height: 1.25;
+  }
+
+  .filter-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
 }

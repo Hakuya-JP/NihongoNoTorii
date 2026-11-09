@@ -317,8 +317,8 @@ html.dark-mode .library-search-input:focus {
 /* Cuadrícula de Mangas */
 .manga-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
   margin-top: 15px;
 }
 
@@ -355,7 +355,7 @@ html.dark-mode .manga-card {
 .manga-thumb {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   transition: transform 0.3s;
 }
 
@@ -1184,10 +1184,16 @@ body:has(#mokuro-reader-wrapper.active) .rpg-hud-bar {
   user-select: none;
 }
 
+.mokuro-toolbar .toolbar-group,
 .toolbar-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
+  background: transparent;
+  padding: 0;
+  border: none;
+  border-radius: 0;
 }
 
 .toolbar-btn {
@@ -2644,7 +2650,27 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   }
   
   .manga-thumb-wrap {
-    height: 200px !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1.414 !important;
+    width: 100% !important;
+  }
+
+  .manga-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: fill !important;
+  }
+
+  .volume-thumb-wrap {
+    height: auto !important;
+    aspect-ratio: 1 / 1.414 !important;
+    width: 100% !important;
+  }
+
+  .volume-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: fill !important;
   }
 
   .manga-card-content {
@@ -2670,12 +2696,30 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   
   .mokuro-toolbar {
     height: 48px !important;
-    padding: 0 6px !important;
+    padding: 0 8px !important;
     gap: 4px !important;
+    flex-wrap: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
   }
 
-  .toolbar-group {
+  .mokuro-toolbar::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .mokuro-toolbar .toolbar-group {
+    display: flex !important;
+    align-items: center !important;
     gap: 4px !important;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
+    background: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   /* En móviles, la doble página es ilegible en pantallas verticales; se oculta */
@@ -2694,27 +2738,48 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   }
 
   .toolbar-btn {
-    padding: 6px 10px !important;
-    font-size: 0.88rem !important;
-    min-height: 38px !important;
-    min-width: 38px !important;
+    padding: 5px 8px !important;
+    font-size: 0.85rem !important;
+    min-height: 36px !important;
+    min-width: 36px !important;
     justify-content: center !important;
     gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #btn-exit-reader {
+    padding: 5px 10px !important;
+    min-width: 36px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #toolbar-page-nav {
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
   }
 
   .page-nav-control {
-    padding: 2px 4px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 2px 6px !important;
     gap: 3px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
   }
 
   .page-input-box {
-    width: 38px !important;
+    width: 36px !important;
     height: 28px !important;
     font-size: 0.84rem !important;
+    text-align: center !important;
   }
 
   .page-total-label {
     font-size: 0.8rem !important;
+    white-space: nowrap !important;
   }
 
   .nav-edge-zone {
@@ -2801,21 +2866,65 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     display: none !important;
   }
 
+  .mokuro-toolbar {
+    padding: 0 4px !important;
+    gap: 2px !important;
+  }
+
+  .mokuro-toolbar .toolbar-group {
+    gap: 3px !important;
+  }
+
   .toolbar-btn {
-    padding: 5px 8px !important;
+    padding: 4px 6px !important;
     font-size: 0.82rem !important;
-    min-width: 34px !important;
-    min-height: 36px !important;
+    min-width: 32px !important;
+    min-height: 34px !important;
+  }
+
+  #btn-exit-reader {
+    padding: 4px 8px !important;
+    min-width: 32px !important;
+  }
+
+  .page-nav-control {
+    padding: 2px 4px !important;
+    gap: 2px !important;
   }
 
   .page-input-box {
-    width: 32px !important;
+    width: 30px !important;
     height: 26px !important;
     font-size: 0.8rem !important;
+    padding: 0 2px !important;
+  }
+
+  .page-total-label {
+    font-size: 0.76rem !important;
   }
 
   .manga-thumb-wrap {
-    height: 170px !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1.414 !important;
+    width: 100% !important;
+  }
+
+  .manga-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: fill !important;
+  }
+
+  .volume-thumb-wrap {
+    height: auto !important;
+    aspect-ratio: 1 / 1.414 !important;
+    width: 100% !important;
+  }
+
+  .volume-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: fill !important;
   }
 
   .modal-content-manga {

@@ -912,3 +912,101 @@ body.dark-mode .theme-catalog-card {
   background: var(--naranja);
   border-color: var(--naranja);
 }
+
+
+/* ==========================================================================
+   RESPONSIVE MÓVIL Y TABLET (Perfil y Modales)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .perfil-main-container {
+    padding: 0 12px;
+    margin: 20px auto;
+    gap: 20px;
+  }
+
+  .profile-hero-card {
+    padding: 18px 16px;
+    gap: 16px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-details {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .profile-name-row {
+    justify-content: center;
+  }
+
+  .profile-user-name {
+    font-size: 1.45rem;
+  }
+
+  .profile-quick-stats {
+    justify-content: center;
+  }
+
+  .btn-edit-profile {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .perfil-stats-section,
+  .perfil-badges-section,
+  .perfil-mined-cards-section,
+  .perfil-anki-section {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+
+  .profile-modal-content,
+  .edit-profile-modal-content,
+  .themes-modal-content {
+    width: 95%;
+    padding: 20px 14px;
+    border-radius: 16px;
+  }
+
+  .avatar-picker-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .themes-catalog-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mined-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-picker-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    font-size: 2.8rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .themes-config-top-bar {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -683,3 +683,43 @@ body.dark-mode .top-nav a.active {
   transform: translateY(0);
   opacity: 1;
 }
+
+
+/* ==========================================================================
+   RESPONSIVE MÓVIL Y TABLET (Elementos Base y Banner)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .banner-bienvenida {
+    width: 95%;
+    padding: 30px 10px;
+    margin: 15px auto;
+  }
+
+  .banner-content {
+    padding: 24px 14px;
+  }
+
+  .banner-title {
+    font-size: 2rem;
+  }
+
+  .banner-subtitle {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-title {
+    font-size: 1.55rem;
+  }
+
+  .banner-subtitle {
+    font-size: 0.92rem;
+    margin-bottom: 18px;
+  }
+
+  .btn-banner {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
