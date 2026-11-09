@@ -791,6 +791,12 @@
 }
 
 /* POPOUT FLOTANTE DE MISIONES DIARIAS Y TEMAS */
+.collapsible-quests-panel.torii-floating-quests:not(.expanded) {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
 .collapsible-quests-panel.torii-floating-quests {
   position: fixed;
   bottom: 78px;
@@ -1078,10 +1084,24 @@
     50% { transform: translateY(-3px); }
   }
 
-  /* Popouts posicionados sobre la barra móvil */
-  .torii-bgm-popout,
-  .torii-profile-popout,
-  .collapsible-quests-panel.torii-floating-quests {
+  /* Popouts y panel de misiones en móvil: OCULTOS POR DEFECTO PARA NO BLOQUEAR TOUCH */
+  .collapsible-quests-panel.torii-floating-quests:not(.expanded),
+  .torii-bgm-popout:not(.open),
+  .torii-profile-popout:not(.open) {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    max-height: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Popouts y panel de misiones en móvil SOLO cuando están abiertos / expandidos */
+  .torii-profile-popout.open,
+  .collapsible-quests-panel.torii-floating-quests.expanded {
+    display: block !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
     bottom: calc(56px + 10px + env(safe-area-inset-bottom, 0px)) !important;
     left: 10px !important;
     right: 10px !important;
@@ -1092,6 +1112,24 @@
     max-height: calc(100vh - 80px) !important;
     overflow-y: auto !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+    z-index: 10001 !important;
+  }
+
+  .torii-bgm-popout.open {
+    display: flex !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    bottom: calc(56px + 10px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    position: fixed !important;
+    border-radius: 18px !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+    z-index: 10001 !important;
   }
 }
 
@@ -1586,6 +1624,12 @@ body.dark-mode .quest-progress-track {
   transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, margin 0.35s ease;
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.collapsible-quests-panel:not(.expanded) {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 
 .collapsible-quests-panel.expanded {
