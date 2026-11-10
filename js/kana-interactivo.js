@@ -588,7 +588,7 @@ function initKanaPageModule(datasetKey = "hiragana") {
   });
 
   // Renderizar Tabla de Caracteres en el Formato Gojūon
-  renderKanaInteractiveGrid("todos");
+  renderKanaInteractiveGrid("base");
 
   // Manejador de Chips de Filtro de Familias
   const chipBtns = document.querySelectorAll(".family-chip-btn");
@@ -648,7 +648,7 @@ function crearTileKanaElement(item) {
 }
 
 // RENDERIZADO DEL CUADRO TRADICIONAL GOJŪON (五十音 - 5 COLUMNAS HORIZONTALES)
-function renderKanaInteractiveGrid(filtroGrupo = "todos") {
+function renderKanaInteractiveGrid(filtroGrupo = "base") {
   const container = document.getElementById("kana-interactive-grid");
   if (!container) return;
 
@@ -732,7 +732,11 @@ function renderKanaInteractiveGrid(filtroGrupo = "todos") {
     { grupo: "dakuon", label: "Fila P (ぱ)", keys: ["pa", "pi", "pu", "pe", "po"] }
   ];
 
-  if (filtroGrupo !== "todos") {
+  if (filtroGrupo === "base" || filtroGrupo === "todos") {
+    rowDefs = rowDefs.filter(r => r.grupo !== "dakuon");
+  } else if (filtroGrupo === "dakuon" || filtroGrupo === "nigori") {
+    rowDefs = rowDefs.filter(r => r.grupo === "dakuon");
+  } else if (filtroGrupo !== "todos") {
     rowDefs = rowDefs.filter(r => r.grupo === filtroGrupo);
   }
 
@@ -777,7 +781,7 @@ function renderKanaInteractiveGrid(filtroGrupo = "todos") {
   });
 
   // Si se está viendo la fila W/N o todos los caracteres básicos, incluir el carácter 'N' (ん/ン)
-  if (filtroGrupo === "todos" || filtroGrupo === "wa") {
+  if (filtroGrupo === "base" || filtroGrupo === "todos" || filtroGrupo === "wa") {
     const nItem = itemMap["n"];
     if (nItem) {
       const nRow = document.createElement("div");
@@ -1189,7 +1193,7 @@ function abrirTablaGojuonModal() {
   const modal = document.getElementById("modal-tabla-gojuon");
   if (!modal) return;
 
-  renderKanaInteractiveGrid("todos");
+  renderKanaInteractiveGrid("base");
 
   requestAnimationFrame(() => {
     modal.classList.add("active");

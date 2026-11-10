@@ -17,7 +17,6 @@
 
   const modules = [
     "js/config-global.js",
-    "js/interfaz-biblioteca.js",
     "js/toriitv-player.js",
     "js/toriitv-sub-editor.js",
     "js/anki-connect.js",

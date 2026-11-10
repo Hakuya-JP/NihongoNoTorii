@@ -168,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof initUserProfileModule === "function") initUserProfileModule(); // Módulo Perfil
   if (typeof initMinedCardsModule === "function") initMinedCardsModule();  // Módulo Tarjetas Minadas
   if (typeof initRpgSystemModule === "function") initRpgSystemModule();   // Módulo Sistema RPG (Gamificación)
-  if (typeof initBibliotecaFiltrosUrl === "function") initBibliotecaFiltrosUrl(); // Filtro URL Biblioteca
 });
 
 function initPageTransitions() {
@@ -206,3 +205,56 @@ function initPageTransitions() {
     if (overlay) overlay.classList.remove("active");
   });
 }
+
+// ==========================================================================
+// NAVEGACIÓN GLOBAL Y UTILIDADES DE INTERFAZ
+// ==========================================================================
+function toggleV(id, botonPresionado = null) {
+  const el = document.getElementById(id);
+  if (el) {
+    const boton = botonPresionado || (typeof event !== "undefined" ? event.currentTarget : null); 
+    if (el.style.display === "block") {
+      el.style.display = "none";
+      if (boton && boton.tagName === "BUTTON") boton.innerText = "Ver respuesta";
+    } else {
+      el.style.display = "block";
+      if (boton && boton.tagName === "BUTTON") boton.innerText = "Ocultar respuesta";
+      if (typeof concederXP === "function") {
+        concederXP(2, "👁️ Practicar respuesta", boton);
+        if (typeof actualizarProgresoMision === "function") {
+          actualizarProgresoMision("practica", 1);
+        }
+      }
+    }
+  }
+}
+window.toggleV = toggleV;
+
+function toggleMenu() {
+  const menu = document.getElementById("menu");
+  if (menu) {
+    menu.classList.toggle("menu-open");
+    menu.classList.toggle("active");
+  }
+}
+window.toggleMenu = toggleMenu;
+
+// Cerrar menú móvil al hacer clic fuera
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('menu');
+  const botonHamburguesa = document.querySelector('.hamburger');
+  if (menu && menu.classList.contains('menu-open')) {
+    if (!menu.contains(e.target) && (!botonHamburguesa || !botonHamburguesa.contains(e.target))) {
+      menu.classList.remove('menu-open');
+      menu.classList.remove('active');
+    }
+  }
+});
+
+window.addEventListener('popstate', function() {
+  const menu = document.getElementById('menu');
+  if (menu && menu.classList.contains('menu-open')) {
+    menu.classList.remove('menu-open');
+    menu.classList.remove('active');
+  }
+});

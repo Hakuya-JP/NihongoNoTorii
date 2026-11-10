@@ -25,9 +25,8 @@
 
     <nav id="menu" class="top-nav">
       <a href="index.html">Inicio</a>
-      <a href="lecciones.html" class="active">Lecciones</a>
-      <a href="videos.html">Videos</a>
-      <a href="biblioteca.html">Biblioteca</a>
+      <a href="tabla-hiragana.html" class="active">Tablas Kana</a>
+    <a href="lectura.html">LecTorii</a>
       <a href="ToriiTV.html">ToriiTV</a>
       <a href="jlpt-simulador.html">Simulador JLPT</a>
       <button id="dark-mode-toggle" class="theme-toggle-btn" onclick="toggleDarkMode()" aria-label="Alternar modo claro y oscuro" title="Lámpara Chochin (明 / 暗)">
@@ -57,9 +56,7 @@
     <!-- HERO BANNER Y BOTÓN DE REGRESO -->
     <div class="kana-hero-banner">
       <div style="margin-bottom: 12px;">
-        <a href="hiragana.html" class="btn btn-secondary" style="font-size: 0.9rem; padding: 6px 16px; border-radius: 20px;">
-          ← Volver a la Lección de Hiragana
-        </a>
+        <a href="tabla-katakana.html" class="btn-kana-switch">アイウ Ver Tabla de Katakana &rarr;</a>
       </div>
       <span class="kana-hero-badge">⛩️ Silabario Japonés Gojūon (五十音)</span>
       <h1>Tabla Completa Hiragana (ひらがな)</h1>
@@ -70,31 +67,12 @@
 
     <!-- SECCIÓN DE LA TABLA INTERACTIVA -->
     <div class="written-explanation-card" style="padding: 28px;">
-      
-      <!-- INDICADOR DE AUDIO LOCAL -->
-      <div style="background: rgba(20, 100, 130, 0.06); border: 1.5px dashed var(--azul, #146482); padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 1.5rem;">🎵</span>
-        <div style="font-size: 0.88rem; line-height: 1.5;">
-          <strong>Audio Nativo Detectado:</strong><br>
-          Archivos soportados en la carpeta <code>KANA/</code> o <code>audio/kana/</code> (ejemplo: <code>KANA/あ.m4a</code> o <code>audio/kana/a.m4a</code> / <code>.mp3</code>).
-        </div>
-      </div>
 
       <!-- FILTROS POR FAMILIA KANA -->
       <div class="family-filter-bar">
-        <button class="family-chip-btn active" data-family="todos">Todos los Hiragana</button>
-        <button class="family-chip-btn" data-family="vocales">Vocales (あ・い...)</button>
-        <button class="family-chip-btn" data-family="ka">Familia か (ka)</button>
-        <button class="family-chip-btn" data-family="sa">Familia さ (sa)</button>
-        <button class="family-chip-btn" data-family="ta">Familia た (ta)</button>
-        <button class="family-chip-btn" data-family="na">Familia な (na)</button>
-        <button class="family-chip-btn" data-family="ha">Familia は (ha)</button>
-        <button class="family-chip-btn" data-family="ma">Familia ま (ma)</button>
-        <button class="family-chip-btn" data-family="ya">Familia や (ya)</button>
-        <button class="family-chip-btn" data-family="ra">Familia ら (ra)</button>
-        <button class="family-chip-btn" data-family="wa">Familia わ (wa)</button>
-        <button class="family-chip-btn" data-family="dakuon">Dakuon (が・ざ...)</button>
-        <button class="family-chip-btn" data-family="yoon">Diptongos (きゃ・しゃ...)</button>
+        <button class="family-chip-btn active" data-family="base">Hiragana base</button>
+        <button class="family-chip-btn" data-family="dakuon">濁り（Nigori）Sonidos sucios</button>
+        <button class="family-chip-btn" data-family="yoon">拗音（Youon）Sonidos semidigtongales</button>
       </div>
 
       <!-- GRID INTERACTIVO DE CARACTERES (GOJŪON) -->

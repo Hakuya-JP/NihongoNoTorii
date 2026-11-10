@@ -594,12 +594,6 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
   }
 }
 
-@media (max-width: 700px) {
-  .video-thumb {
-    height: 140px;
-  }
-}
-
 @media (max-width: 600px) {
   .grid-contenido {
     grid-template-columns: 1fr;

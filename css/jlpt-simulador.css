@@ -98,7 +98,7 @@ body.dark-mode .jlpt-screen-container {
 .jlpt-level-card img.jlpt-card-img {
   width: 100%;
   height: auto;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 16;
   max-height: 185px;
   object-fit: fill;
   border-radius: 10px;
