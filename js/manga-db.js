@@ -1865,9 +1865,52 @@
     return { cbz, manifest, ocr, cover, title, volume };
   }
 
+  // Convierte URLs externas (como mokuro.moe) a la ruta proxy misma de nuestra app (/api/mokuro/...)
+  function resolveProxiedUrl(targetUrl) {
+    if (!targetUrl) return '';
+    try {
+      if (targetUrl.startsWith('/api/mokuro/')) {
+        return targetUrl;
+      }
+      const urlObj = new URL(targetUrl, window.location.href);
+      if (urlObj.hostname === 'mokuro.moe') {
+        // En Vercel usamos el rewrite interno /api/mokuro/... para evitar bloqueos CORS
+        return `/api/mokuro${urlObj.pathname}${urlObj.search}`;
+      }
+      return targetUrl;
+    } catch (e) {
+      return targetUrl;
+    }
+  }
+
+  // Realiza fetch con reintento y fallback por si se ejecuta en local fuera de Vercel
+  async function fetchWithFallback(url, options = {}) {
+    const proxiedUrl = resolveProxiedUrl(url);
+    try {
+      const res = await fetch(proxiedUrl, options);
+      if (res.ok) return res;
+      if (proxiedUrl !== url) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      return res;
+    } catch (err) {
+      // Fallback: Si falló el proxy interno (ej. en desarrollo local sin Vercel CLI), usar corsproxy.io
+      if (typeof url === 'string' && url.includes('mokuro.moe')) {
+        try {
+          const publicProxy = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+          const fallbackRes = await fetch(publicProxy, options);
+          if (fallbackRes.ok) return fallbackRes;
+        } catch (fbErr) {
+          console.warn('[ToriiManga] Fallback proxy error:', fbErr);
+        }
+      }
+      throw err;
+    }
+  }
+
   // Descarga un archivo con seguimiento de progreso real mediante ReadableStream
   async function downloadRemoteFileWithProgress(url, progressCb) {
-    const response = await fetch(url);
+    const response = await fetchWithFallback(url);
     if (!response.ok) {
       throw new Error(`Error HTTP ${response.status} (${response.statusText}) al descargar el archivo.`);
     }
@@ -1875,6 +1918,12 @@
     const contentLength = response.headers.get('content-length');
     const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
     let loadedBytes = 0;
+
+    if (!response.body || !response.body.getReader) {
+      const blob = await response.blob();
+      if (progressCb) progressCb(blob.size, blob.size);
+      return blob;
+    }
 
     const reader = response.body.getReader();
     const chunks = [];
@@ -1921,9 +1970,16 @@
 
     let seriesName = params.title || 'Manga';
     let volumeName = params.volume || 'Volumen 1';
-    let cbzUrl = params.cbz || '';
-    let ocrUrl = params.ocr || '';
-    let coverUrl = params.cover || '';
+    let cbzUrl = params.cbz ? resolveProxiedUrl(params.cbz) : '';
+    let ocrUrl = params.ocr ? resolveProxiedUrl(params.ocr) : '';
+    let coverUrl = '';
+    if (params.cover) {
+      if (/^https?:\/\//i.test(params.cover)) {
+        coverUrl = resolveProxiedUrl(params.cover);
+      } else {
+        coverUrl = resolveProxiedUrl(`https://mokuro.moe/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
+      }
+    }
     let expectedSize = 0;
     let manifestData = null;
 
@@ -1936,20 +1992,20 @@
     // Si viene manifestUrl, consultar la API para obtener metadatos y enlaces directos
     if (params.manifest) {
       try {
-        const mRes = await fetch(params.manifest);
+        const mRes = await fetchWithFallback(params.manifest);
         if (mRes.ok) {
           manifestData = await mRes.json();
           if (manifestData.series) seriesName = manifestData.series;
           if (manifestData.volume) volumeName = manifestData.volume;
           if (manifestData.archive && manifestData.archive.url) {
-            cbzUrl = new URL(manifestData.archive.url, params.manifest).href;
+            cbzUrl = resolveProxiedUrl(new URL(manifestData.archive.url, 'https://mokuro.moe').href);
             if (manifestData.archive.size) expectedSize = manifestData.archive.size;
           }
           if (manifestData.ocr && manifestData.ocr.url) {
-            ocrUrl = new URL(manifestData.ocr.url, params.manifest).href;
+            ocrUrl = resolveProxiedUrl(new URL(manifestData.ocr.url, 'https://mokuro.moe').href);
           }
           if (manifestData.cover && manifestData.cover.url) {
-            coverUrl = new URL(manifestData.cover.url, params.manifest).href;
+            coverUrl = resolveProxiedUrl(new URL(manifestData.cover.url, 'https://mokuro.moe').href);
           }
         }
       } catch (mErr) {
@@ -1960,12 +2016,17 @@
     // Deducir nombres si no vinieron en el manifest
     if (seriesName === 'Manga' && cbzUrl) {
       try {
-        const urlObj = new URL(cbzUrl);
+        const urlObj = new URL(cbzUrl, window.location.href);
         const parts = urlObj.pathname.split('/').filter(Boolean);
         const filename = decodeURIComponent(parts.pop() || '').replace(/\.cbz$/i, '');
         if (parts.length > 0) {
-          seriesName = decodeURIComponent(parts.pop() || '');
-          volumeName = filename;
+          const possibleSeries = decodeURIComponent(parts.pop() || '');
+          if (possibleSeries && possibleSeries !== 'mokuro-reader' && possibleSeries !== 'api' && possibleSeries !== 'mokuro') {
+            seriesName = possibleSeries;
+            volumeName = filename;
+          } else {
+            seriesName = filename;
+          }
         } else {
           seriesName = filename;
         }
@@ -1986,6 +2047,11 @@
       coverImgEl.onload = () => {
         coverImgEl.style.display = 'block';
         if (coverPlaceholderEl) coverPlaceholderEl.style.display = 'none';
+      };
+      coverImgEl.onerror = () => {
+        if (params.cover && !coverImgEl.src.includes('corsproxy.io')) {
+          coverImgEl.src = `https://corsproxy.io/?url=${encodeURIComponent('https://mokuro.moe/catalog/api/cover?path=' + encodeURIComponent(params.cover))}`;
+        }
       };
       coverImgEl.src = coverUrl;
     }
@@ -2048,7 +2114,7 @@
       if (ocrUrl) {
         if (statusText) statusText.textContent = 'Obteniendo capa de texto interactivo OCR (.mokuro)...';
         try {
-          const ocrRes = await fetch(ocrUrl);
+          const ocrRes = await fetchWithFallback(ocrUrl);
           if (ocrRes.ok) {
             mokuroJson = await ocrRes.json();
           }
