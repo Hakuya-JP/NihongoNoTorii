@@ -112,7 +112,7 @@ window.toggleLantern = toggleDarkMode;
 let ankiConfig = {
   enabled: localStorage.getItem("anki_enabled") !== "false",
   deck: localStorage.getItem("anki_deck") || "Default",
-  model: localStorage.getItem("anki_model") || "ToriiDeckVideo",
+  model: (localStorage.getItem("anki_model") === "ToriiDeckImage" || localStorage.getItem("anki_model") === "ToriiDeck" || localStorage.getItem("anki_model") === "ToriiTV") ? "ToriiDeckImage" : "ToriiDeckVideo",
   url: localStorage.getItem("anki_url") || "http://127.0.0.1:8765"
 };
 

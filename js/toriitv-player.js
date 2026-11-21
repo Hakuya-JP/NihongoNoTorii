@@ -22,6 +22,147 @@ function initVideoPlayerModule() {
 
   if (!video) return;
 
+  // ------------------------------------------------------------------
+  // INICIALIZACIÓN DE PLYR.JS (REPRODUCTOR PERSONALIZADO)
+  // ------------------------------------------------------------------
+  let toriiPlayer = null;
+  if (typeof Plyr !== "undefined") {
+    try {
+      toriiPlayer = new Plyr(video, {
+        controls: [
+          'play-large',
+          'play',
+          'progress',
+          'current-time',
+          'duration',
+          'mute',
+          'volume',
+          'fullscreen'
+        ],
+        i18n: {
+          restart: 'Reiniciar',
+          rewind: 'Retroceder {seektime}s',
+          play: 'Reproducir',
+          pause: 'Pausar',
+          fastForward: 'Adelantar {seektime}s',
+          seek: 'Buscar',
+          seekLabel: '{currentTime} de {duration}',
+          played: 'Reproducido',
+          buffered: 'Cargado',
+          currentTime: 'Tiempo actual',
+          duration: 'Duración',
+          volume: 'Volumen',
+          mute: 'Silenciar',
+          unmute: 'Activar sonido',
+          enterFullscreen: 'Pantalla completa',
+          exitFullscreen: 'Salir de pantalla completa'
+        },
+        fullscreen: {
+          enabled: true,
+          fallback: true,
+          iosNative: false,
+          container: '#video-wrapper'
+        },
+        keyboard: {
+          focused: false, // Desactivado para que ToriiTV conserve el control de las flechas entre diálogos
+          global: false
+        },
+        tooltips: {
+          controls: true,
+          seek: true
+        }
+      });
+      window.toriiPlayer = toriiPlayer;
+    } catch (err) {
+      console.warn("Plyr no pudo inicializarse:", err);
+    }
+  }
+
+  // Función universal para saltar a un segundo específico en el video
+  function seekToTime(seconds) {
+    if (typeof seconds !== "number" || isNaN(seconds)) return;
+    const targetSec = Math.max(0, seconds);
+    try {
+      video.currentTime = targetSec;
+    } catch (e) {}
+    if (toriiPlayer && typeof toriiPlayer.currentTime !== "undefined") {
+      try {
+        toriiPlayer.currentTime = targetSec;
+      } catch (e) {}
+    }
+  }
+
+  // Asegurar que el contenedor de subtítulos y panel de ajustes se acoplen dentro de la capa visual de Plyr
+  function acoplarSubtitulosEnPlyr() {
+    if (!videoWrapper) return;
+    const plyrContainer = videoWrapper.querySelector('.plyr') || videoWrapper.querySelector('.plyr__video-wrapper');
+    if (plyrContainer) {
+      if (overlaySub && overlaySub.parentElement !== plyrContainer) {
+        plyrContainer.appendChild(overlaySub);
+      }
+      const configPanel = document.getElementById('video-config-panel');
+      if (configPanel && configPanel.parentElement !== plyrContainer) {
+        plyrContainer.appendChild(configPanel);
+      }
+    }
+  }
+
+  // Inyectar botón de ajustes de subtítulos en la barra de controles de Plyr
+  function inyectarBotonAjustesPlyr() {
+    if (!videoWrapper) return;
+    const controls = videoWrapper.querySelector('.plyr__controls');
+    if (!controls) return;
+    if (controls.querySelector('#btn-toggle-config')) return;
+
+    const btnConfig = document.createElement('button');
+    btnConfig.type = 'button';
+    btnConfig.id = 'btn-toggle-config';
+    btnConfig.className = 'plyr__control plyr__control--custom-config';
+    btnConfig.setAttribute('aria-label', 'Ajustes de subtítulos');
+    btnConfig.setAttribute('data-plyr', 'custom-config');
+    btnConfig.title = 'Ajustes de subtítulos';
+    btnConfig.innerHTML = `
+      <span class="torii-plyr-icon">⚙️</span>
+      <span class="plyr__tooltip">Ajustes</span>
+    `;
+
+    const fsBtn = controls.querySelector('[data-plyr="fullscreen"]');
+    if (fsBtn) {
+      controls.insertBefore(btnConfig, fsBtn);
+    } else {
+      controls.appendChild(btnConfig);
+    }
+
+    const configPanel = document.getElementById('video-config-panel');
+    btnConfig.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (configPanel) configPanel.classList.toggle('oculto');
+    });
+  }
+
+  if (toriiPlayer) {
+    toriiPlayer.on('ready', () => {
+      inyectarBotonAjustesPlyr();
+      acoplarSubtitulosEnPlyr();
+    });
+    toriiPlayer.on('enterfullscreen', () => {
+      inyectarBotonAjustesPlyr();
+      acoplarSubtitulosEnPlyr();
+    });
+    toriiPlayer.on('exitfullscreen', () => {
+      inyectarBotonAjustesPlyr();
+      acoplarSubtitulosEnPlyr();
+    });
+    setTimeout(() => {
+      inyectarBotonAjustesPlyr();
+      acoplarSubtitulosEnPlyr();
+    }, 150);
+    setTimeout(() => {
+      inyectarBotonAjustesPlyr();
+      acoplarSubtitulosEnPlyr();
+    }, 500);
+  }
+
   let subtitulos = [];
   let timeOffset = 0;
   let fontSizeScale = parseFloat(localStorage.getItem("toriitv_sub_scale")) || 1.0;
@@ -217,16 +358,17 @@ function initVideoPlayerModule() {
     }, delay);
   }
 
-  async function iniciarDescargaFurigana(desdeCache = false) {
+  async function iniciarDescargaFurigana(desdeCache = false, silencioso = false) {
     if (isDownloadingFurigana || kuromojiTokenizer) return;
     isDownloadingFurigana = true;
-    cerrarModalFurigana();
-
-    actualizarProgresoFurigana(
-      15,
-      desdeCache ? "⚡ Recuperando diccionario..." : "📥 Descargando diccionario...",
-      desdeCache ? "Cargando desde almacenamiento local (IndexedDB)..." : "Descargando y guardando de forma permanente..."
-    );
+    if (!silencioso) {
+      cerrarModalFurigana();
+      actualizarProgresoFurigana(
+        15,
+        desdeCache ? "⚡ Recuperando diccionario..." : "📥 Descargando diccionario...",
+        desdeCache ? "Cargando desde almacenamiento local (IndexedDB)..." : "Descargando y guardando de forma permanente..."
+      );
+    }
 
     // 1. Asegurar script Kuromoji disponible
     if (typeof kuromoji === "undefined") {
@@ -240,10 +382,12 @@ function initVideoPlayerModule() {
         });
       } catch (err) {
         console.error("Error al cargar Kuromoji script:", err);
-        actualizarProgresoFurigana(100, "⚠️ Error de red", "No se pudo cargar el script base.");
+        if (!silencioso) {
+          actualizarProgresoFurigana(100, "⚠️ Error de red", "No se pudo cargar el script base.");
+          ocultarProgresoFurigana(3500);
+          if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al cargar librería Kuromoji");
+        }
         isDownloadingFurigana = false;
-        ocultarProgresoFurigana(3500);
-        if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al cargar librería Kuromoji");
         return;
       }
     }
@@ -271,15 +415,19 @@ function initVideoPlayerModule() {
         }
         completados++;
         const pct = Math.round((completados / totalArchivos) * 70) + 15;
-        actualizarProgresoFurigana(
-          pct,
-          "Descargando y guardando...",
-          `Guardando ${archivo} en memoria persistente (${completados}/${totalArchivos})...`
-        );
+        if (!silencioso) {
+          actualizarProgresoFurigana(
+            pct,
+            "Descargando y guardando...",
+            `Guardando ${archivo} en memoria persistente (${completados}/${totalArchivos})...`
+          );
+        }
       }
     }
 
-    actualizarProgresoFurigana(88, "Indexando árbol morfológico...", "Construyendo tablas de análisis...");
+    if (!silencioso) {
+      actualizarProgresoFurigana(88, "Indexando árbol morfológico...", "Construyendo tablas de análisis...");
+    }
 
     // 3. Inicializar Kuromoji (los archivos se servirán 100% desde IndexedDB a través del interceptor)
     try {
@@ -290,19 +438,24 @@ function initVideoPlayerModule() {
 
           if (err || !tokenizer) {
             console.error("Error al construir Kuromoji:", err);
-            actualizarProgresoFurigana(100, "⚠️ Error al inicializar", (err && err.message) || "Fallo en diccionarios");
-            ocultarProgresoFurigana(4000);
-            if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al inicializar diccionario");
+            if (!silencioso) {
+              actualizarProgresoFurigana(100, "⚠️ Error al inicializar", (err && err.message) || "Fallo en diccionarios");
+              ocultarProgresoFurigana(4000);
+              if (typeof mostrarToast === "function") mostrarToast("⚠️ Error al inicializar diccionario");
+            }
             return;
           }
 
           kuromojiTokenizer = tokenizer;
-          actualizarProgresoFurigana(
-            100,
-            "✅ ¡Kuromoji listo!",
-            desdeCache ? "Cargado instantáneamente desde almacenamiento persistente." : "Guardado en tu navegador para futuras sesiones."
-          );
-          ocultarProgresoFurigana(2000);
+          window.toriiKuromojiTokenizer = tokenizer;
+          if (!silencioso) {
+            actualizarProgresoFurigana(
+              100,
+              "✅ ¡Kuromoji listo!",
+              desdeCache ? "Cargado instantáneamente desde almacenamiento persistente." : "Guardado en tu navegador para futuras sesiones."
+            );
+            ocultarProgresoFurigana(2000);
+          }
 
           // Enriquecer subtítulos actuales si ya hay subtítulos cargados
           if (subtitulos && subtitulos.length > 0) {
@@ -321,19 +474,23 @@ function initVideoPlayerModule() {
             }
           }
 
-          // Activar visualmente el Furigana
-          document.body.classList.remove("sin-furigana");
-          const btnFuri = document.getElementById("btn-toggle-furigana");
-          if (btnFuri) btnFuri.classList.add("active-tool");
-          if (typeof mostrarToast === "function") {
-            mostrarToast(desdeCache ? "⚡ Furigana cargado desde memoria local" : "🌸 ¡Furigana descargado y guardado permanentemente!");
+          if (!silencioso) {
+            // Activar visualmente el Furigana si fue por clic manual
+            document.body.classList.remove("sin-furigana");
+            const btnFuri = document.getElementById("btn-toggle-furigana");
+            if (btnFuri) btnFuri.classList.add("active-tool");
+            if (typeof mostrarToast === "function") {
+              mostrarToast(desdeCache ? "⚡ Furigana cargado desde memoria local" : "🌸 ¡Furigana descargado y guardado permanentemente!");
+            }
           }
         });
     } catch (e) {
       isDownloadingFurigana = false;
       console.error("Excepción al inicializar Kuromoji:", e);
-      actualizarProgresoFurigana(100, "⚠️ Error de inicialización", e.message || "Error desconocido");
-      ocultarProgresoFurigana(3500);
+      if (!silencioso) {
+        actualizarProgresoFurigana(100, "⚠️ Error de inicialización", e.message || "Error desconocido");
+        ocultarProgresoFurigana(3500);
+      }
     }
   }
 
@@ -434,8 +591,38 @@ function initVideoPlayerModule() {
     return resultado.join("");
   }
 
+  /**
+   * Convierte texto con etiquetas <ruby> o texto plano a sintaxis de Furigana para Anki.
+   * Ej: "あぁ　<ruby>真琴<rt>まこと</rt></ruby>　<ruby>方向<rt>ほうこう</rt></ruby><ruby>音痴<rt>おんち</rt></ruby>だったろ"
+   * -> "あぁ　 真琴[まこと]　 方向[ほうこう]音痴[おんち]だったろ"
+   */
+  function convertirRubyAFuriganaAnki(html) {
+    if (!html) return "";
+    if (!html.includes("<ruby") && !html.includes("<rt>")) {
+      return html.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
+    }
+    let res = html.replace(/<ruby[^>]*>(.*?)<rt[^>]*>(.*?)<\/rt><\/ruby>/gi, (match, kanji, reading) => {
+      const kLimpio = kanji.replace(/<[^>]*>/g, "").trim();
+      const rLimpio = reading.replace(/<[^>]*>/g, "").trim();
+      if (!kLimpio) return "";
+      if (!rLimpio) return kLimpio;
+      return ` ${kLimpio}[${rLimpio}]`;
+    });
+    res = res.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "");
+    res = res.replace(/ +/g, " ");
+    res = res.replace(/\] +(?=[^\s\[\]\u3000]+\[)/g, "]");
+    return res.trim();
+  }
+  window.convertirRubyAFuriganaAnki = convertirRubyAFuriganaAnki;
 
-  // Furigana desactivado por defecto
+  // Precargar Kuromoji de forma silenciosa en segundo plano si ya está en IndexedDB
+  verificarSiDiccionarioEstaCacheado().then(estaEnCache => {
+    if (estaEnCache && !kuromojiTokenizer && !isDownloadingFurigana) {
+      iniciarDescargaFurigana(true, true);
+    }
+  });
+
+  // Furigana visual desactivado por defecto sobre el video
   document.body.classList.add("sin-furigana");
 
   const videoPlaceholder = document.getElementById("video-placeholder");
@@ -455,9 +642,12 @@ function initVideoPlayerModule() {
 
   function sincronizarAlturasConReproductor() {
     if (!videoWrapper || !playerCompactSidebar) return;
-    if (document.fullscreenElement || window.innerWidth <= 680) {
+    const esModoHorizontal = window.innerWidth <= 768 || window.getComputedStyle(playerCompactSidebar).flexDirection === 'row';
+    if (document.fullscreenElement || esModoHorizontal) {
       playerCompactSidebar.style.height = "";
-      if (subtitlesSidebar) subtitlesSidebar.style.height = "";
+      if (window.innerWidth <= 768 && subtitlesSidebar) {
+        subtitlesSidebar.style.height = "";
+      }
       return;
     }
 
@@ -512,7 +702,38 @@ function initVideoPlayerModule() {
       const file = e.target.files[0];
       if (file) {
         window.currentVideoFile = file;
-        video.src = URL.createObjectURL(file);
+        video.removeAttribute("poster");
+        video.poster = "";
+        const objUrl = URL.createObjectURL(file);
+        
+        // Asignación directa y carga limpia en el reproductor
+        video.src = objUrl;
+        video.load();
+
+        if (toriiPlayer) {
+          try {
+            toriiPlayer.source = {
+              type: 'video',
+              sources: [
+                {
+                  src: objUrl,
+                  type: file.type || 'video/mp4'
+                }
+              ]
+            };
+          } catch (errSrc) {
+            console.warn("Plyr source fallback:", errSrc);
+          }
+        }
+
+        // Fuerza al navegador a decodificar y mostrar el primer fotograma del video cargado
+        video.addEventListener("loadeddata", () => {
+          seekToTime(0.001);
+          sincronizarAlturasConReproductor();
+          acoplarSubtitulosEnPlyr();
+          inyectarBotonAjustesPlyr();
+        }, { once: true });
+
         const placeholder = document.getElementById("video-placeholder");
         if (placeholder) placeholder.classList.add("oculto");
         if (overlaySub) {
@@ -699,11 +920,15 @@ function initVideoPlayerModule() {
 
       lineDiv.addEventListener("click", (e) => {
         if (e.target.classList.contains("btn-anki-star")) return;
-        video.currentTime = sub.inicio + timeOffset;
+        seekToTime(sub.inicio + timeOffset);
         isUserScrollingSubtitles = false;
         ultimoSubIndexActivo = index;
         centrarSubtituloEnLista(index, true);
-        video.play().catch(() => {});
+        if (toriiPlayer) {
+          toriiPlayer.play().catch(() => {});
+        } else {
+          video.play().catch(() => {});
+        }
       });
 
       const starBtn = lineDiv.querySelector(".btn-anki-star");
@@ -711,6 +936,22 @@ function initVideoPlayerModule() {
         starBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
           starBtn.innerText = "⏳";
+
+          // Asegurar Furigana morfológico para la tarjeta de Anki
+          if (!sub.textoFurigana || !sub.textoFurigana.includes("<ruby")) {
+            if (typeof agregarFurigana === "function") {
+              const furi = agregarFurigana(sub.texto);
+              if (furi && furi.includes("<ruby")) {
+                sub.textoFurigana = furi;
+              }
+            }
+          }
+
+          // Generar formato Anki exacto: Ej "あぁ　 真琴[まこと]　 方向[ほうこう]音痴[おんち]だったろ"
+          const furiganaAnki = (typeof convertirRubyAFuriganaAnki === "function")
+            ? convertirRubyAFuriganaAnki(sub.textoFurigana || sub.texto)
+            : (sub.textoFurigana || sub.texto);
+          sub.furiganaAnki = furiganaAnki;
 
           // Asegurar traducción al español para la tarjeta de Anki
           if (!sub.traduccion && typeof obtenerTraduccionRapida === "function") {
@@ -810,26 +1051,30 @@ function initVideoPlayerModule() {
 
   // Sincronización continua de Video y Subtítulos + Contador de Tiempo de Estudio
   let ultimoContadorTiempo = Date.now();
-  video.addEventListener("timeupdate", () => {
+  function manejarActualizacionTiempoSubtitulos() {
     // Registrar tiempo de estudio acumulado cada 5 segundos de reproducción activa
     const ahora = Date.now();
-    if (!video.paused && (ahora - ultimoContadorTiempo) >= 5000) {
+    const estaPausado = toriiPlayer ? toriiPlayer.paused : video.paused;
+    if (!estaPausado && (ahora - ultimoContadorTiempo) >= 5000) {
       if (typeof registrarTiempoEstudio === "function") {
         registrarTiempoEstudio(5);
       }
       ultimoContadorTiempo = ahora;
     }
 
-    if (subtitulos.length === 0) return;
+    if (!subtitulos || subtitulos.length === 0) return;
 
-    const currentTime = video.currentTime;
+    const currentTime = (toriiPlayer && typeof toriiPlayer.currentTime === "number" && !isNaN(toriiPlayer.currentTime))
+      ? toriiPlayer.currentTime
+      : video.currentTime;
+
     const subActualIndex = subtitulos.findIndex(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
     const subActual = subActualIndex !== -1 ? subtitulos[subActualIndex] : null;
 
     if (overlaySub) {
       if (subActual) {
         overlaySub.innerHTML = subActual.textoFurigana || subActual.texto;
-      } else if (video.getAttribute("src") && video.currentTime > 0) {
+      } else if (currentTime > 0) {
         overlaySub.innerHTML = "";
       }
     }
@@ -847,7 +1092,12 @@ function initVideoPlayerModule() {
         ultimoSubIndexActivo = -1;
       }
     }
-  });
+  }
+
+  video.addEventListener("timeupdate", manejarActualizacionTiempoSubtitulos);
+  if (toriiPlayer) {
+    toriiPlayer.on("timeupdate", manejarActualizacionTiempoSubtitulos);
+  }
 
   // Ajustes de Desfase de Subtítulos y Estilos de Texto
   const btnSubMinusFast = document.getElementById("btn-sub-minus-fast");
@@ -913,7 +1163,7 @@ function initVideoPlayerModule() {
   let dragStartX = 0;
   let dragStartY = 0;
   let subInitialLeftPct = 50;
-  let subInitialTopPct = 80;
+  let subInitialTopPct = 88;
 
   const btnToggleMoveSub = document.getElementById("btn-toggle-move-sub");
 
@@ -946,7 +1196,8 @@ function initVideoPlayerModule() {
       const parsed = JSON.parse(savedPos);
       if (parsed && typeof parsed.left === "number" && typeof parsed.top === "number") {
         subInitialLeftPct = parsed.left;
-        subInitialTopPct = parsed.top;
+        // Si el usuario tenía guardada la antigua posición por defecto del 80%, actualizar a la nueva (88%)
+        subInitialTopPct = parsed.top === 80 ? 88 : parsed.top;
         if (overlaySub) {
           overlaySub.style.left = `${subInitialLeftPct}%`;
           overlaySub.style.top = `${subInitialTopPct}%`;
@@ -1013,7 +1264,7 @@ function initVideoPlayerModule() {
 
     // Guardar posición en porcentaje para mantener consistencia en cualquier resolución / pantalla completa
     const leftVal = parseFloat(overlaySub.style.left) || 50;
-    const topVal = parseFloat(overlaySub.style.top) || 80;
+    const topVal = parseFloat(overlaySub.style.top) || 88;
 
     try {
       localStorage.setItem("toriitv_sub_pos", JSON.stringify({ left: leftVal, top: topVal }));
@@ -1036,9 +1287,9 @@ function initVideoPlayerModule() {
   if (btnResetSubPos && overlaySub) {
     btnResetSubPos.addEventListener("click", () => {
       subInitialLeftPct = 50;
-      subInitialTopPct = 80;
+      subInitialTopPct = 88;
       overlaySub.style.left = "50%";
-      overlaySub.style.top = "80%";
+      overlaySub.style.top = "88%";
       localStorage.removeItem("toriitv_sub_pos");
       if (typeof mostrarToast === "function") mostrarToast("📍 Posición de subtítulos centrada");
     });
@@ -1196,14 +1447,20 @@ function initVideoPlayerModule() {
 
     if (!subtitulos || subtitulos.length === 0) return;
 
-    const currentTime = video.currentTime;
+    const currentTime = (toriiPlayer && typeof toriiPlayer.currentTime === "number" && !isNaN(toriiPlayer.currentTime))
+      ? toriiPlayer.currentTime
+      : video.currentTime;
 
     if (e.key === "ArrowRight") {
       e.preventDefault();
       if (document.activeElement === video) video.blur();
 
       const nextSub = subtitulos.find(sub => (sub.inicio + timeOffset) > currentTime + 0.1);
-      if (nextSub) video.currentTime = nextSub.inicio + timeOffset;
+      if (nextSub) {
+        seekToTime(nextSub.inicio + timeOffset);
+        if (toriiPlayer) toriiPlayer.play().catch(() => {});
+        else video.play().catch(() => {});
+      }
     }
 
     if (e.key === "ArrowLeft") {
@@ -1212,9 +1469,13 @@ function initVideoPlayerModule() {
 
       const prevSub = subtitulos.slice().reverse().find(sub => (sub.inicio + timeOffset) < currentTime - 0.5);
       if (prevSub) {
-        video.currentTime = prevSub.inicio + timeOffset;
+        seekToTime(prevSub.inicio + timeOffset);
+        if (toriiPlayer) toriiPlayer.play().catch(() => {});
+        else video.play().catch(() => {});
       } else if (subtitulos.length > 0) {
-        video.currentTime = subtitulos[0].inicio + timeOffset;
+        seekToTime(subtitulos[0].inicio + timeOffset);
+        if (toriiPlayer) toriiPlayer.play().catch(() => {});
+        else video.play().catch(() => {});
       }
     }
   });
@@ -1255,23 +1516,27 @@ function initVideoPlayerModule() {
     return `${h}:${m}:${s},${ms}`;
   }
 
-  // Panel Configuración Ajustes
-  const btnConfig = document.getElementById('btn-toggle-config');
+  // Panel Configuración Ajustes (Cierre y Clic Fuera)
   const configPanel = document.getElementById('video-config-panel');
+  const btnCloseConfig = document.getElementById('btn-close-video-config');
 
-  if (btnConfig && configPanel) {
-    btnConfig.addEventListener('click', (e) => {
-      e.stopPropagation();
-      configPanel.classList.toggle('oculto');
-    });
-
-    if (videoWrapper) {
-      videoWrapper.addEventListener('click', (e) => {
-        if (!configPanel.contains(e.target) && e.target !== btnConfig) {
-          configPanel.classList.add('oculto');
-        }
+  if (configPanel) {
+    if (btnCloseConfig) {
+      btnCloseConfig.addEventListener('click', (e) => {
+        e.stopPropagation();
+        configPanel.classList.add('oculto');
       });
     }
+
+    // Cerrar panel al tocar/hacer clic fuera de él
+    document.addEventListener('click', (e) => {
+      const btnConfig = document.getElementById('btn-toggle-config');
+      if (!configPanel.classList.contains('oculto')) {
+        if (!configPanel.contains(e.target) && (!btnConfig || !btnConfig.contains(e.target))) {
+          configPanel.classList.add('oculto');
+        }
+      }
+    });
   }
 
   // ------------------------------------------------------------------
@@ -1287,7 +1552,9 @@ function initVideoPlayerModule() {
         subCount.innerText = `${subtitulos.length} líneas`;
       }
       if (overlaySub && video) {
-        const currentTime = video.currentTime;
+        const currentTime = (toriiPlayer && typeof toriiPlayer.currentTime === "number" && !isNaN(toriiPlayer.currentTime))
+          ? toriiPlayer.currentTime
+          : video.currentTime;
         const subActual = subtitulos.find(s => currentTime >= (s.inicio + timeOffset) && currentTime <= (s.fin + timeOffset));
         overlaySub.innerHTML = subActual ? (subActual.textoFurigana || subActual.texto) : "";
       }
@@ -1310,6 +1577,10 @@ function initVideoPlayerModule() {
 
   window.toriiAgregarFurigana = function(texto) {
     return typeof agregarFurigana === "function" ? agregarFurigana(texto) : texto;
+  };
+
+  window.toriiConvertirRubyAFuriganaAnki = function(html) {
+    return typeof convertirRubyAFuriganaAnki === "function" ? convertirRubyAFuriganaAnki(html) : html;
   };
 
   window.toriiGetVideo = function() {

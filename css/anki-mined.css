@@ -501,3 +501,65 @@ body.dark-mode .mined-card-item {
   color: #777;
   font-size: 0.95rem;
 }
+
+
+/* ==========================================================================
+   ADAPTACIÓN RESPONSIVE PARA DISPOSITIVOS MÓVILES (≤ 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .mined-modal-card {
+    width: 96%;
+    max-height: 92vh;
+    border-radius: 14px;
+  }
+
+  .mined-modal-header {
+    padding: 14px 16px;
+  }
+
+  .mined-modal-title {
+    font-size: 1.15rem;
+  }
+
+  .mined-modal-icon {
+    font-size: 1.35rem;
+  }
+
+  .mined-modal-actions-bar {
+    padding: 10px 14px;
+    gap: 8px;
+    justify-content: stretch;
+  }
+
+  .mined-modal-actions-bar .btn-tool,
+  .mined-modal-actions-bar .btn-secundario-tool {
+    flex: 1 1 auto;
+    font-size: 0.82rem;
+    padding: 7px 10px;
+    justify-content: center;
+  }
+
+  .mined-modal-body {
+    padding: 14px 12px;
+  }
+
+  .mined-modal-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mined-cards-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mined-cards-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mined-cards-actions button {
+    flex: 1 1 calc(50% - 8px);
+  }
+}

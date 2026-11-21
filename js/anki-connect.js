@@ -76,10 +76,10 @@ function initAnkiConfigModule() {
   if (toggleEnabled) toggleEnabled.checked = ankiConfig.enabled;
   if (inputUrl) inputUrl.value = ankiConfig.url || "http://127.0.0.1:8765";
   if (selectModel) {
-    if (ankiConfig.model === "ToriiTV") {
-      selectModel.value = "ToriiDeck";
-    } else if (ankiConfig.model) {
-      selectModel.value = ankiConfig.model;
+    if (ankiConfig.model === "ToriiDeckImage" || ankiConfig.model === "ToriiDeck" || ankiConfig.model === "ToriiTV") {
+      selectModel.value = "ToriiDeckImage";
+    } else {
+      selectModel.value = "ToriiDeckVideo";
     }
   }
 
@@ -123,7 +123,7 @@ function initAnkiConfigModule() {
 
       ankiConfig.enabled = toggleEnabled ? toggleEnabled.checked : true;
       ankiConfig.deck = selectDeck ? selectDeck.value : "Default";
-      ankiConfig.model = selectModel ? selectModel.value : "ToriiDeckVideo";
+      ankiConfig.model = (selectModel && (selectModel.value === "ToriiDeckImage" || selectModel.value === "ToriiDeck")) ? "ToriiDeckImage" : "ToriiDeckVideo";
       ankiConfig.url = inputUrl && inputUrl.value.trim() ? inputUrl.value.trim() : "http://127.0.0.1:8765";
 
       localStorage.setItem("anki_enabled", ankiConfig.enabled);
@@ -217,13 +217,21 @@ async function cargarMazosAnki(silent = false) {
   if (ankiConfig.deck && resDecks.result.includes(ankiConfig.deck)) {
     selectDeck.value = ankiConfig.deck;
   }
+
+  // Sincronizar y actualizar de inmediato las plantillas de ToriiDeckImage y ToriiDeckVideo en Anki
+  invokeAnki("modelNames").then(allModelsRes => {
+    if (allModelsRes && allModelsRes.result) {
+      asegurarModeloToriiDeckImageEnAnki(allModelsRes.result);
+      asegurarModeloToriiTVVideoEnAnki(allModelsRes.result);
+    }
+  }).catch(() => {});
 }
 
-// Captura de fotograma
+// Captura de fotograma del video principal
 function capturarFotogramaVideo() {
   const videoEl = document.getElementById("main-video");
-  if (!videoEl || videoEl.readyState < 2 || !videoEl.videoWidth) {
-    console.warn("El video no está listo para captura de fotograma.");
+  if (!videoEl || !videoEl.videoWidth) {
+    console.warn("El video no tiene dimensiones válidas para captura de fotograma.");
     return null;
   }
 
@@ -235,12 +243,98 @@ function capturarFotogramaVideo() {
     const ctx = canvas.getContext("2d");
     ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
 
-    const dataURL = canvas.toDataURL("image/jpeg", 0.85);
-    return dataURL.replace(/^data:image\/jpeg;base64,/, "");
+    const dataURL = canvas.toDataURL("image/jpeg", 0.88);
+    const base64 = dataURL.replace(/^data:image\/jpeg;base64,/, "");
+    return (base64 && base64.length > 200) ? base64 : null;
   } catch (err) {
-    console.warn("No se pudo capturar el fotograma (posible bloqueo CORS o lienzo sucio):", err);
+    console.warn("No se pudo capturar el fotograma directo:", err);
     return null;
   }
+}
+
+// Captura de fotograma exacto del subtítulo usando un video en segundo plano sincronizado
+async function capturarFotogramaSubtitulo(videoSource, targetTime) {
+  return new Promise((resolve) => {
+    const videoEl = document.getElementById("main-video");
+
+    // Si el video principal ya está colocado en este momento exacto, capturar directamente
+    if (videoEl && videoEl.videoWidth > 0 && typeof targetTime === "number") {
+      if (Math.abs(videoEl.currentTime - targetTime) <= 0.6) {
+        const directo = capturarFotogramaVideo();
+        if (directo) return resolve(directo);
+      }
+    }
+
+    const src = videoSource || (videoEl && videoEl.src);
+    if (!src) {
+      return resolve(capturarFotogramaVideo());
+    }
+
+    try {
+      const tempVideo = document.createElement("video");
+      tempVideo.preload = "auto";
+      tempVideo.muted = true;
+      tempVideo.playsInline = true;
+      tempVideo.crossOrigin = "anonymous";
+
+      const objectUrl = (src instanceof File || src instanceof Blob)
+        ? URL.createObjectURL(src)
+        : src;
+      tempVideo.src = objectUrl;
+
+      let finalizado = false;
+      const limpiar = () => {
+        if (finalizado) return;
+        finalizado = true;
+        try {
+          tempVideo.removeAttribute("src");
+          tempVideo.load();
+          if (typeof objectUrl === "string" && objectUrl.startsWith("blob:") && src instanceof File) {
+            URL.revokeObjectURL(objectUrl);
+          }
+        } catch (_) {}
+      };
+
+      const timerFallback = setTimeout(() => {
+        limpiar();
+        resolve(capturarFotogramaVideo());
+      }, 2500);
+
+      const tomarCaptura = () => {
+        try {
+          const w = tempVideo.videoWidth || (videoEl && videoEl.videoWidth) || 640;
+          const h = tempVideo.videoHeight || (videoEl && videoEl.videoHeight) || 360;
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(tempVideo, 0, 0, w, h);
+          const dataURL = canvas.toDataURL("image/jpeg", 0.88);
+          const base64 = dataURL.replace(/^data:image\/jpeg;base64,/, "");
+          clearTimeout(timerFallback);
+          limpiar();
+          if (base64 && base64.length > 200) {
+            return resolve(base64);
+          }
+        } catch (e) {
+          console.warn("Fallo en captura canvas tempVideo:", e);
+        }
+        clearTimeout(timerFallback);
+        limpiar();
+        resolve(capturarFotogramaVideo());
+      };
+
+      tempVideo.addEventListener("seeked", tomarCaptura, { once: true });
+      tempVideo.addEventListener("loadedmetadata", () => {
+        const timeToSeek = Math.max(0, Math.min((tempVideo.duration || 999999) - 0.1, (targetTime || 0) + 0.15));
+        tempVideo.currentTime = timeToSeek;
+      }, { once: true });
+
+    } catch (err) {
+      console.warn("Error en captura de fotograma:", err);
+      resolve(capturarFotogramaVideo());
+    }
+  });
 }
 
 function arrayBufferToBase64(buffer) {
@@ -567,74 +661,299 @@ async function capturarVideoClipSubtitulo(videoSource, startSec, durationSec) {
   });
 }
 
-// Expuesto globalmente para exportar a AnkiConnect (Plantilla con Imagen fija)
-async function asegurarModeloToriiTVEnAnki(userModels) {
-  const yaExiste = userModels.some(m => m.toLowerCase().replace(/[\s_]/g, "") === "toriitv");
-  if (yaExiste) {
-    const real = userModels.find(m => m.toLowerCase().replace(/[\s_]/g, "") === "toriitv");
-    return real || "ToriiTV";
+// CSS compartido para ToriiTV
+const toriiTvSharedCss = `.card { font-family: "Segoe UI", "Noto Sans JP", sans-serif; background-color: #0b2f3a; color: #ffffff; text-align: center; }
+.flashcard { max-width: 100%; margin: 0 auto; background: #103f4f; border-radius: 28px; padding: 35px; box-shadow: 0 10px 20px rgba(0,0,0,.35); position: relative; box-sizing: border-box; }
+.instructions { font-size: 20px; margin-bottom: 20px; padding: 12px 18px; background: rgba(255, 255, 255, 0.08); border-radius: 14px; line-height: 1.5; color: #FFDEBD; font-weight: 600; }
+.sentence-front { font-size: 42px; line-height: 1.7; font-weight: bold; color: #ffffff; margin: 20px 0; }
+.imageBox img, img { max-width: 85%; max-height: 420px; object-fit: contain; border-radius: 16px; margin: 20px auto; display: block; box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+.videoBox video, video { max-width: 85%; max-height: 420px; border-radius: 16px; margin: 20px auto; display: block; box-shadow: 0 6px 16px rgba(0,0,0,0.3); outline: none; }
+.sentenceBox { position: relative; margin-top: 24px; padding: 10px 60px 18px; }
+.sentence { font-size: 38px; line-height: 1.8; text-align: center; word-break: keep-all; }
+ruby rt { font-size: 20px; color: #FFDEBD; }
+.furi-oculto rt { display: none !important; }
+.buttonsColumn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; }
+.icon { width: 38px; height: 38px; border-radius: 50%; background: #146482; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: transform 0.2s ease, background 0.2s ease; }
+.icon:hover { background: #ff9447; transform: scale(1.08); }
+.audio-hidden { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; }
+.translation { font-size: 24px; line-height: 1.6; color: #FFDEBD; margin-top: 16px; }
+.hidden { display: none !important; }
+.card-index-badge { position: absolute; bottom: 12px; left: 20px; font-size: 13px; opacity: 0.5; color: #93c0de; }
+@media (max-width: 750px) { .flashcard { padding: 20px; } .instructions { font-size: 16px; } .sentence-front { font-size: 26px; } .sentenceBox { padding: 5px; } .sentence { font-size: 22px; line-height: 1.7; white-space: normal; word-break: keep-all; } ruby rt { font-size: 11px; } .buttonsColumn { position: static; transform: none; flex-direction: row; justify-content: center; margin-top: 16px; } .icon { width: 36px; height: 36px; } .translation { font-size: 18px; } .imageBox img, img { max-width: 95%; max-height: 280px; } .videoBox video, video { max-width: 95%; max-height: 280px; } }`;
+
+// Plantillas limpias (Oración única en reverso, ubicada debajo de la imagen/video, con furigana oculto por defecto vía CSS)
+const toriiFrontHtml = `<div class="flashcard">
+  {{#Instrucciones}}
+  <div class="instructions">
+    {{Instrucciones}}
+  </div>
+  {{/Instrucciones}}
+  <div class="front">
+    <div class="sentence-front">{{Oracion}}</div>
+  </div>
+</div>`;
+
+const toriiBackHtml = `<div class="flashcard">
+  <div class="back">
+    {{#Imagen}}
+    <div class="imageBox">
+      {{Imagen}}
+    </div>
+    {{/Imagen}}
+
+    <div id="sentenceBox" class="sentenceBox furi-oculto">
+      <div class="sentence">
+        {{furigana:Furigana}}
+      </div>
+      <div class="buttonsColumn">
+        <div class="icon" onclick="toggleFuri()" title="Mostrar/Ocultar Furigana">👁</div>
+        {{#Audio}}<div class="icon" onclick="playAudio()" title="Reproducir Audio">▶</div>{{/Audio}}
+        {{#Significado}}<div class="icon" onclick="toggleTrad()" title="Mostrar Significado">ES</div>{{/Significado}}
+      </div>
+    </div>
+
+    {{#Audio}}
+    <div id="audio" class="audio-hidden">
+      {{Audio}}
+    </div>
+    {{/Audio}}
+
+    {{#Significado}}
+    <div id="trad" class="translation hidden">
+      {{Significado}}
+    </div>
+    {{/Significado}}
+
+    {{#Indice}}
+    <div class="card-index-badge">#{{Indice}}</div>
+    {{/Indice}}
+  </div>
+</div>
+<script>
+function toggleFuri() {
+  var box = document.getElementById("sentenceBox");
+  if (box) { box.classList.toggle("furi-oculto"); }
+}
+function playAudio() {
+  var btn = document.querySelector("#audio .soundLink, #audio .replaybutton, #audio .replay-button, #audio a");
+  if (btn) { btn.click(); }
+}
+function toggleTrad() {
+  var t = document.getElementById("trad");
+  if (t) { t.classList.toggle("hidden"); }
+}
+</script>`;
+
+const toriiVideoFrontHtml = toriiFrontHtml;
+
+const toriiVideoBackHtml = `<div class="flashcard">
+  <div class="back">
+    {{#Video}}
+    <div class="videoBox">
+      {{Video}}
+    </div>
+    {{/Video}}
+
+    <div id="sentenceBox" class="sentenceBox furi-oculto">
+      <div class="sentence">
+        {{furigana:Furigana}}
+      </div>
+      <div class="buttonsColumn">
+        <div class="icon" onclick="toggleFuri()" title="Mostrar/Ocultar Furigana">👁</div>
+        <div class="icon" onclick="playAudio()" title="Repetir Video">▶</div>
+        {{#Significado}}<div class="icon" onclick="toggleTrad()" title="Mostrar Significado">ES</div>{{/Significado}}
+      </div>
+    </div>
+
+    {{#Significado}}
+    <div id="trad" class="translation hidden">
+      {{Significado}}
+    </div>
+    {{/Significado}}
+
+    {{#Indice}}
+    <div class="card-index-badge">#{{Indice}}</div>
+    {{/Indice}}
+  </div>
+</div>
+<script>
+function toggleFuri() {
+  var box = document.getElementById("sentenceBox");
+  if (box) { box.classList.toggle("furi-oculto"); }
+}
+function playAudio() {
+  var vid = document.querySelector("video");
+  if (vid) { vid.currentTime = 0; vid.play(); return; }
+  var btn = document.querySelector("#audio .soundLink, #audio .replaybutton, #audio .replay-button, #audio a");
+  if (btn) { btn.click(); }
+}
+function toggleTrad() {
+  var t = document.getElementById("trad");
+  if (t) { t.classList.toggle("hidden"); }
+}
+</script>`;
+
+// Función auxiliar para actualizar plantilla, CSS y campos requeridos en Anki
+async function actualizarPlantillaYCamposModelo(modelName, frontHtml, backHtml, camposRequeridos = []) {
+  try {
+    // 1. Asegurar campos necesarios
+    const fieldsRes = await invokeAnki("modelFieldNames", 6, { modelName });
+    if (fieldsRes && fieldsRes.result) {
+      for (const campo of camposRequeridos) {
+        if (!fieldsRes.result.includes(campo)) {
+          await invokeAnki("modelFieldAdd", 6, { modelName, fieldName: campo, index: 3 });
+        }
+      }
+    }
+
+    // 2. Consultar plantillas existentes y sobreescribir con el diseño limpio (oración única con furigana)
+    const tmplRes = await invokeAnki("modelTemplates", 6, { modelName });
+    let tmplObj = {};
+    if (tmplRes && tmplRes.result && Object.keys(tmplRes.result).length > 0) {
+      Object.keys(tmplRes.result).forEach(tName => {
+        tmplObj[tName] = { Front: frontHtml, Back: backHtml };
+      });
+    } else {
+      tmplObj[modelName] = { Front: frontHtml, Back: backHtml };
+    }
+
+    const resTmpl = await invokeAnki("updateModelTemplates", 6, {
+      model: {
+        name: modelName,
+        templates: tmplObj
+      }
+    });
+    if (resTmpl && resTmpl.error) {
+      console.warn(`Aviso AnkiConnect al actualizar plantilla de "${modelName}":`, resTmpl.error);
+    }
+
+    const resCss = await invokeAnki("updateModelStyling", 6, {
+      model: {
+        name: modelName,
+        css: toriiTvSharedCss
+      }
+    });
+    if (resCss && resCss.error) {
+      console.warn(`Aviso AnkiConnect al actualizar CSS de "${modelName}":`, resCss.error);
+    }
+    console.log(`✅ Plantilla y diseño actualizados en Anki para "${modelName}"`);
+  } catch (err) {
+    console.warn(`Aviso al actualizar plantilla de "${modelName}":`, err);
+  }
+}
+
+// Expuesto globalmente para exportar a AnkiConnect (Plantilla con Imagen fija: ToriiDeckImage)
+async function asegurarModeloToriiDeckImageEnAnki(userModels) {
+  const camposExactosImage = ["Indice", "Instrucciones", "Oracion", "Significado", "Furigana", "Audio", "Imagen"];
+  const esModeloImage = (m) => {
+    const norm = (m || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+    return norm === "toriideckimage" || norm === "toriideckimagen" || norm.includes("toriideckimage");
+  };
+
+  const modelosImageCoincidentes = userModels.filter(esModeloImage);
+  if (modelosImageCoincidentes.length > 0) {
+    for (const real of modelosImageCoincidentes) {
+      await actualizarPlantillaYCamposModelo(real, toriiFrontHtml, toriiBackHtml, camposExactosImage);
+    }
+    return modelosImageCoincidentes[0];
   }
 
   try {
     const resCreate = await invokeAnki("createModel", 6, {
-      modelName: "ToriiTV",
-      inOrderFields: ["Indice", "Instrucciones", "Oracion", "Furigana", "Audio", "Imagen", "Traduccion"],
-      css: `.card { font-family: "Segoe UI", "Noto Sans JP", sans-serif; background-color: #0b2f3a; color: #ffffff; text-align: center; }\n.flashcard { max-width: 100%; margin: 0 auto; background: #103f4f; border-radius: 28px; padding: 35px; box-shadow: 0 10px 20px rgba(0,0,0,.35); position: relative; box-sizing: border-box; }\n.instructions { font-size: 20px; margin-bottom: 20px; padding: 12px 18px; background: rgba(255, 255, 255, 0.08); border-radius: 14px; line-height: 1.5; color: #FFDEBD; font-weight: 600; }\n.sentence-front { font-size: 42px; line-height: 1.7; font-weight: bold; color: #ffffff; margin: 20px 0; }\nimg { max-width: 75%; max-height: 420px; object-fit: contain; border-radius: 16px; margin: 20px auto; display: block; box-shadow: 0 6px 16px rgba(0,0,0,0.3); }\n.sentenceBox { position: relative; margin-top: 24px; padding: 10px 60px 18px; }\n.sentence { font-size: 38px; line-height: 1.8; text-align: center; word-break: keep-all; }\nruby rt { font-size: 20px; color: #FFDEBD; }\n.buttonsColumn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; }\n.icon { width: 38px; height: 38px; border-radius: 50%; background: #146482; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: transform 0.2s ease, background 0.2s ease; }\n.icon:hover { background: #ff9447; transform: scale(1.08); }\n.audio-hidden { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; }\n.translation { font-size: 24px; line-height: 1.6; color: #FFDEBD; margin-top: 16px; }\n.hidden { display: none !important; }\n.card-index-badge { position: absolute; bottom: 12px; left: 20px; font-size: 13px; opacity: 0.5; color: #93c0de; }\n@media (max-width: 750px) { .flashcard { padding: 20px; } .instructions { font-size: 16px; } .sentence-front { font-size: 26px; } .sentenceBox { padding: 5px; } .sentence { font-size: 22px; line-height: 1.7; white-space: normal; word-break: keep-all; } ruby rt { font-size: 11px; } .buttonsColumn { position: static; transform: none; flex-direction: row; justify-content: center; margin-top: 16px; } .icon { width: 36px; height: 36px; } .translation { font-size: 18px; } }`,
+      modelName: "ToriiDeckImage",
+      inOrderFields: camposExactosImage,
+      css: toriiTvSharedCss,
       cardTemplates: [
         {
-          Name: "ToriiTV",
-          Front: `<div class="flashcard">\n  {{#Instrucciones}}\n  <div class="instructions">\n    {{Instrucciones}}\n  </div>\n  {{/Instrucciones}}\n  <div class="front">\n    <div class="sentence-front">{{Oracion}}</div>\n  </div>\n</div>`,
-          Back: `<div class="flashcard">\n  <div class="front">\n    <div class="sentence-front">{{Oracion}}</div>\n  </div>\n  <div class="back">\n    {{#Imagen}}\n    <div class="imageBox">\n      {{Imagen}}\n    </div>\n    {{/Imagen}}\n    <div class="sentenceBox">\n      <div id="sentencePlain" class="sentence">\n        {{Oracion}}\n      </div>\n      <div id="sentenceFuri" class="sentence hidden">\n        {{furigana:Furigana}}\n      </div>\n      <div class="buttonsColumn">\n        <div class="icon" onclick="toggleFuri()" title="Mostrar/Ocultar Furigana">👁</div>\n        {{#Audio}}<div class="icon" onclick="playAudio()" title="Reproducir Audio">▶</div>{{/Audio}}\n        {{#Traduccion}}<div class="icon" onclick="toggleTrad()" title="Mostrar Traducción">ES</div>{{/Traduccion}}\n      </div>\n    </div>\n    {{#Audio}}\n    <div id="audio" class="audio-hidden">\n      {{Audio}}\n    </div>\n    {{/Audio}}\n    {{#Traduccion}}\n    <div id="trad" class="translation hidden">\n      {{Traduccion}}\n    </div>\n    {{/Traduccion}}\n    {{#Indice}}\n    <div class="card-index-badge">#{{Indice}}</div>\n    {{/Indice}}\n  </div>\n</div>\n<script>\nfunction toggleFuri() { var plain = document.getElementById("sentencePlain"); var furi = document.getElementById("sentenceFuri"); if (plain && furi) { var estaOculto = furi.classList.contains("hidden"); plain.classList.toggle("hidden", estaOculto); furi.classList.toggle("hidden", !estaOculto); } }\nfunction playAudio() { var btn = document.querySelector("#audio .soundLink, #audio .replaybutton, #audio .replay-button, #audio a"); if (btn) { btn.click(); } }\nfunction toggleTrad() { var t = document.getElementById("trad"); if (t) { t.classList.toggle("hidden"); } }\n</script>`
+          Name: "ToriiDeckImage",
+          Front: toriiFrontHtml,
+          Back: toriiBackHtml
         }
       ]
     });
     if (resCreate && !resCreate.error) {
-      console.log("¡Modelo ToriiTV creado automáticamente en Anki!");
-      return "ToriiTV";
+      console.log("¡Modelo ToriiDeckImage creado automáticamente en Anki!");
+      return "ToriiDeckImage";
     }
   } catch (err) {
-    console.warn("No se pudo auto-crear el modelo ToriiTV en Anki:", err);
+    console.warn("No se pudo auto-crear el modelo ToriiDeckImage en Anki:", err);
   }
   return null;
 }
 
 // Expuesto globalmente para exportar a AnkiConnect (Plantilla con Clip de Video animado)
 async function asegurarModeloToriiTVVideoEnAnki(userModels) {
-  const yaExiste = userModels.some(m => m.toLowerCase().replace(/[\s_-]/g, "") === "toriitvvideo");
-  if (yaExiste) {
-    const real = userModels.find(m => m.toLowerCase().replace(/[\s_-]/g, "") === "toriitvvideo");
-    return real || "ToriiTV-Video";
+  const esModeloVideo = (m) => {
+    const norm = (m || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+    return (norm.includes("video") || norm.includes("clip")) && (norm.includes("torii") || norm.includes("deck"));
+  };
+
+  const camposExactosVideo = ["Indice", "Instrucciones", "Oracion", "Significado", "Furigana", "Video"];
+
+  const modelosVideoCoincidentes = userModels.filter(esModeloVideo);
+  if (modelosVideoCoincidentes.length > 0) {
+    for (const real of modelosVideoCoincidentes) {
+      await actualizarPlantillaYCamposModelo(real, toriiVideoFrontHtml, toriiVideoBackHtml, camposExactosVideo);
+    }
+    return modelosVideoCoincidentes.find(m => {
+      const norm = m.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+      return norm === "toriideckvideo" || norm === "toriideckconvideo";
+    }) || modelosVideoCoincidentes[0];
   }
 
   try {
     const resCreate = await invokeAnki("createModel", 6, {
-      modelName: "ToriiTV-Video",
-      inOrderFields: ["Indice", "Instrucciones", "Oracion", "Furigana", "Video", "Audio", "Traduccion"],
-      css: `.card { font-family: "Segoe UI", "Noto Sans JP", sans-serif; background-color: #0b2f3a; color: #ffffff; text-align: center; }\n.flashcard { max-width: 100%; margin: 0 auto; background: #103f4f; border-radius: 28px; padding: 35px; box-shadow: 0 10px 20px rgba(0,0,0,.35); position: relative; box-sizing: border-box; }\n.instructions { font-size: 20px; margin-bottom: 20px; padding: 12px 18px; background: rgba(255, 255, 255, 0.08); border-radius: 14px; line-height: 1.5; color: #FFDEBD; font-weight: 600; }\n.sentence-front { font-size: 42px; line-height: 1.7; font-weight: bold; color: #ffffff; margin: 20px 0; }\n.videoBox video, video { max-width: 85%; max-height: 420px; border-radius: 16px; margin: 20px auto; display: block; box-shadow: 0 6px 16px rgba(0,0,0,0.3); outline: none; }\n.sentenceBox { position: relative; margin-top: 24px; padding: 10px 60px 18px; }\n.sentence { font-size: 38px; line-height: 1.8; text-align: center; word-break: keep-all; }\nruby rt { font-size: 20px; color: #FFDEBD; }\n.buttonsColumn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; }\n.icon { width: 38px; height: 38px; border-radius: 50%; background: #146482; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: transform 0.2s ease, background 0.2s ease; }\n.icon:hover { background: #ff9447; transform: scale(1.08); }\n.audio-hidden { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; }\n.translation { font-size: 24px; line-height: 1.6; color: #FFDEBD; margin-top: 16px; }\n.hidden { display: none !important; }\n.card-index-badge { position: absolute; bottom: 12px; left: 20px; font-size: 13px; opacity: 0.5; color: #93c0de; }\n@media (max-width: 750px) { .flashcard { padding: 20px; } .instructions { font-size: 16px; } .sentence-front { font-size: 26px; } .videoBox video, video { max-width: 95%; max-height: 280px; } .sentenceBox { padding: 5px; } .sentence { font-size: 22px; line-height: 1.7; white-space: normal; word-break: keep-all; } ruby rt { font-size: 11px; } .buttonsColumn { position: static; transform: none; flex-direction: row; justify-content: center; margin-top: 16px; } .icon { width: 36px; height: 36px; } .translation { font-size: 18px; } }`,
+      modelName: "ToriiDeckVideo",
+      inOrderFields: camposExactosVideo,
+      css: toriiTvSharedCss,
       cardTemplates: [
         {
-          Name: "ToriiTV-Video",
-          Front: `<div class="flashcard">\n  {{#Instrucciones}}\n  <div class="instructions">\n    {{Instrucciones}}\n  </div>\n  {{/Instrucciones}}\n  <div class="front">\n    <div class="sentence-front">{{Oracion}}</div>\n  </div>\n</div>`,
-          Back: `<div class="flashcard">\n  <div class="front">\n    <div class="sentence-front">{{Oracion}}</div>\n  </div>\n  <div class="back">\n    {{#Video}}\n    <div class="videoBox">\n      {{Video}}\n    </div>\n    {{/Video}}\n    <div class="sentenceBox">\n      <div id="sentencePlain" class="sentence">\n        {{Oracion}}\n      </div>\n      <div id="sentenceFuri" class="sentence hidden">\n        {{furigana:Furigana}}\n      </div>\n      <div class="buttonsColumn">\n        <div class="icon" onclick="toggleFuri()" title="Mostrar/Ocultar Furigana">👁</div>\n        <div class="icon" onclick="playAudio()" title="Repetir Video / Audio">▶</div>\n        {{#Traduccion}}<div class="icon" onclick="toggleTrad()" title="Mostrar Traducción">ES</div>{{/Traduccion}}\n      </div>\n    </div>\n    {{#Audio}}\n    <div id="audio" class="audio-hidden">\n      {{Audio}}\n    </div>\n    {{/Audio}}\n    {{#Traduccion}}\n    <div id="trad" class="translation hidden">\n      {{Traduccion}}\n    </div>\n    {{/Traduccion}}\n    {{#Indice}}\n    <div class="card-index-badge">#{{Indice}}</div>\n    {{/Indice}}\n  </div>\n</div>\n<script>\nfunction toggleFuri() { var plain = document.getElementById("sentencePlain"); var furi = document.getElementById("sentenceFuri"); if (plain && furi) { var estaOculto = furi.classList.contains("hidden"); plain.classList.toggle("hidden", estaOculto); furi.classList.toggle("hidden", !estaOculto); } }\nfunction playAudio() { var vid = document.querySelector("video"); if (vid) { vid.currentTime = 0; vid.play(); return; } var btn = document.querySelector("#audio .soundLink, #audio .replaybutton, #audio .replay-button, #audio a"); if (btn) { btn.click(); } }\nfunction toggleTrad() { var t = document.getElementById("trad"); if (t) { t.classList.toggle("hidden"); } }\n</script>`
+          Name: "ToriiDeckVideo",
+          Front: toriiVideoFrontHtml,
+          Back: toriiVideoBackHtml
         }
       ]
     });
     if (resCreate && !resCreate.error) {
-      console.log("¡Modelo ToriiTV-Video creado automáticamente en Anki!");
-      return "ToriiTV-Video";
+      console.log("¡Modelo ToriiDeckVideo creado automáticamente en Anki!");
+      return "ToriiDeckVideo";
     }
   } catch (err) {
-    console.warn("No se pudo auto-crear el modelo ToriiTV-Video en Anki:", err);
+    console.warn("No se pudo auto-crear el modelo ToriiDeckVideo en Anki:", err);
   }
   return null;
 }
+
+// Convierte HTML con etiquetas <ruby> o texto japonés a formato de Furigana para Anki:
+// Ej: "あぁ　<ruby>真琴<rt>まこと</rt></ruby>　<ruby>方向<rt>ほうこう</rt></ruby><ruby>音痴<rt>おんち</rt></ruby>だったろ"
+// -> "あぁ　 真琴[まこと]　 方向[ほうこう]音痴[おんち]だったろ"
+function convertirRubyAFuriganaAnki(html) {
+  if (!html) return "";
+  if (!html.includes("<ruby") && !html.includes("<rt>")) {
+    return html.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").trim();
+  }
+  let res = html.replace(/<ruby[^>]*>(.*?)<rt[^>]*>(.*?)<\/rt><\/ruby>/gi, (match, kanji, reading) => {
+    const kLimpio = kanji.replace(/<[^>]*>/g, "").trim();
+    const rLimpio = reading.replace(/<[^>]*>/g, "").trim();
+    if (!kLimpio) return "";
+    if (!rLimpio) return kLimpio;
+    return ` ${kLimpio}[${rLimpio}]`;
+  });
+  res = res.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "");
+  res = res.replace(/ +/g, " ");
+  res = res.replace(/\] +(?=[^\s\[\]\u3000]+\[)/g, "]");
+  return res.trim();
+}
+window.convertirRubyAFuriganaAnki = convertirRubyAFuriganaAnki;
 
 window.enviarObjetoAAnki = async function(sub) {
   if (!ankiConfig || !ankiConfig.enabled) {
     throw new Error("La función de Anki está desactivada en los ajustes.");
   }
 
-  let selectedPreset = ankiConfig.model || "ToriiDeckVideo";
+  const selectModelEl = document.getElementById("anki-model-select");
+  let selectedPreset = (selectModelEl && selectModelEl.value) ? selectModelEl.value : (ankiConfig.model || "ToriiDeckVideo");
+  const isVideoPreset = (selectedPreset === "ToriiDeckVideo" || selectedPreset === "ToriiVideo");
   
   // Obtener todos los modelos existentes en el Anki del usuario
   const allModelsRes = await invokeAnki("modelNames");
@@ -645,31 +964,27 @@ window.enviarObjetoAAnki = async function(sub) {
   const userModels = allModelsRes.result;
   let realModelName = null;
 
-  // Seleccionar o crear el modelo exacto según la opción configurada por el usuario
-  if (selectedPreset === "ToriiDeckVideo" || selectedPreset === "ToriiVideo") {
-    realModelName = await asegurarModeloToriiTVVideoEnAnki(userModels);
-  } else if (selectedPreset === "ToriiDeck" || selectedPreset === "ToriiTV") {
-    realModelName = await asegurarModeloToriiTVEnAnki(userModels);
-  } else if (selectedPreset === "Basic") {
-    realModelName = userModels.find(m => ["basic", "basico", "básico"].includes(m.toLowerCase().trim())) ||
-                    userModels.find(m => m.toLowerCase().startsWith("basic"));
-  } else if (selectedPreset === "BasicImage") {
-    realModelName = userModels.find(m => m.toLowerCase().includes("image") || m.toLowerCase().includes("imagen")) ||
-                    userModels.find(m => ["basic", "basico", "básico"].includes(m.toLowerCase().trim())) ||
-                    "Basic";
-  } else if (selectedPreset === "Japanese") {
-    realModelName = userModels.find(m => ["japanese", "japones", "japonés"].includes(m.toLowerCase().trim())) ||
-                    userModels.find(m => m.toLowerCase().includes("japan"));
+  // Seleccionar o crear el modelo exacto (ToriiDeck con Video o ToriiDeckImage con Imagen)
+  if (!isVideoPreset) {
+    realModelName = await asegurarModeloToriiDeckImageEnAnki(userModels);
   } else {
-    // Si el usuario configuró un modelo personalizado por nombre
-    realModelName = userModels.find(m => 
-      m.toLowerCase().replace(/[\s_]/g, "") === selectedPreset.toLowerCase().replace(/[\s_]/g, "")
-    );
+    realModelName = await asegurarModeloToriiTVVideoEnAnki(userModels);
   }
 
-  // Fallback si la opción elegida no existe en absoluto en el Anki del usuario
+  // Fallback de seguridad si no se pudo determinar
   if (!realModelName) {
     realModelName = userModels[0];
+  }
+
+  // Actualizar la plantilla del modelo en Anki al instante para asegurar el diseño sin oración duplicada y con furigana
+  try {
+    if (isVideoPreset) {
+      await actualizarPlantillaYCamposModelo(realModelName, toriiVideoFrontHtml, toriiVideoBackHtml, ["Indice", "Instrucciones", "Oracion", "Significado", "Furigana", "Video"]);
+    } else {
+      await actualizarPlantillaYCamposModelo(realModelName, toriiFrontHtml, toriiBackHtml, ["Indice", "Instrucciones", "Oracion", "Significado", "Furigana", "Audio", "Imagen"]);
+    }
+  } catch (errTmpl) {
+    console.warn("Aviso al refrescar plantilla de Anki previa a inserción:", errTmpl);
   }
 
   // Obtener la lista real de campos del modelo elegido
@@ -686,41 +1001,56 @@ window.enviarObjetoAAnki = async function(sub) {
   const timestamp = Date.now();
   const numeroIndice = (typeof minedCardsList !== "undefined" && minedCardsList ? minedCardsList.length + 1 : 1);
 
-  const encontrarCampo = (posiblesNombres) => {
-    return camposReales.find((c) =>
+  // Generar Furigana automático en formato Anki (ej: "あぁ　 真琴[まこと]　 方向[ほうこう]音痴[おんち]だったろ")
+  let furiganaAnki = "";
+  if (sub.furiganaAnki) {
+    furiganaAnki = sub.furiganaAnki;
+  } else if (sub.textoFurigana && sub.textoFurigana.includes("<ruby")) {
+    furiganaAnki = convertirRubyAFuriganaAnki(sub.textoFurigana);
+  } else if (typeof window.toriiAgregarFurigana === "function") {
+    const furiHtml = window.toriiAgregarFurigana(sub.texto);
+    furiganaAnki = convertirRubyAFuriganaAnki(furiHtml);
+  }
+  if (!furiganaAnki) furiganaAnki = fraseLimpia;
+
+  const encontrarCampos = (posiblesNombres) => {
+    return camposReales.filter((c) =>
       posiblesNombres.some((p) =>
-        c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s_]/g, "") ===
-        p.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s_]/g, "")
+        c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "") ===
+        p.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "")
       )
     );
   };
 
-  const campoIndice = encontrarCampo(["Indice", "Index", "ID", "Counter", "Numero"]);
-  const campoInstrucciones = encontrarCampo(["Instrucciones", "Instructions", "Instruccion", "Indicacion"]);
-  const campoOracion = encontrarCampo(["Oracion", "Sentence", "Expression", "Texto", "Japones", "Japanese", "Front", "Pregunta", "Frente"]);
-  const campoFurigana = encontrarCampo(["Furigana", "Reading", "Lectura", "Back", "Respuesta", "Reverso"]);
-  const campoVideo = encontrarCampo(["Video", "VideoClip", "Clip", "ClipVideo"]);
-  const campoImagen = encontrarCampo(["Imagen", "Image", "Picture", "Snapshot", "Screenshot", "Fotograma", "Captura", "Media"]);
-  const campoAudio = encontrarCampo(["Audio", "Sonido", "Sound"]);
-  const campoTraduccion = encontrarCampo(["Traduccion", "Translation", "Significado", "Español", "Spanish", "Meaning"]);
+  const camposIndice = encontrarCampos(["Indice", "Index", "ID", "Counter", "Numero"]);
+  const camposInstrucciones = encontrarCampos(["Instrucciones", "Instructions", "Instruccion", "Indicacion"]);
+  const camposOracion = encontrarCampos(["Oracion", "Sentence", "Expression", "Texto", "Japones", "Japanese", "Front", "Pregunta", "Frente"]);
+  const camposFurigana = encontrarCampos(["Furigana", "Reading", "Lectura", "Back", "Respuesta", "Reverso"]);
+  const camposVideo = encontrarCampos(["Video", "VideoClip", "Clip", "ClipVideo"]);
+  const camposImagen = encontrarCampos(["Imagen", "Image", "Picture", "Snapshot", "Screenshot", "Fotograma", "Captura", "Media"]);
+  const camposAudio = encontrarCampos(["Audio", "Sonido", "Sound"]);
+  const camposTraduccion = encontrarCampos(["Traduccion", "Translation", "Significado", "Espanol", "Spanish", "Meaning"]);
 
-  if (campoIndice) fieldsObj[campoIndice] = `${numeroIndice}`;
-  if (campoInstrucciones) fieldsObj[campoInstrucciones] = "¿Qué significa la siguiente palabra o frase?";
-  if (campoOracion) fieldsObj[campoOracion] = fraseLimpia;
-  if (campoFurigana) fieldsObj[campoFurigana] = sub.texto;
-  if (campoTraduccion && sub.traduccion) fieldsObj[campoTraduccion] = sub.traduccion;
-
-  // Si es un modelo básico sin campo de traducción dedicado, agregar traducción al reverso
-  if (!campoTraduccion && sub.traduccion && campoFurigana && fieldsObj[campoFurigana]) {
-    fieldsObj[campoFurigana] += `<br><br><span style="opacity:0.85; font-size:0.9em;">ES: ${sub.traduccion}</span>`;
+  // Asignar datos a todos los campos correspondientes (llenando Furigana y Lectura simultáneamente)
+  camposIndice.forEach(c => { fieldsObj[c] = `${numeroIndice}`; });
+  camposInstrucciones.forEach(c => { fieldsObj[c] = "¿Qué significa la siguiente palabra o frase?"; });
+  camposOracion.forEach(c => { fieldsObj[c] = fraseLimpia; });
+  camposFurigana.forEach(c => { fieldsObj[c] = furiganaAnki; });
+  if (sub.traduccion) {
+    camposTraduccion.forEach(c => { fieldsObj[c] = sub.traduccion; });
   }
 
-  // Fallback primario si el primer campo quedó vacío
+  // Si es un modelo básico sin campo de traducción dedicado, agregar traducción al reverso
+  if (camposTraduccion.length === 0 && sub.traduccion && camposFurigana.length > 0 && fieldsObj[camposFurigana[0]]) {
+    fieldsObj[camposFurigana[0]] += `<br><br><span style="opacity:0.85; font-size:0.9em;">ES: ${sub.traduccion}</span>`;
+  }
+
+  // Fallback para campos principales si quedaron vacíos
   if (camposReales[0] && !fieldsObj[camposReales[0]]) {
     fieldsObj[camposReales[0]] = fraseLimpia;
   }
   if (camposReales[1] && !fieldsObj[camposReales[1]]) {
-    fieldsObj[camposReales[1]] = sub.texto;
+    fieldsObj[camposReales[1]] = furiganaAnki || fraseLimpia;
   }
 
   // Obtener fuente de video actual
@@ -735,7 +1065,6 @@ window.enviarObjetoAAnki = async function(sub) {
     }
   }
 
-  const isVideoPreset = (selectedPreset === "ToriiDeckVideo" || selectedPreset === "ToriiVideo" || realModelName.toLowerCase().includes("video"));
   let videoAdjuntado = false;
 
   // CASO 1: Captura de Clip de Video animado (si se eligió la opción de video)
@@ -759,7 +1088,7 @@ window.enviarObjetoAAnki = async function(sub) {
           // Sin atributo 'loop' para que se reproduzca 1 vez y se detenga
           // Sin etiqueta [sound:...] para evitar que Anki abra una ventana emergente externa de mpv
           const videoTag = `<video controls autoplay playsinline style="max-width:85%; max-height:420px; border-radius:16px; margin:15px auto; display:block; box-shadow:0 6px 16px rgba(0,0,0,0.3);" src="${videoFilename}"></video>`;
-          const destinoVideoCampo = campoVideo || campoImagen || camposReales[1] || camposReales[0];
+          const destinoVideoCampo = camposVideo[0] || camposImagen[0] || camposReales[1] || camposReales[0];
           fieldsObj[destinoVideoCampo] = videoTag;
           videoAdjuntado = true;
           console.log(`🎬 Clip de video adjuntado exitosamente en "${destinoVideoCampo}": ${videoFilename}`);
@@ -771,7 +1100,7 @@ window.enviarObjetoAAnki = async function(sub) {
   }
 
   // CASO 2: Audio independiente (solo para tarjetas de imagen fija o si no se pudo adjuntar video)
-  const destinoAudioCampo = campoAudio || (!videoAdjuntado ? (campoFurigana || campoOracion || camposReales[1]) : null);
+  const destinoAudioCampo = camposAudio[0] || (!videoAdjuntado ? (camposFurigana[0] || camposOracion[0] || camposReales[1]) : null);
   if (!videoAdjuntado && videoSource && destinoAudioCampo && typeof sub.inicio === "number" && typeof sub.fin === "number") {
     try {
       const currentOffset = window.toriiTimeOffset || 0;
@@ -785,8 +1114,8 @@ window.enviarObjetoAAnki = async function(sub) {
         });
         if (resAudio && !resAudio.error) {
           const soundTag = `[sound:${audioFilename}]`;
-          if (campoAudio) {
-            fieldsObj[campoAudio] = soundTag;
+          if (camposAudio.length > 0) {
+            camposAudio.forEach(c => { fieldsObj[c] = soundTag; });
           } else {
             fieldsObj[destinoAudioCampo] = fieldsObj[destinoAudioCampo] ? `${fieldsObj[destinoAudioCampo]}<br>${soundTag}` : soundTag;
           }
@@ -806,15 +1135,30 @@ window.enviarObjetoAAnki = async function(sub) {
     options: { allowDuplicate: true }
   };
 
-  // CASO 3: Fotograma estático si no se adjuntó video
-  if (!videoAdjuntado && campoImagen) {
-    const imgBase64 = capturarFotogramaVideo();
-    if (imgBase64) {
-      notePayload.picture = [{
-        data: imgBase64,
-        filename: `toriitv_${timestamp}.jpg`,
-        fields: [campoImagen]
-      }];
+  // CASO 3: Fotograma estático si no se adjuntó video (1 sola imagen, sin duplicar)
+  const campoImagenDestino = camposImagen[0] || null;
+  if (!videoAdjuntado && campoImagenDestino) {
+    try {
+      const currentOffset = window.toriiTimeOffset || 0;
+      const targetTime = (typeof sub.inicio === "number") ? (sub.inicio + currentOffset) : (videoEl ? videoEl.currentTime : 0);
+      const imgBase64 = await capturarFotogramaSubtitulo(videoSource, targetTime);
+      if (imgBase64) {
+        const imgFilename = `toriitv_${timestamp}.jpg`;
+        const resStoreImg = await invokeAnki("storeMediaFile", 6, {
+          filename: imgFilename,
+          data: imgBase64
+        });
+        if (resStoreImg && !resStoreImg.error) {
+          const imgTag = `<img src="${imgFilename}">`;
+          camposImagen.forEach(c => { fieldsObj[c] = imgTag; });
+          console.log(`🖼️ Fotograma guardado exitosamente en "${campoImagenDestino}": ${imgFilename}`);
+        }
+        // NOTA: NO agregar notePayload.picture porque AnkiConnect concatenaría una segunda etiqueta <img>, duplicando la imagen.
+      } else {
+        console.warn("⚠️ No se pudo obtener el fotograma base64 para la tarjeta con imagen.");
+      }
+    } catch (errImg) {
+      console.warn("Error en proceso de adjuntar imagen fija:", errImg);
     }
   }
 

@@ -13,6 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@500;700&family=Zen+Maru+Gothic:wght@500;700&family=DotGothic16&family=BIZ+UDMincho&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="styles.css" />
+  
+  <!-- Plyr Video Player CSS (Reproductor Personalizado) -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
   <!-- Kuromoji para análisis morfológico de precisión (carga diferida) -->
   <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js" defer></script>
@@ -58,7 +61,6 @@
 
 <main>
   <section class="seccion-reproductor">
-    <h2 class="seccion-titulo">ToriiTV</h2>
 
     <!-- CONTENEDOR PRINCIPAL: BARRA COMPACTA A LA IZQUIERDA + VIDEO + TRANSCRIPCIÓN -->
     <div class="player-container">
@@ -151,11 +153,8 @@
               <div class="anki-input-group" style="margin-top: 10px;">
                 <label for="anki-model-select">Tipo de Tarjeta (Plantilla Web):</label>
                 <select id="anki-model-select" style="width: 100%; padding: 6px; border-radius: 4px;">
-                  <option value="ToriiDeckVideo">🎬 ToriiDeck con Video (Clip de Video animado + Audio)</option>
-                  <option value="ToriiDeck">⛩️ ToriiDeck con Imagen (Fotograma estático + Audio)</option>
-                  <option value="Basic">📝 Básico (Frente / Reverso)</option>
-                  <option value="BasicImage">🖼️ Básico con Imagen (Frente, Reverso, Imagen)</option>
-                  <option value="Japanese">🎌 Japonés Estándar (Expression, Reading)</option>
+                  <option value="ToriiDeckVideo">🎬 ToriiDeck con Video</option>
+                  <option value="ToriiDeckImage">⛩️ ToriiDeck con Imagen</option>
                 </select>
               </div>
 
@@ -179,7 +178,7 @@
 
       <!-- 1. ZONA DEL VIDEO (Columna Central) -->
       <div id="video-wrapper" class="video-container">
-        <video id="main-video" controls poster="image/Vervideo.png">
+        <video id="main-video" playsinline poster="image/Vervideo.png">
           Tu navegador no soporta la reproducción de video HTML5.
         </video>
 
@@ -188,22 +187,18 @@
           <img src="image/Vervideo.png" alt="Da clic aquí para cargar el video" class="video-placeholder-img" />
         </div>
 
-        <!-- Botón flotante para pantalla completa -->
-        <button id="btn-fullscreen" class="btn-player-fs" title="Pantalla completa" aria-label="Pantalla completa">
-          ⛶
-        </button>
-
-        <!-- Botón flotante para panel de ajustes -->
-        <button id="btn-toggle-config" class="btn-toggle-config" title="Ajustes de subtítulos" aria-label="Ajustes de subtítulos">
-          ⚙️
-        </button>
-
         <!-- Subtítulo flotante sobre el video -->
         <div id="overlay-subtitles" class="overlay-subtitles sin-fondo"></div>
 
         <!-- Panel flotante de configuración sobre el video -->
         <div class="video-overlay-config oculto" id="video-config-panel">
           
+          <!-- Encabezado del Panel de Ajustes con Botón de Cierre -->
+          <div class="video-config-header">
+            <span class="video-config-title">⚙️ Ajustes de subtítulos</span>
+            <button type="button" id="btn-close-video-config" class="video-config-close" aria-label="Cerrar ajustes">&times;</button>
+          </div>
+
           <!-- Sincronización -->
           <div class="toolbar-group">
             <span class="tool-label">Sincro:</span>
@@ -628,6 +623,9 @@
     </div>
   </div>
 </div>
+
+<!-- Plyr Video Player JS (Biblioteca Ligera de Reproductor) -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
 <script src="scripts.js"></script>
 </body>

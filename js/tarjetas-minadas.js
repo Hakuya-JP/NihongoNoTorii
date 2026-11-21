@@ -156,7 +156,7 @@ function agregarTarjetaMinadaLocal(sub, tipo) {
   const nuevaTarjeta = {
     id: `ToriiTV_${timestamp}`,
     oracion: fraseLimpia,
-    furigana: sub.texto,
+    furigana: sub.furiganaAnki || (typeof window.convertirRubyAFuriganaAnki === "function" ? window.convertirRubyAFuriganaAnki(sub.textoFurigana || sub.texto) : (sub.textoFurigana || sub.texto)),
     traduccion: sub.traduccion || "",
     tiempo: sub.inicio ? sub.inicio : 0,
     tipo: tipo || (typeof ankiConfig !== "undefined" && (ankiConfig.model === "ToriiDeckVideo" || ankiConfig.model === "ToriiVideo") ? "video" : "imagen"),
