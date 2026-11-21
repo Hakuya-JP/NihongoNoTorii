@@ -148,14 +148,15 @@ document.addEventListener("DOMContentLoaded", () => {
   syncLanternUI(isDark, false);
 
   // --- 2.3 HIGHLIGHT MENÚ NAVEGACIÓN ---
-  const paginaActual = window.location.pathname.split("/").pop();
+  const normalizarRuta = (p) => (p || "").split("/").pop().replace(/\.html$/, "").toLowerCase();
+  const paginaActual = normalizarRuta(window.location.pathname);
   const enlacesMenu = document.querySelectorAll(".top-nav a");
 
   enlacesMenu.forEach(enlace => {
-    const rutaEnlace = enlace.getAttribute("href");
-    if (paginaActual === rutaEnlace) {
+    const rutaEnlace = normalizarRuta(enlace.getAttribute("href"));
+    if (paginaActual && rutaEnlace && paginaActual === rutaEnlace) {
       enlace.classList.add("active");
-    } else if ((paginaActual === "" || paginaActual === "index.html") && rutaEnlace === "index.html") {
+    } else if ((paginaActual === "" || paginaActual === "index") && (rutaEnlace === "" || rutaEnlace === "index")) {
       enlace.classList.add("active");
     }
   });

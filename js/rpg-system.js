@@ -852,10 +852,10 @@ function renderHeaderRPG_HUD() {
   }
 
   // Detectar página actual para marcar pestaña activa en barra móvil estilo YouTube
-  const currentPath = (window.location.pathname || '').toLowerCase();
-  const isInicio = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/') || (!currentPath.includes('.html') && !currentPath.includes('torii'));
-  const isLectura = currentPath.includes('lectura.html') || currentPath.includes('manga.html');
-  const isPerfil = currentPath.includes('perfil.html');
+  const cleanCurrentSegment = (window.location.pathname || '').split('/').pop().replace(/\.html$/, '').toLowerCase();
+  const isInicio = cleanCurrentSegment === '' || cleanCurrentSegment === 'index';
+  const isLectura = cleanCurrentSegment === 'lectura' || cleanCurrentSegment === 'manga';
+  const isPerfil = cleanCurrentSegment === 'perfil';
   const basePath = window.TORII_BASE_PATH || '';
 
   hud.innerHTML = `
@@ -1209,7 +1209,7 @@ function toggleDailyQuestsPanel(event) {
 
   if (!container) return;
 
-  const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil.html");
+  const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil");
   if (!isPerfil) {
     container.classList.add("collapsible-quests-panel", "torii-floating-quests");
   }
@@ -1409,7 +1409,7 @@ function reclamarMisionDiaria(index) {
 
 function renderDailyQuestsUI() {
   let container = document.getElementById("daily-quests-container");
-  const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil.html");
+  const isPerfil = document.body.classList.contains("page-perfil") || window.location.pathname.includes("perfil");
 
   if (!container && !isPerfil) {
     const hud = document.getElementById("rpg-hud-bar");

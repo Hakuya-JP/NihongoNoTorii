@@ -1,4 +1,6 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "buildCommand": "node build.mjs",
   "framework": null,
   "outputDirectory": "dist"
