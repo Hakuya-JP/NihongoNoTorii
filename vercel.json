@@ -1,0 +1,5 @@
+{
+  "buildCommand": "node build.mjs",
+  "framework": null,
+  "outputDirectory": "dist"
+}

@@ -1,3 +1,10 @@
 
 # Zaemit AI tool config (auto-generated)
 .mcp.json
+
+# Generated deployment output and local Python artifacts
+dist/
+__pycache__/
+*.py[cod]
+mokuro-master/.venv/
+mokuro-master/venv/
