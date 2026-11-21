@@ -1820,6 +1820,355 @@
   // Renderizado instantáneo (0ms) en cuanto el script es cargado
   triggerInitialRender();
 
+  // ========================================================================
+  // SINCRONIZACIÓN E IMPORTACIÓN REMOTA DESDE MOKURO CATALOG (MOKURO.MOE)
+  // ========================================================================
+
+  let pendingRemoteImport = null;
+  let importedMangaRecordId = null;
+
+  // Extrae parámetros de importación desde query string (?cbz=...) o hash (#/upload?cbz=...)
+  function getRemoteImportParams() {
+    const search = window.location.search || '';
+    const hash = window.location.hash || '';
+
+    let params = new URLSearchParams();
+
+    // Caso 1: /#/upload?cbz=...&manifest=... (estilo oficial mokuro reader)
+    if (hash.includes('?')) {
+      const q = hash.substring(hash.indexOf('?') + 1);
+      params = new URLSearchParams(q);
+    } else if (hash.startsWith('#') && hash.includes('=')) {
+      // Caso 2: #cbz=...&ocr=... (estilo hash simple)
+      params = new URLSearchParams(hash.substring(1));
+    }
+
+    // Si no había en el hash o faltan parámetros, complementar con window.location.search
+    if (search) {
+      const sParams = new URLSearchParams(search);
+      for (const [k, v] of sParams.entries()) {
+        if (!params.has(k)) {
+          params.set(k, v);
+        }
+      }
+    }
+
+    const cbz = params.get('cbz') || params.get('archive') || params.get('file');
+    const manifest = params.get('manifest');
+    const ocr = params.get('ocr');
+    const cover = params.get('cover');
+    const title = params.get('title') || params.get('series');
+    const volume = params.get('volume');
+
+    if (!cbz && !manifest) return null;
+
+    return { cbz, manifest, ocr, cover, title, volume };
+  }
+
+  // Descarga un archivo con seguimiento de progreso real mediante ReadableStream
+  async function downloadRemoteFileWithProgress(url, progressCb) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Error HTTP ${response.status} (${response.statusText}) al descargar el archivo.`);
+    }
+
+    const contentLength = response.headers.get('content-length');
+    const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
+    let loadedBytes = 0;
+
+    const reader = response.body.getReader();
+    const chunks = [];
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      loadedBytes += value.length;
+      if (progressCb) {
+        progressCb(loadedBytes, totalBytes);
+      }
+    }
+
+    return new Blob(chunks, { type: 'application/octet-stream' });
+  }
+
+  // Detecta y prepara el modal de importación remota si hay parámetros en la URL
+  async function checkAndHandleRemoteImport() {
+    const params = getRemoteImportParams();
+    if (!params) return;
+
+    const modalRemote = document.getElementById('modal-import-remote-manga');
+    if (!modalRemote) return;
+
+    const seriesTitleEl = document.getElementById('remote-import-series-title');
+    const volumeTitleEl = document.getElementById('remote-import-volume-title');
+    const fileSizeEl = document.getElementById('remote-import-file-size');
+    const coverImgEl = document.getElementById('remote-import-cover-img');
+    const coverPlaceholderEl = document.getElementById('remote-import-cover-placeholder');
+    const progressWrap = document.getElementById('remote-import-progress-wrap');
+    const actionsRow = document.getElementById('remote-import-actions-row');
+    const successRow = document.getElementById('remote-import-success-row');
+
+    // Resetear estados visuales
+    if (progressWrap) progressWrap.style.display = 'none';
+    if (actionsRow) actionsRow.style.display = 'flex';
+    if (successRow) successRow.style.display = 'none';
+    if (coverImgEl) {
+      coverImgEl.src = '';
+      coverImgEl.style.display = 'none';
+    }
+    if (coverPlaceholderEl) coverPlaceholderEl.style.display = 'block';
+
+    let seriesName = params.title || 'Manga';
+    let volumeName = params.volume || 'Volumen 1';
+    let cbzUrl = params.cbz || '';
+    let ocrUrl = params.ocr || '';
+    let coverUrl = params.cover || '';
+    let expectedSize = 0;
+    let manifestData = null;
+
+    // Mostrar modal preliminarmente
+    if (seriesTitleEl) seriesTitleEl.textContent = 'Consultando información de Mokuro...';
+    if (volumeTitleEl) volumeTitleEl.textContent = 'Por favor espera un momento';
+    if (fileSizeEl) fileSizeEl.textContent = 'Calculando tamaño...';
+    modalRemote.classList.add('active');
+
+    // Si viene manifestUrl, consultar la API para obtener metadatos y enlaces directos
+    if (params.manifest) {
+      try {
+        const mRes = await fetch(params.manifest);
+        if (mRes.ok) {
+          manifestData = await mRes.json();
+          if (manifestData.series) seriesName = manifestData.series;
+          if (manifestData.volume) volumeName = manifestData.volume;
+          if (manifestData.archive && manifestData.archive.url) {
+            cbzUrl = new URL(manifestData.archive.url, params.manifest).href;
+            if (manifestData.archive.size) expectedSize = manifestData.archive.size;
+          }
+          if (manifestData.ocr && manifestData.ocr.url) {
+            ocrUrl = new URL(manifestData.ocr.url, params.manifest).href;
+          }
+          if (manifestData.cover && manifestData.cover.url) {
+            coverUrl = new URL(manifestData.cover.url, params.manifest).href;
+          }
+        }
+      } catch (mErr) {
+        console.warn('[ToriiManga] Error obteniendo manifest remoto:', mErr);
+      }
+    }
+
+    // Deducir nombres si no vinieron en el manifest
+    if (seriesName === 'Manga' && cbzUrl) {
+      try {
+        const urlObj = new URL(cbzUrl);
+        const parts = urlObj.pathname.split('/').filter(Boolean);
+        const filename = decodeURIComponent(parts.pop() || '').replace(/\.cbz$/i, '');
+        if (parts.length > 0) {
+          seriesName = decodeURIComponent(parts.pop() || '');
+          volumeName = filename;
+        } else {
+          seriesName = filename;
+        }
+      } catch (e) {}
+    }
+
+    if (seriesTitleEl) seriesTitleEl.textContent = seriesName;
+    if (volumeTitleEl) volumeTitleEl.textContent = volumeName;
+    if (fileSizeEl) {
+      if (expectedSize > 0) {
+        fileSizeEl.textContent = `Tamaño estimado: ${(expectedSize / (1024 * 1024)).toFixed(1)} MB`;
+      } else {
+        fileSizeEl.textContent = 'Listo para descargar';
+      }
+    }
+
+    if (coverUrl && coverImgEl) {
+      coverImgEl.onload = () => {
+        coverImgEl.style.display = 'block';
+        if (coverPlaceholderEl) coverPlaceholderEl.style.display = 'none';
+      };
+      coverImgEl.src = coverUrl;
+    }
+
+    pendingRemoteImport = {
+      seriesName,
+      volumeName,
+      cbzUrl,
+      ocrUrl,
+      coverUrl,
+      expectedSize,
+      manifestData
+    };
+  }
+
+  // Ejecuta la descarga y el guardado en IndexedDB
+  async function startRemoteImportProcess() {
+    if (!pendingRemoteImport || !pendingRemoteImport.cbzUrl) {
+      alert('No se encontró una URL de manga válida para descargar.');
+      return;
+    }
+
+    const { seriesName, volumeName, cbzUrl, ocrUrl } = pendingRemoteImport;
+
+    const btnConfirm = document.getElementById('btn-confirm-remote-import');
+    const btnCancel = document.getElementById('btn-cancel-remote-import');
+    const progressWrap = document.getElementById('remote-import-progress-wrap');
+    const progressBar = document.getElementById('remote-import-progress-bar');
+    const statusText = document.getElementById('remote-import-status-text');
+    const statsText = document.getElementById('remote-import-stats-text');
+    const actionsRow = document.getElementById('remote-import-actions-row');
+    const successRow = document.getElementById('remote-import-success-row');
+
+    if (btnConfirm) btnConfirm.disabled = true;
+    if (btnCancel) btnCancel.style.display = 'none';
+    if (progressWrap) progressWrap.style.display = 'block';
+
+    try {
+      if (statusText) statusText.textContent = 'Conectando con Mokuro y descargando archivo CBZ...';
+
+      // 1. Descargar archivo CBZ con streaming de progreso
+      const cbzBlob = await downloadRemoteFileWithProgress(cbzUrl, (loaded, total) => {
+        let pct = 0;
+        let text = '';
+        const loadedMb = (loaded / (1024 * 1024)).toFixed(1);
+        if (total > 0) {
+          pct = Math.min(100, Math.round((loaded / total) * 100));
+          const totalMb = (total / (1024 * 1024)).toFixed(1);
+          text = `${loadedMb} MB / ${totalMb} MB (${pct}%)`;
+        } else {
+          pct = 50;
+          text = `${loadedMb} MB descargados`;
+        }
+        if (progressBar) progressBar.style.width = `${pct}%`;
+        if (statsText) statsText.textContent = text;
+      });
+
+      // 2. Si hay archivo .mokuro externo especificado, descargarlo
+      let mokuroJson = null;
+      if (ocrUrl) {
+        if (statusText) statusText.textContent = 'Obteniendo capa de texto interactivo OCR (.mokuro)...';
+        try {
+          const ocrRes = await fetch(ocrUrl);
+          if (ocrRes.ok) {
+            mokuroJson = await ocrRes.json();
+          }
+        } catch (errOcr) {
+          console.warn('[ToriiManga] No se pudo obtener el .mokuro remoto externo:', errOcr);
+        }
+      }
+
+      // 3. Descomprimir y almacenar en IndexedDB
+      if (statusText) statusText.textContent = 'Extrayendo páginas y guardando en tu biblioteca local...';
+      if (progressBar) progressBar.style.width = '92%';
+      if (statsText) statsText.textContent = '92%';
+
+      const cleanFileName = (volumeName ? `${seriesName} - ${volumeName}` : seriesName) + '.cbz';
+      const cbzFile = new File([cbzBlob], cleanFileName, { type: 'application/vnd.comicbook+zip' });
+
+      const savedRecord = await processCbzOrZipFile(cbzFile, seriesName, volumeName, (pPct, pStatus) => {
+        if (progressBar) progressBar.style.width = `${Math.min(99, pPct)}%`;
+        if (statusText) statusText.textContent = pStatus;
+      }, mokuroJson);
+
+      importedMangaRecordId = savedRecord ? savedRecord.id : null;
+
+      // 4. Finalizado con éxito
+      if (progressBar) progressBar.style.width = '100%';
+      if (statsText) statsText.textContent = '100%';
+      if (statusText) statusText.textContent = '¡Importado con éxito!';
+
+      // Limpiar parámetros de la URL para que recargar la página no vuelva a disparar la descarga
+      if (window.history && window.history.replaceState) {
+        const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+
+      // Actualizar la cuadrícula de la biblioteca
+      renderMyMangasGrid();
+
+      if (actionsRow) actionsRow.style.display = 'none';
+      if (successRow) successRow.style.display = 'flex';
+
+      if (typeof mostrarToast === 'function') {
+        mostrarToast(`✨ ¡${seriesName} importado a tu biblioteca!`);
+      }
+
+    } catch (err) {
+      console.error('[ToriiManga] Error durante la importación remota:', err);
+      if (statusText) statusText.textContent = 'Error: ' + err.message;
+      let errorMsg = 'Ocurrió un error al importar el manga: ' + err.message;
+      if (window.location.protocol === 'file:') {
+        errorMsg += '\n\n💡 Nota: Al abrir el archivo con doble clic directo (protocolo file://), el navegador bloquea las descargas directas externas por política de seguridad de origen. Para usar la importación con 1 clic de Mokuro Catalog, abre Nihongo no Torii desde un servidor local (ej. Live Server de VS Code o http://localhost) o desde tu hosting web.';
+      }
+      alert(errorMsg);
+      if (btnConfirm) btnConfirm.disabled = false;
+      if (btnCancel) btnCancel.style.display = 'inline-block';
+    }
+  }
+
+  // Configura listeners del modal de importación remota
+  function initRemoteImportUI() {
+    const modalRemote = document.getElementById('modal-import-remote-manga');
+    const btnCloseRemote = document.getElementById('btn-close-remote-modal');
+    const btnCancelRemote = document.getElementById('btn-cancel-remote-import');
+    const btnConfirmRemote = document.getElementById('btn-confirm-remote-import');
+    const btnViewInLibrary = document.getElementById('btn-view-in-library');
+    const btnOpenReader = document.getElementById('btn-open-imported-reader');
+
+    const closeModalAndCleanUrl = () => {
+      if (modalRemote) modalRemote.classList.remove('active');
+      if (window.history && window.history.replaceState) {
+        const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+    };
+
+    if (btnCloseRemote) btnCloseRemote.addEventListener('click', closeModalAndCleanUrl);
+    if (btnCancelRemote) btnCancelRemote.addEventListener('click', closeModalAndCleanUrl);
+
+    if (btnConfirmRemote) {
+      btnConfirmRemote.addEventListener('click', startRemoteImportProcess);
+    }
+
+    if (btnViewInLibrary) {
+      btnViewInLibrary.addEventListener('click', () => {
+        closeModalAndCleanUrl();
+        const grid = document.getElementById('my-mangas-grid');
+        if (grid) grid.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    if (btnOpenReader) {
+      btnOpenReader.addEventListener('click', () => {
+        closeModalAndCleanUrl();
+        if (importedMangaRecordId) {
+          launchMangaFromDB(importedMangaRecordId);
+        }
+      });
+    }
+
+    if (modalRemote) {
+      modalRemote.addEventListener('click', (e) => {
+        const progressWrap = document.getElementById('remote-import-progress-wrap');
+        const isDownloading = progressWrap && progressWrap.style.display !== 'none' && (!document.getElementById('remote-import-success-row') || document.getElementById('remote-import-success-row').style.display === 'none');
+        if (e.target === modalRemote && !isDownloading) {
+          closeModalAndCleanUrl();
+        }
+      });
+    }
+
+    // Tecla Escape para cerrar
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const progressWrap = document.getElementById('remote-import-progress-wrap');
+        const isDownloading = progressWrap && progressWrap.style.display !== 'none' && (!document.getElementById('remote-import-success-row') || document.getElementById('remote-import-success-row').style.display === 'none');
+        if (!isDownloading && modalRemote && modalRemote.classList.contains('active')) {
+          closeModalAndCleanUrl();
+        }
+      }
+    });
+  }
+
   function initMangaUI() {
     triggerInitialRender();
 
@@ -2057,6 +2406,12 @@
         }
       });
     }
+
+    // Inicializar listeners del modal de importación remota
+    initRemoteImportUI();
+
+    // Comprobar de inmediato si la página se abrió con parámetros de importación desde Mokuro
+    checkAndHandleRemoteImport();
   }
 
   // Inicializar listeners de UI
@@ -2087,6 +2442,9 @@
     downloadMokuro: downloadMangaMokuro,
     promptChangeCover: promptChangeCover,
     COVER_PLACEHOLDER: COVER_PLACEHOLDER,
+    checkRemoteImport: checkAndHandleRemoteImport,
+    startRemoteImport: startRemoteImportProcess,
+    getRemoteImportParams: getRemoteImportParams,
     // Usado por el lector para continuar al siguiente tomo (preserva el contexto de serie)
     launch: function(mangaId) {
       const state = window.MokuroReader ? window.MokuroReader.getState() : null;
