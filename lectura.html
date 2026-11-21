@@ -550,66 +550,79 @@
 </div>
 
 <!-- =========================================================================
-     MODAL DE IMPORTACIÓN REMOTA (DESDE URL MOKURO CATALOG)
+     VENTANA FLOTANTE DE IMPORTACIÓN REMOTA (PARTE INFERIOR IZQUIERDA / MINIMIZABLE)
      ========================================================================= -->
-<div id="modal-import-remote-manga" class="modal-overlay-manga" role="dialog" aria-modal="true" aria-labelledby="remote-modal-title">
-  <div class="modal-content-manga" style="max-width: 540px;">
-    <div class="modal-header-manga">
-      <h3 id="remote-modal-title"><span>📥</span> Importar Manga desde Mokuro</h3>
-      <button id="btn-close-remote-modal" class="modal-close-btn-manga" aria-label="Cerrar">&#x2715;</button>
+<div id="modal-import-remote-manga" class="torii-docked-import" role="region" aria-label="Importador de manga desde Mokuro">
+  <!-- Tarjeta expandida -->
+  <div id="remote-import-card" class="torii-docked-card">
+    <div class="torii-docked-header">
+      <h3 id="remote-modal-title" class="torii-docked-title">
+        <span>📥</span> Importar Manga
+      </h3>
+      <div class="torii-docked-controls">
+        <button type="button" id="btn-minimize-remote-modal" class="torii-docked-btn-ctl" title="Minimizar ventana" aria-label="Minimizar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button type="button" id="btn-close-remote-modal" class="torii-docked-btn-ctl close" title="Cerrar" aria-label="Cerrar">&#x2715;</button>
+      </div>
     </div>
 
-    <div id="remote-import-preview-box" style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; background: rgba(0,0,0,0.03); padding: 14px; border-radius: 12px; border: 1px solid var(--mokuro-border);">
-      <div id="remote-import-cover-wrap" style="width: 80px; height: 115px; border-radius: 8px; overflow: hidden; background: #222; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
+    <div id="remote-import-preview-box" style="display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 12px; border: 1px solid var(--mokuro-border);">
+      <div id="remote-import-cover-wrap" style="width: 65px; height: 95px; border-radius: 8px; overflow: hidden; background: #222; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
         <img id="remote-import-cover-img" src="" alt="Portada" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
-        <span id="remote-import-cover-placeholder" style="font-size: 2rem;">📖</span>
+        <span id="remote-import-cover-placeholder" style="font-size: 1.8rem;">📖</span>
       </div>
       <div style="flex: 1; min-width: 0;">
-        <span class="lectura-badge" style="font-size: 0.72rem; padding: 2px 8px; margin-bottom: 6px; display: inline-block;">🌐 mokuro.moe</span>
-        <h4 id="remote-import-series-title" style="margin: 0 0 4px; font-size: 1.05rem; word-break: break-word; line-height: 1.3;">Cargando información...</h4>
-        <div id="remote-import-volume-title" style="font-size: 0.88rem; color: #666; margin-bottom: 6px;">Volumen</div>
-        <div id="remote-import-file-size" style="font-size: 0.8rem; color: #888;">Tamaño: Calculando...</div>
+        <span class="lectura-badge" style="font-size: 0.7rem; padding: 2px 7px; margin-bottom: 5px; display: inline-block;">🌐 mokuro.moe</span>
+        <h4 id="remote-import-series-title" style="margin: 0 0 3px; font-size: 0.98rem; word-break: break-word; line-height: 1.3;">Cargando información...</h4>
+        <div id="remote-import-volume-title" style="font-size: 0.84rem; color: #666; margin-bottom: 4px;">Volumen</div>
+        <div id="remote-import-file-size" style="font-size: 0.78rem; color: #888;">Tamaño: Calculando...</div>
       </div>
     </div>
 
-    <p id="remote-import-description-text" style="font-size: 0.88rem; color: var(--text-color, #444); line-height: 1.45; margin-bottom: 18px;">
-      Este manga incluye imágenes en alta calidad y la capa interactiva de texto OCR (Mokuro). Se guardará en tu biblioteca local (IndexedDB) para leer sin conexión.
-    </p>
-
     <!-- Barra de progreso de descarga e importación remota -->
-    <div id="remote-import-progress-wrap" class="import-progress-container" style="display: none; margin-bottom: 18px;">
-      <div class="progress-track" style="height: 12px; background: rgba(0,0,0,0.08); border-radius: 6px; overflow: hidden; position: relative;">
+    <div id="remote-import-progress-wrap" class="import-progress-container" style="display: none; margin-bottom: 16px;">
+      <div class="progress-track" style="height: 10px; background: rgba(0,0,0,0.08); border-radius: 5px; overflow: hidden; position: relative;">
         <div id="remote-import-progress-bar" class="progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4); transition: width 0.15s ease;"></div>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
-        <div id="remote-import-status-text" class="progress-status-text" style="font-size: 0.84rem; font-weight: 600;">Descargando archivo...</div>
-        <div id="remote-import-stats-text" style="font-size: 0.8rem; color: #777;">0%</div>
+        <div id="remote-import-status-text" class="progress-status-text" style="font-size: 0.8rem; font-weight: 600;">Descargando archivo...</div>
+        <div id="remote-import-stats-text" style="font-size: 0.78rem; color: #777;">0%</div>
       </div>
     </div>
 
     <!-- Acciones -->
-    <div id="remote-import-actions-row" style="display: flex; justify-content: flex-end; gap: 10px;">
-      <button type="button" id="btn-cancel-remote-import" class="btn-upload-choice btn-secondary-choice">
+    <div id="remote-import-actions-row" style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button type="button" id="btn-cancel-remote-import" class="btn-upload-choice btn-secondary-choice" style="padding: 7px 14px; font-size: 0.84rem;">
         Cancelar
       </button>
-      <button type="button" id="btn-confirm-remote-import" class="btn-upload-choice" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-        <span>💾</span> Importar a mi Biblioteca
+      <button type="button" id="btn-confirm-remote-import" class="btn-upload-choice" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 7px 16px; font-size: 0.84rem;">
+        <span>💾</span> Importar
       </button>
     </div>
 
     <!-- Botón posterior a la descarga exitosa -->
-    <div id="remote-import-success-row" style="display: none; flex-direction: column; gap: 10px; margin-top: 10px;">
-      <div style="padding: 12px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; color: #047857; font-size: 0.9rem; text-align: center; font-weight: 600;">
-        🎉 ¡Manga importado exitosamente a tu biblioteca!
+    <div id="remote-import-success-row" style="display: none; flex-direction: column; gap: 8px; margin-top: 10px;">
+      <div style="padding: 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; color: #047857; font-size: 0.85rem; text-align: center; font-weight: 600;">
+        🎉 ¡Manga importado exitosamente!
       </div>
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px;">
-        <button type="button" id="btn-view-in-library" class="btn-upload-choice btn-secondary-choice">
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+        <button type="button" id="btn-view-in-library" class="btn-upload-choice btn-secondary-choice" style="padding: 6px 12px; font-size: 0.82rem;">
           Ver en Biblioteca
         </button>
-        <button type="button" id="btn-open-imported-reader" class="btn-upload-choice" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
-          <span>📖</span> Abrir en el Lector
+        <button type="button" id="btn-open-imported-reader" class="btn-upload-choice" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 6px 14px; font-size: 0.82rem;">
+          <span>📖</span> Abrir
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Píldora flotante cuando está minimizado -->
+  <div id="remote-import-minimized-pill" class="torii-docked-pill" title="Clic para abrir ventana de importación" role="button" tabindex="0">
+    <div class="torii-docked-pill-icon" id="docked-pill-icon">📥</div>
+    <div class="torii-docked-pill-info">
+      <span class="torii-docked-pill-title" id="docked-pill-title">Importando Manga</span>
+      <span class="torii-docked-pill-status" id="docked-pill-status">Listo</span>
     </div>
   </div>
 </div>

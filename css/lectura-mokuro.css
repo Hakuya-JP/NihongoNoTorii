@@ -3887,3 +3887,223 @@ html.dark-mode #btn-export-mokuro:hover {
 .quick-popup-close:active {
   transform: scale(0.95);
 }
+
+/* --------------------------------------------------------------------------
+   WIDGET DOCKED DE IMPORTACIÓN REMOTA (INFERIOR IZQUIERDA / MINIMIZABLE)
+   -------------------------------------------------------------------------- */
+.torii-docked-import {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 100060;
+  pointer-events: auto;
+  font-family: inherit;
+}
+
+.torii-docked-import.active {
+  display: block;
+}
+
+/* Tarjeta expandida */
+.torii-docked-card {
+  width: 390px;
+  max-width: calc(100vw - 36px);
+  background: var(--card-bg, #ffffff);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--mokuro-border, rgba(0, 0, 0, 0.12));
+  animation: toriiSlideUpFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+html.dark-mode .torii-docked-card,
+body.dark-mode .torii-docked-card {
+  background: var(--blanco3, #1e2533);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+@keyframes toriiSlideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.torii-docked-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--mokuro-border, rgba(0, 0, 0, 0.06));
+}
+
+.torii-docked-title {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--texto-principal, #1f2937);
+}
+
+html.dark-mode .torii-docked-title,
+body.dark-mode .torii-docked-title {
+  color: var(--texto-principal, #f3f4f6);
+}
+
+.torii-docked-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.torii-docked-btn-ctl {
+  background: transparent;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #6b7280;
+  transition: all 0.15s ease;
+}
+
+.torii-docked-btn-ctl:hover {
+  background: rgba(0, 0, 0, 0.07);
+  color: #111827;
+}
+
+html.dark-mode .torii-docked-btn-ctl:hover,
+body.dark-mode .torii-docked-btn-ctl:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f9fafb;
+}
+
+.torii-docked-btn-ctl.close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Cápsula / Píldora minimizada */
+.torii-docked-pill {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-bg, #ffffff);
+  padding: 8px 14px 8px 10px;
+  border-radius: 9999px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--mokuro-border, rgba(0,0,0,0.08));
+  cursor: pointer;
+  border: 1px solid var(--mokuro-border, rgba(0, 0, 0, 0.12));
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: toriiSlideUpFade 0.2s ease-out;
+  user-select: none;
+}
+
+html.dark-mode .torii-docked-pill,
+body.dark-mode .torii-docked-pill {
+  background: var(--blanco3, #1e2533);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.torii-docked-pill:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
+}
+
+.torii-docked-pill-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #ffffff;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.torii-docked-pill.is-downloading .torii-docked-pill-icon {
+  animation: pulseImportPill 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseImportPill {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.torii-docked-pill-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 190px;
+}
+
+.torii-docked-pill-title {
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--texto-principal, #111827);
+}
+
+html.dark-mode .torii-docked-pill-title,
+body.dark-mode .torii-docked-pill-title {
+  color: var(--texto-principal, #f9fafb);
+}
+
+.torii-docked-pill-status {
+  font-size: 0.74rem;
+  color: #10b981;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Estado cuando está minimizado */
+.torii-docked-import.is-minimized .torii-docked-card {
+  display: none !important;
+}
+
+.torii-docked-import.is-minimized .torii-docked-pill {
+  display: flex !important;
+}
+
+@media (max-width: 600px) {
+  .torii-docked-import {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+  }
+  .torii-docked-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 15px;
+  }
+}

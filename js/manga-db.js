@@ -2043,6 +2043,17 @@
       }
     }
 
+    // Sincronizar pill minimizada
+    const pillTitle = document.getElementById('docked-pill-title');
+    const pillStatus = document.getElementById('docked-pill-status');
+    const pillIcon = document.getElementById('docked-pill-icon');
+    const pillWrap = document.getElementById('remote-import-minimized-pill');
+    if (pillTitle) pillTitle.textContent = seriesName;
+    if (pillStatus) pillStatus.textContent = 'Listo';
+    if (pillIcon) pillIcon.textContent = '📥';
+    if (pillWrap) pillWrap.classList.remove('is-downloading');
+    if (modalRemote) modalRemote.classList.remove('is-minimized');
+
     if (coverUrl && coverImgEl) {
       coverImgEl.onload = () => {
         coverImgEl.style.display = 'block';
@@ -2085,9 +2096,17 @@
     const actionsRow = document.getElementById('remote-import-actions-row');
     const successRow = document.getElementById('remote-import-success-row');
 
+    const pillWrap = document.getElementById('remote-import-minimized-pill');
+    const pillStatus = document.getElementById('docked-pill-status');
+    const pillIcon = document.getElementById('docked-pill-icon');
+
     if (btnConfirm) btnConfirm.disabled = true;
     if (btnCancel) btnCancel.style.display = 'none';
     if (progressWrap) progressWrap.style.display = 'block';
+
+    if (pillWrap) pillWrap.classList.add('is-downloading');
+    if (pillIcon) pillIcon.textContent = '📥';
+    if (pillStatus) pillStatus.textContent = '0%';
 
     try {
       if (statusText) statusText.textContent = 'Conectando con Mokuro y descargando archivo CBZ...';
@@ -2107,12 +2126,14 @@
         }
         if (progressBar) progressBar.style.width = `${pct}%`;
         if (statsText) statsText.textContent = text;
+        if (pillStatus) pillStatus.textContent = `${pct}%`;
       });
 
       // 2. Si hay archivo .mokuro externo especificado, descargarlo
       let mokuroJson = null;
       if (ocrUrl) {
         if (statusText) statusText.textContent = 'Obteniendo capa de texto interactivo OCR (.mokuro)...';
+        if (pillStatus) pillStatus.textContent = 'OCR...';
         try {
           const ocrRes = await fetchWithFallback(ocrUrl);
           if (ocrRes.ok) {
@@ -2127,6 +2148,7 @@
       if (statusText) statusText.textContent = 'Extrayendo páginas y guardando en tu biblioteca local...';
       if (progressBar) progressBar.style.width = '92%';
       if (statsText) statsText.textContent = '92%';
+      if (pillStatus) pillStatus.textContent = 'Guardando...';
 
       const cleanFileName = (volumeName ? `${seriesName} - ${volumeName}` : seriesName) + '.cbz';
       const cbzFile = new File([cbzBlob], cleanFileName, { type: 'application/vnd.comicbook+zip' });
@@ -2142,6 +2164,10 @@
       if (progressBar) progressBar.style.width = '100%';
       if (statsText) statsText.textContent = '100%';
       if (statusText) statusText.textContent = '¡Importado con éxito!';
+
+      if (pillWrap) pillWrap.classList.remove('is-downloading');
+      if (pillIcon) pillIcon.textContent = '✅';
+      if (pillStatus) pillStatus.textContent = '¡Listo!';
 
       // Limpiar parámetros de la URL para que recargar la página no vuelva a disparar la descarga
       if (window.history && window.history.replaceState) {
@@ -2162,6 +2188,10 @@
     } catch (err) {
       console.error('[ToriiManga] Error durante la importación remota:', err);
       if (statusText) statusText.textContent = 'Error: ' + err.message;
+      if (pillWrap) pillWrap.classList.remove('is-downloading');
+      if (pillIcon) pillIcon.textContent = '⚠️';
+      if (pillStatus) pillStatus.textContent = 'Error';
+
       let errorMsg = 'Ocurrió un error al importar el manga: ' + err.message;
       if (window.location.protocol === 'file:') {
         errorMsg += '\n\n💡 Nota: Al abrir el archivo con doble clic directo (protocolo file://), el navegador bloquea las descargas directas externas por política de seguridad de origen. Para usar la importación con 1 clic de Mokuro Catalog, abre Nihongo no Torii desde un servidor local (ej. Live Server de VS Code o http://localhost) o desde tu hosting web.';
@@ -2175,6 +2205,8 @@
   // Configura listeners del modal de importación remota
   function initRemoteImportUI() {
     const modalRemote = document.getElementById('modal-import-remote-manga');
+    const btnMinimizeRemote = document.getElementById('btn-minimize-remote-modal');
+    const pillRemote = document.getElementById('remote-import-minimized-pill');
     const btnCloseRemote = document.getElementById('btn-close-remote-modal');
     const btnCancelRemote = document.getElementById('btn-cancel-remote-import');
     const btnConfirmRemote = document.getElementById('btn-confirm-remote-import');
@@ -2182,12 +2214,31 @@
     const btnOpenReader = document.getElementById('btn-open-imported-reader');
 
     const closeModalAndCleanUrl = () => {
-      if (modalRemote) modalRemote.classList.remove('active');
+      if (modalRemote) modalRemote.classList.remove('active', 'is-minimized');
       if (window.history && window.history.replaceState) {
         const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
       }
     };
+
+    if (btnMinimizeRemote) {
+      btnMinimizeRemote.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (modalRemote) modalRemote.classList.add('is-minimized');
+      });
+    }
+
+    if (pillRemote) {
+      pillRemote.addEventListener('click', () => {
+        if (modalRemote) modalRemote.classList.remove('is-minimized');
+      });
+      pillRemote.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (modalRemote) modalRemote.classList.remove('is-minimized');
+        }
+      });
+    }
 
     if (btnCloseRemote) btnCloseRemote.addEventListener('click', closeModalAndCleanUrl);
     if (btnCancelRemote) btnCancelRemote.addEventListener('click', closeModalAndCleanUrl);
@@ -2213,22 +2264,15 @@
       });
     }
 
-    if (modalRemote) {
-      modalRemote.addEventListener('click', (e) => {
-        const progressWrap = document.getElementById('remote-import-progress-wrap');
-        const isDownloading = progressWrap && progressWrap.style.display !== 'none' && (!document.getElementById('remote-import-success-row') || document.getElementById('remote-import-success-row').style.display === 'none');
-        if (e.target === modalRemote && !isDownloading) {
-          closeModalAndCleanUrl();
-        }
-      });
-    }
-
-    // Tecla Escape para cerrar
+    // Tecla Escape para minimizar (o cerrar si ya está listo)
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && modalRemote && modalRemote.classList.contains('active')) {
         const progressWrap = document.getElementById('remote-import-progress-wrap');
         const isDownloading = progressWrap && progressWrap.style.display !== 'none' && (!document.getElementById('remote-import-success-row') || document.getElementById('remote-import-success-row').style.display === 'none');
-        if (!isDownloading && modalRemote && modalRemote.classList.contains('active')) {
+        if (isDownloading) {
+          // Si está descargando, Escape solo minimiza para no abortar
+          modalRemote.classList.add('is-minimized');
+        } else {
           closeModalAndCleanUrl();
         }
       }
