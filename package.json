@@ -1,0 +1,10 @@
+{
+  "name": "nihongo-no-torii",
+  "version": "1.0.0",
+  "description": "Sitio estatico para aprender japones con tablas kana, lectura de manga, ToriiTV y simulacros JLPT.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}

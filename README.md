@@ -14,4 +14,4 @@ Abre la carpeta con una extension de servidor estatico, como Live Server, y nave
 
 ## Mokuro
 
-`mokuro-master/` contiene la herramienta Python para procesar manga localmente. El lector de la web consume archivos `.mokuro` ya generados; el procesamiento OCR no se ejecuta en Vercel.
+`tools/mokuro/` contiene la herramienta Python para procesar manga localmente. El lector de la web consume archivos `.mokuro` ya generados; el procesamiento OCR no se ejecuta en Vercel.

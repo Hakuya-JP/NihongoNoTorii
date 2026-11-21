@@ -1,0 +1,11 @@
+# Herramientas locales de procesamiento y testing
+tools/
+tests/
+.vscode/
+
+# Python cache y binarios
+__pycache__/
+*.py[cod]
+
+# Logs y notas de desarrollo
+*.log

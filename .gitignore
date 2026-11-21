@@ -4,7 +4,10 @@
 
 # Generated deployment output and local Python artifacts
 dist/
+node_modules/
 __pycache__/
 *.py[cod]
+tools/mokuro/.venv/
+tools/mokuro/venv/
 mokuro-master/.venv/
 mokuro-master/venv/
