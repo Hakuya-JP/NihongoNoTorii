@@ -3923,13 +3923,14 @@ html.dark-mode #btn-export-mokuro:hover {
 }
 
 /* --------------------------------------------------------------------------
-   WIDGET DOCKED DE IMPORTACIÓN REMOTA (INFERIOR IZQUIERDA / MINIMIZABLE)
+   WIDGET DOCKED DE IMPORTACIÓN REMOTA (INFERIOR DERECHA / MINIMIZABLE)
    -------------------------------------------------------------------------- */
 .torii-docked-import {
   display: none;
   position: fixed;
   bottom: 24px;
-  left: 24px;
+  right: 24px;
+  left: auto;
   z-index: 100060;
   pointer-events: auto;
   font-family: inherit;

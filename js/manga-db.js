@@ -1959,6 +1959,10 @@
     const successRow = document.getElementById('remote-import-success-row');
 
     // Resetear estados visuales
+    const btnConfirm = document.getElementById('btn-confirm-remote-import');
+    const btnCancel = document.getElementById('btn-cancel-remote-import');
+    if (btnConfirm) btnConfirm.disabled = false;
+    if (btnCancel) btnCancel.style.display = 'inline-block';
     if (progressWrap) progressWrap.style.display = 'none';
     if (actionsRow) actionsRow.style.display = 'flex';
     if (successRow) successRow.style.display = 'none';
@@ -2100,8 +2104,7 @@
     const pillStatus = document.getElementById('docked-pill-status');
     const pillIcon = document.getElementById('docked-pill-icon');
 
-    if (btnConfirm) btnConfirm.disabled = true;
-    if (btnCancel) btnCancel.style.display = 'none';
+    if (actionsRow) actionsRow.style.display = 'none';
     if (progressWrap) progressWrap.style.display = 'block';
 
     if (pillWrap) pillWrap.classList.add('is-downloading');
