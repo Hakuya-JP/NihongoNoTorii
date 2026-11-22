@@ -487,7 +487,8 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
   cursor: pointer;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 6px rgba(0, 0, 0, 0.25);
-  transition: all 0.2s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: auto;
 }
 
 .hamburger:hover {
@@ -558,8 +559,9 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
     ));
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     border-bottom: 1px solid rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(16px) saturate(130%);
-    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    /* Sin backdrop-filter en móvil: evita el recompositing flash al cambiar tema */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     width: 100%;
     text-align: center;
     padding: 20px 0;
@@ -567,6 +569,8 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
     flex-direction: column;
     gap: 12px;
     box-shadow: var(--shadow-lg), var(--shadow-primary);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    will-change: auto;
   }
 
   .top-nav a {
