@@ -1341,18 +1341,18 @@
       let stackHtml = '';
       if (volCount >= 3) {
         stackHtml = `
-          <img src="${(otherVols[1] || otherVols[0] || currentVol).coverDataUrl || fallback}" alt="Tomo" class="manga-stack-layer layer-2">
-          <img src="${(otherVols[0] || currentVol).coverDataUrl || fallback}" alt="Tomo" class="manga-stack-layer layer-1">
-          <img src="${currentVol.coverDataUrl || fallback}" alt="${extractVolumeLabel(currentVol)}" class="manga-stack-layer layer-0">
+          <img src="${(otherVols[1] || otherVols[0] || currentVol).coverDataUrl || fallback}" alt="Tomo" class="manga-stack-layer layer-2" loading="lazy" decoding="async">
+          <img src="${(otherVols[0] || currentVol).coverDataUrl || fallback}" alt="Tomo" class="manga-stack-layer layer-1" loading="lazy" decoding="async">
+          <img src="${currentVol.coverDataUrl || fallback}" alt="${extractVolumeLabel(currentVol)}" class="manga-stack-layer layer-0" loading="lazy" decoding="async">
         `;
       } else if (volCount === 2) {
         stackHtml = `
-          <img src="${otherVols[0].coverDataUrl || fallback}" alt="Tomo" class="manga-stack-layer layer-1">
-          <img src="${currentVol.coverDataUrl || fallback}" alt="${extractVolumeLabel(currentVol)}" class="manga-stack-layer layer-0">
+          <img src="${otherVols[0].coverDataUrl || fallback}" alt="Tomo" class="manga-stack-layer layer-1" loading="lazy" decoding="async">
+          <img src="${currentVol.coverDataUrl || fallback}" alt="${extractVolumeLabel(currentVol)}" class="manga-stack-layer layer-0" loading="lazy" decoding="async">
         `;
       } else {
         stackHtml = `
-          <img src="${currentVol.coverDataUrl || fallback}" alt="Portada" class="manga-stack-layer layer-0">
+          <img src="${currentVol.coverDataUrl || fallback}" alt="Portada" class="manga-stack-layer layer-0" loading="lazy" decoding="async">
         `;
       }
 
@@ -1572,7 +1572,7 @@
 
       volCard.innerHTML = `
         <div class="volume-thumb-wrap" title="Cambiar portada de este volumen">
-          <img src="${vol.coverDataUrl || COVER_PLACEHOLDER}" alt="${escapeHtml(extractVolumeLabel(vol))}" class="volume-thumb">
+          <img src="${vol.coverDataUrl || COVER_PLACEHOLDER}" alt="${escapeHtml(extractVolumeLabel(vol))}" class="volume-thumb" loading="lazy" decoding="async">
           <button class="btn-cover-thumb-overlay" title="Cambiar portada">📷</button>
         </div>
         <div class="volume-body">

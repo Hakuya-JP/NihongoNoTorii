@@ -408,7 +408,7 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
 
 .lantern-assembly.is-lit .flame-core {
   background: radial-gradient(circle, #ffffff 10%, #ffeb3b 60%, transparent 100%);
-  animation: lanternFlicker 3s infinite ease-in-out;
+  animation: lanternFlicker 2.5s infinite alternate ease-in-out;
 }
 
 .lantern-assembly.is-lit .lantern-kanji {
@@ -467,9 +467,9 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
 }
 
 @keyframes lanternFlicker {
-  0%   { opacity: 0.85; transform: scale(0.98); }
-  50%  { opacity: 1.0;  transform: scale(1.02); }
-  100% { opacity: 0.85; transform: scale(0.98); }
+  0%   { opacity: 0.75; transform: scale(0.95); }
+  50%  { opacity: 0.95; transform: scale(1.05); }
+  100% { opacity: 0.8;  transform: scale(1.0); }
 }
 
 
@@ -487,8 +487,7 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
   cursor: pointer;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 6px rgba(0, 0, 0, 0.25);
-  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  will-change: auto;
+  transition: all 0.2s ease;
 }
 
 .hamburger:hover {
@@ -559,9 +558,8 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
     ));
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     border-bottom: 1px solid rgba(0, 0, 0, 0.45);
-    /* Sin backdrop-filter en móvil: evita el recompositing flash al cambiar tema */
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    backdrop-filter: blur(16px) saturate(130%);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
     width: 100%;
     text-align: center;
     padding: 20px 0;
@@ -569,8 +567,6 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
     flex-direction: column;
     gap: 12px;
     box-shadow: var(--shadow-lg), var(--shadow-primary);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    will-change: auto;
   }
 
   .top-nav a {

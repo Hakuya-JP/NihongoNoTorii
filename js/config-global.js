@@ -81,19 +81,12 @@ window.syncLanternUI = syncLanternUI;
 function toggleDarkMode(animate = true) {
   const body = document.body;
   const html = document.documentElement;
-
+  
   body.classList.toggle('dark-mode');
   html.classList.toggle('dark-mode');
-
+  
   const isDark = body.classList.contains('dark-mode');
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-  // Bloquear interacción en el header durante la transición para evitar parpadeos por doble tap
-  const header = document.querySelector('.main-header');
-  if (header) {
-    header.style.pointerEvents = 'none';
-    setTimeout(() => { header.style.pointerEvents = ''; }, 320);
-  }
 
   // Actualizar Lámpara Chochin
   syncLanternUI(isDark, animate);

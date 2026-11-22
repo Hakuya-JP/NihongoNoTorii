@@ -1729,11 +1729,15 @@ html.dark-mode .anki-manga-dropdown-menu select {
   flex-grow: 1;
   width: 100%;
   height: calc(100vh - 52px);
+  height: calc(100dvh - 52px);
   position: relative;
   overflow: hidden;
   user-select: text;
   background-color: var(--mokuro-canvas-bg);
   scroll-behavior: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
 /* Cursor interactivo de mano cuando hay zoom activo para arrastre fluido */
@@ -2654,7 +2658,8 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
 @media (max-width: 768px) {
   /* Catálogo & Hero */
   .lectura-hero {
-    padding: 35px 18px 28px !important;
+    padding: 30px 16px 24px !important;
+    margin-bottom: 22px !important;
   }
 
   .lectura-title {
@@ -2677,6 +2682,11 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   .btn-hero-lectura {
     width: 100% !important;
     justify-content: center !important;
+    touch-action: manipulation;
+  }
+
+  .lectura-container {
+    padding: 0 16px 40px !important;
   }
 
   .lectura-section-header {
@@ -2684,6 +2694,7 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 12px !important;
+    margin: 20px 0 16px !important;
   }
 
   .library-header-actions,
@@ -2691,14 +2702,25 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     width: 100% !important;
   }
 
+  .library-search-input {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .library-search-input:focus {
+    width: 100% !important;
+  }
+
   /* Grid de mangas en 2 columnas proporcionadas en pantallas móviles */
   .manga-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
+    gap: 14px 10px !important;
   }
 
   .manga-card {
     max-width: 100% !important;
+    touch-action: manipulation;
   }
   
   .manga-thumb-wrap,
@@ -2740,16 +2762,35 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     width: 100% !important;
   }
 
-  .manga-card-content {
-    padding: 10px 12px !important;
+  .manga-card-content,
+  .manga-body {
+    padding: 10px 8px 12px !important;
   }
 
   .manga-card-title {
-    font-size: 0.92rem !important;
+    font-size: 0.88rem !important;
+    margin-bottom: 4px !important;
+    line-height: 1.25 !important;
   }
 
   .manga-card-subtitle {
-    font-size: 0.78rem !important;
+    font-size: 0.76rem !important;
+  }
+
+  .manga-progress-section {
+    margin-bottom: 8px !important;
+  }
+
+  .manga-meta-row {
+    font-size: 0.72rem !important;
+    margin-bottom: 3px !important;
+  }
+
+  .manga-btn-read {
+    padding: 7px 12px !important;
+    font-size: 0.8rem !important;
+    border-radius: 999px !important;
+    touch-action: manipulation;
   }
 
   .manga-card-actions {
@@ -2807,17 +2848,19 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   .toolbar-btn {
     padding: 5px 8px !important;
     font-size: 0.85rem !important;
-    min-height: 36px !important;
-    min-width: 36px !important;
+    min-height: 38px !important;
+    min-width: 38px !important;
     justify-content: center !important;
     gap: 4px !important;
     flex-shrink: 0 !important;
+    touch-action: manipulation;
   }
 
   #btn-exit-reader {
     padding: 5px 10px !important;
-    min-width: 36px !important;
+    min-width: 38px !important;
     flex-shrink: 0 !important;
+    touch-action: manipulation;
   }
 
   #toolbar-page-nav {
@@ -2850,7 +2893,26 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   }
 
   .nav-edge-zone {
-    width: 16vw !important;
+    width: 8vw !important;
+    min-width: 28px !important;
+  }
+
+  #mokuro-stage {
+    height: calc(100vh - 48px) !important;
+    height: calc(100dvh - 48px) !important;
+  }
+
+  /* Scrubber en móvil visible al tocar la pantalla (cuando la UI no está oculta) */
+  #mokuro-reader-wrapper:not(.immersive-ui-hidden) .scrubber-inner {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+
+  .scrubber-inner {
+    width: calc(100vw - 20px) !important;
+    padding: 6px 14px !important;
+    gap: 8px !important;
   }
 
   /* Popup de diálogo estilo Bottom Sheet en móvil */
@@ -2933,6 +2995,29 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     display: none !important;
   }
 
+  .lectura-hero {
+    padding: 24px 14px 20px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .lectura-title {
+    font-size: 1.6rem !important;
+  }
+
+  .lectura-subtitle {
+    font-size: 0.85rem !important;
+    line-height: 1.45 !important;
+    margin-bottom: 16px !important;
+  }
+
+  .lectura-container {
+    padding: 0 10px 30px !important;
+  }
+
+  .manga-grid {
+    gap: 12px 8px !important;
+  }
+
   .mokuro-toolbar {
     padding: 0 4px !important;
     gap: 2px !important;
@@ -2945,13 +3030,15 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   .toolbar-btn {
     padding: 4px 6px !important;
     font-size: 0.82rem !important;
-    min-width: 32px !important;
-    min-height: 34px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    touch-action: manipulation;
   }
 
   #btn-exit-reader {
     padding: 4px 8px !important;
-    min-width: 32px !important;
+    min-width: 36px !important;
+    touch-action: manipulation;
   }
 
   .page-nav-control {
@@ -2960,9 +3047,9 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   }
 
   .page-input-box {
-    width: 30px !important;
-    height: 26px !important;
-    font-size: 0.8rem !important;
+    width: 32px !important;
+    height: 28px !important;
+    font-size: 0.82rem !important;
     padding: 0 2px !important;
   }
 
@@ -2998,6 +3085,22 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     border-radius: 16px !important;
     max-height: 92vh !important;
     overflow-y: auto !important;
+  }
+}
+
+/* Optimización para pantallas táctiles (sin artefactos de hover pegado) */
+@media (hover: none) {
+  .manga-card:hover {
+    transform: none !important;
+  }
+  .manga-card:hover .manga-stack-layer {
+    transform: none !important;
+  }
+  .manga-card:hover .manga-thumb {
+    transform: none !important;
+  }
+  .btn-hero-lectura:hover {
+    transform: none !important;
   }
 }
 
@@ -4139,6 +4242,9 @@ body.dark-mode .torii-docked-pill-title {
     bottom: 12px;
     left: 12px;
     right: 12px;
+  }
+  .torii-docked-import.is-minimized {
+    left: auto !important;
   }
   .torii-docked-card {
     width: 100%;
