@@ -408,7 +408,7 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
 
 .lantern-assembly.is-lit .flame-core {
   background: radial-gradient(circle, #ffffff 10%, #ffeb3b 60%, transparent 100%);
-  animation: lanternFlicker 2.5s infinite alternate ease-in-out;
+  animation: lanternFlicker 3s infinite ease-in-out;
 }
 
 .lantern-assembly.is-lit .lantern-kanji {
@@ -467,9 +467,9 @@ body.dark-mode .top-nav a.active:not(.nav-profile-item) {
 }
 
 @keyframes lanternFlicker {
-  0%   { opacity: 0.75; transform: scale(0.95); }
-  50%  { opacity: 0.95; transform: scale(1.05); }
-  100% { opacity: 0.8;  transform: scale(1.0); }
+  0%   { opacity: 0.85; transform: scale(0.98); }
+  50%  { opacity: 1.0;  transform: scale(1.02); }
+  100% { opacity: 0.85; transform: scale(0.98); }
 }
 
 

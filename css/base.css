@@ -141,6 +141,7 @@ html {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease;
 }
 
 html.dark-mode {
@@ -171,6 +172,13 @@ body.dark-mode {
   background-image: 
     var(--bg-gradient, linear-gradient(180deg, rgba(10, 34, 50, 0.82) 0%, rgba(10, 34, 50, 0.88) 100%)),
     url('../image/olafondo2.png');
+}
+
+/* En teléfonos y tablets, evitar background-attachment: fixed que provoca titileo y repaints forzados */
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll !important;
+  }
 }
 
 /* OVERLAY SUTIL DE TRANSICIÃ“N ADAPTADO AL TEMA (CLARO/OSCURO) */
