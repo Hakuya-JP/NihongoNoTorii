@@ -156,7 +156,7 @@ body {
   background-color: var(--gris-suave, #f3f3f3);
   background-image: 
     var(--bg-gradient, linear-gradient(180deg, rgba(243, 243, 243, 0.78) 0%, rgba(243, 243, 243, 0.85) 100%)),
-    url('../image/olafondo.webp');
+    url('../image/olafondo.png');
   background-repeat: repeat;
   background-position: center top;
   background-attachment: fixed;
@@ -170,13 +170,7 @@ body.dark-mode {
   background-color: var(--gris-suave, #0a2232);
   background-image: 
     var(--bg-gradient, linear-gradient(180deg, rgba(10, 34, 50, 0.82) 0%, rgba(10, 34, 50, 0.88) 100%)),
-    url('../image/olafondo2.webp');
-}
-
-@media (max-width: 768px) {
-  body, body.dark-mode {
-    background-attachment: scroll; /* Evita repintados pesados en el hilo gráfico de móviles */
-  }
+    url('../image/olafondo2.png');
 }
 
 /* OVERLAY SUTIL DE TRANSICIÃ“N ADAPTADO AL TEMA (CLARO/OSCURO) */

@@ -3314,8 +3314,6 @@
       if (container) {
         container.classList.remove('cascade-view');
         resetCascadePageSizing();
-        // Vaciar el contenedor para liberar decodificaciones gráficas de memoria inmediatamente
-        container.innerHTML = '';
       }
       if (pzInstance) {
         pzInstance.dispose();
