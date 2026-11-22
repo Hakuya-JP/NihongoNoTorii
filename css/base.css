@@ -150,7 +150,9 @@ html.dark-mode {
 body {
   min-height: 100vh;
   margin: 0;
-  padding: 0 0 40px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   background-color: var(--gris-suave, #f3f3f3);
   background-image: 
     var(--bg-gradient, linear-gradient(180deg, rgba(243, 243, 243, 0.78) 0%, rgba(243, 243, 243, 0.85) 100%)),
@@ -722,4 +724,202 @@ body.dark-mode .top-nav a.active {
     padding: 10px 20px;
     font-size: 0.9rem;
   }
+}
+
+/* ==========================================================================
+   PIE DE PÁGINA COMPACTO (LÍNEA INFERIOR CON BOTÓN DE TÉRMINOS)
+   ========================================================================== */
+.torii-compact-footer {
+  width: 100%;
+  padding: 8px 16px;
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.76rem;
+  color: var(--texto-secundario, #94a3b8);
+  background: rgba(10, 25, 38, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  box-sizing: border-box;
+  position: relative;
+  z-index: 20;
+  line-height: 1.2;
+}
+
+body:not(.dark-mode) .torii-compact-footer {
+  background: rgba(245, 246, 248, 0.85);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  color: #64748b;
+}
+
+.torii-footer-copy {
+  opacity: 0.85;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.torii-footer-sep,
+.footer-dot {
+  opacity: 0.35;
+  user-select: none;
+}
+
+/* Botón interactivo de Términos y Condiciones de Uso */
+.torii-footer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--texto-secundario, #cbd5e1);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.74rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  line-height: 1.4;
+}
+
+body:not(.dark-mode) .torii-footer-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #475569;
+}
+
+.torii-footer-btn:hover {
+  background: rgba(255, 148, 71, 0.15);
+  border-color: var(--accent, #ff9447);
+  color: var(--accent, #ff9447);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 148, 71, 0.25);
+}
+
+.torii-footer-btn:active {
+  transform: translateY(0);
+}
+
+/* Compatibilidad con enlace anterior si existe */
+.torii-footer-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Modal de Términos y Condiciones / Descargo de Responsabilidad */
+.torii-terms-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+  z-index: 100080;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.torii-terms-modal-overlay.active {
+  display: flex;
+}
+
+.torii-terms-modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--card-bg, #ffffff);
+  border-radius: 18px;
+  padding: 22px 24px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  animation: toriiSlideUpFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--texto-principal, #1f2937);
+  box-sizing: border-box;
+}
+
+html.dark-mode .torii-terms-modal-card,
+body.dark-mode .torii-terms-modal-card {
+  background: var(--blanco3, #1e2533);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--texto-principal, #f9fafb);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+}
+
+.torii-terms-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+html.dark-mode .torii-terms-modal-header,
+body.dark-mode .torii-terms-modal-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.torii-terms-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.torii-terms-modal-close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.torii-terms-modal-body {
+  padding: 6px 0 16px;
+}
+
+.torii-terms-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  padding-top: 14px;
+}
+
+html.dark-mode .torii-terms-modal-footer,
+body.dark-mode .torii-terms-modal-footer {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.torii-terms-modal-btn {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.torii-terms-modal-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
 }

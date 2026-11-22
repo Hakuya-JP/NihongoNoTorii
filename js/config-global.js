@@ -259,3 +259,61 @@ window.addEventListener('popstate', function() {
     menu.classList.remove('active');
   }
 });
+
+// ==========================================================================
+// SECCIÓN: MODAL GLOBAL DE TÉRMINOS Y CONDICIONES / DESCARGO DE RESPONSABILIDAD
+// ==========================================================================
+function openTermsModal() {
+  let modal = document.getElementById('modal-terms-disclaimer');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-terms-disclaimer';
+    modal.className = 'torii-terms-modal-overlay';
+    modal.innerHTML = `
+      <div class="torii-terms-modal-card" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+        <div class="torii-terms-modal-header">
+          <h3 id="terms-modal-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
+            <span>⚖️</span> Términos y Condiciones de Uso
+          </h3>
+          <button type="button" class="torii-terms-modal-close" aria-label="Cerrar">&#x2715;</button>
+        </div>
+        <div class="torii-terms-modal-body">
+          <p style="margin:0 0 10px; font-weight:700; color:var(--accent, #38bdf8); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px;">
+            Descargo de Responsabilidad (Disclaimer)
+          </p>
+          <p style="margin:0; font-size:0.9rem; line-height:1.65; opacity:0.92;">
+            Nihongo no Torii es una herramienta educativa y visor de lectura y video local para el estudio del idioma japonés. Esta aplicación no aloja, distribuye ni comercializa contenido protegido por derechos de autor en sus servidores. Todo el procesamiento y almacenamiento se realiza exclusivamente de forma local en el navegador del usuario para fines de estudio privado.
+          </p>
+        </div>
+        <div class="torii-terms-modal-footer">
+          <button type="button" class="torii-terms-modal-btn">Entendido</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const closeBtn = modal.querySelector('.torii-terms-modal-close');
+    const confirmBtn = modal.querySelector('.torii-terms-modal-btn');
+    const closeModal = () => modal.classList.remove('active');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (confirmBtn) confirmBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
+  }
+  modal.classList.add('active');
+}
+window.openTermsModal = openTermsModal;
+
+// Delegación global para cualquier botón o enlace con .torii-footer-btn, .torii-footer-link o #btn-open-terms-modal
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('.torii-footer-btn, .torii-footer-link, #btn-open-terms-modal');
+  if (target) {
+    e.preventDefault();
+    openTermsModal();
+  }
+});
