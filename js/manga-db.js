@@ -47,13 +47,13 @@
     };
   }
 
-  // Comprime un DataURL grande a miniatura JPEG (~15KB) para que quepa holgadamente en localStorage
-  function compressDataUrl(dataUrl, maxWidth = 260, quality = 0.78) {
+  // Comprime un DataURL grande a miniatura WebP/JPEG (~8-12KB) para máxima fluidez y ahorro de memoria
+  function compressDataUrl(dataUrl, maxWidth = 260, quality = 0.76) {
     return new Promise((resolve) => {
       if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
         return resolve(dataUrl || '');
       }
-      if (dataUrl.length < 35000) {
+      if (dataUrl.length < 25000) {
         return resolve(dataUrl);
       }
       const img = new Image();
@@ -66,6 +66,13 @@
         canvas.height = Math.round(h * scale);
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        try {
+          // Intentar WebP para menor consumo de RAM y almacenamiento
+          const webpUrl = canvas.toDataURL('image/webp', quality);
+          if (webpUrl.startsWith('data:image/webp')) {
+            return resolve(webpUrl);
+          }
+        } catch (e) {}
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
       img.onerror = () => resolve(dataUrl);
@@ -581,6 +588,34 @@
     return false;
   }
 
+  // ========================================================================
+  // GESTIÓN DE MEMORIA Y CACHÉ LRU DE RECURSOS EN SESIÓN
+  // ========================================================================
+  // Limita los mangas en memoria activa a 2 para evitar desbordamiento de RAM en móviles
+  const loadedSessionMangaUrls = new Map();
+  const MAX_SESSION_MANGAS_IN_RAM = 2;
+
+  function cacheSessionMangaUrls(mangaId, urlsMap) {
+    if (!mangaId || !urlsMap) return;
+    if (loadedSessionMangaUrls.has(mangaId)) {
+      loadedSessionMangaUrls.delete(mangaId);
+    } else if (loadedSessionMangaUrls.size >= MAX_SESSION_MANGAS_IN_RAM) {
+      const oldestId = loadedSessionMangaUrls.keys().next().value;
+      const oldUrls = loadedSessionMangaUrls.get(oldestId);
+      if (oldUrls && oldUrls.forEach) {
+        const revoked = new Set();
+        oldUrls.forEach(u => {
+          if (u && typeof u === 'string' && u.startsWith('blob:') && !revoked.has(u)) {
+            try { URL.revokeObjectURL(u); } catch (e) {}
+            revoked.add(u);
+          }
+        });
+      }
+      loadedSessionMangaUrls.delete(oldestId);
+    }
+    loadedSessionMangaUrls.set(mangaId, urlsMap);
+  }
+
   // Descomprimir y procesar un archivo CBZ o ZIP
   async function processCbzOrZipFile(file, customTitle = '', customVolume = '', progressCallback, externalMokuroJson = null) {
     if (typeof JSZip === 'undefined') {
@@ -726,7 +761,7 @@
       sessionUrls.set(fn, url);
       sessionUrls.set(fn.toLowerCase(), url);
     }
-    loadedSessionMangaUrls.set(mangaId, sessionUrls);
+    cacheSessionMangaUrls(mangaId, sessionUrls);
 
     if (progressCallback) progressCallback(100, '¡Manga añadido con éxito!');
 
@@ -795,8 +830,6 @@
     setTimeout(() => input.remove(), 60000);
   }
 
-  // Caché en memoria para mangas abiertos en esta sesión
-  const loadedSessionMangaUrls = new Map();
 
   // Cargar un manga guardado directamente en MokuroReader
   async function launchMangaFromDB(mangaId, seriesContext = null) {
@@ -887,7 +920,8 @@
           }
         }
 
-        // Pasar al lector Mokuro
+        // Pasar al lector Mokuro y registrar en caché controlada
+        cacheSessionMangaUrls(mangaId, imageUrls);
         const state = MokuroReader.getState();
         state.imageUrls = imageUrls;
         state.manga = {
@@ -1071,7 +1105,7 @@
       sessionUrls.set(fn, url);
       sessionUrls.set(fn.toLowerCase(), url);
     }
-    loadedSessionMangaUrls.set(mangaId, sessionUrls);
+    cacheSessionMangaUrls(mangaId, sessionUrls);
 
     if (progressCallback) progressCallback(100, '¡Carpeta guardada en biblioteca con éxito!');
     return mangaRecord;

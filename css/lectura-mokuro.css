@@ -49,7 +49,7 @@ html:not(.dark-mode) {
    -------------------------------------------------------------------------- */
 .lectura-hero {
   position: relative;
-  background: linear-gradient(135deg, rgba(20, 26, 40, 0.92), rgba(30, 42, 60, 0.88)), url('../image/LecTorii2.png') center/cover no-repeat;
+  background: linear-gradient(135deg, rgba(20, 26, 40, 0.92), rgba(30, 42, 60, 0.88)), url('../image/LecTorii2.webp') center/cover no-repeat;
   color: #fff;
   padding: 50px 25px 40px;
 
