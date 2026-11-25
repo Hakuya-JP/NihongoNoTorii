@@ -42,7 +42,10 @@
   const PREFS_KEY_MOBILE = 'torii_mokuro_prefs_mobile';
 
   function isMobileDeviceDetected() {
-    return (window.innerWidth <= 768) || ('ontouchstart' in window && window.innerWidth <= 1024);
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+    // Dispositivos táctiles (teléfonos y tablets de 10" a 12.9") tanto en vertical como en horizontal
+    if (isTouch && (window.innerWidth <= 1366 || window.innerHeight <= 1366)) return true;
+    return window.innerWidth <= 820;
   }
 
   function getActiveProfile() {
@@ -109,8 +112,8 @@
       mokuroState.mobileSwipeNav = defaults.mobileSwipeNav;
     }
 
-    // En pantallas de ancho móvil, asegurar que no se quede activa doble página
-    if (isMobile && window.innerWidth <= 768) {
+    // En dispositivos móviles y tablets, asegurar que no se quede activa doble página
+    if (isMobile) {
       mokuroState.isDoublePage = false;
     }
 
@@ -168,6 +171,11 @@
     updateFullscreenToolbarBtn();
     updateContainerClasses();
     syncNavDirectionUI();
+
+    const wrapper = document.getElementById('mokuro-reader-wrapper');
+    if (wrapper) {
+      wrapper.classList.toggle('is-mobile-ui', getActiveProfile() === 'mobile');
+    }
   }
 
   function syncNavDirectionUI() {
@@ -339,8 +347,10 @@
 
     pzInstance = panzoom(pc, {
       bounds: false,
-      maxZoom: 6,
-      minZoom: 0.05,          // Se actualiza dinámicamente en zoomFitToScreen
+      maxZoom: 5,
+      minZoom: 0.1,            // Se actualiza dinámicamente según la página
+      pinchSpeed: 0.85,        // Zoom táctil suave y amortiguado para móvil y tablet
+      zoomSpeed: 0.08,         // Variación de zoom fluida sin saltos bruscos
       zoomDoubleClickSpeed: 1, // Desactivar zoom con doble clic
       enableTextSelection: false, // Evita que la selección de texto interfiera y congele el arrastre
       smoothScroll: false,     // Detener arrastre inmediatamente sin deslizamiento inercial fuera de bordes
@@ -397,7 +407,14 @@
       clampPan();
       if (_autocentering) return;
       const t = pzInstance.getTransform();
-      const minZ = pzInstance.getMinZoom ? pzInstance.getMinZoom() : 0.05;
+      const minZ = pzInstance.getMinZoom ? pzInstance.getMinZoom() : 0.1;
+
+      // Asegurar que la escala nunca caiga por debajo del tamaño de la página
+      if (t.scale < minZ) {
+        _isProgrammaticZoom = true;
+        pzInstance.zoomAbs(t.x, t.y, minZ);
+        _isProgrammaticZoom = false;
+      }
 
       if (stage) {
         stage.classList.toggle('is-zoomed', t.scale > minZ + 0.005);
@@ -1158,6 +1175,13 @@
       ? Math.max(0, (stage.clientHeight - scaledH) / 2)
       : 0;
 
+    // Limitar el zoom mínimo: la página completa en pantalla para evitar alejamiento excesivo
+    const fitScreenScale = Math.min((stage.clientWidth - 20) / totalW, (stage.clientHeight - 20) / maxH);
+    const minAllowedZoom = Math.min(scale, fitScreenScale);
+    if (pzInstance.setMinZoom) {
+      pzInstance.setMinZoom(minAllowedZoom);
+    }
+
     _isProgrammaticZoom = true;
     pzInstance.zoomAbs(0, 0, scale);
     pzInstance.moveTo(x, y);
@@ -1181,6 +1205,14 @@
       totalW += p.offsetWidth || parseInt(p.style.width, 10) || 800;
       maxH = Math.max(maxH, p.offsetHeight || parseInt(p.style.height, 10) || 1200);
     });
+
+    if (totalW === 0 || maxH === 0) return;
+
+    // Limitar el zoom mínimo al tamaño de la página en pantalla
+    const fitScreenScale = Math.min((stage.clientWidth - 20) / totalW, (stage.clientHeight - 20) / maxH);
+    if (pzInstance.setMinZoom) {
+      pzInstance.setMinZoom(fitScreenScale);
+    }
 
     // Centrar horizontal y verticalmente a escala 1:1
     const x = Math.max(0, (stage.clientWidth - totalW) / 2);
@@ -3584,6 +3616,7 @@
       updateFullscreenToolbarBtn();
       const wrapper = document.getElementById('mokuro-reader-wrapper');
       if (wrapper && wrapper.classList.contains('active')) {
+        wrapper.classList.toggle('is-mobile-ui', getActiveProfile() === 'mobile');
         if (mokuroState.isCascade) {
           applyCascadePageSizing();
         } else {

@@ -2659,9 +2659,9 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
 }
 
 /* --------------------------------------------------------------------------
-   RESPONSIVIDAD & MÓVILES (LECTORII Y VISOR MOKURO)
+   RESPONSIVIDAD & MÓVILES/TABLETS (LECTORII Y VISOR MOKURO)
    -------------------------------------------------------------------------- */
-@media (max-width: 768px) {
+@media (max-width: 820px), (max-width: 1366px) and (hover: none), (max-width: 1366px) and (pointer: coarse) {
   /* Catálogo & Hero */
   .lectura-hero {
     padding: 30px 16px 24px !important;
@@ -2836,16 +2836,16 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     box-shadow: none !important;
   }
 
-  /* En móviles: barra ultra limpia. Ocultar navegación de páginas, zoom, anki, doble página y fullscreen */
+  /* En móviles y tablets: barra ultra limpia con pantalla completa y sin menú de ajustes */
   #toolbar-page-nav,
   #btn-zoom-toggle,
   #mokuro-anki-dropdown,
-  #btn-toggle-double-page,
-  #btn-toggle-fullscreen {
+  #mokuro-settings-dropdown,
+  #btn-toggle-double-page {
     display: none !important;
   }
 
-  /* Compactar u ocultar textos que no se utilicen en móvil */
+  /* Compactar u ocultar textos que no se utilicen en móvil/tablet */
   .btn-anki-text,
   .btn-settings-text,
   #double-page-btn-text,
@@ -2853,7 +2853,7 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     display: none !important;
   }
 
-  /* Mostrar textos legibles en los dos únicos botones activos: Volver y Alternar modo */
+  /* Mostrar textos legibles en los botones activos: Volver y Alternar modo */
   .btn-exit-text,
   #cascade-btn-text {
     display: inline !important;
@@ -2886,9 +2886,15 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     touch-action: manipulation;
   }
 
-  #btn-settings-dropdown {
+  #btn-toggle-fullscreen {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     padding: 6px 12px !important;
     border-radius: 9999px !important;
+    font-size: 1.05rem !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
     flex-shrink: 0 !important;
     touch-action: manipulation;
   }
@@ -3013,10 +3019,6 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
 }
 
 @media (max-width: 480px) {
-  #btn-toggle-fullscreen {
-    display: none !important;
-  }
-
   .lectura-hero {
     padding: 24px 14px 20px !important;
     margin-bottom: 18px !important;
@@ -3124,6 +3126,43 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   .btn-hero-lectura:hover {
     transform: none !important;
   }
+}
+
+/* Soporte explícito para Tablets en cualquier orientación (horizontal/vertical) */
+#mokuro-reader-wrapper.is-mobile-ui .reader-title-label,
+#mokuro-reader-wrapper.is-mobile-ui #toolbar-page-nav,
+#mokuro-reader-wrapper.is-mobile-ui #btn-zoom-toggle,
+#mokuro-reader-wrapper.is-mobile-ui #mokuro-anki-dropdown,
+#mokuro-reader-wrapper.is-mobile-ui #mokuro-settings-dropdown,
+#mokuro-reader-wrapper.is-mobile-ui #btn-toggle-double-page {
+  display: none !important;
+}
+
+#mokuro-reader-wrapper.is-mobile-ui #btn-toggle-fullscreen {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px 12px !important;
+  border-radius: 9999px !important;
+  font-size: 1.05rem !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  flex-shrink: 0 !important;
+  touch-action: manipulation;
+}
+
+#mokuro-reader-wrapper.is-mobile-ui .btn-exit-text,
+#mokuro-reader-wrapper.is-mobile-ui #cascade-btn-text {
+  display: inline !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+}
+
+#mokuro-reader-wrapper.is-mobile-ui #btn-exit-reader,
+#mokuro-reader-wrapper.is-mobile-ui #btn-toggle-cascade {
+  padding: 6px 14px !important;
+  border-radius: 9999px !important;
+  touch-action: manipulation;
 }
 
 /* --------------------------------------------------------------------------
