@@ -869,11 +869,12 @@
           entryMap.set(clean.toLowerCase(), entry);
         });
 
-        for (let i = 0; i < manga.pages.length; i++) {
-          const p = manga.pages[i];
-          const rawName = p.img_path || '';
+        // Función de extracción unitaria de imagen
+        const extractEntry = async (rawName) => {
+          if (!rawName) return '';
           const baseName = rawName.replace(/\\/g, '/').split('/').pop().trim();
           const baseLower = baseName.toLowerCase();
+          if (imageUrls.has(baseLower)) return imageUrls.get(baseLower);
 
           const entry = entryMap.get(baseLower) || entryMap.get(rawName.toLowerCase());
           if (entry) {
@@ -882,12 +883,32 @@
             imageUrls.set(rawName, url);
             imageUrls.set(baseName, url);
             imageUrls.set(baseLower, url);
-          } else {
-            console.warn(`No se encontró entrada en zip para: ${rawName}`);
+            return url;
           }
-        }
+          return '';
+        };
 
-        // Pasar al lector Mokuro
+        // Resolver asíncrono bajo demanda para saltos rápidos
+        imageUrls.resolveAsync = extractEntry;
+
+        const startIdx = Math.max(0, Math.min(manga.pages.length - 1, manga.lastPageRead || 0));
+        const urgentIndices = new Set();
+        // Páginas prioritarias para apertura instantánea (inicio + adyacentes)
+        for (let j = Math.max(0, startIdx - 1); j <= Math.min(manga.pages.length - 1, startIdx + 4); j++) {
+          urgentIndices.add(j);
+        }
+        urgentIndices.add(0);
+
+        // Extraer en paralelo solo las páginas iniciales prioritarias (< 120ms)
+        await Promise.all(Array.from(urgentIndices).map(idx => {
+          const p = manga.pages[idx];
+          return p ? extractEntry(p.img_path || '') : Promise.resolve('');
+        }));
+
+        // Guardar en caché de sesión para reaperturas instantáneas
+        loadedSessionMangaUrls.set(manga.id, imageUrls);
+
+        // Abrir lector inmediatamente sin esperar a las demás páginas
         const state = MokuroReader.getState();
         state.imageUrls = imageUrls;
         state.manga = {
@@ -896,9 +917,39 @@
           volume: manga.volume,
           pages: manga.pages
         };
-        state.currentPageIdx = manga.lastPageRead || 0;
+        state.currentPageIdx = startIdx;
         applySeriesContext(state);
         MokuroReader.open();
+
+        // En segundo plano y sin bloquear la interfaz, extraer el resto de páginas en lotes
+        const remainingIndices = [];
+        for (let i = 0; i < manga.pages.length; i++) {
+          if (!urgentIndices.has(i)) remainingIndices.push(i);
+        }
+
+        const processBackgroundBatch = (curIdx = 0) => {
+          if (curIdx >= remainingIndices.length) return;
+          const slice = remainingIndices.slice(curIdx, curIdx + 6);
+          Promise.all(slice.map(i => {
+            const p = manga.pages[i];
+            return p ? extractEntry(p.img_path || '') : Promise.resolve('');
+          })).then(() => {
+            if (curIdx + 6 < remainingIndices.length) {
+              if (typeof requestIdleCallback === 'function') {
+                requestIdleCallback(() => processBackgroundBatch(curIdx + 6), { timeout: 200 });
+              } else {
+                setTimeout(() => processBackgroundBatch(curIdx + 6), 35);
+              }
+            }
+          });
+        };
+
+        if (typeof requestIdleCallback === 'function') {
+          requestIdleCallback(() => processBackgroundBatch(0), { timeout: 300 });
+        } else {
+          setTimeout(() => processBackgroundBatch(0), 50);
+        }
+
         return;
       } catch (e) {
         console.error('Error al descomprimir manga para lectura:', e);

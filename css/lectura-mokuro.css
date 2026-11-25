@@ -2930,6 +2930,26 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     height: calc(100dvh - 48px) !important;
   }
 
+  /* Optimización de rendimiento gráfico para móviles y tablets */
+  #mokuro-stage.cascade-mode {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: auto !important;
+  }
+
+  #mokuro-stage.cascade-mode .mokuro-page,
+  .cascade-spread-row {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 2px !important;
+  }
+
+  .mokuro-page {
+    contain: layout paint;
+  }
+
+  .textBox {
+    contain: layout style;
+  }
+
   /* Scrubber en móvil visible al tocar la pantalla (cuando la UI no está oculta) */
   #mokuro-reader-wrapper:not(.immersive-ui-hidden) .scrubber-inner {
     opacity: 1 !important;
