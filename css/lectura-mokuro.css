@@ -1705,21 +1705,27 @@ body.dark-mode .dropdown-select-wrapper select option {
 }
 
 .anki-manga-dropdown-menu input[type="text"],
-.anki-manga-dropdown-menu select {
+.anki-manga-dropdown-menu select,
+.mokuro-dropdown-menu input[type="text"],
+.mokuro-dropdown-menu select {
   background: var(--mokuro-canvas-bg, rgba(0, 0, 0, 0.04));
   color: var(--mokuro-text-color, inherit);
   border: 1px solid var(--mokuro-border);
 }
 
 html.dark-mode .anki-manga-dropdown-menu input[type="text"],
-html.dark-mode .anki-manga-dropdown-menu select {
+html.dark-mode .anki-manga-dropdown-menu select,
+html.dark-mode .mokuro-dropdown-menu input[type="text"],
+html.dark-mode .mokuro-dropdown-menu select {
   background: rgba(15, 23, 42, 0.85);
   color: #f1f5f9;
   border-color: rgba(255, 255, 255, 0.18);
 }
 
 .anki-manga-dropdown-menu input[type="text"]:focus,
-.anki-manga-dropdown-menu select:focus {
+.anki-manga-dropdown-menu select:focus,
+.mokuro-dropdown-menu input[type="text"]:focus,
+.mokuro-dropdown-menu select:focus {
   outline: none;
   border-color: var(--azulNa, #13a2ce);
 }
@@ -2830,45 +2836,61 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     box-shadow: none !important;
   }
 
-  /* En móviles, la doble página es ilegible en pantallas verticales; se oculta */
-  #btn-toggle-double-page {
+  /* En móviles: barra ultra limpia. Ocultar navegación de páginas, zoom, anki, doble página y fullscreen */
+  #toolbar-page-nav,
+  #btn-zoom-toggle,
+  #mokuro-anki-dropdown,
+  #btn-toggle-double-page,
+  #btn-toggle-fullscreen {
     display: none !important;
   }
 
-  /* Compactar textos de botones en móvil para evitar que desborden */
-  .btn-exit-text,
+  /* Compactar u ocultar textos que no se utilicen en móvil */
   .btn-anki-text,
   .btn-settings-text,
   #double-page-btn-text,
-  #cascade-btn-text,
   #zoom-toggle-text {
     display: none !important;
   }
 
+  /* Mostrar textos legibles en los dos únicos botones activos: Volver y Alternar modo */
+  .btn-exit-text,
+  #cascade-btn-text {
+    display: inline !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+  }
+
   .toolbar-btn {
-    padding: 5px 8px !important;
+    padding: 6px 12px !important;
     font-size: 0.85rem !important;
     min-height: 38px !important;
-    min-width: 38px !important;
     justify-content: center !important;
-    gap: 4px !important;
+    gap: 6px !important;
     flex-shrink: 0 !important;
     touch-action: manipulation;
   }
 
   #btn-exit-reader {
-    padding: 5px 10px !important;
+    padding: 6px 14px !important;
+    border-radius: 9999px !important;
     min-width: 38px !important;
     flex-shrink: 0 !important;
     touch-action: manipulation;
   }
 
-  #toolbar-page-nav {
-    display: flex !important;
-    align-items: center !important;
-    gap: 3px !important;
-    flex-wrap: nowrap !important;
+  #btn-toggle-cascade {
+    padding: 6px 14px !important;
+    border-radius: 9999px !important;
     flex-shrink: 0 !important;
+    touch-action: manipulation;
+  }
+
+  #btn-settings-dropdown {
+    padding: 6px 12px !important;
+    border-radius: 9999px !important;
+    flex-shrink: 0 !important;
+    touch-action: manipulation;
   }
 
   .page-nav-control {

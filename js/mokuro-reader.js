@@ -3736,7 +3736,7 @@
     }
     if (btnFullscreen) btnFullscreen.addEventListener('click', toggleFullScreen);
 
-    // Menú de opciones (Dropdown)
+    // Menú de opciones (Dropdown con Ajustes y AnkiConnect integrado)
     const btnDropdown = document.getElementById('btn-settings-dropdown');
     const dropdownWrap = document.getElementById('mokuro-settings-dropdown');
     const btnMangaAnki = document.getElementById('btn-mokuro-anki');
@@ -3746,7 +3746,11 @@
       btnDropdown.addEventListener('click', (e) => {
         e.stopPropagation();
         if (ankiDropdownWrap) ankiDropdownWrap.classList.remove('open');
+        const opening = !dropdownWrap.classList.contains('open');
         dropdownWrap.classList.toggle('open');
+        if (opening) {
+          loadMangaAnkiDecks(true);
+        }
       });
 
       // Evitar que clics dentro del menú (como en el select de fuentes o checkboxes) lo cierren
@@ -3762,7 +3766,7 @@
       });
     }
 
-    // Configuración de Anki en la barra de lectura (estilo ToriiTV)
+    // Compatibilidad si existe botón Anki flotante independiente
     if (btnMangaAnki && ankiDropdownWrap) {
       btnMangaAnki.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -3783,50 +3787,51 @@
           ankiDropdownWrap.classList.remove('open');
         }
       });
-
-      const btnConnect = document.getElementById('btn-manga-connect-anki');
-      if (btnConnect) {
-        btnConnect.addEventListener('click', () => loadMangaAnkiDecks(false));
-      }
-
-      const btnRefresh = document.getElementById('btn-manga-refresh-decks');
-      if (btnRefresh) {
-        btnRefresh.addEventListener('click', () => loadMangaAnkiDecks(false));
-      }
-
-      const btnSave = document.getElementById('btn-manga-save-anki');
-      if (btnSave) {
-        btnSave.addEventListener('click', () => {
-          const selectDeck = document.getElementById('manga-anki-deck-select');
-          const inputUrl = document.getElementById('manga-anki-url-input');
-          const toggleEnabled = document.getElementById('manga-anki-enabled-toggle');
-
-          const chosenDeck = selectDeck ? selectDeck.value : 'Default';
-          const chosenUrl = (inputUrl && inputUrl.value.trim()) ? inputUrl.value.trim() : 'http://127.0.0.1:8765';
-          const isEnabled = toggleEnabled ? toggleEnabled.checked : true;
-
-          localStorage.setItem('anki_deck', chosenDeck);
-          localStorage.setItem('anki_url', chosenUrl);
-          localStorage.setItem('anki_enabled', isEnabled);
-
-          if (typeof ankiConfig !== 'undefined') {
-            ankiConfig.deck = chosenDeck;
-            ankiConfig.url = chosenUrl;
-            ankiConfig.enabled = isEnabled;
-          }
-
-          ankiDropdownWrap.classList.remove('open');
-          if (typeof mostrarToast === 'function') {
-            mostrarToast(`📇 Mazo de Anki guardado: "${chosenDeck}"`);
-          }
-        });
-      }
-
-      // Prospección silenciosa al cargar para sincronizar el estado
-      setTimeout(() => {
-        loadMangaAnkiDecks(true);
-      }, 1200);
     }
+
+    // Configuración de AnkiConnect (accesible desde el menú de opciones o independiente)
+    const btnConnect = document.getElementById('btn-manga-connect-anki');
+    if (btnConnect) {
+      btnConnect.addEventListener('click', () => loadMangaAnkiDecks(false));
+    }
+
+    const btnRefresh = document.getElementById('btn-manga-refresh-decks');
+    if (btnRefresh) {
+      btnRefresh.addEventListener('click', () => loadMangaAnkiDecks(false));
+    }
+
+    const btnSave = document.getElementById('btn-manga-save-anki');
+    if (btnSave) {
+      btnSave.addEventListener('click', () => {
+        const selectDeck = document.getElementById('manga-anki-deck-select');
+        const inputUrl = document.getElementById('manga-anki-url-input');
+        const toggleEnabled = document.getElementById('manga-anki-enabled-toggle');
+
+        const chosenDeck = selectDeck ? selectDeck.value : 'Default';
+        const chosenUrl = (inputUrl && inputUrl.value.trim()) ? inputUrl.value.trim() : 'http://127.0.0.1:8765';
+        const isEnabled = toggleEnabled ? toggleEnabled.checked : true;
+
+        localStorage.setItem('anki_deck', chosenDeck);
+        localStorage.setItem('anki_url', chosenUrl);
+        localStorage.setItem('anki_enabled', isEnabled);
+
+        if (typeof ankiConfig !== 'undefined') {
+          ankiConfig.deck = chosenDeck;
+          ankiConfig.url = chosenUrl;
+          ankiConfig.enabled = isEnabled;
+        }
+
+        if (ankiDropdownWrap) ankiDropdownWrap.classList.remove('open');
+        if (typeof mostrarToast === 'function') {
+          mostrarToast(`📇 Mazo de Anki guardado: "${chosenDeck}"`);
+        }
+      });
+    }
+
+    // Prospección silenciosa al cargar para sincronizar el estado
+    setTimeout(() => {
+      loadMangaAnkiDecks(true);
+    }, 1200);
 
     // Opciones de configuración
     const chkR2l = document.getElementById('chk-r2l');

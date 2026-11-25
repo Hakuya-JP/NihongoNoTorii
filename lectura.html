@@ -211,16 +211,6 @@
       <span id="reader-manga-title" class="reader-title-label">うちの猫’ず日記 - Volumen 1</span>
     </div>
 
-    <!-- Grupo Central: Navegación de Páginas -->
-    <div class="toolbar-group" id="toolbar-page-nav">
-      <button id="btn-next-page" class="toolbar-btn" title="Página Siguiente">◀</button>
-      <div class="page-nav-control">
-        <input type="number" id="page-current-input" class="page-input-box" min="1" value="1" />
-        <span id="page-total-display" class="page-total-label">/ 1</span>
-      </div>
-      <button id="btn-prev-page" class="toolbar-btn" title="Página Anterior">▶</button>
-    </div>
-
     <!-- Grupo Derecho: Zoom, Vistas y Ajustes -->
     <div class="toolbar-group">
       <button id="btn-zoom-toggle" class="toolbar-btn" title="Ajuste actual: Largo (Clic para alternar a Ancho)">
@@ -233,57 +223,6 @@
         <span>📜</span> <span id="cascade-btn-text">Horizontal</span>
       </button>
       <button id="btn-toggle-fullscreen" class="toolbar-btn" title="Pantalla Completa (F11)">⛶</button>
-
-      <!-- Configuración de AnkiConnect con Menú Flotante estilo ToriiTV -->
-      <div class="mokuro-dropdown" id="mokuro-anki-dropdown">
-        <button id="btn-mokuro-anki" class="toolbar-btn" title="Configurar AnkiConnect y Mazo">
-          <span>📇</span> <span class="btn-anki-text">Anki</span>
-        </button>
-        <div class="mokuro-dropdown-menu anki-manga-dropdown-menu" style="min-width: 290px; padding: 16px; text-align: left;">
-          <div class="anki-config-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 style="margin: 0; font-size: 0.95rem; font-weight: 700;">⚙️ AnkiConnect</h3>
-            <span id="manga-anki-status-indicator" class="anki-status offline" style="font-size: 0.78rem;">● Desconectado</span>
-          </div>
-
-          <!-- Botón de Conexión Inicial -->
-          <button type="button" id="btn-manga-connect-anki" class="btn-save-anki" style="width: 100%; margin-top: 4px; padding: 9px; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <span>🔗 Conectar con AnkiConnect</span>
-          </button>
-
-          <!-- Grupo de Ajustes tras conectar -->
-          <div id="manga-anki-settings-group" style="display: none; margin-top: 10px;">
-            <label class="anki-switch-container" style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer; margin-bottom: 8px;">
-              <input type="checkbox" id="manga-anki-enabled-toggle" checked style="cursor: pointer; width: 15px; height: 15px;">
-              <span class="switch-label">Habilitar creación directa</span>
-            </label>
-
-            <hr class="anki-divider" style="margin: 8px 0;">
-
-            <!-- URL de AnkiConnect -->
-            <div class="anki-input-group" style="margin-bottom: 8px;">
-              <label for="manga-anki-url-input" style="font-size: 0.78rem; opacity: 0.85; margin-bottom: 3px; display: block;">URL de AnkiConnect:</label>
-              <input type="text" id="manga-anki-url-input" value="http://127.0.0.1:8765" placeholder="http://127.0.0.1:8765" style="width: 100%; padding: 6px 8px; border-radius: 6px; box-sizing: border-box;" />
-            </div>
-
-            <!-- Seleccionar Mazo Detectado de Anki -->
-            <div class="anki-input-group" style="margin-bottom: 10px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <label for="manga-anki-deck-select" style="font-size: 0.78rem; opacity: 0.85; font-weight: 600;">Mazo de Anki (Deck):</label>
-                <button type="button" id="btn-manga-refresh-decks" style="background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 0 4px;" title="Actualizar lista de mazos de Anki">🔄</button>
-              </div>
-              <select id="manga-anki-deck-select" style="width: 100%; padding: 6px 8px; border-radius: 6px; cursor: pointer; box-sizing: border-box;">
-                <option value="Default">Cargando mazos...</option>
-              </select>
-            </div>
-
-            <button type="button" id="btn-manga-save-anki" class="btn-save-anki" style="margin-top: 6px; width: 100%; padding: 8px; font-size: 0.88rem;">Guardar Mazo</button>
-          </div>
-
-          <!-- Caja de Diagnóstico / Ayuda de Errores -->
-          <div id="manga-anki-help-info" class="anki-help-box" style="display: none; margin-top: 10px; padding: 8px; border-radius: 6px; font-size: 0.76rem; line-height: 1.4; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3);">
-          </div>
-        </div>
-      </div>
 
       <!-- Menú Desplegable de Configuración -->
       <div class="mokuro-dropdown" id="mokuro-settings-dropdown">
@@ -381,6 +320,52 @@
               <input type="checkbox" id="chk-eink-mode" />
               <span class="torii-switch-slider"></span>
             </label>
+          </div>
+
+          <!-- SECCIÓN ANKICONNECT -->
+          <div style="margin: 12px 0 8px; border-top: 1px solid var(--border-color, var(--mokuro-border));"></div>
+          
+          <div class="mokuro-dropdown-header anki-config-header" style="display: flex; justify-content: space-between; align-items: center; padding: 4px 6px 8px; margin-bottom: 6px; border-bottom: none;">
+            <span class="dropdown-header-title">📇 Configuración AnkiConnect</span>
+            <span id="manga-anki-status-indicator" class="anki-status offline" style="font-size: 0.76rem;">● Desconectado</span>
+          </div>
+
+          <!-- Botón de Conexión Inicial -->
+          <button type="button" id="btn-manga-connect-anki" class="btn-save-anki" style="width: 100%; margin-top: 2px; padding: 8px 10px; font-size: 0.86rem; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px;">
+            <span>🔗 Conectar con AnkiConnect</span>
+          </button>
+
+          <!-- Grupo de Ajustes tras conectar -->
+          <div id="manga-anki-settings-group" style="display: none; margin-top: 10px;">
+            <label class="anki-switch-container" style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; cursor: pointer; margin-bottom: 8px;">
+              <input type="checkbox" id="manga-anki-enabled-toggle" checked style="cursor: pointer; width: 15px; height: 15px;">
+              <span class="switch-label">Habilitar creación directa</span>
+            </label>
+
+            <hr class="anki-divider" style="margin: 8px 0; border: none; border-top: 1px solid var(--border-color, var(--mokuro-border));">
+
+            <!-- URL de AnkiConnect -->
+            <div class="anki-input-group" style="margin-bottom: 8px;">
+              <label for="manga-anki-url-input" style="font-size: 0.78rem; opacity: 0.85; margin-bottom: 3px; display: block;">URL de AnkiConnect:</label>
+              <input type="text" id="manga-anki-url-input" value="http://127.0.0.1:8765" placeholder="http://127.0.0.1:8765" style="width: 100%; padding: 6px 8px; border-radius: 6px; box-sizing: border-box;" />
+            </div>
+
+            <!-- Seleccionar Mazo Detectado de Anki -->
+            <div class="anki-input-group" style="margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label for="manga-anki-deck-select" style="font-size: 0.78rem; opacity: 0.85; font-weight: 600;">Mazo de Anki (Deck):</label>
+                <button type="button" id="btn-manga-refresh-decks" style="background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 0 4px;" title="Actualizar lista de mazos de Anki">🔄</button>
+              </div>
+              <select id="manga-anki-deck-select" style="width: 100%; padding: 6px 8px; border-radius: 6px; cursor: pointer; box-sizing: border-box;">
+                <option value="Default">Cargando mazos...</option>
+              </select>
+            </div>
+
+            <button type="button" id="btn-manga-save-anki" class="btn-save-anki" style="margin-top: 6px; width: 100%; padding: 8px; font-size: 0.86rem; border-radius: 6px;">Guardar Mazo</button>
+          </div>
+
+          <!-- Caja de Diagnóstico / Ayuda de Errores -->
+          <div id="manga-anki-help-info" class="anki-help-box" style="display: none; margin-top: 8px; padding: 8px; border-radius: 6px; font-size: 0.76rem; line-height: 1.4; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3);">
           </div>
 
           <div class="dropdown-item-row" style="margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--mokuro-border);">
