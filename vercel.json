@@ -3,11 +3,5 @@
   "trailingSlash": false,
   "buildCommand": "node build.mjs",
   "framework": null,
-  "outputDirectory": "dist",
-  "rewrites": [
-    {
-      "source": "/api/mokuro/:path*",
-      "destination": "https://mokuro.moe/:path*"
-    }
-  ]
+  "outputDirectory": "dist"
 }

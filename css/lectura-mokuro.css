@@ -167,7 +167,7 @@ html.dark-mode .btn-hero-mokuro:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
-/* Botón Mokuro Catalog */
+/* Botón Catálogo Remoto */
 .btn-hero-catalog {
   background: linear-gradient(180deg, rgba(16, 185, 129, 0.90) 0%, rgba(5, 150, 105, 0.94) 100%);
   border-color: rgba(110, 231, 183, 0.85);
@@ -539,18 +539,22 @@ html.dark-mode .manga-card {
 
 /* ── Ancho especial para el modal de selección de volumen ── */
 .modal-content-volume-select {
-  width: min(1100px, 96vw) !important;
-  max-width: 1100px;
+  width: min(1500px, 96vw) !important;
+  max-width: 96vw !important;
+  max-height: 92vh !important;
+  padding: 24px 28px !important;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Cuadrícula de volúmenes en el modal – flujo horizontal */
 .volumes-grid {
   display: flex;
   flex-wrap: nowrap;
-  gap: 16px;
+  gap: 20px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 6px 4px 16px;
+  padding: 8px 4px 18px;
   scroll-snap-type: x mandatory;
 }
 
@@ -570,8 +574,8 @@ html.dark-mode .manga-card {
 }
 
 .volumes-grid .volume-card-item {
-  flex: 0 0 200px;
-  min-width: 200px;
+  flex: 0 0 240px;
+  min-width: 240px;
   scroll-snap-align: start;
 }
 
@@ -598,7 +602,7 @@ html.dark-mode .volume-card-item {
 
 .volume-thumb-wrap {
   width: 100%;
-  height: 240px;
+  height: 330px;
   position: relative;
   overflow: hidden;
   border-radius: 13px 13px 0 0;
@@ -3120,7 +3124,7 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
 
   .volume-thumb-wrap {
     height: auto !important;
-    aspect-ratio: 1 / 1.25 !important;
+    aspect-ratio: 1 / 1.38 !important;
     width: 100% !important;
   }
 
@@ -3129,6 +3133,18 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
     border-radius: 16px !important;
     max-height: 92vh !important;
     overflow-y: auto !important;
+  }
+
+  .modal-content-manga.modal-content-volume-select {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    max-height: 94vh !important;
+    padding: 18px 14px !important;
+  }
+
+  .volumes-grid .volume-card-item {
+    flex: 0 0 215px !important;
+    min-width: 215px !important;
   }
 }
 

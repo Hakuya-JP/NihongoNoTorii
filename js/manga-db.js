@@ -458,6 +458,32 @@
     });
   }
 
+  // Construir nombre limpio para archivo .mokuro con nombre de serie y número de tomo
+  function formatMokuroFilename(manga) {
+    if (!manga) return 'manga.mokuro';
+    const rawTitle = (manga.title || 'Manga').trim();
+    const cleanSeries = getSeriesKey(rawTitle);
+    const volLabel = extractVolumeLabel(manga);
+
+    let filenameBase = '';
+    if (cleanSeries && volLabel) {
+      if (cleanSeries.toLowerCase() === volLabel.toLowerCase()) {
+        filenameBase = cleanSeries;
+      } else {
+        filenameBase = `${cleanSeries} - ${volLabel}`;
+      }
+    } else {
+      filenameBase = cleanSeries || volLabel || rawTitle || 'Manga';
+    }
+
+    const safeName = filenameBase
+      .replace(/[/\\?%*:|"<>]/g, '_')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return `${safeName || 'manga'}.mokuro`;
+  }
+
   // Descargar el archivo .mokuro actual (con todas las correcciones y modificaciones guardadas)
   async function downloadMangaMokuro(id) {
     const manga = await getMangaById(id);
@@ -465,10 +491,15 @@
       alert('No se encontraron páginas con OCR para este manga.');
       return;
     }
+
+    const cleanSeries = getSeriesKey(manga.title || '') || manga.title || 'Manga';
+    const volLabel = extractVolumeLabel(manga) || manga.volume || 'Tomo 1';
+    const fileName = formatMokuroFilename(manga);
+
     const mokuroData = {
       version: "0.1.0",
-      title: manga.title || "Manga",
-      volume: manga.volume || "Tomo 1",
+      title: cleanSeries,
+      volume: volLabel,
       pages: (manga.pages || []).map(p => ({
         img_path: p.img_path || "",
         img_width: p.img_width || 800,
@@ -476,19 +507,24 @@
         blocks: p.blocks || []
       }))
     };
+
     const blob = new Blob([JSON.stringify(mokuroData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const safeTitle = (manga.title || 'manga').replace(/[/\\?%*:|"<>]/g, '_');
-    const safeVol = (manga.volume || '').replace(/[/\\?%*:|"<>]/g, '_');
-    a.download = `${safeTitle}${safeVol ? '_' + safeVol : ''}.mokuro`;
+    a.download = fileName;
+    a.target = '_self';
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 45000);
+
     if (typeof mostrarToast === 'function') {
-      mostrarToast('📥 Archivo .mokuro descargado con éxito');
+      mostrarToast(`📥 Descargando: ${fileName}`);
     }
   }
 
@@ -1590,6 +1626,26 @@
     }
   }
 
+  // Cerrar y restaurar todos los menús desplegables de tarjetas (⋮)
+  function closeAllCardDropdowns() {
+    document.querySelectorAll('.manga-card-dropdown').forEach(d => {
+      d.style.display = 'none';
+      if (d._originalWrap && d.parentElement !== d._originalWrap) {
+        d._originalWrap.appendChild(d);
+      }
+      d.style.position = '';
+      d.style.top = '';
+      d.style.bottom = '';
+      d.style.left = '';
+      d.style.right = '';
+      d.style.zIndex = '';
+    });
+    document.querySelectorAll('.volume-card-item, .manga-card').forEach(c => {
+      c.classList.remove('has-open-menu');
+      c.style.zIndex = '';
+    });
+  }
+
   // ========================================================================
   // MODAL DE SELECCIÓN DE VOLÚMENES / TOMOS DE UNA SERIE
   // ========================================================================
@@ -1668,22 +1724,36 @@
       const menuDropdown = volCard.querySelector('.manga-card-dropdown');
 
       const closeMenu = () => {
-        if (menuDropdown) menuDropdown.style.display = 'none';
-        volCard.classList.remove('has-open-menu');
-        volCard.style.zIndex = '';
+        closeAllCardDropdowns();
       };
 
       if (menuTrigger && menuDropdown) {
         menuTrigger.addEventListener('click', (e) => {
           e.stopPropagation();
           const isVisible = menuDropdown.style.display === 'flex';
-          document.querySelectorAll('.manga-card-dropdown').forEach(d => d.style.display = 'none');
-          document.querySelectorAll('.volume-card-item, .manga-card').forEach(c => {
-            c.classList.remove('has-open-menu');
-            c.style.zIndex = '';
-          });
+          closeAllCardDropdowns();
           if (!isVisible) {
+            const rect = menuTrigger.getBoundingClientRect();
+            if (!menuDropdown._originalWrap) {
+              menuDropdown._originalWrap = menuDropdown.parentElement;
+            }
+            // Mover temporalmente a document.body para evitar cortes por overflow o z-index del modal
+            document.body.appendChild(menuDropdown);
+            menuDropdown.style.position = 'fixed';
+            menuDropdown.style.zIndex = '100080';
+            menuDropdown.style.right = `${Math.max(8, window.innerWidth - rect.right)}px`;
+            menuDropdown.style.left = 'auto';
             menuDropdown.style.display = 'flex';
+
+            const dropH = menuDropdown.offsetHeight || 175;
+            if (rect.bottom + 6 + dropH > window.innerHeight - 10) {
+              menuDropdown.style.top = 'auto';
+              menuDropdown.style.bottom = `${Math.max(8, window.innerHeight - rect.top + 6)}px`;
+            } else {
+              menuDropdown.style.top = `${rect.bottom + 6}px`;
+              menuDropdown.style.bottom = 'auto';
+            }
+
             volCard.classList.add('has-open-menu');
             volCard.style.zIndex = '100';
           }
@@ -1838,15 +1908,22 @@
     modal.classList.add('active');
 
     // Scroll vertical del mouse → scroll horizontal en la fila de volúmenes
-    gridEl.addEventListener('wheel', function(e) {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault();
-        gridEl.scrollLeft += e.deltaY * 3;
-      }
-    }, { passive: false });
+    if (!gridEl._wheelBound) {
+      gridEl._wheelBound = true;
+      gridEl.addEventListener('wheel', function(e) {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault();
+          gridEl.scrollLeft += e.deltaY * 3;
+        }
+      }, { passive: false });
+      gridEl.addEventListener('scroll', closeAllCardDropdowns, { passive: true });
+    }
 
     if (btnClose) {
-      btnClose.onclick = () => modal.classList.remove('active');
+      btnClose.onclick = () => {
+        closeAllCardDropdowns();
+        modal.classList.remove('active');
+      };
     }
   }
 
@@ -1872,7 +1949,7 @@
   triggerInitialRender();
 
   // ========================================================================
-  // SINCRONIZACIÓN E IMPORTACIÓN REMOTA DESDE MOKURO CATALOG (MOKURO.MOE)
+  // SINCRONIZACIÓN E IMPORTACIÓN REMOTA POR ENLACE O SERVIDOR EXTERNO
   // ========================================================================
 
   let pendingRemoteImport = null;
@@ -1885,7 +1962,7 @@
 
     let params = new URLSearchParams();
 
-    // Caso 1: /#/upload?cbz=...&manifest=... (estilo oficial mokuro reader)
+    // Caso 1: /#/upload?cbz=...&manifest=... (estilo de hash con query)
     if (hash.includes('?')) {
       const q = hash.substring(hash.indexOf('?') + 1);
       params = new URLSearchParams(q);
@@ -1916,37 +1993,30 @@
     return { cbz, manifest, ocr, cover, title, volume };
   }
 
-  // Convierte URLs externas (como mokuro.moe) a la ruta proxy misma de nuestra app (/api/mokuro/...)
+  // Resuelve URLs remotas garantizando formato válido
   function resolveProxiedUrl(targetUrl) {
     if (!targetUrl) return '';
     try {
-      if (targetUrl.startsWith('/api/mokuro/')) {
-        return targetUrl;
-      }
       const urlObj = new URL(targetUrl, window.location.href);
-      if (urlObj.hostname === 'mokuro.moe') {
-        // En Vercel usamos el rewrite interno /api/mokuro/... para evitar bloqueos CORS
-        return `/api/mokuro${urlObj.pathname}${urlObj.search}`;
-      }
-      return targetUrl;
+      return urlObj.href;
     } catch (e) {
       return targetUrl;
     }
   }
 
-  // Realiza fetch con reintento y fallback por si se ejecuta en local fuera de Vercel
+  // Realiza fetch con reintento y fallback CORS por si el servidor remoto restringe peticiones directas
   async function fetchWithFallback(url, options = {}) {
-    const proxiedUrl = resolveProxiedUrl(url);
+    const targetUrl = resolveProxiedUrl(url);
     try {
-      const res = await fetch(proxiedUrl, options);
+      const res = await fetch(targetUrl, options);
       if (res.ok) return res;
-      if (proxiedUrl !== url) {
+      if (targetUrl !== url) {
         throw new Error(`HTTP ${res.status}`);
       }
       return res;
     } catch (err) {
-      // Fallback: Si falló el proxy interno (ej. en desarrollo local sin Vercel CLI), usar corsproxy.io
-      if (typeof url === 'string' && url.includes('mokuro.moe')) {
+      // Fallback genérico: Si falló la petición directa por restricciones CORS del servidor remoto, intentar proxy público
+      if (typeof url === 'string' && /^https?:\/\//i.test(url) && !url.includes('corsproxy.io')) {
         try {
           const publicProxy = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
           const fallbackRes = await fetch(publicProxy, options);
@@ -2031,36 +2101,51 @@
     if (params.cover) {
       if (/^https?:\/\//i.test(params.cover)) {
         coverUrl = resolveProxiedUrl(params.cover);
+      } else if (params.manifest) {
+        try {
+          const baseOrigin = new URL(params.manifest, window.location.href).origin;
+          coverUrl = resolveProxiedUrl(`${baseOrigin}/${params.cover.replace(/^\//, '')}`);
+        } catch (e) {
+          coverUrl = resolveProxiedUrl(params.cover);
+        }
       } else {
-        coverUrl = resolveProxiedUrl(`https://mokuro.moe/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
+        coverUrl = resolveProxiedUrl(params.cover);
       }
     }
     let expectedSize = 0;
     let manifestData = null;
 
     // Mostrar modal preliminarmente
-    if (seriesTitleEl) seriesTitleEl.textContent = 'Consultando información de Mokuro...';
+    if (seriesTitleEl) seriesTitleEl.textContent = 'Consultando información del enlace...';
     if (volumeTitleEl) volumeTitleEl.textContent = 'Por favor espera un momento';
     if (fileSizeEl) fileSizeEl.textContent = 'Calculando tamaño...';
     modalRemote.classList.add('active');
 
-    // Si viene manifestUrl, consultar la API para obtener metadatos y enlaces directos
+    // Si viene manifestUrl, consultar la fuente para obtener metadatos y enlaces directos
     if (params.manifest) {
       try {
         const mRes = await fetchWithFallback(params.manifest);
         if (mRes.ok) {
           manifestData = await mRes.json();
+          let baseOrigin = '';
+          try {
+            baseOrigin = new URL(params.manifest, window.location.href).origin;
+          } catch (e) {}
+
           if (manifestData.series) seriesName = manifestData.series;
           if (manifestData.volume) volumeName = manifestData.volume;
           if (manifestData.archive && manifestData.archive.url) {
-            cbzUrl = resolveProxiedUrl(new URL(manifestData.archive.url, 'https://mokuro.moe').href);
+            const fullArchiveUrl = baseOrigin ? new URL(manifestData.archive.url, baseOrigin).href : manifestData.archive.url;
+            cbzUrl = resolveProxiedUrl(fullArchiveUrl);
             if (manifestData.archive.size) expectedSize = manifestData.archive.size;
           }
           if (manifestData.ocr && manifestData.ocr.url) {
-            ocrUrl = resolveProxiedUrl(new URL(manifestData.ocr.url, 'https://mokuro.moe').href);
+            const fullOcrUrl = baseOrigin ? new URL(manifestData.ocr.url, baseOrigin).href : manifestData.ocr.url;
+            ocrUrl = resolveProxiedUrl(fullOcrUrl);
           }
           if (manifestData.cover && manifestData.cover.url) {
-            coverUrl = resolveProxiedUrl(new URL(manifestData.cover.url, 'https://mokuro.moe').href);
+            const fullCoverUrl = baseOrigin ? new URL(manifestData.cover.url, baseOrigin).href : manifestData.cover.url;
+            coverUrl = resolveProxiedUrl(fullCoverUrl);
           }
         }
       } catch (mErr) {
@@ -2076,7 +2161,7 @@
         const filename = decodeURIComponent(parts.pop() || '').replace(/\.cbz$/i, '');
         if (parts.length > 0) {
           const possibleSeries = decodeURIComponent(parts.pop() || '');
-          if (possibleSeries && possibleSeries !== 'mokuro-reader' && possibleSeries !== 'api' && possibleSeries !== 'mokuro') {
+          if (possibleSeries && possibleSeries !== 'api' && possibleSeries !== 'static' && possibleSeries !== 'manga') {
             seriesName = possibleSeries;
             volumeName = filename;
           } else {
@@ -2115,8 +2200,8 @@
         if (coverPlaceholderEl) coverPlaceholderEl.style.display = 'none';
       };
       coverImgEl.onerror = () => {
-        if (params.cover && !coverImgEl.src.includes('corsproxy.io')) {
-          coverImgEl.src = `https://corsproxy.io/?url=${encodeURIComponent('https://mokuro.moe/catalog/api/cover?path=' + encodeURIComponent(params.cover))}`;
+        if (coverUrl && !coverImgEl.src.includes('corsproxy.io')) {
+          coverImgEl.src = `https://corsproxy.io/?url=${encodeURIComponent(coverUrl)}`;
         }
       };
       coverImgEl.src = coverUrl;
@@ -2248,7 +2333,7 @@
 
       let errorMsg = 'Ocurrió un error al importar el manga: ' + err.message;
       if (window.location.protocol === 'file:') {
-        errorMsg += '\n\n💡 Nota: Al abrir el archivo con doble clic directo (protocolo file://), el navegador bloquea las descargas directas externas por política de seguridad de origen. Para usar la importación con 1 clic de Mokuro Catalog, abre Nihongo no Torii desde un servidor local (ej. Live Server de VS Code o http://localhost) o desde tu hosting web.';
+        errorMsg += '\n\n💡 Nota: Al abrir el archivo con doble clic directo (protocolo file://), el navegador bloquea las descargas directas externas por política de seguridad de origen. Para usar la importación por enlace remoto, abre Nihongo no Torii desde un servidor local (ej. Live Server de VS Code o http://localhost) o desde tu hosting web.';
       }
       alert(errorMsg);
       if (btnConfirm) btnConfirm.disabled = false;
@@ -2413,14 +2498,8 @@
 
     // Cerrar cualquier menú de 3 puntos (⋮) al hacer clic fuera
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.manga-card-menu-wrap')) {
-        document.querySelectorAll('.manga-card-dropdown').forEach(d => {
-          d.style.display = 'none';
-        });
-        document.querySelectorAll('.volume-card-item, .manga-card').forEach(c => {
-          c.classList.remove('has-open-menu');
-          c.style.zIndex = '';
-        });
+      if (!e.target.closest('.manga-card-menu-wrap') && !e.target.closest('.manga-card-dropdown')) {
+        closeAllCardDropdowns();
       }
     });
 
@@ -2604,6 +2683,9 @@
     renameManga: renameMangaInDB,
     updateMangaPages: updateMangaPages,
     downloadMokuro: downloadMangaMokuro,
+    getSeriesKey: getSeriesKey,
+    extractVolumeLabel: extractVolumeLabel,
+    formatMokuroFilename: formatMokuroFilename,
     promptChangeCover: promptChangeCover,
     COVER_PLACEHOLDER: COVER_PLACEHOLDER,
     checkRemoteImport: checkAndHandleRemoteImport,

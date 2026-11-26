@@ -67,6 +67,21 @@
     return `${(pxFromLeft / trackW * 100).toFixed(3)}%`;
   }
 
+  // Sincronizar posición y texto del tooltip flotante del scrubber para que coincida siempre con el thumb
+  function syncScrubberTooltip(pageNumber, totalPages) {
+    const pageSlider = document.getElementById('reader-page-slider');
+    const sliderTooltip = document.getElementById('slider-tooltip');
+    if (!sliderTooltip || !pageSlider) return;
+
+    sliderTooltip.textContent = `Pág. ${pageNumber}`;
+    const total = Math.max(1, totalPages || (parseInt(pageSlider.max, 10) || 1));
+    const isScrubberR2L = (!mokuroState.isCascade && mokuroState.isR2L);
+    const pct = isScrubberR2L
+      ? 100 - ((pageNumber - 1) / Math.max(1, total - 1)) * 100
+      : ((pageNumber - 1) / Math.max(1, total - 1)) * 100;
+    sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
+  }
+
   // Cargar preferencias guardadas según el dispositivo (Móvil usa su propia clave, PC la suya)
   function loadSavedPreferences() {
     const isMobile = (getActiveProfile() === 'mobile');
@@ -195,12 +210,16 @@
 
   function syncNavDirectionUI() {
     const isR2L = mokuroState.isR2L;
+    const isCascade = !!mokuroState.isCascade;
     const btnNext = document.getElementById('btn-next-page');
     const btnPrev = document.getElementById('btn-prev-page');
     const btnScrubberNext = document.getElementById('btn-scrubber-next');
     const btnScrubberPrev = document.getElementById('btn-scrubber-prev');
     const scrubberInner = document.querySelector('.scrubber-inner');
     const toolbarNav = document.getElementById('toolbar-page-nav');
+
+    // En cascada (lectura vertical), la navegación superior y scrubber se comportan en orden LTR natural (Pág 1 a la izq, Pág fin a la der)
+    const scrubberR2L = !isCascade && isR2L;
 
     if (isR2L) {
       // Modo Manga / R2L: avance hacia la izquierda
@@ -213,15 +232,6 @@
         btnPrev.textContent = '▶';
         btnPrev.title = 'Página Anterior';
       }
-      if (scrubberInner) scrubberInner.style.direction = 'rtl';
-      if (btnScrubberNext) {
-        btnScrubberNext.textContent = '◀';
-        btnScrubberNext.title = 'Página Siguiente';
-      }
-      if (btnScrubberPrev) {
-        btnScrubberPrev.textContent = '▶';
-        btnScrubberPrev.title = 'Página Anterior';
-      }
     } else {
       // Modo Occidental / LTR: avance hacia la derecha
       if (toolbarNav) toolbarNav.style.flexDirection = 'row-reverse';
@@ -233,15 +243,16 @@
         btnPrev.textContent = '◀';
         btnPrev.title = 'Página Anterior';
       }
-      if (scrubberInner) scrubberInner.style.direction = 'ltr';
-      if (btnScrubberNext) {
-        btnScrubberNext.textContent = '▶';
-        btnScrubberNext.title = 'Página Siguiente';
-      }
-      if (btnScrubberPrev) {
-        btnScrubberPrev.textContent = '◀';
-        btnScrubberPrev.title = 'Página Anterior';
-      }
+    }
+
+    if (scrubberInner) scrubberInner.style.direction = scrubberR2L ? 'rtl' : 'ltr';
+    if (btnScrubberNext) {
+      btnScrubberNext.textContent = scrubberR2L ? '◀' : '▶';
+      btnScrubberNext.title = 'Página Siguiente';
+    }
+    if (btnScrubberPrev) {
+      btnScrubberPrev.textContent = scrubberR2L ? '▶' : '◀';
+      btnScrubberPrev.title = 'Página Anterior';
     }
   }
 
@@ -1420,16 +1431,7 @@
     if (scrubberInfo) {
       scrubberInfo.textContent = `${mokuroState.currentPageIdx + 1} / ${total}`;
     }
-    if (sliderTooltip) {
-      sliderTooltip.textContent = `Pág. ${mokuroState.currentPageIdx + 1}`;
-      if (pageSlider) {
-        // En modo RTL el thumb está invertido: página 1 = derecha (100%), última = izquierda (0%)
-        const pct = (!mokuroState.isCascade && mokuroState.isR2L)
-          ? 100 - ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100
-          : ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100;
-        sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
-      }
-    }
+    syncScrubberTooltip(mokuroState.currentPageIdx + 1, total);
 
     // Modo Cascada: mostrar todas las páginas de forma vertical continua
     if (mokuroState.isCascade) {
@@ -2464,11 +2466,22 @@
       return;
     }
     flushSaveMangaPages(false);
+    const m = mokuroState.manga;
+    const cleanSeries = (window.ToriiMangaDB && typeof window.ToriiMangaDB.getSeriesKey === 'function')
+      ? window.ToriiMangaDB.getSeriesKey(m.title)
+      : (m.title || 'Manga');
+    const volLabel = (window.ToriiMangaDB && typeof window.ToriiMangaDB.extractVolumeLabel === 'function')
+      ? window.ToriiMangaDB.extractVolumeLabel(m)
+      : (m.volume || 'Tomo 1');
+    const fileName = (window.ToriiMangaDB && typeof window.ToriiMangaDB.formatMokuroFilename === 'function')
+      ? window.ToriiMangaDB.formatMokuroFilename(m)
+      : `${cleanSeries} - ${volLabel}.mokuro`.replace(/[/\\?%*:|"<>]/g, '_');
+
     const mokuroData = {
       version: "0.1.0",
-      title: mokuroState.manga.title || "Manga",
-      volume: mokuroState.manga.volume || "Tomo 1",
-      pages: (mokuroState.manga.pages || []).map(p => ({
+      title: cleanSeries,
+      volume: volLabel,
+      pages: (m.pages || []).map(p => ({
         img_path: p.img_path || "",
         img_width: p.img_width || 800,
         img_height: p.img_height || 1200,
@@ -2479,15 +2492,17 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const safeTitle = (mokuroState.manga.title || 'manga').replace(/[/\\?%*:|"<>]/g, '_');
-    const safeVol = (mokuroState.manga.volume || '').replace(/[/\\?%*:|"<>]/g, '_');
-    a.download = `${safeTitle}${safeVol ? '_' + safeVol : ''}.mokuro`;
+    a.download = fileName;
+    a.target = '_self';
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 45000);
     if (typeof mostrarToast === 'function') {
-      mostrarToast('📥 Archivo .mokuro descargado con éxito');
+      mostrarToast(`📥 Descargando: ${fileName}`);
     }
   }
 
@@ -2523,11 +2538,7 @@
     if (pageInput) pageInput.value = idx + 1;
     if (pageSlider) pageSlider.value = idx + 1;
     if (scrubberInfo) scrubberInfo.textContent = `${idx + 1} / ${total}`;
-    if (sliderTooltip) {
-      sliderTooltip.textContent = `Pág. ${idx + 1}`;
-      const pct = (idx / Math.max(1, total - 1)) * 100;
-      sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
-    }
+    syncScrubberTooltip(idx + 1, total);
 
     saveReadProgress(idx);
   }
@@ -2620,14 +2631,15 @@
   // ========================================================================
   // FIN DE TOMO: OVERLAY PARA CONTINUAR CON EL SIGUIENTE VOLUMEN
   // ========================================================================
+  let _nextVolumeDismissed = false;
+
   function showNextVolumeOverlay() {
     const nextIdx = mokuroState.currentVolumeIndex + 1;
     const nextVol = mokuroState.seriesVolumes[nextIdx];
     if (!nextVol) return;
 
-    // Eliminar overlay anterior si existe
-    const old = document.getElementById('next-volume-overlay');
-    if (old) old.remove();
+    // Si ya está visible en pantalla, no recrearlo
+    if (document.getElementById('next-volume-overlay')) return;
 
     const overlay = document.createElement('div');
     overlay.id = 'next-volume-overlay';
@@ -2662,6 +2674,7 @@
     });
 
     document.getElementById('btn-dismiss-next-vol').addEventListener('click', () => {
+      _nextVolumeDismissed = true;
       overlay.classList.remove('visible');
       setTimeout(() => overlay.remove(), 300);
     });
@@ -2669,6 +2682,7 @@
 
   function loadNextVolume(nextVol, nextIdx) {
     flushSaveMangaPages();
+    _nextVolumeDismissed = false;
     mokuroState.currentVolumeIndex = nextIdx;
     mokuroState.currentPageIdx = 0;
     if (window.ToriiMangaDB && nextVol.id) {
@@ -3456,6 +3470,7 @@
   // CARGADORES DE MANGA (DEMO, LOCAL Y CARPETA)
   // ========================================================================
   function openReaderModal() {
+    _nextVolumeDismissed = false;
     const wrapper = document.getElementById('mokuro-reader-wrapper');
     const container = document.getElementById('mokuro-pages-container');
     if (wrapper) {
@@ -3751,13 +3766,7 @@
         if (scrubberInfo) {
           scrubberInfo.textContent = `${val} / ${max}`;
         }
-        if (sliderTooltip) {
-          sliderTooltip.textContent = `Pág. ${val}`;
-          const pct = mokuroState.isR2L
-            ? 100 - ((val - 1) / Math.max(1, max - 1)) * 100
-            : ((val - 1) / Math.max(1, max - 1)) * 100;
-          sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
-        }
+        syncScrubberTooltip(val, max);
       });
 
       // Al soltar o cambiar el slider, saltar inmediatamente a la página elegida
@@ -3870,8 +3879,11 @@
       const total = mokuroState.manga.pages.length;
       if (total === 0) return;
 
-      // Detectar fin de tomo
-      if (stage.scrollHeight - stage.scrollTop - stage.clientHeight < 40) {
+      // Detectar fin de tomo (con histéresis para no reaparecer al subir tras pulsar "Quedarme aquí")
+      const distFromBottom = stage.scrollHeight - stage.scrollTop - stage.clientHeight;
+      if (distFromBottom >= 150) {
+        _nextVolumeDismissed = false;
+      } else if (distFromBottom < 40 && !_nextVolumeDismissed) {
         if (mokuroState.seriesVolumes.length > 0 &&
             mokuroState.currentVolumeIndex >= 0 &&
             mokuroState.currentVolumeIndex < mokuroState.seriesVolumes.length - 1) {
@@ -3918,11 +3930,7 @@
         if (pageInput) pageInput.value = activeIdx + 1;
         if (pageSlider) pageSlider.value = activeIdx + 1;
         if (scrubberInfo) scrubberInfo.textContent = `${activeIdx + 1} / ${total}`;
-        if (sliderTooltip) {
-          sliderTooltip.textContent = `Pág. ${activeIdx + 1}`;
-          const pct = (activeIdx / Math.max(1, total - 1)) * 100;
-          sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
-        }
+        syncScrubberTooltip(activeIdx + 1, total);
 
         saveReadProgress(activeIdx);
       }

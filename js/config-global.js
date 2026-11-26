@@ -188,7 +188,15 @@ function initPageTransitions() {
     if (!link) return;
 
     const href = link.getAttribute("href");
-    if (!href || href.startsWith("#") || href.startsWith("javascript:") || link.target === "_blank") return;
+    if (
+      !href ||
+      href.startsWith("#") ||
+      href.startsWith("javascript:") ||
+      href.startsWith("blob:") ||
+      href.startsWith("data:") ||
+      link.hasAttribute("download") ||
+      link.target === "_blank"
+    ) return;
 
     if (link.origin === window.location.origin) {
       e.preventDefault();
