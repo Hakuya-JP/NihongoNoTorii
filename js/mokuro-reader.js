@@ -53,6 +53,20 @@
     return isMobileDeviceDetected() ? 'mobile' : 'desktop';
   }
 
+  // Calcular la posición exacta del tooltip respecto al thumb del slider
+  // Los navegadores reservan thumbW/2 en cada extremo del track, así que hay que compensar
+  function getSliderTooltipLeft(pct0to100, sliderEl) {
+    const thumbW = 18; // Debe coincidir con el ancho del thumb en CSS
+    const trackW = sliderEl ? sliderEl.clientWidth : 0;
+    if (trackW <= thumbW) {
+      return `${pct0to100}%`;
+    }
+    // Desplazamiento real del thumb: empieza en thumbW/2 y termina en trackW - thumbW/2
+    const usable = trackW - thumbW;
+    const pxFromLeft = (thumbW / 2) + (pct0to100 / 100) * usable;
+    return `${(pxFromLeft / trackW * 100).toFixed(3)}%`;
+  }
+
   // Cargar preferencias guardadas según el dispositivo (Móvil usa su propia clave, PC la suya)
   function loadSavedPreferences() {
     const isMobile = (getActiveProfile() === 'mobile');
@@ -1413,7 +1427,7 @@
         const pct = (!mokuroState.isCascade && mokuroState.isR2L)
           ? 100 - ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100
           : ((mokuroState.currentPageIdx) / Math.max(1, total - 1)) * 100;
-        sliderTooltip.style.left = `${pct}%`;
+        sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
       }
     }
 
@@ -2512,7 +2526,7 @@
     if (sliderTooltip) {
       sliderTooltip.textContent = `Pág. ${idx + 1}`;
       const pct = (idx / Math.max(1, total - 1)) * 100;
-      sliderTooltip.style.left = `${pct}%`;
+      sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
     }
 
     saveReadProgress(idx);
@@ -3742,7 +3756,7 @@
           const pct = mokuroState.isR2L
             ? 100 - ((val - 1) / Math.max(1, max - 1)) * 100
             : ((val - 1) / Math.max(1, max - 1)) * 100;
-          sliderTooltip.style.left = `${pct}%`;
+          sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
         }
       });
 
@@ -3907,7 +3921,7 @@
         if (sliderTooltip) {
           sliderTooltip.textContent = `Pág. ${activeIdx + 1}`;
           const pct = (activeIdx / Math.max(1, total - 1)) * 100;
-          sliderTooltip.style.left = `${pct}%`;
+          sliderTooltip.style.left = getSliderTooltipLeft(pct, pageSlider);
         }
 
         saveReadProgress(activeIdx);
