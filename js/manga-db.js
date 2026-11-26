@@ -1993,12 +1993,19 @@
     return { cbz, manifest, ocr, cover, title, volume };
   }
 
-  // Resuelve URLs remotas garantizando formato válido
+  // Convierte URLs externas con restricciones CORS al túnel proxy de la app (/api/ext/...)
   function resolveProxiedUrl(targetUrl) {
     if (!targetUrl) return '';
     try {
+      if (targetUrl.startsWith('/api/ext/') || targetUrl.startsWith('/api/mokuro/')) {
+        return targetUrl;
+      }
       const urlObj = new URL(targetUrl, window.location.href);
-      return urlObj.href;
+      // Si la URL apunta al catálogo externo, rutear a través del túnel de la app para evitar bloqueos CORS
+      if (urlObj.hostname === 'mokuro.moe') {
+        return `/api/ext${urlObj.pathname}${urlObj.search}`;
+      }
+      return targetUrl;
     } catch (e) {
       return targetUrl;
     }
@@ -2015,14 +2022,30 @@
       }
       return res;
     } catch (err) {
-      // Fallback genérico: Si falló la petición directa por restricciones CORS del servidor remoto, intentar proxy público
-      if (typeof url === 'string' && /^https?:\/\//i.test(url) && !url.includes('corsproxy.io')) {
-        try {
-          const publicProxy = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
-          const fallbackRes = await fetch(publicProxy, options);
-          if (fallbackRes.ok) return fallbackRes;
-        } catch (fbErr) {
-          console.warn('[ToriiManga] Fallback proxy error:', fbErr);
+      // Fallback si falla el túnel interno (ej. en desarrollo local en Live Server):
+      // Probamos proxies CORS alternativos públicos si la URL original es externa
+      if (typeof url === 'string') {
+        let cleanUrl = url;
+        if (cleanUrl.startsWith('/api/ext/')) {
+          cleanUrl = 'https://mokuro.moe' + cleanUrl.replace(/^\/api\/ext/, '');
+        } else if (cleanUrl.startsWith('/api/mokuro/')) {
+          cleanUrl = 'https://mokuro.moe' + cleanUrl.replace(/^\/api\/mokuro/, '');
+        }
+
+        if (/^https?:\/\//i.test(cleanUrl)) {
+          const fallbackProxies = [
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`,
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`
+          ];
+
+          for (const proxyUrl of fallbackProxies) {
+            try {
+              const fallbackRes = await fetch(proxyUrl, options);
+              if (fallbackRes.ok) return fallbackRes;
+            } catch (fbErr) {
+              console.warn('[ToriiManga] Fallback proxy error:', fbErr);
+            }
+          }
         }
       }
       throw err;
@@ -2104,12 +2127,12 @@
       } else if (params.manifest) {
         try {
           const baseOrigin = new URL(params.manifest, window.location.href).origin;
-          coverUrl = resolveProxiedUrl(`${baseOrigin}/${params.cover.replace(/^\//, '')}`);
+          coverUrl = resolveProxiedUrl(`${baseOrigin}/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
         } catch (e) {
-          coverUrl = resolveProxiedUrl(params.cover);
+          coverUrl = resolveProxiedUrl(`/api/ext/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
         }
       } else {
-        coverUrl = resolveProxiedUrl(params.cover);
+        coverUrl = resolveProxiedUrl(`/api/ext/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
       }
     }
     let expectedSize = 0;
@@ -2200,8 +2223,8 @@
         if (coverPlaceholderEl) coverPlaceholderEl.style.display = 'none';
       };
       coverImgEl.onerror = () => {
-        if (coverUrl && !coverImgEl.src.includes('corsproxy.io')) {
-          coverImgEl.src = `https://corsproxy.io/?url=${encodeURIComponent(coverUrl)}`;
+        if (coverUrl && !coverImgEl.src.includes('codetabs') && !coverImgEl.src.includes('allorigins')) {
+          coverImgEl.src = `https://api.allorigins.win/raw?url=${encodeURIComponent(coverUrl)}`;
         }
       };
       coverImgEl.src = coverUrl;
