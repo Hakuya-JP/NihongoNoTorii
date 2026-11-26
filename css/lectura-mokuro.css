@@ -938,31 +938,161 @@ html.dark-mode .dropzone-subtitle {
   justify-content: center;
 }
 
+/* --------------------------------------------------------------------------
+   GESTIÓN DE FUENTES WEB AUTORIZADAS (MODAL CARGAR MANGA)
+   -------------------------------------------------------------------------- */
+.btn-sources-pill-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(19, 162, 206, 0.12);
+  color: var(--azulNa, #13a2ce);
+  border: 1px solid rgba(19, 162, 206, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-sources-pill-header:hover {
+  background: rgba(19, 162, 206, 0.22);
+  border-color: rgba(19, 162, 206, 0.6);
+  transform: translateY(-1px);
+}
+
+html.dark-mode .btn-sources-pill-header {
+  background: rgba(255, 148, 71, 0.14);
+  color: #ff9d47;
+  border-color: rgba(255, 148, 71, 0.4);
+}
+
+html.dark-mode .btn-sources-pill-header:hover {
+  background: rgba(255, 148, 71, 0.24);
+  border-color: rgba(255, 148, 71, 0.7);
+}
+
+.panel-trusted-sources {
+  background: rgba(19, 162, 206, 0.05);
+  border: 1px solid rgba(19, 162, 206, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 18px;
+  animation: slideDownPanel 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDownPanel {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+html.dark-mode .panel-trusted-sources {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.trusted-sources-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.btn-add-source-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 15px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-add-source-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.45);
+}
+
+html.dark-mode .btn-add-source-action {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.35);
+}
+
+.trusted-sources-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  min-height: 28px;
+}
+
+.trusted-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.80rem;
+  font-weight: 600;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #374151;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+html.dark-mode .trusted-source-chip {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.20);
+  color: #f3f4f6;
+}
+
+.trusted-source-chip-del {
+  cursor: pointer;
+  color: #ef4444;
+  font-weight: bold;
+  padding: 0 2px;
+  border-radius: 50%;
+  transition: color 0.15s ease;
+}
+
+.trusted-source-chip-del:hover {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.15);
+}
+
 .btn-upload-choice {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 22px;
-  border-radius: 9999px;
+  border-radius: 12px;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.2px;
   cursor: pointer;
-  background: linear-gradient(180deg, rgba(14, 130, 168, 0.88) 0%, rgba(10, 95, 124, 0.92) 100%);
-  color: #fff;
-  border: 1.5px solid rgba(56, 189, 248, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, rgba(14, 130, 168, 0.95) 0%, rgba(10, 95, 124, 0.98) 100%);
+  color: #fff !important;
+  border: 1px solid rgba(56, 189, 248, 0.7);
+  box-shadow: 0 4px 14px rgba(10, 95, 124, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
 }
 
 .btn-upload-choice:hover {
-  transform: translateY(-1.5px);
-  background: linear-gradient(180deg, rgba(18, 155, 200, 0.94) 0%, rgba(12, 115, 150, 0.96) 100%);
-  border-color: rgba(125, 211, 252, 0.95);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20);
-  color: #fff;
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, rgba(18, 155, 200, 0.98) 0%, rgba(12, 115, 150, 1) 100%);
+  border-color: rgba(125, 211, 252, 0.9);
+  box-shadow: 0 6px 18px rgba(10, 95, 124, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: #fff !important;
 }
 
 .btn-upload-choice:active {
@@ -970,67 +1100,71 @@ html.dark-mode .dropzone-subtitle {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Modo Claro: Guardar Manga en biblioteca es Azul */
+/* Botón principal Guardar en mi Biblioteca */
 #btn-submit-add-manga {
-  border-radius: 9999px !important;
-  background: linear-gradient(180deg, rgba(14, 130, 168, 0.90) 0%, rgba(10, 95, 124, 0.94) 100%) !important;
-  border: 1.5px solid rgba(56, 189, 248, 0.85) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+  border: 1px solid rgba(110, 231, 183, 0.8) !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
 #btn-submit-add-manga:hover {
-  background: linear-gradient(180deg, rgba(18, 155, 200, 0.95) 0%, rgba(12, 115, 150, 0.98) 100%) !important;
-  border-color: rgba(125, 211, 252, 0.98) !important;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%) !important;
+  border-color: rgba(167, 243, 208, 0.95) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
 /* Modo Oscuro: Botones de subida y guardar en Naranja Torii */
-html.dark-mode .btn-upload-choice,
-html.dark-mode #btn-submit-add-manga {
-  background: linear-gradient(180deg, rgba(255, 148, 71, 0.90) 0%, rgba(220, 102, 28, 0.94) 100%) !important;
-  border-color: rgba(255, 180, 115, 0.90) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+html.dark-mode .btn-upload-choice {
+  background: linear-gradient(180deg, rgba(255, 148, 71, 0.92) 0%, rgba(220, 102, 28, 0.96) 100%) !important;
+  border-color: rgba(255, 180, 115, 0.8) !important;
+  box-shadow: 0 4px 14px rgba(220, 102, 28, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
-html.dark-mode .btn-upload-choice:hover,
+html.dark-mode .btn-upload-choice:hover {
+  background: linear-gradient(180deg, rgba(255, 168, 95, 0.98) 0%, rgba(235, 115, 35, 1) 100%) !important;
+  border-color: rgba(255, 215, 175, 0.95) !important;
+  box-shadow: 0 6px 18px rgba(220, 102, 28, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+html.dark-mode #btn-submit-add-manga {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+  border-color: rgba(110, 231, 183, 0.8) !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;
+}
+
 html.dark-mode #btn-submit-add-manga:hover {
-  background: linear-gradient(180deg, rgba(255, 168, 95, 0.96) 0%, rgba(235, 115, 35, 0.98) 100%) !important;
-  border-color: rgba(255, 215, 175, 0.98) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%) !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
 }
 
 .btn-upload-choice.btn-secondary-choice {
-  border-radius: 9999px !important;
-  background: rgba(20, 100, 130, 0.08) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  color: var(--primary, #146482) !important;
-  border: 1.5px solid rgba(20, 100, 130, 0.25) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #4b5563 !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   text-shadow: none;
 }
 
 .btn-upload-choice.btn-secondary-choice:hover {
-  transform: translateY(-1px);
-  background: rgba(20, 100, 130, 0.14) !important;
-  border-color: rgba(20, 100, 130, 0.45) !important;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1) !important;
-  color: var(--primary, #146482) !important;
+  transform: translateY(-1.5px);
+  background: rgba(0, 0, 0, 0.09) !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+  color: #111827 !important;
 }
 
 html.dark-mode .btn-upload-choice.btn-secondary-choice {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  color: var(--crema2, #e2e8f0) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 html.dark-mode .btn-upload-choice.btn-secondary-choice:hover {
-  background: rgba(255, 148, 71, 0.15) !important;
-  border-color: rgba(255, 180, 115, 0.55) !important;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
   color: #ffffff !important;
 }
 

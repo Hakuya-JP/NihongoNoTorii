@@ -1955,6 +1955,82 @@
   let pendingRemoteImport = null;
   let importedMangaRecordId = null;
 
+  // Clave en localStorage para sitios/fuentes autorizados manualmente por el usuario
+  const TRUSTED_SOURCES_STORAGE_KEY = 'torii_trusted_sources';
+
+  function getTrustedSources() {
+    try {
+      const raw = localStorage.getItem(TRUSTED_SOURCES_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveTrustedSources(sources) {
+    try {
+      localStorage.setItem(TRUSTED_SOURCES_STORAGE_KEY, JSON.stringify(sources));
+    } catch (e) {}
+  }
+
+  function extractDomain(urlOrDomain) {
+    if (!urlOrDomain) return '';
+    try {
+      let str = urlOrDomain.trim();
+      if (!/^https?:\/\//i.test(str)) {
+        str = 'https://' + str;
+      }
+      const u = new URL(str);
+      return u.hostname.toLowerCase();
+    } catch (e) {
+      return urlOrDomain.trim().toLowerCase().replace(/^(https?:\/\/)?/, '').split('/')[0];
+    }
+  }
+
+  function isSourceTrusted(urlOrDomain) {
+    const domain = extractDomain(urlOrDomain);
+    if (!domain) return false;
+    const trusted = getTrustedSources();
+    return trusted.includes(domain);
+  }
+
+  function addTrustedSource(urlOrDomain) {
+    const domain = extractDomain(urlOrDomain);
+    if (!domain) return false;
+    const trusted = getTrustedSources();
+    if (!trusted.includes(domain)) {
+      trusted.push(domain);
+      saveTrustedSources(trusted);
+      renderTrustedSourcesChips();
+      return true;
+    }
+    return false;
+  }
+
+  function removeTrustedSource(domain) {
+    let trusted = getTrustedSources();
+    trusted = trusted.filter(d => d !== domain);
+    saveTrustedSources(trusted);
+    renderTrustedSourcesChips();
+  }
+
+  function renderTrustedSourcesChips() {
+    const container = document.getElementById('trusted-sources-chips-container');
+    if (!container) return;
+    const trusted = getTrustedSources();
+    if (trusted.length === 0) {
+      container.innerHTML = '<span style="font-size:0.78rem; color:#9ca3af; font-style:italic;">No hay páginas autorizadas todavía. Añade una arriba o autorízala al importar.</span>';
+      return;
+    }
+    container.innerHTML = trusted.map(d => `
+      <span class="trusted-source-chip">
+        <span>🌐 ${escapeHtml(d)}</span>
+        <span class="trusted-source-chip-del" onclick="window.ToriiRemoveTrustedSource('${escapeHtml(d)}')">&times;</span>
+      </span>
+    `).join('');
+  }
+  window.ToriiRemoveTrustedSource = removeTrustedSource;
+
   // Extrae parámetros de importación desde query string (?cbz=...) o hash (#/upload?cbz=...)
   function getRemoteImportParams() {
     const search = window.location.search || '';
@@ -1993,17 +2069,17 @@
     return { cbz, manifest, ocr, cover, title, volume };
   }
 
-  // Convierte URLs externas con restricciones CORS al túnel proxy de la app (/api/ext/...)
+  // Convierte URLs externas con restricciones CORS al túnel proxy universal de la app (/api/proxy?url=...)
   function resolveProxiedUrl(targetUrl) {
     if (!targetUrl) return '';
     try {
-      if (targetUrl.startsWith('/api/ext/') || targetUrl.startsWith('/api/mokuro/')) {
+      if (targetUrl.startsWith('/api/proxy') || targetUrl.startsWith('blob:') || targetUrl.startsWith('data:')) {
         return targetUrl;
       }
       const urlObj = new URL(targetUrl, window.location.href);
-      // Si la URL apunta al catálogo externo, rutear a través del túnel de la app para evitar bloqueos CORS
-      if (urlObj.hostname === 'mokuro.moe') {
-        return `/api/ext${urlObj.pathname}${urlObj.search}`;
+      // Si la URL es externa (distinto origen a la app), canalizar a través del proxy universal
+      if (urlObj.origin !== window.location.origin && ['http:', 'https:'].includes(urlObj.protocol)) {
+        return `/api/proxy?url=${encodeURIComponent(urlObj.href)}`;
       }
       return targetUrl;
     } catch (e) {
@@ -2022,20 +2098,21 @@
       }
       return res;
     } catch (err) {
-      // Fallback si falla el túnel interno (ej. en desarrollo local en Live Server):
-      // Probamos proxies CORS alternativos públicos si la URL original es externa
+      // Fallback si falla el túnel interno (ej. en desarrollo local sin Vercel):
+      // Extraer la URL original del parámetro si venía empaquetada en /api/proxy
+      let rawUrl = url;
       if (typeof url === 'string') {
-        let cleanUrl = url;
-        if (cleanUrl.startsWith('/api/ext/')) {
-          cleanUrl = 'https://mokuro.moe' + cleanUrl.replace(/^\/api\/ext/, '');
-        } else if (cleanUrl.startsWith('/api/mokuro/')) {
-          cleanUrl = 'https://mokuro.moe' + cleanUrl.replace(/^\/api\/mokuro/, '');
-        }
+        try {
+          const u = new URL(url, window.location.href);
+          if (u.searchParams.has('url')) {
+            rawUrl = u.searchParams.get('url');
+          }
+        } catch (e) {}
 
-        if (/^https?:\/\//i.test(cleanUrl)) {
+        if (/^https?:\/\//i.test(rawUrl)) {
           const fallbackProxies = [
-            `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`,
-            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(cleanUrl)}`
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(rawUrl)}`,
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawUrl)}`
           ];
 
           for (const proxyUrl of fallbackProxies) {
@@ -2105,11 +2182,52 @@
     // Resetear estados visuales
     const btnConfirm = document.getElementById('btn-confirm-remote-import');
     const btnCancel = document.getElementById('btn-cancel-remote-import');
+    const authBox = document.getElementById('remote-import-auth-box');
+    const authDomainEl = document.getElementById('remote-import-origin-domain');
+    const btnAuthAndDownload = document.getElementById('btn-auth-and-download');
+    const btnAuthReject = document.getElementById('btn-auth-reject');
+
     if (btnConfirm) btnConfirm.disabled = false;
     if (btnCancel) btnCancel.style.display = 'inline-block';
     if (progressWrap) progressWrap.style.display = 'none';
-    if (actionsRow) actionsRow.style.display = 'flex';
     if (successRow) successRow.style.display = 'none';
+
+    // Comprobar autorización de fuente externa por parte del usuario
+    const sourceCandidate = params.manifest || params.cbz || '';
+    const sourceDomain = extractDomain(sourceCandidate);
+    const isTrusted = !sourceDomain || isSourceTrusted(sourceDomain);
+
+    if (authBox) {
+      if (isTrusted) {
+        authBox.style.display = 'none';
+        if (actionsRow) actionsRow.style.display = 'flex';
+      } else {
+        authBox.style.display = 'block';
+        if (authDomainEl) authDomainEl.textContent = sourceDomain;
+        if (actionsRow) actionsRow.style.display = 'none';
+
+        if (btnAuthAndDownload) {
+          btnAuthAndDownload.onclick = () => {
+            addTrustedSource(sourceDomain);
+            authBox.style.display = 'none';
+            if (actionsRow) actionsRow.style.display = 'flex';
+            startRemoteImportProcess();
+          };
+        }
+        if (btnAuthReject) {
+          btnAuthReject.onclick = () => {
+            if (modalRemote) modalRemote.classList.remove('active', 'is-minimized');
+            if (window.history && window.history.replaceState) {
+              const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+              window.history.replaceState({}, document.title, cleanUrl);
+            }
+          };
+        }
+      }
+    } else {
+      if (actionsRow) actionsRow.style.display = 'flex';
+    }
+
     if (coverImgEl) {
       coverImgEl.src = '';
       coverImgEl.style.display = 'none';
@@ -2129,10 +2247,10 @@
           const baseOrigin = new URL(params.manifest, window.location.href).origin;
           coverUrl = resolveProxiedUrl(`${baseOrigin}/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
         } catch (e) {
-          coverUrl = resolveProxiedUrl(`/api/ext/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
+          coverUrl = resolveProxiedUrl(params.cover);
         }
       } else {
-        coverUrl = resolveProxiedUrl(`/api/ext/catalog/api/cover?path=${encodeURIComponent(params.cover)}`);
+        coverUrl = resolveProxiedUrl(params.cover);
       }
     }
     let expectedSize = 0;
@@ -2428,17 +2546,102 @@
 
     // Tecla Escape para minimizar (o cerrar si ya está listo)
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modalRemote && modalRemote.classList.contains('active')) {
-        const progressWrap = document.getElementById('remote-import-progress-wrap');
-        const isDownloading = progressWrap && progressWrap.style.display !== 'none' && (!document.getElementById('remote-import-success-row') || document.getElementById('remote-import-success-row').style.display === 'none');
-        if (isDownloading) {
-          // Si está descargando, Escape solo minimiza para no abortar
-          modalRemote.classList.add('is-minimized');
-        } else {
-          closeModalAndCleanUrl();
+      if (e.key === 'Escape') {
+        if (modalImportUrl && modalImportUrl.classList.contains('active')) {
+          closeImportUrlModal();
+          return;
+        }
+        if (modalRemote && modalRemote.classList.contains('active')) {
+          const progressWrap = document.getElementById('remote-import-progress-wrap');
+          const isDownloading = progressWrap && progressWrap.style.display !== 'none' && (!document.getElementById('remote-import-success-row') || document.getElementById('remote-import-success-row').style.display === 'none');
+          if (isDownloading) {
+            // Si está descargando, Escape solo minimiza para no abortar
+            modalRemote.classList.add('is-minimized');
+          } else {
+            closeModalAndCleanUrl();
+          }
         }
       }
     });
+
+    // Listeners del modal manual de importación desde URL
+    const btnHeroImportUrl = document.getElementById('btn-hero-import-url');
+    const modalImportUrl = document.getElementById('modal-import-url');
+    const btnCloseImportUrl = document.getElementById('btn-close-import-url-modal');
+    const btnCancelImportUrl = document.getElementById('btn-cancel-import-url');
+    const btnSubmitImportUrl = document.getElementById('btn-submit-import-url');
+    const inputRemoteUrl = document.getElementById('input-remote-url');
+
+    const closeImportUrlModal = () => {
+      if (modalImportUrl) modalImportUrl.classList.remove('active');
+    };
+
+    if (btnHeroImportUrl && modalImportUrl) {
+      btnHeroImportUrl.addEventListener('click', () => {
+        modalImportUrl.classList.add('active');
+        if (inputRemoteUrl) {
+          inputRemoteUrl.focus();
+        }
+      });
+    }
+
+    if (btnCloseImportUrl) btnCloseImportUrl.addEventListener('click', closeImportUrlModal);
+    if (btnCancelImportUrl) btnCancelImportUrl.addEventListener('click', closeImportUrlModal);
+
+    if (btnSubmitImportUrl && inputRemoteUrl) {
+      const processManualUrl = () => {
+        const rawUrl = (inputRemoteUrl.value || '').trim();
+        if (!rawUrl) {
+          alert('Por favor introduce un enlace web válido.');
+          return;
+        }
+
+        closeImportUrlModal();
+        inputRemoteUrl.value = '';
+
+        // Analizar la URL ingresada
+        let params = { cbz: '', manifest: '', ocr: '', cover: '', title: '', volume: '' };
+        try {
+          const parsed = new URL(rawUrl);
+          let searchStr = parsed.search;
+          if (parsed.hash && parsed.hash.includes('?')) {
+            searchStr = parsed.hash.substring(parsed.hash.indexOf('?'));
+          } else if (parsed.hash && parsed.hash.includes('=')) {
+            searchStr = '?' + parsed.hash.substring(1);
+          }
+
+          if (searchStr) {
+            const sp = new URLSearchParams(searchStr);
+            params.cbz = sp.get('cbz') || sp.get('archive') || sp.get('file') || '';
+            params.manifest = sp.get('manifest') || '';
+            params.ocr = sp.get('ocr') || '';
+            params.cover = sp.get('cover') || '';
+            params.title = sp.get('title') || sp.get('series') || '';
+            params.volume = sp.get('volume') || '';
+          }
+
+          if (!params.cbz && !params.manifest) {
+            if (parsed.pathname.endsWith('.json') || parsed.pathname.includes('/manifest')) {
+              params.manifest = parsed.href;
+            } else {
+              params.cbz = parsed.href;
+            }
+          }
+        } catch (e) {
+          params.cbz = rawUrl;
+        }
+
+        handleRemoteImportRequest(params);
+      };
+
+      btnSubmitImportUrl.addEventListener('click', processManualUrl);
+      inputRemoteUrl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          processManualUrl();
+        }
+      });
+    }
   }
 
   function initMangaUI() {
@@ -2480,6 +2683,7 @@
         if (trustNotice) {
           trustNotice.style.display = isTrusted ? 'none' : 'block';
         }
+        renderTrustedSourcesChips();
         modalAdd.classList.add('active');
       }
     };
@@ -2488,6 +2692,46 @@
     if (btnOpenAdd) btnOpenAdd.addEventListener('click', openModal);
     if (btnCloseAdd && modalAdd) {
       btnCloseAdd.addEventListener('click', () => modalAdd.classList.remove('active'));
+    }
+
+    // Gestión del panel desplegable de fuentes web autorizadas
+    const btnToggleSources = document.getElementById('btn-toggle-trusted-sources');
+    const panelSources = document.getElementById('panel-trusted-sources');
+    const btnAddSource = document.getElementById('btn-add-trusted-source');
+    const inputNewSource = document.getElementById('input-new-trusted-source');
+
+    if (btnToggleSources && panelSources) {
+      btnToggleSources.addEventListener('click', () => {
+        const isVisible = panelSources.style.display !== 'none';
+        panelSources.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
+          renderTrustedSourcesChips();
+          if (inputNewSource) inputNewSource.focus();
+        }
+      });
+    }
+
+    if (btnAddSource && inputNewSource) {
+      const handleAddSource = () => {
+        const val = (inputNewSource.value || '').trim();
+        if (!val) return;
+        if (addTrustedSource(val)) {
+          inputNewSource.value = '';
+          if (typeof mostrarToast === 'function') {
+            mostrarToast('✅ Página web autorizada');
+          }
+        } else {
+          alert('Esta página ya estaba autorizada o el formato es inválido.');
+        }
+      };
+
+      btnAddSource.addEventListener('click', handleAddSource);
+      inputNewSource.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleAddSource();
+        }
+      });
     }
 
     // Buscador secundario de mangas en la biblioteca (filtro en tiempo real)
