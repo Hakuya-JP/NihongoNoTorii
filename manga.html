@@ -2,13 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=lectura.html" />
+  <meta http-equiv="refresh" content="0; url=LecTorii.html" />
   <title>Redirigiendo a LecTorii - Nihongo no Torii</title>
   <script>
-    window.location.href = "lectura.html";
+    const search = window.location.search || '';
+    const hash = window.location.hash || '';
+    window.location.replace("LecTorii.html" + search + hash);
   </script>
 </head>
 <body>
-  <p>Redirigiendo a <a href="lectura.html">LecTorii (Mokuro Manga Reader)</a>...</p>
+  <p>Redirigiendo a <a href="LecTorii.html">LecTorii (Mokuro Manga Reader)</a>...</p>
 </body>
 </html>

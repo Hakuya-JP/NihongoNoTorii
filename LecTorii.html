@@ -30,7 +30,7 @@
   <nav id="menu" class="top-nav">
     <a href="index.html">Inicio</a>
     <a href="tabla-hiragana.html">Tablas Kana</a>
-<a href="lectura.html" class="active">LecTorii</a>
+<a href="LecTorii.html" class="active">LecTorii</a>
     <a href="ToriiTV.html">ToriiTV</a>
     <a href="jlpt-simulador.html">Simulador JLPT</a>
     
@@ -56,55 +56,50 @@
   <!-- SECCIÓN: MI BIBLIOTECA PERSONAL (MANGAS Y NOVELAS) -->
   <section style="margin-top: 10px;">
     <div class="lectura-section-header">
-      <h2 class="lectura-section-title" id="library-main-title">
-        <span id="library-title-icon">📖</span> <span id="library-title-text">Mi Biblioteca de Mangas</span>
-      </h2>
-      <div class="library-header-actions">
-        <!-- Buscador de títulos -->
-        <div class="library-search-wrap">
-          <span class="library-search-icon">🔍</span>
-          <input type="text" id="input-search-library" class="library-search-input" placeholder="Buscar en biblioteca..." autocomplete="off" />
-          <button type="button" id="btn-clear-library-search" class="library-search-clear" style="display:none;" title="Limpiar búsqueda">✕</button>
-        </div>
+      <!-- Buscador de títulos en el lado izquierdo -->
+      <div class="library-search-wrap">
+        <span class="library-search-icon">🔍</span>
+        <input type="text" id="input-search-library" class="library-search-input" placeholder="Buscar en biblioteca..." autocomplete="off" />
+        <button type="button" id="btn-clear-library-search" class="library-search-clear" style="display:none;" title="Limpiar búsqueda">✕</button>
+      </div>
 
-        <!-- Barra compacta de navegación y acciones -->
-        <div class="lectorii-compact-nav" role="toolbar" aria-label="Acciones de LecTorii">
-          <!-- 1. Cargar Manga -->
-          <button type="button" id="btn-nav-upload-manga" class="lectorii-nav-btn" title="Cargar Manga" aria-label="Cargar Manga">
-            <span class="nav-btn-icon">📂</span>
-            <span class="nav-btn-tooltip">Cargar Manga</span>
-          </button>
+      <!-- Barra compacta de navegación y acciones en el lado derecho -->
+      <div class="lectorii-compact-nav" role="toolbar" aria-label="Acciones de LecTorii">
+        <!-- 1. Cargar Manga -->
+        <button type="button" id="btn-nav-upload-manga" class="lectorii-nav-btn" title="Cargar Manga" aria-label="Cargar Manga">
+          <span class="nav-btn-icon">📂</span>
+          <span class="nav-btn-tooltip">Cargar Manga</span>
+        </button>
 
-          <!-- 2. Guía de LecTorii -->
-          <button type="button" id="btn-nav-guia-lectorii" class="lectorii-nav-btn" title="Guía de LecTorii" aria-label="Guía de LecTorii">
-            <span class="nav-btn-icon">📖</span>
-            <span class="nav-btn-tooltip">Guía de LecTorii</span>
-          </button>
+        <!-- 2. Guía de LecTorii -->
+        <button type="button" id="btn-nav-guia-lectorii" class="lectorii-nav-btn" title="Guía de LecTorii" aria-label="Guía de LecTorii">
+          <span class="nav-btn-icon">📖</span>
+          <span class="nav-btn-tooltip">Guía de LecTorii</span>
+        </button>
 
-          <div class="lectorii-nav-sep" role="separator"></div>
+        <div class="lectorii-nav-sep" role="separator"></div>
 
-          <!-- 3. MANGA (漫画) -->
-          <button type="button" id="btn-nav-tab-manga" class="lectorii-nav-btn active" title="Manga (漫画)" aria-label="Manga (漫画)">
-            <span class="nav-btn-icon">🗾</span>
-            <span class="nav-btn-kanji">漫画</span>
-            <span class="nav-btn-tooltip">Manga (漫画)</span>
-          </button>
+        <!-- 3. MANGA (漫画) -->
+        <button type="button" id="btn-nav-tab-manga" class="lectorii-nav-btn active" title="Manga (漫画)" aria-label="Manga (漫画)">
+          <span class="nav-btn-icon">🗾</span>
+          <span class="nav-btn-kanji">漫画</span>
+          <span class="nav-btn-tooltip">Manga (漫画)</span>
+        </button>
 
-          <!-- 4. NOVELAS (小説) -->
-          <button type="button" id="btn-nav-tab-novelas" class="lectorii-nav-btn" title="Novelas (小説)" aria-label="Novelas (小説)">
-            <span class="nav-btn-icon">📜</span>
-            <span class="nav-btn-kanji">小説</span>
-            <span class="nav-btn-tooltip">Novelas (小説)</span>
-          </button>
+        <!-- 4. NOVELAS (小説) -->
+        <button type="button" id="btn-nav-tab-novelas" class="lectorii-nav-btn" title="Novelas (小説)" aria-label="Novelas (小説)">
+          <span class="nav-btn-icon">📜</span>
+          <span class="nav-btn-kanji">小説</span>
+          <span class="nav-btn-tooltip">Novelas (小説)</span>
+        </button>
 
-          <div class="lectorii-nav-sep" role="separator"></div>
+        <div class="lectorii-nav-sep" role="separator"></div>
 
-          <!-- 5. Configuración -->
-          <button type="button" id="btn-nav-settings" class="lectorii-nav-btn" title="Configuración" aria-label="Configuración">
-            <span class="nav-btn-icon">⚙️</span>
-            <span class="nav-btn-tooltip">Configuración</span>
-          </button>
-        </div>
+        <!-- 5. Configuración -->
+        <button type="button" id="btn-nav-settings" class="lectorii-nav-btn" title="Configuración" aria-label="Configuración">
+          <span class="nav-btn-icon">⚙️</span>
+          <span class="nav-btn-tooltip">Configuración</span>
+        </button>
       </div>
     </div>
 
@@ -473,12 +468,7 @@
   <div class="modal-content-manga">
     <div class="modal-header-manga">
       <h3><span>📖</span> Cargar Manga a mi Biblioteca</h3>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <button type="button" id="btn-toggle-trusted-sources" class="btn-sources-pill-header" title="Gestionar fuentes web autorizadas en Configuración">
-          <span>🛡️</span> Fuentes Web
-        </button>
-        <button id="btn-close-add-modal" class="modal-close-btn-manga" aria-label="Cerrar">&times;</button>
-      </div>
+      <button id="btn-close-add-modal" class="modal-close-btn-manga" aria-label="Cerrar">&times;</button>
     </div>
 
     <!-- Modal de confirmación de confianza (solo se muestra la primera vez) -->

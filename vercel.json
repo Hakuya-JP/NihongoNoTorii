@@ -3,5 +3,27 @@
   "trailingSlash": false,
   "buildCommand": "node build.mjs",
   "framework": null,
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/lectura",
+      "destination": "/LecTorii",
+      "permanent": true
+    },
+    {
+      "source": "/lectura.html",
+      "destination": "/LecTorii",
+      "permanent": true
+    },
+    {
+      "source": "/lectorii",
+      "destination": "/LecTorii",
+      "permanent": true
+    },
+    {
+      "source": "/lectorii.html",
+      "destination": "/LecTorii",
+      "permanent": true
+    }
+  ]
 }
