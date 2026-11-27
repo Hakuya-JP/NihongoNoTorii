@@ -1902,6 +1902,8 @@ html.dark-mode .mokuro-dropdown-menu select {
 #mokuro-pages-container {
   display: inline-flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: center;
   position: absolute;
   top: 0;
   left: 0;
@@ -1911,6 +1913,16 @@ html.dark-mode .mokuro-dropdown-menu select {
 
 #mokuro-pages-container.r2l-view {
   flex-direction: row-reverse;
+}
+
+#mokuro-pages-container .mokuro-page.spread-page-left {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+#mokuro-pages-container .mokuro-page.spread-page-right {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
 }
 
 /* --------------------------------------------------------------------------

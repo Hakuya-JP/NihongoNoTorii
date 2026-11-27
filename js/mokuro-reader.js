@@ -1346,6 +1346,62 @@
     } catch(e) {}
   }
 
+  // Helper canónico para determinar los índices de páginas que componen el spread actual
+  function getSpreadIndicesForPage(pageIdx, pages, isDoublePage, hasCover) {
+    const total = pages ? pages.length : 0;
+    if (total === 0) return [];
+    const idx = Math.max(0, Math.min(total - 1, pageIdx));
+
+    if (!isDoublePage) {
+      return [idx];
+    }
+
+    // Portada individual
+    if (hasCover && idx === 0) {
+      return [0];
+    }
+
+    // Calcular el inicio canónico del par de páginas
+    let first = idx;
+    if (hasCover) {
+      // Spreads canónicos son: [1,2], [3,4], [5,6]...
+      // Si el índice es par (2, 4, 6), el par empezó en first - 1 (1, 3, 5)
+      if (first % 2 === 0) {
+        first = first - 1;
+      }
+    } else {
+      // Spreads canónicos son: [0,1], [2,3], [4,5]...
+      // Si el índice es impar (1, 3, 5), el par empezó en first - 1 (0, 2, 4)
+      if (first % 2 !== 0) {
+        first = first - 1;
+      }
+    }
+
+    first = Math.max(0, first);
+    const firstPageData = pages[first];
+
+    // Si la primera página ya es apaisada/doble página (ancho > alto), se muestra individual
+    const isFirstLandscape = firstPageData && firstPageData.img_width && firstPageData.img_height &&
+      (firstPageData.img_width > firstPageData.img_height * 1.15);
+
+    if (isFirstLandscape) {
+      return [first];
+    }
+
+    const spread = [first];
+    if (first + 1 < total) {
+      const secondPageData = pages[first + 1];
+      const isSecondLandscape = secondPageData && secondPageData.img_width && secondPageData.img_height &&
+        (secondPageData.img_width > secondPageData.img_height * 1.15);
+      // Solo emparejar si la segunda página tampoco es apaisada
+      if (!isSecondLandscape) {
+        spread.push(first + 1);
+      }
+    }
+
+    return spread;
+  }
+
   // Helper para agrupar páginas en spreads (filas de 2 páginas) para modo vertical
   function getCascadeSpreadGroups(total, hasCover) {
     const groups = [];
@@ -1525,55 +1581,53 @@
     cleanupCascadeSpreadRows();
     resetCascadePageSizing();
 
-    // Determinar qué páginas mostrar (individual o doble)
-    let visibleIndices = [];
-    if (!mokuroState.isDoublePage) {
-      visibleIndices = [mokuroState.currentPageIdx];
-    } else {
-      // Modo doble página
-      if (mokuroState.hasCover && mokuroState.currentPageIdx === 0) {
-        visibleIndices = [0];
-      } else {
-        let first = mokuroState.currentPageIdx;
-        if (mokuroState.hasCover && first % 2 === 0) {
-          first = first - 1;
-        } else if (!mokuroState.hasCover && first % 2 !== 0) {
-          first = first - 1;
-        }
-        visibleIndices = [first];
-        if (first + 1 < total) {
-          visibleIndices.push(first + 1);
-        }
-      }
+    // Determinar qué páginas mostrar (individual o doble con spread canónico)
+    const visibleIndices = getSpreadIndicesForPage(mokuroState.currentPageIdx, pages, mokuroState.isDoublePage, mokuroState.hasCover);
+
+    // Asegurar que mokuroState.currentPageIdx apunte al inicio del spread para coherencia
+    if (visibleIndices.length > 0 && mokuroState.currentPageIdx !== visibleIndices[0]) {
+      mokuroState.currentPageIdx = visibleIndices[0];
     }
 
-    // Modo Horizontal: mantener en el DOM solo las páginas visibles y adyacentes (buffer)
-    const keepIndices = new Set(visibleIndices);
-    visibleIndices.forEach(idx => {
-      if (idx > 0) keepIndices.add(idx - 1);
-      if (idx + 1 < total) keepIndices.add(idx + 1);
+    // Actualizar contadores si es doble página
+    if (visibleIndices.length === 2) {
+      if (pageInput) pageInput.value = `${visibleIndices[0] + 1}-${visibleIndices[1] + 1}`;
+      if (scrubberInfo) scrubberInfo.textContent = `${visibleIndices[0] + 1}-${visibleIndices[1] + 1} / ${total}`;
+    }
+
+    // Para evitar desorden de nodos en el DOM (causa de inversión o mezcla de páginas en flex-direction):
+    // Reutilizar páginas creadas previamente
+    const existingDomPages = new Map();
+    container.querySelectorAll('.mokuro-page').forEach(p => {
+      existingDomPages.set(p.id, p);
     });
 
-    const existingDomPages = container.querySelectorAll('.mokuro-page');
-    existingDomPages.forEach(p => {
-      const match = p.id.match(/^mokuro-page-(\d+)$/);
-      const pIdx = match ? parseInt(match[1], 10) : -1;
-      if (!keepIndices.has(pIdx)) {
-        p.remove(); // Liberar memoria
-      } else {
-        p.classList.remove('visible-page');
-      }
-    });
+    // Vaciar el contenedor para garantizar inserción en orden canónico estricto de menor a mayor índice
+    container.innerHTML = '';
 
-    visibleIndices.forEach(idx => {
-      let pageEl = document.getElementById(`mokuro-page-${idx}`);
+    visibleIndices.forEach((idx, inSpreadIdx) => {
+      const pageId = `mokuro-page-${idx}`;
+      let pageEl = existingDomPages.get(pageId);
       if (!pageEl) {
         pageEl = buildPageElement(pages[idx], idx);
-        container.appendChild(pageEl);
       } else if (!pageEl._isPopulated) {
         populatePageContent(pageEl, pages[idx], idx);
       }
       pageEl.classList.add('visible-page');
+      pageEl.classList.remove('spread-page-left', 'spread-page-right');
+
+      // Clases para unir perfectamente las dos páginas del spread
+      if (visibleIndices.length === 2) {
+        if (mokuroState.isR2L) {
+          // En lectura japonesa (R2L, row-reverse): inSpreadIdx 0 es derecha, inSpreadIdx 1 es izquierda
+          pageEl.classList.add(inSpreadIdx === 0 ? 'spread-page-right' : 'spread-page-left');
+        } else {
+          // En lectura occidental (LTR, row): inSpreadIdx 0 es izquierda, inSpreadIdx 1 es derecha
+          pageEl.classList.add(inSpreadIdx === 0 ? 'spread-page-left' : 'spread-page-right');
+        }
+      }
+
+      container.appendChild(pageEl);
     });
 
     // Guardar última página leída
@@ -2546,11 +2600,13 @@
   function nextPage() {
     flushSaveMangaPages();
     if (!mokuroState.manga) return;
+    const pages = mokuroState.manga.pages || [];
+    const total = pages.length;
+    if (total === 0) return;
 
     if (mokuroState.isCascade) {
       const step = mokuroState.isDoublePage ? 2 : 1;
       const nextIdx = mokuroState.currentPageIdx + step;
-      const total = mokuroState.manga.pages.length;
       if (nextIdx < total) {
         scrollToPageInCascade(nextIdx, true);
       } else {
@@ -2563,12 +2619,13 @@
       return;
     }
 
-    const step = mokuroState.isDoublePage ? 2 : 1;
-    const total = mokuroState.manga.pages.length;
-    const atLastPage = mokuroState.currentPageIdx + step >= total;
+    // Modo Horizontal: navegar exactamente al siguiente spread canónico
+    const currentSpread = getSpreadIndicesForPage(mokuroState.currentPageIdx, pages, mokuroState.isDoublePage, mokuroState.hasCover);
+    const lastIdxInSpread = currentSpread[currentSpread.length - 1];
+    const nextIdx = lastIdxInSpread + 1;
 
-    if (!atLastPage) {
-      mokuroState.currentPageIdx += step;
+    if (nextIdx < total) {
+      mokuroState.currentPageIdx = nextIdx;
       renderCurrentPages();
     } else {
       // Llegamos al final: aseguramos estar en la última página
@@ -2586,6 +2643,9 @@
   function prevPage() {
     flushSaveMangaPages();
     if (!mokuroState.manga) return;
+    const pages = mokuroState.manga.pages || [];
+    const total = pages.length;
+    if (total === 0) return;
 
     if (mokuroState.isCascade) {
       const step = mokuroState.isDoublePage ? 2 : 1;
@@ -2598,9 +2658,14 @@
       return;
     }
 
-    const step = mokuroState.isDoublePage ? 2 : 1;
-    if (mokuroState.currentPageIdx - step >= 0) {
-      mokuroState.currentPageIdx -= step;
+    // Modo Horizontal: navegar exactamente al spread anterior canónico
+    const currentSpread = getSpreadIndicesForPage(mokuroState.currentPageIdx, pages, mokuroState.isDoublePage, mokuroState.hasCover);
+    const firstIdxInSpread = currentSpread[0];
+    const prevIdx = firstIdxInSpread - 1;
+
+    if (prevIdx >= 0) {
+      const prevSpread = getSpreadIndicesForPage(prevIdx, pages, mokuroState.isDoublePage, mokuroState.hasCover);
+      mokuroState.currentPageIdx = prevSpread[0];
     } else {
       mokuroState.currentPageIdx = 0;
     }
