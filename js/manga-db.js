@@ -2163,8 +2163,8 @@
   }
 
   // Detecta y prepara el modal de importación remota si hay parámetros en la URL
-  async function checkAndHandleRemoteImport() {
-    const params = getRemoteImportParams();
+  async function checkAndHandleRemoteImport(explicitParams = null) {
+    const params = explicitParams || getRemoteImportParams();
     if (!params) return;
 
     const modalRemote = document.getElementById('modal-import-remote-manga');
@@ -2563,30 +2563,87 @@
         }
       }
     });
+  }
 
-    // Listeners del modal manual de importación desde URL
-    const btnHeroImportUrl = document.getElementById('btn-hero-import-url');
-    const modalImportUrl = document.getElementById('modal-import-url');
-    const btnCloseImportUrl = document.getElementById('btn-close-import-url-modal');
-    const btnCancelImportUrl = document.getElementById('btn-cancel-import-url');
+  // ========================================================================
+  // CONTROLADOR GLOBAL DEL MODAL DE CONFIGURACIÓN Y BARRA COMPACTA
+  // ========================================================================
+  let openSettingsModal = () => {};
+
+  function initSettingsAndNavUI() {
+    const modalSettings = document.getElementById('modal-lectorii-settings');
+    const btnNavSettings = document.getElementById('btn-nav-settings');
+    const btnCloseSettings = document.getElementById('btn-close-settings-modal');
+    const btnCloseSettingsBottom = document.getElementById('btn-close-settings-modal-bottom');
     const btnSubmitImportUrl = document.getElementById('btn-submit-import-url');
     const inputRemoteUrl = document.getElementById('input-remote-url');
 
-    const closeImportUrlModal = () => {
-      if (modalImportUrl) modalImportUrl.classList.remove('active');
+    const tabBtnUrl = document.getElementById('tab-btn-url');
+    const tabBtnSources = document.getElementById('tab-btn-sources');
+    const panelUrl = document.getElementById('panel-settings-url');
+    const panelSources = document.getElementById('panel-settings-sources');
+
+    const closeAllSettingsModals = () => {
+      if (modalSettings) modalSettings.classList.remove('active');
     };
 
-    if (btnHeroImportUrl && modalImportUrl) {
-      btnHeroImportUrl.addEventListener('click', () => {
-        modalImportUrl.classList.add('active');
-        if (inputRemoteUrl) {
-          inputRemoteUrl.focus();
+    openSettingsModal = (tab = 'url') => {
+      if (modalSettings) {
+        modalSettings.classList.add('active');
+        if (tab === 'sources' && tabBtnSources) {
+          tabBtnSources.click();
+        } else if (tabBtnUrl) {
+          tabBtnUrl.click();
         }
+        renderTrustedSourcesChips();
+      }
+    };
+    window.ToriiOpenSettingsModal = openSettingsModal;
+
+    if (btnNavSettings) {
+      btnNavSettings.addEventListener('click', () => openSettingsModal('url'));
+    }
+
+    if (btnCloseSettings) btnCloseSettings.addEventListener('click', closeAllSettingsModals);
+    if (btnCloseSettingsBottom) btnCloseSettingsBottom.addEventListener('click', closeAllSettingsModals);
+
+    if (modalSettings) {
+      modalSettings.addEventListener('click', (e) => {
+        if (e.target === modalSettings) closeAllSettingsModals();
       });
     }
 
-    if (btnCloseImportUrl) btnCloseImportUrl.addEventListener('click', closeImportUrlModal);
-    if (btnCancelImportUrl) btnCancelImportUrl.addEventListener('click', closeImportUrlModal);
+    // Tecla Escape para cerrar configuración
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modalSettings && modalSettings.classList.contains('active')) {
+        closeAllSettingsModals();
+      }
+    });
+
+    // Pestañas dentro del modal amplio de configuración
+    if (tabBtnUrl && tabBtnSources && panelUrl && panelSources) {
+      tabBtnUrl.addEventListener('click', () => {
+        tabBtnUrl.classList.add('active');
+        tabBtnSources.classList.remove('active');
+        panelUrl.classList.add('active');
+        panelSources.classList.remove('active');
+        if (inputRemoteUrl) {
+          setTimeout(() => inputRemoteUrl.focus(), 60);
+        }
+      });
+
+      tabBtnSources.addEventListener('click', () => {
+        tabBtnSources.classList.add('active');
+        tabBtnUrl.classList.remove('active');
+        panelSources.classList.add('active');
+        panelUrl.classList.remove('active');
+        renderTrustedSourcesChips();
+        const inputSource = document.getElementById('input-new-trusted-source');
+        if (inputSource) {
+          setTimeout(() => inputSource.focus(), 60);
+        }
+      });
+    }
 
     if (btnSubmitImportUrl && inputRemoteUrl) {
       const processManualUrl = () => {
@@ -2596,7 +2653,7 @@
           return;
         }
 
-        closeImportUrlModal();
+        closeAllSettingsModals();
         inputRemoteUrl.value = '';
 
         // Analizar la URL ingresada
@@ -2631,7 +2688,7 @@
           params.cbz = rawUrl;
         }
 
-        handleRemoteImportRequest(params);
+        checkAndHandleRemoteImport(params);
       };
 
       btnSubmitImportUrl.addEventListener('click', processManualUrl);
@@ -2645,6 +2702,7 @@
   }
 
   function initMangaUI() {
+    initSettingsAndNavUI();
     triggerInitialRender();
 
     // Sincronizar progreso cuando se cambia de página en el visor
@@ -2688,10 +2746,55 @@
       }
     };
 
+    const btnNavUpload = document.getElementById('btn-nav-upload-manga');
+    if (btnNavUpload) btnNavUpload.addEventListener('click', openModal);
     if (btnHeroUpload) btnHeroUpload.addEventListener('click', openModal);
     if (btnOpenAdd) btnOpenAdd.addEventListener('click', openModal);
     if (btnCloseAdd && modalAdd) {
       btnCloseAdd.addEventListener('click', () => modalAdd.classList.remove('active'));
+    }
+
+    // Botón de Guía de LecTorii en la barra de navegación compacta
+    const btnNavGuia = document.getElementById('btn-nav-guia-lectorii');
+    if (btnNavGuia) {
+      btnNavGuia.addEventListener('click', () => {
+        if (typeof window.ToriiOpenGuia === 'function') {
+          window.ToriiOpenGuia();
+        } else {
+          const modalGuia = document.getElementById('modal-guia-mokuro');
+          if (modalGuia) modalGuia.classList.add('active');
+        }
+      });
+    }
+
+    // Pestañas Manga (漫画) y Novelas (小説)
+    const btnTabManga = document.getElementById('btn-nav-tab-manga');
+    const btnTabNovelas = document.getElementById('btn-nav-tab-novelas');
+    const sectionMangas = document.getElementById('section-mangas-wrap');
+    const sectionNovelas = document.getElementById('section-novelas-wrap');
+    const mainTitleText = document.getElementById('library-title-text');
+    const mainTitleIcon = document.getElementById('library-title-icon');
+
+    if (btnTabManga && btnTabNovelas) {
+      btnTabManga.addEventListener('click', () => {
+        btnTabManga.classList.add('active');
+        btnTabNovelas.classList.remove('active');
+        if (sectionMangas) sectionMangas.style.display = 'block';
+        if (sectionNovelas) sectionNovelas.style.display = 'none';
+        if (mainTitleText) mainTitleText.textContent = 'Mi Biblioteca de Mangas';
+        if (mainTitleIcon) mainTitleIcon.textContent = '📖';
+        if (searchInput) searchInput.placeholder = 'Buscar en biblioteca...';
+      });
+
+      btnTabNovelas.addEventListener('click', () => {
+        btnTabNovelas.classList.add('active');
+        btnTabManga.classList.remove('active');
+        if (sectionNovelas) sectionNovelas.style.display = 'block';
+        if (sectionMangas) sectionMangas.style.display = 'none';
+        if (mainTitleText) mainTitleText.textContent = 'Mi Biblioteca de Novelas (小説)';
+        if (mainTitleIcon) mainTitleIcon.textContent = '📜';
+        if (searchInput) searchInput.placeholder = 'Buscar novelas...';
+      });
     }
 
     // Gestión del panel desplegable de fuentes web autorizadas
@@ -2700,14 +2803,9 @@
     const btnAddSource = document.getElementById('btn-add-trusted-source');
     const inputNewSource = document.getElementById('input-new-trusted-source');
 
-    if (btnToggleSources && panelSources) {
+    if (btnToggleSources) {
       btnToggleSources.addEventListener('click', () => {
-        const isVisible = panelSources.style.display !== 'none';
-        panelSources.style.display = isVisible ? 'none' : 'block';
-        if (!isVisible) {
-          renderTrustedSourcesChips();
-          if (inputNewSource) inputNewSource.focus();
-        }
+        openSettingsModal('sources');
       });
     }
 

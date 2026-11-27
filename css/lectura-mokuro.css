@@ -280,6 +280,203 @@ html.dark-mode .lectura-section-title {
   flex-wrap: wrap;
 }
 
+/* ==========================================================================
+   BARRA DE NAVEGACIÓN COMPACTA LECTORII (HEADER ACTIONS TOOLBAR)
+   ========================================================================== */
+.lectorii-compact-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.035);
+  border: 1px solid var(--mokuro-border, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+html.dark-mode .lectorii-compact-nav {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.lectorii-nav-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-h1, #334155);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.3, 1);
+  font-family: inherit;
+  font-size: 1rem;
+  user-select: none;
+  gap: 6px;
+}
+
+html.dark-mode .lectorii-nav-btn {
+  color: #e2e8f0;
+}
+
+.lectorii-nav-btn:hover {
+  background: rgba(19, 162, 206, 0.12);
+  border-color: rgba(19, 162, 206, 0.3);
+  color: var(--azulNa, #13a2ce);
+  transform: translateY(-1px);
+}
+
+.lectorii-nav-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.lectorii-nav-btn.active {
+  background: var(--azulNa, #13a2ce) !important;
+  color: #fff !important;
+  border-color: var(--azulNa, #13a2ce) !important;
+  box-shadow: 0 2px 8px rgba(19, 162, 206, 0.4);
+  font-weight: 700;
+}
+
+.lectorii-nav-btn .nav-btn-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lectorii-nav-btn .nav-btn-kanji {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.lectorii-nav-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--mokuro-border, rgba(0, 0, 0, 0.12));
+  margin: 0 3px;
+}
+
+html.dark-mode .lectorii-nav-sep {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Tooltip emergente */
+.lectorii-nav-btn .nav-btn-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #1e293b;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+}
+
+.lectorii-nav-btn .nav-btn-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #1e293b;
+}
+
+.lectorii-nav-btn:hover .nav-btn-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   MODAL DE CONFIGURACIÓN AMPLIO DE LECTORII
+   ========================================================================== */
+.modal-settings-large {
+  max-width: 780px !important;
+  width: 95% !important;
+  padding: 24px 28px !important;
+}
+
+.settings-tabs-header {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--mokuro-border, rgba(0, 0, 0, 0.1));
+  margin: 18px 0 20px;
+  padding-bottom: 0;
+}
+
+.settings-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 0.90rem;
+  font-weight: 700;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  margin-bottom: -2px;
+}
+
+html.dark-mode .settings-tab-btn {
+  color: #94a3b8;
+}
+
+.settings-tab-btn:hover {
+  color: var(--azulNa, #13a2ce);
+}
+
+.settings-tab-btn.active {
+  color: var(--azulNa, #13a2ce);
+  border-bottom-color: var(--azulNa, #13a2ce);
+}
+
+.settings-tab-panel {
+  display: none;
+  animation: fadeInSettingsTab 0.22s ease;
+}
+
+.settings-tab-panel.active {
+  display: block;
+}
+
+@keyframes fadeInSettingsTab {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-info-card {
+  background: rgba(19, 162, 206, 0.08);
+  border: 1px solid rgba(19, 162, 206, 0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+html.dark-mode .settings-info-card {
+  background: rgba(19, 162, 206, 0.12);
+  border-color: rgba(19, 162, 206, 0.35);
+}
+
 .library-search-wrap {
   position: relative;
   display: flex;
@@ -2856,6 +3053,12 @@ html.dark-mode .btn-quick-action.btn-mine-anki:hover {
   .library-header-actions,
   .library-search-wrap {
     width: 100% !important;
+  }
+
+  .lectorii-compact-nav {
+    width: 100% !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
   }
 
   .library-search-input {
