@@ -75,7 +75,7 @@
 
     sliderTooltip.textContent = `Pág. ${pageNumber}`;
     const total = Math.max(1, totalPages || (parseInt(pageSlider.max, 10) || 1));
-    const isScrubberR2L = (!mokuroState.isCascade && mokuroState.isR2L);
+    const isScrubberR2L = mokuroState.isR2L;
     const pct = isScrubberR2L
       ? 100 - ((pageNumber - 1) / Math.max(1, total - 1)) * 100
       : ((pageNumber - 1) / Math.max(1, total - 1)) * 100;
@@ -216,43 +216,57 @@
     const btnScrubberNext = document.getElementById('btn-scrubber-next');
     const btnScrubberPrev = document.getElementById('btn-scrubber-prev');
     const scrubberInner = document.querySelector('.scrubber-inner');
+    const sliderWrap = document.querySelector('.scrubber-slider-wrap');
+    const pageSlider = document.getElementById('reader-page-slider');
     const toolbarNav = document.getElementById('toolbar-page-nav');
 
-    // En cascada (lectura vertical), la navegación superior y scrubber se comportan en orden LTR natural (Pág 1 a la izq, Pág fin a la der)
-    const scrubberR2L = !isCascade && isR2L;
+    // Mantener coherencia absoluta entre todos los controles (barra superior, scrubber, teclado y clics):
+    // En modo Manga (R2L): Avance / Siguiente hacia la izquierda (◀), Retroceso / Anterior hacia la derecha (▶)
+    // En modo Occidental (LTR): Retroceso / Anterior hacia la izquierda (◀), Avance / Siguiente hacia la derecha (▶)
+    const scrubberR2L = isR2L;
+
+    const nextTitle = isCascade ? 'Página Siguiente (Bajar)' : 'Página Siguiente';
+    const prevTitle = isCascade ? 'Página Anterior (Subir)' : 'Página Anterior';
 
     if (isR2L) {
       // Modo Manga / R2L: avance hacia la izquierda
       if (toolbarNav) toolbarNav.style.flexDirection = 'row';
       if (btnNext) {
         btnNext.textContent = '◀';
-        btnNext.title = 'Página Siguiente';
+        btnNext.title = nextTitle;
       }
       if (btnPrev) {
         btnPrev.textContent = '▶';
-        btnPrev.title = 'Página Anterior';
+        btnPrev.title = prevTitle;
       }
     } else {
       // Modo Occidental / LTR: avance hacia la derecha
       if (toolbarNav) toolbarNav.style.flexDirection = 'row-reverse';
       if (btnNext) {
         btnNext.textContent = '▶';
-        btnNext.title = 'Página Siguiente';
+        btnNext.title = nextTitle;
       }
       if (btnPrev) {
         btnPrev.textContent = '◀';
-        btnPrev.title = 'Página Anterior';
+        btnPrev.title = prevTitle;
       }
     }
 
-    if (scrubberInner) scrubberInner.style.direction = scrubberR2L ? 'rtl' : 'ltr';
+    const dirStr = scrubberR2L ? 'rtl' : 'ltr';
+    if (scrubberInner) scrubberInner.style.direction = dirStr;
+    if (sliderWrap) sliderWrap.style.direction = dirStr;
+    if (pageSlider) {
+      pageSlider.style.direction = dirStr;
+      pageSlider.setAttribute('dir', dirStr);
+    }
+
     if (btnScrubberNext) {
       btnScrubberNext.textContent = scrubberR2L ? '◀' : '▶';
-      btnScrubberNext.title = 'Página Siguiente';
+      btnScrubberNext.title = nextTitle;
     }
     if (btnScrubberPrev) {
       btnScrubberPrev.textContent = scrubberR2L ? '▶' : '◀';
-      btnScrubberPrev.title = 'Página Anterior';
+      btnScrubberPrev.title = prevTitle;
     }
   }
 
@@ -3842,28 +3856,24 @@
       // Mantener visible la barra de avance mientras el usuario la está arrastrando
       const scrubberWrap = document.getElementById('reader-bottom-scrubber');
       if (scrubberWrap) {
-        pageSlider.addEventListener('pointerdown', () => {
+        const startScrub = () => {
           _isDraggingScrubber = true;
           scrubberWrap.classList.add('active-scrub');
-        });
-        pageSlider.addEventListener('touchstart', () => {
-          _isDraggingScrubber = true;
-          scrubberWrap.classList.add('active-scrub');
-        }, { passive: true });
-        window.addEventListener('pointerup', () => {
+        };
+        const endScrub = () => {
           clearTimeout(_scrubberReleaseTimer);
           _scrubberReleaseTimer = setTimeout(() => {
             _isDraggingScrubber = false;
             scrubberWrap.classList.remove('active-scrub');
           }, 150);
-        });
-        window.addEventListener('touchend', () => {
-          clearTimeout(_scrubberReleaseTimer);
-          _scrubberReleaseTimer = setTimeout(() => {
-            _isDraggingScrubber = false;
-            scrubberWrap.classList.remove('active-scrub');
-          }, 150);
-        });
+        };
+
+        pageSlider.addEventListener('pointerdown', startScrub);
+        pageSlider.addEventListener('touchstart', startScrub, { passive: true });
+        window.addEventListener('pointerup', endScrub);
+        window.addEventListener('touchend', endScrub);
+        window.addEventListener('pointercancel', endScrub);
+        window.addEventListener('touchcancel', endScrub);
       }
     }
 

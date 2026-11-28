@@ -2613,7 +2613,7 @@ html.dark-mode .nav-edge-zone:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px 12px;
+  padding: 0 20px max(12px, env(safe-area-inset-bottom, 12px));
   box-sizing: border-box;
   pointer-events: auto; /* Detecta el cursor en los últimos 60px inferiores de la pantalla */
 }
@@ -2765,7 +2765,8 @@ html.dark-mode .nav-edge-zone:hover {
 }
 
 .scrubber-slider-wrap:hover .slider-tooltip,
-.reader-page-slider:active + .slider-tooltip {
+.reader-page-slider:active + .slider-tooltip,
+.reader-bottom-scrubber.active-scrub .slider-tooltip {
   opacity: 1;
 }
 
